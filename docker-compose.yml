@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:17.2-alpine
+    container_name: kryvea-db
+    environment:
+      - POSTGRES_DB=kryvea
+      - POSTGRES_USER=kryveauser
+      - POSTGRES_PASSWORD=kryveapass
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - kryvea-db-storage:/var/lib/postgresql/data/pgdata
+    networks:
+      - kryvea-net
+    restart: unless-stopped
+
+  app:
+    build: app
+    container_name: kryvea-app
+    environment:
+      - KRYVEA_DEBUG=false
+      - KRYVEA_POSTGRES_USER=kryveauser
+      - KRYVEA_POSTGRES_PASSWORD=kryveapass
+      - DJANGO_SUPERUSER_PASSWORD=secretpassword
+      - KRYVEA_POSTGRES_DB=kryvea
+      - KRYVEA_POSTGRES_HOST=kryvea-db
+      - KRYVEA_POSTGRES_PORT=5432
+    volumes:
+      - kryvea-media-storage:/opt/kryvea/storage
+      - kryvea-migrations:/opt/kryvea/migrations
+      - kryvea-static:/opt/kryvea/static
+      - /var/local/kryvea/log:/var/log/kryvea/
+    depends_on:
+      - db
+    networks:
+      - kryvea-net
+    restart: unless-stopped
+
+  web:
+    build: nginx
+    container_name: kryvea-nginx
+    volumes:
+      - kryvea-static:/var/www/kryvea/html/static
+      - /var/local/kryvea/ssl:/etc/nginx/ssl
+    depends_on:
+      - db
+      - app
+    ports:
+      # - 80:8080
+      - 443:8443
+    networks:
+      - kryvea-net
+    restart: unless-stopped
+
+networks:
+  kryvea-net:
+    driver: bridge
+
+volumes:
+  kryvea-db-storage:
+  kryvea-media-storage:
+  kryvea-migrations:
+  kryvea-static:
