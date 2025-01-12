@@ -1,14 +1,55 @@
 package db
 
-import "gorm.io/gorm"
+import (
+	"errors"
+)
 
 type Customer struct {
-	gorm.Model
-	ID   string `json:"id" gorm:"primary_key"`
-	Name string `json:"name" gorm:"primary_key"`
-	Lang string `json:"lang" gorm:"primary_key"`
+	Model
+	Name string `json:"name"`
+	Lang string `json:"lang"`
 }
 
 func AddCustomer(customer Customer) error {
-	return Database.Create(&customer).Error
+	result := Database.FirstOrCreate(&customer, Customer{Name: customer.Name})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("Customer already exists")
+	}
+	return nil
+}
+
+func GetAllCustomers() ([]Customer, error) {
+	var customers []Customer
+	result := Database.Find(&customers)
+	if result.Error != nil {
+		return customers, result.Error
+	}
+	return customers, nil
+}
+
+func GetCustomerByID(id string) (Customer, error) {
+	var customer Customer
+	result := Database.First(&customer, Model{ID: id})
+	if result.Error != nil {
+		return customer, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return customer, errors.New("Customer not found")
+	}
+	return customer, nil
+}
+
+func GetCustomerByName(name string) (Customer, error) {
+	var customer Customer
+	result := Database.First(&customer, Customer{Name: name})
+	if result.Error != nil {
+		return customer, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return customer, errors.New("Customer not found")
+	}
+	return customer, nil
 }
