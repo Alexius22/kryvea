@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Alexius22/kryvea/internal/config"
 	"github.com/rs/zerolog/log"
@@ -22,7 +23,13 @@ func init() {
 		log.Fatal().Err(err).Msg("Failed to connect to database")
 	}
 
-	Database.AutoMigrate(&Customer{}, &Assessment{})
+	Database.AutoMigrate(&Customer{}, &Assessment{}, &Target{})
 
 	log.Info().Msg("Connected to database and migrated tables")
+}
+
+func sanitizeLikeQuery(query string) string {
+	replacer := strings.NewReplacer("%", "\\%", "_", "\\_")
+	return replacer.Replace(query)
+
 }

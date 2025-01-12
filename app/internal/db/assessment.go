@@ -8,11 +8,17 @@ import (
 type Assessment struct {
 	Model
 	Name          string    `json:"name"`
+	Notes         string    `json:"notes"`
 	StartDateTime time.Time `json:"start_date_time"`
 	EndDateTime   time.Time `json:"end_date_time"`
-	Type          string    `json:"type"`
+	Targets       []Target  `json:"targets" gorm:"many2many:assessment_targets;"`
 	Status        string    `json:"status"`
+	Type          string    `json:"type"`
 	CVSSVersion   int       `json:"cvss_version"`
+	Environment   string    `json:"environment"`
+	Network       string    `json:"network"`
+	Method        string    `json:"method"`
+	OSSTMMVector  string    `json:"osstmm_vector"`
 	CustomerID    string    `json:"customer_id"`
 	Customer      Customer  `json:"-"`
 }
@@ -36,7 +42,7 @@ func AddAssessment(assessment Assessment) error {
 
 func GetAllAssessments() ([]Assessment, error) {
 	var assessments []Assessment
-	result := Database.Find(&assessments)
+	result := Database.Model(&Assessment{}).Preload("Targets").Find(&assessments)
 	if result.Error != nil {
 		return assessments, result.Error
 	}
@@ -45,7 +51,7 @@ func GetAllAssessments() ([]Assessment, error) {
 
 func GetAllAssessmentsByCustomerID(customerID string) ([]Assessment, error) {
 	var assessments []Assessment
-	result := Database.Find(&assessments, Assessment{CustomerID: customerID})
+	result := Database.Model(&Assessment{}).Preload("Targets").Find(&assessments, Assessment{CustomerID: customerID})
 	if result.Error != nil {
 		return assessments, result.Error
 	}
@@ -54,7 +60,7 @@ func GetAllAssessmentsByCustomerID(customerID string) ([]Assessment, error) {
 
 func GetAssessmentByID(id string) (Assessment, error) {
 	var assessment Assessment
-	result := Database.First(&assessment, Model{ID: id})
+	result := Database.Model(&Assessment{}).Preload("Targets").First(&assessment, Model{ID: id})
 	if result.Error != nil {
 		return assessment, result.Error
 	}
@@ -64,14 +70,11 @@ func GetAssessmentByID(id string) (Assessment, error) {
 	return assessment, nil
 }
 
-func GetAssessmentByName(name string) (Assessment, error) {
-	var assessment Assessment
-	result := Database.First(&assessment, Assessment{Name: name})
+func GetAssessmentsByName(name string) ([]Assessment, error) {
+	var assessments []Assessment
+	result := Database.Model(&Assessment{}).Preload("Targets").Find(&assessments, "name ILIKE ?", "%"+sanitizeLikeQuery(name)+"%")
 	if result.Error != nil {
-		return assessment, result.Error
+		return assessments, result.Error
 	}
-	if result.RowsAffected == 0 {
-		return assessment, errors.New("Assessment not found")
-	}
-	return assessment, nil
+	return assessments, nil
 }
