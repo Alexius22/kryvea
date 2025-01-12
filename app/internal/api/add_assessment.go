@@ -12,11 +12,18 @@ import (
 func AddAssessment(c *fiber.Ctx) error {
 	type reqData struct {
 		Name          string    `json:"name"`
+		Notes         string    `json:"notes"`
 		StartDateTime time.Time `json:"start_date_time"`
 		EndDateTime   time.Time `json:"end_date_time"`
+		Status        string    `json:"status"`
+		Targets       []string  `json:"targets"`
 		Type          string    `json:"type"`
-		CustomerID    string    `json:"customer_id"`
 		CVSSVersion   int       `json:"cvss_version"`
+		Environment   string    `json:"environment"`
+		Network       string    `json:"network"`
+		Method        string    `json:"method"`
+		OSSTMMVector  string    `json:"osstmm_vector"`
+		CustomerID    string    `json:"customer_id"`
 	}
 
 	assessment := &reqData{}
@@ -27,15 +34,23 @@ func AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	if assessment.Name == "" || assessment.Type == "" || assessment.CustomerID == "" {
+	// Validate fields
+	if assessment.Name == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Name, Type and Customer ID are required",
+			"error": "Name is required",
 		})
 	}
 
 	if assessment.StartDateTime.IsZero() {
 		assessment.StartDateTime = time.Now()
+	}
+
+	if assessment.CustomerID == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Customer ID is required",
+		})
 	}
 
 	customer, err := db.GetCustomerByID(assessment.CustomerID)
