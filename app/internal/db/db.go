@@ -12,7 +12,7 @@ import (
 var Database *gorm.DB
 
 func init() {
-	dsn := config.Conf.DSN
+	dsn := config.GetDSN()
 	dsnString := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s", dsn.Host, dsn.User, dsn.Password, dsn.DBName, dsn.Port, dsn.SSLMode, dsn.TimeZone)
 	var err error
 	Database, err = gorm.Open(postgres.Open(dsnString), &gorm.Config{

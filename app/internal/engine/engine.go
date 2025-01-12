@@ -23,7 +23,8 @@ func Serve() {
 		TimeZone:   "CET",
 	}))
 
-	rootPath := config.Conf.WebRoot
+	webConfig := config.GetWeb()
+	rootPath := webConfig.Root
 
 	app.Get(rootPath, func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
@@ -41,7 +42,7 @@ func Serve() {
 		return c.Redirect(rootPath)
 	})
 
-	address := fmt.Sprintf("%s:%d", config.Conf.Address, config.Conf.Port)
+	address := fmt.Sprintf("%s:%d", webConfig.Address, webConfig.Port)
 	log.Info().Msg("Listening for connections on http://" + address)
 	if err := app.Listen(address); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
