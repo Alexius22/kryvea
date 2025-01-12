@@ -8,15 +8,17 @@ import (
 	"regexp"
 	"slices"
 
+	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Address string `yaml:"address"`
-	Port    int    `yaml:"port"`
-	WebRoot string `yaml:"web_root"`
-	DSN     dsn    `yaml:"dsn"`
+	Address  string   `yaml:"address"`
+	Port     int      `yaml:"port"`
+	WebRoot  string   `yaml:"web_root"`
+	DSN      dsn      `yaml:"dsn"`
+	Customer customer `yaml:"customer"`
 }
 
 type dsn struct {
@@ -27,6 +29,10 @@ type dsn struct {
 	Port     int    `yaml:"port"`
 	SSLMode  string `yaml:"sslmode"`
 	TimeZone string `yaml:"timezone"`
+}
+
+type customer struct {
+	DefaultCVSSVersion int `yaml:"default_cvss_version"`
 }
 
 var Conf Config
@@ -86,6 +92,11 @@ func validateConfig(cfg *Config) error {
 
 	if cfg.DSN.TimeZone == "" {
 		return fmt.Errorf("invalid DSN timezone: %s", cfg.DSN.TimeZone)
+	}
+
+	// Validate Customer
+	if !cvss.IsValidVersion(cfg.Customer.DefaultCVSSVersion) {
+		return fmt.Errorf("invalid default CVSS version: %d", cfg.Customer.DefaultCVSSVersion)
 	}
 
 	return nil
