@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Address string `yaml:"address"`
 	Port    string `yaml:"port"`
+	WebRoot string `yaml:"web_root"`
 	DSN     dsn    `yaml:"dsn"`
 }
 
