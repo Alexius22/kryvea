@@ -9,3 +9,5 @@ dsn:
   port: 5432
   sslmode: disable
   timezone: Europe/Rome
+customer:
+  default_cvss_version: 40
