@@ -41,7 +41,7 @@ func Serve() {
 		return c.Redirect(rootPath)
 	})
 
-	address := fmt.Sprintf("%s:%s", config.Conf.Address, config.Conf.Port)
+	address := fmt.Sprintf("%s:%d", config.Conf.Address, config.Conf.Port)
 	log.Info().Msg("Listening for connections on http://" + address)
 	if err := app.Listen(address); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
