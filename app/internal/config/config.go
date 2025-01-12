@@ -1,24 +1,23 @@
 package config
 
 import (
-	"fmt"
 	"io"
-	"net"
 	"os"
-	"regexp"
-	"slices"
 
-	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Address  string   `yaml:"address"`
-	Port     int      `yaml:"port"`
-	WebRoot  string   `yaml:"web_root"`
+	Web      web      `yaml:"web"`
 	DSN      dsn      `yaml:"dsn"`
 	Customer customer `yaml:"customer"`
+}
+
+type web struct {
+	Address string `yaml:"address"`
+	Port    int    `yaml:"port"`
+	Root    string `yaml:"root"`
 }
 
 type dsn struct {
@@ -35,7 +34,7 @@ type customer struct {
 	DefaultCVSSVersion int `yaml:"default_cvss_version"`
 }
 
-var Conf Config
+var conf Config
 
 func loadConfig(cfgData []byte) (*Config, error) {
 	cfg, err := Unmarshal(cfgData)
@@ -48,58 +47,6 @@ func loadConfig(cfgData []byte) (*Config, error) {
 	}
 
 	return cfg, nil
-}
-
-func validateConfig(cfg *Config) error {
-	if net.ParseIP(cfg.Address) == nil {
-		return fmt.Errorf("invalid address: %s", cfg.Address)
-	}
-
-	if cfg.Port < 1 || cfg.Port > 65535 {
-		return fmt.Errorf("invalid port: %d", cfg.Port)
-	}
-
-	pathRe := regexp.MustCompile(`^/[\S/]*$`)
-	if !pathRe.MatchString(cfg.WebRoot) {
-		return fmt.Errorf("invalid web root: %s", cfg.WebRoot)
-	}
-
-	// Validate DSN
-	if cfg.DSN.Host == "" {
-		return fmt.Errorf("invalid DSN host: %s", cfg.DSN.Host)
-	}
-
-	if cfg.DSN.Port < 1 || cfg.DSN.Port > 65535 {
-		return fmt.Errorf("invalid DSN port: %d", cfg.DSN.Port)
-	}
-
-	if cfg.DSN.User == "" {
-		return fmt.Errorf("invalid DSN user: %s", cfg.DSN.User)
-	}
-
-	if cfg.DSN.Password == "" {
-		return fmt.Errorf("invalid DSN password")
-	}
-
-	if cfg.DSN.DBName == "" {
-		return fmt.Errorf("invalid DSN dbname: %s", cfg.DSN.DBName)
-	}
-
-	// https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-PROTECTION
-	if !slices.Contains([]string{"disable", "allow", "prefer", "require", "verify-ca", "verify-full"}, cfg.DSN.SSLMode) {
-		return fmt.Errorf("invalid DSN sslmode: %s", cfg.DSN.SSLMode)
-	}
-
-	if cfg.DSN.TimeZone == "" {
-		return fmt.Errorf("invalid DSN timezone: %s", cfg.DSN.TimeZone)
-	}
-
-	// Validate Customer
-	if !cvss.IsValidVersion(cfg.Customer.DefaultCVSSVersion) {
-		return fmt.Errorf("invalid default CVSS version: %d", cfg.Customer.DefaultCVSSVersion)
-	}
-
-	return nil
 }
 
 func Unmarshal(configBytes []byte) (*Config, error) {
@@ -130,5 +77,5 @@ func init() {
 		log.Fatal().Err(err).Msg("Failed to unmarshal configuration file")
 	}
 
-	Conf = *cfg
+	conf = *cfg
 }

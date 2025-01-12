@@ -30,8 +30,10 @@ func AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
+	customerConfig := config.GetCustomer()
+
 	if customer.DefaultCVSSVersion == 0 {
-		customer.DefaultCVSSVersion = config.Conf.Customer.DefaultCVSSVersion
+		customer.DefaultCVSSVersion = customerConfig.DefaultCVSSVersion
 	}
 
 	if !cvss.IsValidVersion(customer.DefaultCVSSVersion) {
