@@ -34,8 +34,14 @@ func Serve() {
 	{
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/add-customer", api.AddCustomer)
+
 		apiGroup.Post("/assessments", api.GetAllAssessments)
 		apiGroup.Post("/add-assessment", api.AddAssessment)
+		apiGroup.Post("/search-assessment", api.SearchAssessment)
+
+		apiGroup.Post("/targets", api.GetAllTargets)
+		apiGroup.Post("/add-target", api.AddTarget)
+		// apiGroup.Post("/search-target", api.SearchTarget)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
