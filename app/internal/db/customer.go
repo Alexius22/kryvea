@@ -6,8 +6,9 @@ import (
 
 type Customer struct {
 	Model
-	Name string `json:"name"`
-	Lang string `json:"lang"`
+	Name               string `json:"name"`
+	Lang               string `json:"lang"`
+	DefaultCVSSVersion int    `json:"default_cvss_version"`
 }
 
 func AddCustomer(customer Customer) error {

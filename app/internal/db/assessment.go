@@ -12,6 +12,7 @@ type Assessment struct {
 	EndDateTime   time.Time `json:"end_date_time"`
 	Type          string    `json:"type"`
 	Status        string    `json:"status"`
+	CVSSVersion   int       `json:"cvss_version"`
 	CustomerID    string    `json:"customer_id"`
 	Customer      Customer  `json:"-"`
 }
