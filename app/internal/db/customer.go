@@ -6,13 +6,13 @@ import (
 
 type Customer struct {
 	Model
-	Name               string `json:"name"`
+	Name               string `json:"name" gorm:"uniqueIndex:idx_customer"`
 	Lang               string `json:"lang"`
 	DefaultCVSSVersion int    `json:"default_cvss_version"`
 }
 
 func AddCustomer(customer Customer) error {
-	result := Database.FirstOrCreate(&customer, Customer{Name: customer.Name})
+	result := Database.Create(&customer)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -32,6 +32,10 @@ func GetAllCustomers() ([]Customer, error) {
 }
 
 func GetCustomerByID(id string) (Customer, error) {
+	if id == "" {
+		return Customer{}, errors.New("ID is required")
+	}
+
 	var customer Customer
 	result := Database.First(&customer, Model{ID: id})
 	if result.Error != nil {
@@ -43,14 +47,18 @@ func GetCustomerByID(id string) (Customer, error) {
 	return customer, nil
 }
 
-func GetCustomerByName(name string) (Customer, error) {
-	var customer Customer
-	result := Database.First(&customer, Customer{Name: name})
+func GetCustomersByName(name string) ([]Customer, error) {
+	if name == "" {
+		return nil, errors.New("Name is required")
+	}
+
+	var customers []Customer
+	result := Database.Find(&customers, "name ILIKE ?", "%"+sanitizeLikeQuery(name)+"%")
 	if result.Error != nil {
-		return customer, result.Error
+		return customers, result.Error
 	}
 	if result.RowsAffected == 0 {
-		return customer, errors.New("Customer not found")
+		return customers, errors.New("Customer not found")
 	}
-	return customer, nil
+	return customers, nil
 }
