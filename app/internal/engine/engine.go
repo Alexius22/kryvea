@@ -27,7 +27,7 @@ func Serve() {
 	rootPath := webConfig.Root
 
 	app.Get(rootPath, func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+		return c.SendString("Kryvea API")
 	})
 
 	apiGroup := app.Group(config.JoinUrlPath(rootPath, "api"), middleware.Api)
@@ -41,7 +41,13 @@ func Serve() {
 
 		apiGroup.Post("/targets", api.GetAllTargets)
 		apiGroup.Post("/add-target", api.AddTarget)
-		// apiGroup.Post("/search-target", api.SearchTarget)
+		apiGroup.Post("/search-target", api.SearchTarget)
+
+		apiGroup.Post("/vulnerabilities", api.GetAllVulnerabilities)
+		apiGroup.Post("/add-vulnerability", api.AddVulnerability)
+
+		apiGroup.Get("/categories", api.GetAllCategories)
+		apiGroup.Post("/add-category", api.AddCategory)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

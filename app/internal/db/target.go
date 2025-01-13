@@ -1,25 +1,26 @@
 package db
 
-import "errors"
+import (
+	"errors"
+)
 
 type Target struct {
 	Model
-	IP         string   `json:"ip"`
-	Port       int      `json:"port"`
-	Protocol   string   `json:"protocol"`
-	Hostname   string   `json:"hostname"`
-	CustomerID string   `json:"customer_id"`
+	IP         string   `json:"ip" gorm:"uniqueIndex:idx_target"`
+	Port       int      `json:"port" gorm:"uniqueIndex:idx_target"`
+	Protocol   string   `json:"protocol" gorm:"uniqueIndex:idx_target"`
+	Hostname   string   `json:"hostname" gorm:"uniqueIndex:idx_target"`
+	CustomerID string   `json:"customer_id" gorm:"uniqueIndex:idx_target"`
 	Customer   Customer `json:"-"`
 }
 
 func AddTarget(target Target) error {
-	var customer Customer
-	result := Database.First(&customer, Model{ID: target.CustomerID})
+	result := Database.First(&Customer{}, Model{ID: target.CustomerID})
 	if result.Error != nil {
 		return result.Error
 	}
 
-	result = Database.FirstOrCreate(&target, Target{IP: target.IP, Port: target.Port, Protocol: target.Protocol, Hostname: target.Hostname, CustomerID: target.CustomerID})
+	result = Database.Create(&target)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -30,6 +31,10 @@ func AddTarget(target Target) error {
 }
 
 func AddTargetToAssessment(targetID, assessmentID string) error {
+	if targetID == "" || assessmentID == "" {
+		return errors.New("Target ID and Assessment ID are required")
+	}
+
 	var target Target
 	result := Database.First(&target, Model{ID: targetID})
 	if result.Error != nil {
@@ -60,6 +65,10 @@ func GetAllTargets() ([]Target, error) {
 }
 
 func GetAllTargetsByCustomerID(customerID string) ([]Target, error) {
+	if customerID == "" {
+		return nil, errors.New("Customer ID is required")
+	}
+
 	var targets []Target
 	result := Database.Find(&targets, Target{CustomerID: customerID})
 	if result.Error != nil {
@@ -69,6 +78,10 @@ func GetAllTargetsByCustomerID(customerID string) ([]Target, error) {
 }
 
 func GetTargetByID(id string) (Target, error) {
+	if id == "" {
+		return Target{}, errors.New("ID is required")
+	}
+
 	var target Target
 	result := Database.First(&target, Model{ID: id})
 	if result.Error != nil {
@@ -81,6 +94,10 @@ func GetTargetByID(id string) (Target, error) {
 }
 
 func GetAllTargetsByIP(ip string) ([]Target, error) {
+	if ip == "" {
+		return nil, errors.New("IP is required")
+	}
+
 	var targets []Target
 	result := Database.Find(&targets, "ip LIKE ?", "%"+sanitizeLikeQuery(ip)+"%")
 	if result.Error != nil {
@@ -99,6 +116,10 @@ func GetAllTargetsByPort(port int) ([]Target, error) {
 }
 
 func GetAllTargetsByProtocol(protocol string) ([]Target, error) {
+	if protocol == "" {
+		return nil, errors.New("Protocol is required")
+	}
+
 	var targets []Target
 	result := Database.Find(&targets, Target{Protocol: protocol})
 	if result.Error != nil {
@@ -108,8 +129,25 @@ func GetAllTargetsByProtocol(protocol string) ([]Target, error) {
 }
 
 func GetAllTargetsByHostname(hostname string) ([]Target, error) {
+	if hostname == "" {
+		return nil, errors.New("Hostname is required")
+	}
+
 	var targets []Target
 	result := Database.Find(&targets, "hostname ILIKE ?", "%"+sanitizeLikeQuery(hostname)+"%")
+	if result.Error != nil {
+		return targets, result.Error
+	}
+	return targets, nil
+}
+
+func SearchTarget(search string) ([]Target, error) {
+	if search == "" {
+		return nil, errors.New("Search is required")
+	}
+
+	var targets []Target
+	result := Database.Find(&targets, "ip ILIKE ? OR CAST(port as TEXT) ILIKE ? OR protocol ILIKE ? OR hostname ILIKE ?", "%"+sanitizeLikeQuery(search)+"%", "%"+sanitizeLikeQuery(search)+"%", "%"+sanitizeLikeQuery(search)+"%", "%"+sanitizeLikeQuery(search)+"%")
 	if result.Error != nil {
 		return targets, result.Error
 	}

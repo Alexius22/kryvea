@@ -50,6 +50,10 @@ func GetAllAssessments() ([]Assessment, error) {
 }
 
 func GetAllAssessmentsByCustomerID(customerID string) ([]Assessment, error) {
+	if customerID == "" {
+		return nil, errors.New("Customer ID is required")
+	}
+
 	var assessments []Assessment
 	result := Database.Model(&Assessment{}).Preload("Targets").Find(&assessments, Assessment{CustomerID: customerID})
 	if result.Error != nil {
@@ -59,6 +63,10 @@ func GetAllAssessmentsByCustomerID(customerID string) ([]Assessment, error) {
 }
 
 func GetAssessmentByID(id string) (Assessment, error) {
+	if id == "" {
+		return Assessment{}, errors.New("ID is required")
+	}
+
 	var assessment Assessment
 	result := Database.Model(&Assessment{}).Preload("Targets").First(&assessment, Model{ID: id})
 	if result.Error != nil {
@@ -71,6 +79,10 @@ func GetAssessmentByID(id string) (Assessment, error) {
 }
 
 func GetAssessmentsByName(name string) ([]Assessment, error) {
+	if name == "" {
+		return nil, errors.New("Name is required")
+	}
+
 	var assessments []Assessment
 	result := Database.Model(&Assessment{}).Preload("Targets").Find(&assessments, "name ILIKE ?", "%"+sanitizeLikeQuery(name)+"%")
 	if result.Error != nil {

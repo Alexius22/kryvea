@@ -23,7 +23,7 @@ func init() {
 		log.Fatal().Err(err).Msg("Failed to connect to database")
 	}
 
-	Database.AutoMigrate(&Customer{}, &Assessment{}, &Target{})
+	Database.AutoMigrate(&Customer{}, &Assessment{}, &Target{}, &Vulnerability{}, &Category{})
 
 	log.Info().Msg("Connected to database and migrated tables")
 }
