@@ -4,9 +4,10 @@ import "errors"
 
 type Category struct {
 	Model
-	Index string `json:"index" gorm:"uniqueIndex:idx_category"`
-	Year  int    `json:"year" gorm:"uniqueIndex:idx_category"`
-	Name  string `json:"name" gorm:"uniqueIndex:idx_category"`
+	Index              string `json:"index" gorm:"uniqueIndex:idx_category"`
+	Name               string `json:"name" gorm:"uniqueIndex:idx_category"`
+	GenericDescription string `json:"generic_description"`
+	GenericRemediation string `json:"generic_remediation"`
 }
 
 func AddCategory(category Category) error {
@@ -58,19 +59,6 @@ func GetCategoriesByIndex(index string) ([]Category, error) {
 	return categories, nil
 }
 
-func GetCategoriesByYear(year int) ([]Category, error) {
-	if year == 0 {
-		return []Category{}, errors.New("Year is required")
-	}
-
-	var categories []Category
-	result := Database.Find(&categories, Category{Year: year})
-	if result.Error != nil {
-		return categories, result.Error
-	}
-	return categories, nil
-}
-
 func GetCategoriesByName(name string) ([]Category, error) {
 	if name == "" {
 		return []Category{}, errors.New("Name is required")
@@ -85,12 +73,12 @@ func GetCategoriesByName(name string) ([]Category, error) {
 }
 
 func IsValidCategory(category Category) bool {
-	if category.Index == "" || category.Year == 0 || category.Name == "" {
+	if category.Index == "" || category.Name == "" {
 		return false
 	}
 
 	var categories []Category
-	result := Database.First(&categories, Category{Index: category.Index, Year: category.Year, Name: category.Name})
+	result := Database.First(&categories, Category{Index: category.Index, Name: category.Name})
 	if result.Error != nil {
 		return false
 	}
