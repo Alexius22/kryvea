@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/Alexius22/kryvea/internal/config"
 	"github.com/Alexius22/kryvea/internal/cvss"
-	"github.com/Alexius22/kryvea/internal/db"
+	dbmongo "github.com/Alexius22/kryvea/internal/db.mongo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -43,8 +43,8 @@ func AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	err := db.AddCustomer(db.Customer{
-		Model: db.Model{
+	err := dbmongo.AddCustomer(dbmongo.Customer{
+		Model: dbmongo.Model{
 			ID: uuid.New().String(),
 		},
 		Name:               customer.Name,
