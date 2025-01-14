@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Web      web      `yaml:"web"`
 	DSN      dsn      `yaml:"dsn"`
+	MongoURI string   `yaml:"mongo_uri"`
 	Customer customer `yaml:"customer"`
 }
 

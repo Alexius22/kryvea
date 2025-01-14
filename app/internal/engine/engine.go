@@ -35,19 +35,19 @@ func Serve() {
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/add-customer", api.AddCustomer)
 
-		apiGroup.Post("/assessments", api.GetAllAssessments)
-		apiGroup.Post("/add-assessment", api.AddAssessment)
-		apiGroup.Post("/search-assessment", api.SearchAssessment)
+		// apiGroup.Post("/assessments", api.GetAllAssessments)
+		// apiGroup.Post("/add-assessment", api.AddAssessment)
+		// apiGroup.Post("/search-assessment", api.SearchAssessment)
 
-		apiGroup.Post("/targets", api.GetAllTargets)
-		apiGroup.Post("/add-target", api.AddTarget)
-		apiGroup.Post("/search-target", api.SearchTarget)
+		// apiGroup.Post("/targets", api.GetAllTargets)
+		// apiGroup.Post("/add-target", api.AddTarget)
+		// apiGroup.Post("/search-target", api.SearchTarget)
 
-		apiGroup.Post("/vulnerabilities", api.GetAllVulnerabilities)
-		apiGroup.Post("/add-vulnerability", api.AddVulnerability)
+		// apiGroup.Post("/vulnerabilities", api.GetAllVulnerabilities)
+		// apiGroup.Post("/add-vulnerability", api.AddVulnerability)
 
-		apiGroup.Get("/categories", api.GetAllCategories)
-		apiGroup.Post("/add-category", api.AddCategory)
+		// apiGroup.Get("/categories", api.GetAllCategories)
+		// apiGroup.Post("/add-category", api.AddCategory)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
