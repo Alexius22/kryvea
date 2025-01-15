@@ -13,15 +13,14 @@ services:
       - kryvea-net
     restart: unless-stopped
 
-  dbmongo:
-    mongo:
-      image: mongo
-      container_name: kryvea-dbmongo
-      volumes:
-        - kryvea-dbmongo-storage:/data/db
-      networks:
-        - kryvea-net
-      restart: unless-stopped
+  mongo:
+    image: mongo
+    container_name: kryvea-dbmongo
+    volumes:
+      - kryvea-dbmongo-storage:/data/db
+    networks:
+      - kryvea-net
+    restart: unless-stopped
 
   app:
     build: app

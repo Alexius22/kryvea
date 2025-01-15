@@ -1,4 +1,4 @@
-package dbmongo
+package mongo
 
 import (
 	"time"

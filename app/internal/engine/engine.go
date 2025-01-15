@@ -1,18 +1,35 @@
 package engine
 
 import (
-	"fmt"
-
 	"github.com/Alexius22/kryvea/internal/api"
-	"github.com/Alexius22/kryvea/internal/config"
 	"github.com/Alexius22/kryvea/internal/middleware"
+	"github.com/Alexius22/kryvea/internal/mongo"
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/rs/zerolog/log"
 )
 
-// Serve - Serve application
-func Serve() {
+type Engine struct {
+	addr     string
+	rootPath string
+	mongo    *mongo.Driver
+}
+
+func NewEngine(addr, rootPath, mongoURI string) (*Engine, error) {
+	mongo, err := mongo.NewDriver(mongoURI)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Engine{
+		addr:     addr,
+		rootPath: rootPath,
+		mongo:    mongo,
+	}, nil
+}
+
+func (e *Engine) Serve() {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
@@ -23,14 +40,7 @@ func Serve() {
 		TimeZone:   "CET",
 	}))
 
-	webConfig := config.GetWeb()
-	rootPath := webConfig.Root
-
-	app.Get(rootPath, func(c *fiber.Ctx) error {
-		return c.SendString("Kryvea API")
-	})
-
-	apiGroup := app.Group(config.JoinUrlPath(rootPath, "api"), middleware.Api)
+	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), middleware.Api)
 	{
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/add-customer", api.AddCustomer)
@@ -51,12 +61,11 @@ func Serve() {
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Redirect(rootPath)
+		return c.Redirect(e.rootPath)
 	})
 
-	address := fmt.Sprintf("%s:%d", webConfig.Address, webConfig.Port)
-	log.Info().Msg("Listening for connections on http://" + address)
-	if err := app.Listen(address); err != nil {
+	log.Info().Msg("Listening for connections on http://" + e.addr)
+	if err := app.Listen(e.addr); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
 }
