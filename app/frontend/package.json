@@ -1,0 +1,43 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier 'src/**/*.{tsx,ts,js}' --write"
+  },
+  "dependencies": {
+    "@mdi/js": "^7.0.96",
+    "@reduxjs/toolkit": "^1.9.5",
+    "chart.js": "^4.4.7",
+    "formik": "^2.4.2",
+    "next": "^15.1.4",
+    "numeral": "^2.0.6",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.1",
+    "react-router-dom": "^7.1.1",
+    "swr": "^2.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "@types/node": "20.3.2",
+    "@types/numeral": "^2.0.2",
+    "@types/react-redux": "^7.1.25",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.43.0",
+    "eslint-config-next": "^13.4.7",
+    "eslint-config-prettier": "^9.0.0",
+    "postcss": "^8.4.24",
+    "postcss-import": "^15.1.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.1.6"
+  }
+}
