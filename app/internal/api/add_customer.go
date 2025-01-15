@@ -1,9 +1,7 @@
 package api
 
 import (
-	"github.com/Alexius22/kryvea/internal/config"
 	"github.com/Alexius22/kryvea/internal/cvss"
-	dbmongo "github.com/Alexius22/kryvea/internal/db.mongo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -30,10 +28,8 @@ func AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	customerConfig := config.GetCustomer()
-
 	if customer.DefaultCVSSVersion == 0 {
-		customer.DefaultCVSSVersion = customerConfig.DefaultCVSSVersion
+		customer.DefaultCVSSVersion = cvss.CVSS4
 	}
 
 	if !cvss.IsValidVersion(customer.DefaultCVSSVersion) {
