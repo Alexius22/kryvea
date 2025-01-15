@@ -4,7 +4,7 @@ import "os"
 
 const (
 	addrEnv     = "KRYVEA_ADDR"
-	pathEnv     = "KRYVEA_PATH"
+	rootPathEnv = "KRYVEA_ROOT_PATH"
 	mongoURIEnv = "KRYVEA_MONGO_URI"
 )
 
@@ -12,8 +12,8 @@ func GetListeningAddr() string {
 	return getEnvConfig(addrEnv, "127.0.0.1:8000")
 }
 
-func GetPath() string {
-	return getEnvConfig(pathEnv, "/")
+func GetRootPath() string {
+	return getEnvConfig(rootPathEnv, "/")
 }
 
 func GetMongoURI() string {
