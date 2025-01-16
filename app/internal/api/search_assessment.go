@@ -1,38 +1,33 @@
 package api
 
-import (
-	"github.com/Alexius22/kryvea/internal/db"
-	"github.com/gofiber/fiber/v2"
-)
+// func SearchAssessment(c *fiber.Ctx) error {
+// 	type reqData struct {
+// 		Name string `json:"name"`
+// 	}
 
-func SearchAssessment(c *fiber.Ctx) error {
-	type reqData struct {
-		Name string `json:"name"`
-	}
+// 	data := &reqData{}
+// 	if err := c.BodyParser(data); err != nil {
+// 		c.Status(fiber.StatusBadRequest)
+// 		return c.JSON(fiber.Map{
+// 			"error": "Cannot parse JSON",
+// 		})
+// 	}
 
-	data := &reqData{}
-	if err := c.BodyParser(data); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
-	}
+// 	if data.Name == "" {
+// 		c.Status(fiber.StatusBadRequest)
+// 		return c.JSON(fiber.Map{
+// 			"error": "Assessment Name is required",
+// 		})
+// 	}
 
-	if data.Name == "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Assessment Name is required",
-		})
-	}
+// 	assessments, err := db.GetAssessmentsByName(data.Name)
+// 	if err != nil {
+// 		c.Status(fiber.StatusInternalServerError)
+// 		return c.JSON(fiber.Map{
+// 			"error": "Failed to retrieve assessments",
+// 		})
+// 	}
 
-	assessments, err := db.GetAssessmentsByName(data.Name)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error": "Failed to retrieve assessments",
-		})
-	}
-
-	c.Status(fiber.StatusOK)
-	return c.JSON(assessments)
-}
+// 	c.Status(fiber.StatusOK)
+// 	return c.JSON(assessments)
+// }

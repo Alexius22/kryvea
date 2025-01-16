@@ -2,14 +2,14 @@ package api
 
 import (
 	"github.com/Alexius22/kryvea/internal/cvss"
+	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
-func AddCustomer(c *fiber.Ctx) error {
+func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	type reqData struct {
 		Name               string `json:"name"`
-		Lang               string `json:"lang"`
+		Language           string `json:"language"`
 		DefaultCVSSVersion int    `json:"default_cvss_version"`
 	}
 
@@ -21,7 +21,7 @@ func AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	if customer.Name == "" || customer.Lang == "" {
+	if customer.Name == "" || customer.Language == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Name and Language are required",
@@ -39,12 +39,9 @@ func AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	err := dbmongo.AddCustomer(dbmongo.Customer{
-		Model: dbmongo.Model{
-			ID: uuid.New().String(),
-		},
+	err := d.mongo.Customer().Insert(&mongo.Customer{
 		Name:               customer.Name,
-		Lang:               customer.Lang,
+		Language:           customer.Language,
 		DefaultCVSSVersion: customer.DefaultCVSSVersion,
 	})
 	if err != nil {
@@ -58,4 +55,17 @@ func AddCustomer(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Customer created",
 	})
+}
+
+func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
+	customers, err := d.mongo.Customer().GetAll()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(customers)
 }
