@@ -25,6 +25,35 @@ const AssessmentsList = () => {
   return (
     <>
       <CardBoxModal
+        title="Download report"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalInfoActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik initialValues={{}} onSubmit={undefined}>
+          <Form>
+            <FormField label="Type" icons={[]}>
+              <Field name="type" component="select">
+                <option value="word">Word (.docx)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </Field>
+            </FormField>
+            <FormField label="Encryption">
+              <Field name="encryption" component="select">
+                <option value="none">None</option>
+                <option value="password">Password</option>
+              </Field>
+              <Field name="password" placeholder="Insert password" />
+            </FormField>
+            <FormField label="Options">
+              <Field name="options" placeholder="TODO" />
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
+      <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
         buttonLabel="Confirm"
@@ -74,7 +103,7 @@ const AssessmentsList = () => {
               <td className="before:hidden lg:w-1 whitespace-nowrap">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               </td>
