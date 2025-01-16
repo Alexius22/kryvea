@@ -7,6 +7,8 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
 import LayoutAuthenticated from "../layouts/Authenticated";
+import FormField from "../components/Form/Field";
+import { Field, Form, Formik } from "formik";
 
 const DashboardPage = () => {
   return (
@@ -35,6 +37,18 @@ const DashboardPage = () => {
       </SectionMain>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiHistory} title="Activities history" />
+        <Formik
+          initialValues={{
+            search: "",
+          }}
+          onSubmit={values => alert(JSON.stringify(values, null, 2))}
+        >
+          <Form className="mb-2">
+            <FormField isBorderless isTransparent>
+              <Field name="search" placeholder="Search" />
+            </FormField>
+          </Form>
+        </Formik>
         <CardBox hasTable>
           <Table
             data={[
