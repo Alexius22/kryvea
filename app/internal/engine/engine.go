@@ -40,10 +40,12 @@ func (e *Engine) Serve() {
 		TimeZone:   "CET",
 	}))
 
+	api := api.NewDriver(e.mongo)
+
 	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), middleware.Api)
 	{
 		apiGroup.Get("/customers", api.GetAllCustomers)
-		apiGroup.Post("/add-customer", api.AddCustomer)
+		apiGroup.Post("/customer", api.AddCustomer)
 
 		// apiGroup.Post("/assessments", api.GetAllAssessments)
 		// apiGroup.Post("/add-assessment", api.AddAssessment)
