@@ -2,6 +2,7 @@ web:
   address: 0.0.0.0
   port: 8080
   root: /
+mongo_uri: mongodb://kryvea-dbmongo:27017/?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=%2Fetc%2Fkryvea%2Fssl%2Fmongodb.pem
 dsn:
   host: kryvea-db
   user: kryveauser
