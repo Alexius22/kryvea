@@ -1,4 +1,4 @@
-import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiContentSaveCheck, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import Head from "next/head";
 import { useState, type ReactElement } from "react";
 import Button from "../components/Button";
@@ -47,6 +47,14 @@ const AssessmentPage = () => {
               small
               color="contrast"
               href="/add_vulnerability"
+            />
+            <Button
+              icon={mdiContentSaveCheck}
+              label="Create report"
+              roundedFull
+              small
+              color="contrast"
+              href="/create_report"
             />
           </Buttons>
         </SectionTitleLineWithButton>
