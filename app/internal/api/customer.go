@@ -47,7 +47,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": err.Error(),
+			"error": "Cannot create customer",
 		})
 	}
 
@@ -62,7 +62,7 @@ func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": err.Error(),
+			"error": "Cannot get customers",
 		})
 	}
 
