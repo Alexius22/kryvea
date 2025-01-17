@@ -120,8 +120,45 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) SearchAssessment(c *fiber.Ctx) error {
+	name := c.Query("name")
+	if name == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Name is required",
+		})
+	}
+
+	assessments, err := d.mongo.Assessment().GetByName(name)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot search assessments",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessments)
+}
+
 func (d *Driver) GetAllAssessment(c *fiber.Ctx) error {
-	assessments, err := d.mongo.Assessment().GetAll()
+	customer := c.Params("customer")
+	if customer == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Customer ID is required",
+		})
+	}
+
+	customerId, err := util.ParseMongoID(customer)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	assessments, err := d.mongo.Assessment().GetByCustomerID(customerId)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

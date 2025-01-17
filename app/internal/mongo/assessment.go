@@ -67,8 +67,42 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment) error {
 }
 
 func (ai *AssessmentIndex) GetByID(assessmentID primitive.ObjectID) (*Assessment, error) {
-	// TODO
-	return nil, nil
+	var assessment Assessment
+	err := ai.collection.FindOne(context.Background(), bson.M{"_id": assessmentID}).Decode(&assessment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &assessment, nil
+}
+
+func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Assessment, error) {
+	cursor, err := ai.collection.Find(context.Background(), bson.M{"customer_id": customerID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var assessments []Assessment
+	if err := cursor.All(context.Background(), &assessments); err != nil {
+		return nil, err
+	}
+
+	return assessments, nil
+}
+
+func (ai *AssessmentIndex) GetByName(name string) ([]Assessment, error) {
+	cursor, err := ai.collection.Find(context.Background(), bson.M{"name": bson.M{"$regex": name, "$options": "i"}})
+	if err != nil {
+		return nil, err
+	}
+
+	var assessments []Assessment
+	if err := cursor.All(context.Background(), &assessments); err != nil {
+		return nil, err
+	}
+
+	return assessments, nil
 }
 
 func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
