@@ -26,11 +26,6 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
       label: "Customers",
       icon: mdiListBox,
     },
-    {
-      href: "/vulnerabilities",
-      label: "Vuln Search",
-      icon: mdiMagnify,
-    },
     ...(customerName !== ""
       ? [
           {
@@ -46,14 +41,19 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
         ]
       : []),
     {
-      href: "/users",
-      label: "Users",
-      icon: mdiTelevisionGuide,
+      href: "/vulnerabilities",
+      label: "Vuln Search",
+      icon: mdiMagnify,
     },
     {
-      href: "/",
       label: "Administration",
       icon: mdiResponsive,
+      menu: [
+        {
+          href: "/users",
+          label: "Users",
+        },
+      ],
     },
   ];
 
