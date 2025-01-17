@@ -1,7 +1,7 @@
-import { mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiTelevisionGuide, mdiViewList } from "@mdi/js";
+import { mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiViewList } from "@mdi/js";
 import { useContext } from "react";
-import { MenuAsideItem } from "../../interfaces";
 import { GlobalContext } from "../../../App";
+import { MenuAsideItem } from "../../interfaces";
 import Item from "./Item";
 
 type Props = {
