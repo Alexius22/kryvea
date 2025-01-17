@@ -47,10 +47,9 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/customer", api.AddCustomer)
 
-		apiGroup.Get("/assessments", api.GetAllAssessment)
+		apiGroup.Get("/assessments/:customer", api.GetAllAssessment)
+		apiGroup.Get("/assessments/search", api.SearchAssessment)
 		apiGroup.Post("/assessment", api.AddAssessment)
-		// apiGroup.Post("/add-assessment", api.AddAssessment)
-		// apiGroup.Post("/search-assessment", api.SearchAssessment)
 
 		// apiGroup.Post("/targets", api.GetAllTargets)
 		// apiGroup.Post("/add-target", api.AddTarget)
