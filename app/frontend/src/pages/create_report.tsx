@@ -5,7 +5,7 @@ import CardBox from "../components/CardBox";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
 const AddAssessmentPage = () => {
   return (

@@ -1,35 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { mdiMinus, mdiPlus } from "@mdi/js";
-import Icon from "../Icon";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { getButtonColor } from "../../colors";
-import AsideMenuList from "./List";
-import { MenuAsideItem } from "../../interfaces";
-import { useRouter } from "next/router";
+import Icon from "../Icon";
+import AsideMenu from "./AsideMenu";
+import { mdiMinus, mdiPlus } from "@mdi/js";
+import { Link } from "react-router";
 
-type Props = {
-  item: MenuAsideItem;
-  isDropdownList?: boolean;
-};
-
-const AsideMenuItem = ({ item, isDropdownList = false }: Props) => {
+export default function Item({ item, isDropdownList = false }) {
   const [isLinkActive, setIsLinkActive] = useState(false);
   const [isDropdownActive, setIsDropdownActive] = useState(false);
   const activeClassAddon = !item.color && isLinkActive ? "aside-menu-item-active font-bold" : "";
-  const { asPath, isReady } = useRouter();
 
   useEffect(() => {
-    if (item.href && isReady) {
-      const linkPathName = new URL(item.href, location.href).pathname;
-      const activePathname = new URL(asPath, location.href).pathname;
+    // try
+    if (item.href) {
+      const linkPathName = new URL(item.href, window.location.href).pathname;
+      const activePathname = new URL(window.location.pathname, window.location.href).pathname;
       setIsLinkActive(linkPathName === activePathname);
     }
-  }, [item.href, isReady, asPath]);
+  }, [item.href, window.location.pathname]);
 
   const asideMenuItemInnerContents = (
     <>
       {item.icon && <Icon path={item.icon} className={`flex-none ${activeClassAddon}`} w="w-16" size="18" />}
-      <span className={`grow text-ellipsis line-clamp-1 ${item.menu ? "" : "pr-12"} ${activeClassAddon}`}>
+      <span className={`line-clamp-1 grow text-ellipsis ${item.menu ? "" : "pr-12"} ${activeClassAddon}`}>
         {item.label}
       </span>
       {item.menu && (
@@ -47,7 +40,7 @@ const AsideMenuItem = ({ item, isDropdownList = false }: Props) => {
   return (
     <li>
       {item.href && (
-        <Link href={item.href} target={item.target} className={componentClass}>
+        <Link to={item.href} target={item.target} className={componentClass}>
           {asideMenuItemInnerContents}
         </Link>
       )}
@@ -57,7 +50,7 @@ const AsideMenuItem = ({ item, isDropdownList = false }: Props) => {
         </div>
       )}
       {item.menu && (
-        <AsideMenuList
+        <AsideMenu
           nestedMenu={item.menu}
           className={`aside-menu-dropdown ${isDropdownActive ? "block dark:bg-slate-800/50" : "hidden"}`}
           isDropdownList
@@ -65,6 +58,4 @@ const AsideMenuItem = ({ item, isDropdownList = false }: Props) => {
       )}
     </li>
   );
-};
-
-export default AsideMenuItem;
+}

@@ -1,5 +1,5 @@
-module.exports = {
-  "plugin": ["prettier-plugin-tailwindcss"],
+{
+  "plugins": ["prettier-plugin-tailwindcss"],
   "semi": true,
   "trailingComma": "es5",
   "singleQuote": false,

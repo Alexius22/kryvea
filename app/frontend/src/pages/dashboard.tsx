@@ -1,21 +1,20 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
-import Head from "next/head";
-import type { ReactElement } from "react";
 import CardBox from "../components/CardBox";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
 import FormField from "../components/Form/Field";
 import { Field, Form, Formik } from "formik";
+import { useEffect } from "react";
 
-const DashboardPage = () => {
+export default function Dashboard() {
+  useEffect(() => {
+    document.title = getPageTitle("Dashboard");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Dashboard")}</title>
-      </Head>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiDotsCircle} title="Activity in progress" />
         <CardBox hasTable>
@@ -68,10 +67,8 @@ const DashboardPage = () => {
       </SectionMain>
     </>
   );
-};
+}
 
-DashboardPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default DashboardPage;
+// DashboardPage.getLayout = function getLayout(page: ReactElement) {
+//   return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
+// };

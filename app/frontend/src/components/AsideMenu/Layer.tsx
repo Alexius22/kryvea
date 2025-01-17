@@ -1,8 +1,9 @@
 import { mdiClose } from "@mdi/js";
 import React, { useContext } from "react";
-import { GlobalContext } from "../../pages/_app";
 import Icon from "../Icon";
-import AsideMenuList from "./List";
+import AsideMenu from "./AsideMenu";
+import { GlobalContext } from "../../../App";
+import { Link } from "react-router";
 
 type Props = {
   className?: string;
@@ -21,16 +22,16 @@ export default function AsideMenuLayer({ className = "", ...props }: Props) {
 
   return (
     <aside
-      className={`${className} zzz lg:py-2 lg:pl-2 w-70 min-w-70 max-w-70 fixed flex z-40 top-0 h-screen transition-position overflow-hidden`}
+      className={`${className} zzz w-70 min-w-70 max-w-70 fixed top-0 z-40 flex h-screen overflow-hidden transition-position lg:py-2 lg:pl-2`}
     >
-      <div className={`aside lg:rounded-2xl flex-1 flex flex-col overflow-hidden dark:bg-slate-900`}>
-        <div className={`aside-brand flex flex-row h-14 items-center justify-between dark:bg-slate-900`}>
-          <div className="text-center flex-1 lg:text-left lg:pl-6 xl:text-center xl:pl-0">
-            <a className="font-black" href="/dashboard">
+      <div className={`aside flex flex-1 flex-col overflow-hidden dark:bg-slate-900 lg:rounded-2xl`}>
+        <div className={`aside-brand flex h-14 flex-row items-center justify-between dark:bg-slate-900`}>
+          <div className="flex-1 text-center lg:pl-6 lg:text-left xl:pl-0 xl:text-center">
+            <Link className="font-black" to="/dashboard">
               Kryvea
-            </a>
+            </Link>
           </div>
-          <button className="hidden lg:inline-block xl:hidden p-3" onClick={handleAsideLgCloseClick}>
+          <button className="hidden p-3 lg:inline-block xl:hidden" onClick={handleAsideLgCloseClick}>
             <Icon path={mdiClose} />
           </button>
         </div>
@@ -39,7 +40,7 @@ export default function AsideMenuLayer({ className = "", ...props }: Props) {
             darkTheme ? "aside-scrollbars-[slate]" : "aside-scrollbars"
           }`}
         >
-          <AsideMenuList />
+          <AsideMenu />
         </div>
       </div>
     </aside>

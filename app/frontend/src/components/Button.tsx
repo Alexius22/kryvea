@@ -1,8 +1,8 @@
 import React from "react";
-import Link from "next/link";
 import { getButtonColor } from "../colors";
 import Icon from "./Icon";
 import type { ColorButtonKey } from "../interfaces";
+import { Link } from "react-router";
 
 type Props = {
   label?: string;
@@ -78,7 +78,7 @@ export default function Button({
 
   if (href && !disabled) {
     return (
-      <Link href={href} target={target} className={componentClassString}>
+      <Link to={href} target={target} className={componentClassString}>
         {componentChildren}
       </Link>
     );

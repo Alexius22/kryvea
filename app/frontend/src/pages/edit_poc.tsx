@@ -6,7 +6,7 @@ import CardBox from "../components/CardBox";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 import Buttons from "../components/Buttons";
 
 const EditPocPage = () => {
@@ -17,7 +17,7 @@ const EditPocPage = () => {
       </Head>
 
       <SectionMain>
-        <CardBox className="flex mb-6" hasTable>
+        <CardBox className="mb-6 flex" hasTable>
           <table className="table-fixed">
             <thead>
               <tr>
@@ -25,7 +25,7 @@ const EditPocPage = () => {
               </tr>
             </thead>
             <tr>
-              <td className="before:hidden lg:w-1 whitespace-nowrap">
+              <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="text-center" noWrap>
                   <Button label="Request/Response" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
                   <Button label="Image" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
