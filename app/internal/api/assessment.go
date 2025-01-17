@@ -129,7 +129,7 @@ func (d *Driver) SearchAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessments, err := d.mongo.Assessment().GetByName(name)
+	assessments, err := d.mongo.Assessment().Search(name)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

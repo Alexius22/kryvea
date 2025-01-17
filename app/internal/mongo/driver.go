@@ -26,6 +26,8 @@ func NewDriver(uri string) (*Driver, error) {
 
 	indexes := []Index{
 		d.Customer(),
+		d.Assessment(),
+		d.Target(),
 	}
 
 	for _, i := range indexes {

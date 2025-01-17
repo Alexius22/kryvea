@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"regexp"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -57,12 +58,17 @@ func (ai AssessmentIndex) init() error {
 }
 
 func (ai *AssessmentIndex) Insert(assessment *Assessment) error {
+	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.CustomerID}).Err()
+	if err != nil {
+		return err
+	}
+
 	assessment.Model = Model{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	_, err := ai.collection.InsertOne(context.Background(), assessment)
+	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	return err
 }
 
@@ -91,8 +97,8 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Ass
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) GetByName(name string) ([]Assessment, error) {
-	cursor, err := ai.collection.Find(context.Background(), bson.M{"name": bson.M{"$regex": name, "$options": "i"}})
+func (ai *AssessmentIndex) Search(name string) ([]Assessment, error) {
+	cursor, err := ai.collection.Find(context.Background(), bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}})
 	if err != nil {
 		return nil, err
 	}
