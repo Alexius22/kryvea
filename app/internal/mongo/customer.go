@@ -15,7 +15,7 @@ const (
 )
 
 type Customer struct {
-	Model
+	Model              `bson:",inline"`
 	Name               string `json:"name" bson:"name"`
 	Language           string `json:"language" bson:"language"`
 	DefaultCVSSVersion int    `json:"default_cvss_version" bson:"default_cvss_version"`
@@ -37,8 +37,8 @@ func (ci CustomerIndex) init() error {
 	_, err := ci.collection.Indexes().CreateOne(
 		context.Background(),
 		mongo.IndexModel{
-			Keys: bson.M{
-				"name": 1,
+			Keys: bson.D{
+				{Key: "name", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},

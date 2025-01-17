@@ -16,7 +16,7 @@ const (
 )
 
 type Assessment struct {
-	Model
+	Model         `bson:",inline"`
 	Name          string               `json:"name" bson:"name"`
 	Notes         string               `json:"notes" bson:"notes"`
 	StartDateTime time.Time            `json:"start_date_time" bson:"start_date_time"`
@@ -48,8 +48,8 @@ func (ai AssessmentIndex) init() error {
 	_, err := ai.collection.Indexes().CreateOne(
 		context.Background(),
 		mongo.IndexModel{
-			Keys: bson.M{
-				"name": 1,
+			Keys: bson.D{
+				{Key: "name", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},

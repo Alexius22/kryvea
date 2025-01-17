@@ -16,7 +16,7 @@ const (
 )
 
 type Target struct {
-	Model
+	Model      `bson:",inline"`
 	IP         string             `json:"ip" bson:"ip"`
 	Port       int                `json:"port" bson:"port"`
 	Protocol   string             `json:"protocol" bson:"protocol"`
