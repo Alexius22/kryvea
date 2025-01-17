@@ -1,7 +1,6 @@
 import { mdiCalendar, mdiPlus } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { useEffect } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -9,14 +8,14 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const AddAssessmentPage = () => {
+const AddAssessment = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Login");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("New Assessment")}</title>
-      </Head>
       <SectionMain>
         <CardBox>
           <Formik initialValues={{}} onSubmit={undefined}>
@@ -51,9 +50,9 @@ const AddAssessmentPage = () => {
 
               <FormField label="CVSS Version">
                 <Field name="cvss" id="cvss" component="select">
-                  <option value="2">2</option>
-                  <option value="3.1">3.1</option>
                   <option value="4">4</option>
+                  <option value="3.1">3.1</option>
+                  <option value="2">2</option>
                 </Field>
               </FormField>
 
@@ -94,8 +93,4 @@ const AddAssessmentPage = () => {
   );
 };
 
-AddAssessmentPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AddAssessmentPage;
+export default AddAssessment;

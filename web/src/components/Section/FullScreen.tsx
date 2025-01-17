@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext } from "react";
 import { BgKey } from "../../interfaces";
 import { gradientBgPurplePink, gradientBgDark, gradientBgPinkRed } from "../../colors";
-import { GlobalContext } from "../../pages/_app";
+import { GlobalContext } from "../../../App";
 
 type Props = {
   bg: BgKey;

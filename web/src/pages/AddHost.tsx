@@ -1,6 +1,5 @@
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { useEffect } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -8,14 +7,14 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const AddHostPage = () => {
+const AddHost = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Customer");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Add host")}</title>
-      </Head>
       <SectionMain>
         <CardBox>
           <Formik initialValues={{}} onSubmit={undefined}>
@@ -46,8 +45,4 @@ const AddHostPage = () => {
   );
 };
 
-AddHostPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AddHostPage;
+export default AddHost;

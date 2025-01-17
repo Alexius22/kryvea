@@ -1,4 +1,4 @@
-import { mdiEye, mdiListBox, mdiTrashCan } from "@mdi/js";
+import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
@@ -9,17 +9,13 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
 
-const Users = () => {
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+const Assessment = () => {
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
     setIsModalTrashActive(false);
   };
-
   useEffect(() => {
-    document.title = getPageTitle("Users");
+    document.title = getPageTitle("Customer");
   }, []);
 
   return (
@@ -32,32 +28,43 @@ const Users = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>Are you sure to delete this user?</p>
+        <p>Are you sure to delete this customer?</p>
         <p>
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
+
       <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Users" />
+        <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
+          <Buttons>
+            <Button icon={mdiPlus} label="New host" roundedFull small color="contrast" href="/add_host" />
+            <Button
+              icon={mdiPlus}
+              label="New vulnerability"
+              roundedFull
+              small
+              color="contrast"
+              href="/add_vulnerability"
+            />
+          </Buttons>
+        </SectionTitleLineWithButton>
         <CardBox hasTable>
           <Table
             data={Array(21)
               .fill(0)
               .map((el, i) => ({
-                Username: i + 1,
-                Role: i + 1,
-                Customers: i + 1,
-                Active: i + 1,
+                Vulnerability: i + 1,
+                Host: i + 1,
+                "CVSS Score": i + 1,
               }))}
             buttons={
               <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiEye} onClick={() => setIsModalInfoActive(true)} small href="/user" />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               </td>
             }
-            perPageCustom={100}
+            perPageCustom={10}
           />
         </CardBox>
       </SectionMain>
@@ -65,4 +72,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Assessment;

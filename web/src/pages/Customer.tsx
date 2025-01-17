@@ -1,6 +1,5 @@
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { useEffect } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -8,20 +7,26 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const AddCustomerPage = () => {
+const Customer = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Customer");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("New customer")}</title>
-      </Head>
       <SectionMain>
         <CardBox>
-          <Formik initialValues={{}} onSubmit={undefined}>
+          <Formik
+            initialValues={{
+              companyName: "Test",
+              language: "italian",
+            }}
+            onSubmit={values => alert(JSON.stringify(values, null, 2))}
+          >
             <Form>
               <FormField label="Company Name" help="Required">
-                <Field name="companyName" placeholder="Company name" id="companyName" />
+                <Field name="companyName" placeholder="CompanyName" id="companyName" />
               </FormField>
 
               <FormField label="Language" labelFor="language">
@@ -43,7 +48,6 @@ const AddCustomerPage = () => {
 
               <Buttons>
                 <Button type="submit" color="info" label="Submit" />
-                <Button type="cancel" color="info" outline label="Cancel" />
               </Buttons>
             </Form>
           </Formik>
@@ -53,8 +57,4 @@ const AddCustomerPage = () => {
   );
 };
 
-AddCustomerPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AddCustomerPage;
+export default Customer;
