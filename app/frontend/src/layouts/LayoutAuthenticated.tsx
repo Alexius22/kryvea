@@ -1,6 +1,6 @@
 import { mdiBackburger, mdiForwardburger, mdiMenu } from "@mdi/js";
-import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
+import { useState } from "react";
+import { Outlet } from "react-router";
 import AsideMenu from "../components/AsideMenu";
 import FooterBar from "../components/FooterBar";
 import Icon from "../components/Icon";
@@ -9,30 +9,26 @@ import NavBarItemPlain from "../components/NavBar/Item/Plain";
 import menuNavBar from "../menuNavBar";
 import NextBreadcrumb from "./NextBreadcrumb";
 
-type Props = {
-  children: ReactNode;
-};
-
-export default function LayoutAuthenticated({ children }: Props) {
+export default function LayoutAuthenticated() {
   const [isAsideMobileExpanded, setIsAsideMobileExpanded] = useState(false);
   const [isAsideLgActive, setIsAsideLgActive] = useState(false);
 
-  const router = useRouter();
+  // const router = useRouter();
 
-  useEffect(() => {
-    const handleRouteChangeStart = () => {
-      setIsAsideMobileExpanded(false);
-      setIsAsideLgActive(false);
-    };
+  // useEffect(() => {
+  //   const handleRouteChangeStart = () => {
+  //     setIsAsideMobileExpanded(false);
+  //     setIsAsideLgActive(false);
+  //   };
 
-    router.events.on("routeChangeStart", handleRouteChangeStart);
+  //   router.events.on("routeChangeStart", handleRouteChangeStart);
 
-    // If the component is unmounted, unsubscribe
-    // from the event with the `off` method:
-    return () => {
-      router.events.off("routeChangeStart", handleRouteChangeStart);
-    };
-  }, [router.events]);
+  //   // If the component is unmounted, unsubscribe
+  //   // from the event with the `off` method:
+  //   return () => {
+  //     router.events.off("routeChangeStart", handleRouteChangeStart);
+  //   };
+  // }, [router.events]);
 
   const layoutAsidePadding = "xl:pl-60";
 
@@ -41,8 +37,9 @@ export default function LayoutAuthenticated({ children }: Props) {
       <div
         className={`${layoutAsidePadding} ${
           isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""
-        } pt-14 min-h-screen w-screen transition-position lg:w-auto bg-gray-50 dark:bg-slate-800 dark:text-slate-100`}
+        } min-h-screen w-screen bg-gray-50 pt-14 transition-position dark:bg-slate-800 dark:text-slate-100 lg:w-auto`}
       >
+        <span className="absolute flex h-0 w-0 animate-none cursor-auto flex-col overflow-auto bg-black bg-opacity-15 text-red-300 text-opacity-15"></span>
         <NavBar menu={menuNavBar} className={`${layoutAsidePadding} ${isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""}`}>
           <NavBarItemPlain display="flex lg:hidden" onClick={() => setIsAsideMobileExpanded(!isAsideMobileExpanded)}>
             <Icon path={isAsideMobileExpanded ? mdiBackburger : mdiForwardburger} size="24" />
@@ -59,7 +56,7 @@ export default function LayoutAuthenticated({ children }: Props) {
           isAsideLgActive={isAsideLgActive}
           onAsideLgClose={() => setIsAsideLgActive(false)}
         />
-        {children}
+        <Outlet />
         <FooterBar>
           <a target="_blank" rel="noreferrer" className="text-blue-600"></a>
         </FooterBar>

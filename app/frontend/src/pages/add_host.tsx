@@ -8,7 +8,7 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
 const AddHostPage = () => {
   return (

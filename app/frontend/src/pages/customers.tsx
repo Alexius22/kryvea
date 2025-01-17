@@ -1,6 +1,5 @@
 import { mdiEye, mdiListBox, mdiPlus, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import Head from "next/head";
-import { useContext, useState, type ReactElement } from "react";
+import { useContext, useEffect, useState, type ReactElement } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -9,12 +8,12 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 import { Field, Form, Formik } from "formik";
 import FormField from "../components/Form/Field";
-import { GlobalContext } from "./_app";
+import { GlobalContext } from "../../App";
 
-const CustomersList = () => {
+const Customers = () => {
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
@@ -26,6 +25,10 @@ const CustomersList = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
   };
+
+  useEffect(() => {
+    document.title = getPageTitle("Customers");
+  }, []);
 
   return (
     <>
@@ -42,9 +45,6 @@ const CustomersList = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <Head>
-        <title>{getPageTitle("Customers")}</title>
-      </Head>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
           <Button icon={mdiPlus} label="New customer" roundedFull small color="contrast" href="/add_customer" />
@@ -68,7 +68,7 @@ const CustomersList = () => {
               .map((el, i) => ({
                 Name: (
                   <span
-                    className="cursor-pointer hover:underline hover:text-blue-500"
+                    className="cursor-pointer hover:text-blue-500 hover:underline"
                     onClick={() => setCustomerName("customer" + i + 1)}
                   >
                     {i + 1}
@@ -79,7 +79,7 @@ const CustomersList = () => {
                 Language: i + 4,
               }))}
             buttons={
-              <td className="before:hidden lg:w-1 whitespace-nowrap">
+              <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button
                     color="info"
@@ -100,8 +100,4 @@ const CustomersList = () => {
   );
 };
 
-CustomersList.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default CustomersList;
+export default Customers;

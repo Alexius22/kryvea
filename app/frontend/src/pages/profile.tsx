@@ -14,7 +14,7 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
 import type { UserForm } from "../interfaces";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 import { GlobalContext } from "./_app";
 
 const ProfilePage = () => {
@@ -39,11 +39,11 @@ const ProfilePage = () => {
 
         <CardBoxUser className="mb-6" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="flex flex-col">
             <CardBox className="flex-1" hasComponentLayout>
               <Formik initialValues={userForm} onSubmit={(values: UserForm) => alert(JSON.stringify(values, null, 2))}>
-                <Form className="flex flex-col flex-1">
+                <Form className="flex flex-1 flex-col">
                   <CardBoxComponentBody>
                     <FormField label="Name" help="Required" labelFor="name" icons={[mdiAccount]}>
                       <Field name="name" id="name" placeholder="Name" />
@@ -71,7 +71,7 @@ const ProfilePage = () => {
               }}
               onSubmit={values => alert(JSON.stringify(values, null, 2))}
             >
-              <Form className="flex flex-col flex-1">
+              <Form className="flex flex-1 flex-col">
                 <CardBoxComponentBody>
                   <FormField label="Current password" help="Required" labelFor="currentPassword" icons={[mdiAsterisk]}>
                     <Field

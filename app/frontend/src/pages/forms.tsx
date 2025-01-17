@@ -10,7 +10,7 @@ import FormCheckRadio from "../components/Form/CheckRadio";
 import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 import FormField from "../components/Form/Field";
 import FormFilePicker from "../components/Form/FilePicker";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 import SectionMain from "../components/Section/Main";
 import SectionTitle from "../components/Section/Title";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";

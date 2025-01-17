@@ -1,21 +1,20 @@
 import { mdiTabSearch } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 import CardBox from "../components/CardBox";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const VulnerabilitiesList = () => {
+const Vulnerabilities = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Vulnerabilities");
+  }, []);
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Vulnerabilities")}</title>
-      </Head>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
         <Formik
@@ -50,8 +49,4 @@ const VulnerabilitiesList = () => {
   );
 };
 
-VulnerabilitiesList.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default VulnerabilitiesList;
+export default Vulnerabilities;

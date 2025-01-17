@@ -1,7 +1,6 @@
 import { mdiDownload, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import { useState, type ReactElement } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -11,9 +10,8 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
 
-const AssessmentsList = () => {
+const Assessments = () => {
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
@@ -21,6 +19,10 @@ const AssessmentsList = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
   };
+
+  useEffect(() => {
+    document.title = getPageTitle("Assessments");
+  }, []);
 
   return (
     <>
@@ -66,9 +68,6 @@ const AssessmentsList = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <Head>
-        <title>{getPageTitle("Assessments")}</title>
-      </Head>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
           <Button icon={mdiPlus} label="New assessment" roundedFull small color="contrast" href="/add_assessment" />
@@ -100,7 +99,7 @@ const AssessmentsList = () => {
                 Status: i + 1,
               }))}
             buttons={
-              <td className="before:hidden lg:w-1 whitespace-nowrap">
+              <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
                   <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
                   <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
@@ -116,8 +115,4 @@ const AssessmentsList = () => {
   );
 };
 
-AssessmentsList.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AssessmentsList;
+export default Assessments;

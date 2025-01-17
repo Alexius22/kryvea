@@ -1,25 +1,58 @@
-import { mdiContentSaveCheck, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiDownload, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
+import { Field, Form, Formik } from "formik";
 import Head from "next/head";
 import { useState, type ReactElement } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/Authenticated";
+import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const AssessmentPage = () => {
+const AssessmentsList = () => {
+  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
   const handleModalAction = () => {
+    setIsModalInfoActive(false);
     setIsModalTrashActive(false);
   };
 
   return (
     <>
+      <CardBoxModal
+        title="Download report"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalInfoActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik initialValues={{}} onSubmit={undefined}>
+          <Form>
+            <FormField label="Type" icons={[]}>
+              <Field name="type" component="select">
+                <option value="word">Word (.docx)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </Field>
+            </FormField>
+            <FormField label="Encryption">
+              <Field name="encryption" component="select">
+                <option value="none">None</option>
+                <option value="password">Password</option>
+              </Field>
+              <Field name="password" placeholder="Insert password" />
+            </FormField>
+            <FormField label="Options">
+              <Field name="options" placeholder="TODO" />
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
       <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
@@ -34,47 +67,48 @@ const AssessmentPage = () => {
         </p>
       </CardBoxModal>
       <Head>
-        <title>{getPageTitle("Assessment")}</title>
+        <title>{getPageTitle("Assessments")}</title>
       </Head>
       <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
-          <Buttons>
-            <Button icon={mdiPlus} label="New host" roundedFull small color="contrast" href="/add_host" />
-            <Button
-              icon={mdiPlus}
-              label="New vulnerability"
-              roundedFull
-              small
-              color="contrast"
-              href="/add_vulnerability"
-            />
-            <Button
-              icon={mdiContentSaveCheck}
-              label="Create report"
-              roundedFull
-              small
-              color="contrast"
-              href="/create_report"
-            />
-          </Buttons>
+        <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
+          <Button icon={mdiPlus} label="New assessment" roundedFull small color="contrast" href="/add_assessment" />
         </SectionTitleLineWithButton>
+        <Formik
+          initialValues={{
+            search: "",
+          }}
+          onSubmit={values => alert(JSON.stringify(values, null, 2))}
+        >
+          <Form className="mb-2">
+            <FormField isBorderless isTransparent>
+              <Field name="search" placeholder="Search" />
+            </FormField>
+          </Form>
+        </Formik>
         <CardBox hasTable>
           <Table
             data={Array(21)
               .fill(0)
               .map((el, i) => ({
-                Vulnerability: i + 1,
-                Host: i + 1,
-                "CVSS Score": i + 1,
+                Title: i + 1,
+                Type: i + 1,
+                "CVSS Type": i + 1,
+                "Vulnerabilties count": i + 1,
+                Start: i + 1,
+                End: i + 1,
+                Owners: i + 1,
+                Status: i + 1,
               }))}
             buttons={
-              <td className="before:hidden lg:w-1 whitespace-nowrap">
+              <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
+                  <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
+                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               </td>
             }
-            perPageCustom={10}
+            perPageCustom={50}
           />
         </CardBox>
       </SectionMain>
@@ -82,8 +116,8 @@ const AssessmentPage = () => {
   );
 };
 
-AssessmentPage.getLayout = function getLayout(page: ReactElement) {
+AssessmentsList.getLayout = function getLayout(page: ReactElement) {
   return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
 };
 
-export default AssessmentPage;
+export default AssessmentsList;

@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { Link } from "react-router";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
@@ -10,14 +9,13 @@ type TBreadCrumbProps = {
 };
 
 const NextBreadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) => {
-  const paths = usePathname();
-  const pathNames = paths.split("/").filter(path => path);
+  const pathNames = window.location.pathname.split("/").filter(path => path);
 
   return (
     <div className="pl-4">
       <ul className="flex gap-2">
-        <li className={"hover:underline hover:text-slate-500"}>
-          <Link href={"/"}>{homeElement}</Link>
+        <li className={"hover:text-slate-500 hover:underline"}>
+          <Link to={"/"}>{homeElement}</Link>
         </li>
         {pathNames.length > 0 && separator}
         {pathNames.map((link, index) => {
@@ -33,7 +31,7 @@ const NextBreadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumb
           return (
             <React.Fragment key={index}>
               <li className={`${!isLast && "hover:text-slate-600 hover:underline"}`}>
-                {isLast ? <span>{itemLink}</span> : <Link href={href}>{itemLink}</Link>}
+                {isLast ? <span>{itemLink}</span> : <Link to={href}>{itemLink}</Link>}
               </li>
               {pathNames.length !== index + 1 && separator}
             </React.Fragment>
