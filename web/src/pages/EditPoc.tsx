@@ -1,21 +1,18 @@
-import { mdiFileEdit, mdiPlus } from "@mdi/js";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { mdiPlus } from "@mdi/js";
+import { useEffect } from "react";
 import Button from "../components/Button";
+import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import SectionMain from "../components/Section/Main";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
-import Buttons from "../components/Buttons";
 
-const EditPocPage = () => {
+const EditPoc = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Add PoC");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Add PoC")}</title>
-      </Head>
-
       <SectionMain>
         <CardBox className="mb-6 flex" hasTable>
           <table className="table-fixed">
@@ -40,8 +37,4 @@ const EditPocPage = () => {
   );
 };
 
-EditPocPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default EditPocPage;
+export default EditPoc;

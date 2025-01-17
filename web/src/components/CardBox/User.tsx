@@ -2,7 +2,7 @@ import { mdiCheckDecagram } from "@mdi/js";
 import { Formik } from "formik";
 import { useContext } from "react";
 import CardBox from ".";
-import { GlobalContext } from "../../pages/_app";
+import { GlobalContext } from "../../../App";
 import PillTag from "../PillTag";
 
 type Props = {
@@ -16,7 +16,7 @@ const CardBoxUser = ({ className }: Props) => {
 
   return (
     <CardBox className={className}>
-      <div className="flex flex-col lg:flex-row items-center justify-around lg:justify-center">
+      <div className="flex flex-col items-center justify-around lg:flex-row lg:justify-center">
         <div className="space-y-3 text-center md:text-left lg:mx-12">
           <div className="flex justify-center md:block">
             <Formik

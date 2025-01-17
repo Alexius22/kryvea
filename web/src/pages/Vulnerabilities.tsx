@@ -1,13 +1,12 @@
 import { mdiTabSearch } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import { useEffect, type ReactElement } from "react";
+import { useEffect } from "react";
 import CardBox from "../components/CardBox";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
 const Vulnerabilities = () => {
   useEffect(() => {

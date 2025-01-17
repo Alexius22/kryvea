@@ -1,7 +1,6 @@
-import { mdiDownload, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
+import { mdiAccountEdit, mdiEye, mdiHumanEdit, mdiListBox, mdiPlus, mdiTagEdit, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import { useState, type ReactElement } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -11,9 +10,10 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
+import FormCheckRadio from "../components/Form/CheckRadio";
+import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 
-const AssessmentsList = () => {
+const Users = () => {
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
@@ -22,33 +22,50 @@ const AssessmentsList = () => {
     setIsModalTrashActive(false);
   };
 
+  useEffect(() => {
+    document.title = getPageTitle("Users");
+  }, []);
+
   return (
     <>
       <CardBoxModal
-        title="Download report"
+        title="Edit user"
         buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Formik initialValues={{}} onSubmit={undefined}>
+        <Formik
+          initialValues={{
+            username: "TestUser",
+            role: "Administrator",
+          }}
+          onSubmit={values => alert(JSON.stringify(values, null, 2))}
+        >
           <Form>
-            <FormField label="Type" icons={[]}>
-              <Field name="type" component="select">
-                <option value="word">Word (.docx)</option>
-                <option value="excel">Excel (.xlsx)</option>
+            <FormField label="Username" help="Required">
+              <Field name="username" placeholder="username" id="username" />
+            </FormField>
+
+            <FormField label="Role">
+              <Field id="role" component="select">
+                <option value="administrator">Administrator</option>
+                <option value="user">User</option>
               </Field>
             </FormField>
-            <FormField label="Encryption">
-              <Field name="encryption" component="select">
-                <option value="none">None</option>
-                <option value="password">Password</option>
+            <FormField label="Customers">
+              <Field id="customers" component="select">
+                <option value="customer1">customer1</option>
+                <option value="customer2">customer2</option>
               </Field>
-              <Field name="password" placeholder="Insert password" />
             </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
+            <FormField label="User enabled">
+              <FormCheckRadioGroup>
+                <FormCheckRadio type="checkbox" label="Active">
+                  <Field checked type="checkbox" name="active_user" value="active" />
+                </FormCheckRadio>
+              </FormCheckRadioGroup>
             </FormField>
           </Form>
         </Formik>
@@ -61,17 +78,14 @@ const AssessmentsList = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>Are you sure to delete this customer?</p>
+        <p>Are you sure to delete this user?</p>
         <p>
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <Head>
-        <title>{getPageTitle("Assessments")}</title>
-      </Head>
       <SectionMain>
-        <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-          <Button icon={mdiPlus} label="New assessment" roundedFull small color="contrast" href="/add_assessment" />
+        <SectionTitleLineWithButton icon={mdiListBox} title="Users">
+          <Button icon={mdiPlus} label="New user" roundedFull small color="contrast" href="/adduser" />
         </SectionTitleLineWithButton>
         <Formik
           initialValues={{
@@ -90,25 +104,20 @@ const AssessmentsList = () => {
             data={Array(21)
               .fill(0)
               .map((el, i) => ({
-                Title: i + 1,
-                Type: i + 1,
-                "CVSS Type": i + 1,
-                "Vulnerabilties count": i + 1,
-                Start: i + 1,
-                End: i + 1,
-                Owners: i + 1,
-                Status: i + 1,
+                Username: i + 1,
+                Role: i + 1,
+                Customers: i + 1,
+                Active: i + 1,
               }))}
             buttons={
               <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
+                  <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               </td>
             }
-            perPageCustom={50}
+            perPageCustom={100}
           />
         </CardBox>
       </SectionMain>
@@ -116,8 +125,4 @@ const AssessmentsList = () => {
   );
 };
 
-AssessmentsList.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AssessmentsList;
+export default Users;

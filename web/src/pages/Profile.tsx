@@ -1,7 +1,7 @@
 import { mdiAccount, mdiAsterisk, mdiFormTextboxPassword, mdiMail } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import { useContext, type ReactElement } from "react";
+import { useContext, useEffect } from "react";
+import { GlobalContext } from "../../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -14,10 +14,8 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
 import type { UserForm } from "../interfaces";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
-import { GlobalContext } from "./_app";
 
-const ProfilePage = () => {
+const Profile = () => {
   const {
     useUsername: [username],
     useUserEmail: [userEmail],
@@ -28,12 +26,12 @@ const ProfilePage = () => {
     email: userEmail,
   };
 
+  useEffect(() => {
+    document.title = getPageTitle("Profile");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Profile")}</title>
-      </Head>
-
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main></SectionTitleLineWithButton>
 
@@ -45,7 +43,7 @@ const ProfilePage = () => {
               <Formik initialValues={userForm} onSubmit={(values: UserForm) => alert(JSON.stringify(values, null, 2))}>
                 <Form className="flex flex-1 flex-col">
                   <CardBoxComponentBody>
-                    <FormField label="Name" help="Required" labelFor="name" icons={[mdiAccount]}>
+                    <FormField label="Username" help="Required" labelFor="name" icons={[mdiAccount]}>
                       <Field name="name" id="name" placeholder="Name" />
                     </FormField>
                     <FormField label="E-mail" help="Required" labelFor="email" icons={[mdiMail]}>
@@ -122,8 +120,4 @@ const ProfilePage = () => {
   );
 };
 
-ProfilePage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default ProfilePage;
+export default Profile;

@@ -1,18 +1,17 @@
 import { Field, Form, Formik } from "formik";
-import Head from "next/head";
-import type { ReactElement } from "react";
+import { useEffect } from "react";
 import CardBox from "../components/CardBox";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
 
-const AddAssessmentPage = () => {
+const EditReport = () => {
+  useEffect(() => {
+    document.title = getPageTitle("Edit Report");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("New Assessment")}</title>
-      </Head>
       <SectionMain>
         <CardBox>
           <Formik initialValues={{}} onSubmit={undefined}>
@@ -29,8 +28,4 @@ const AddAssessmentPage = () => {
   );
 };
 
-AddAssessmentPage.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutAuthenticated>{page}</LayoutAuthenticated>;
-};
-
-export default AddAssessmentPage;
+export default EditReport;

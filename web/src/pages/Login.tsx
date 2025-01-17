@@ -1,17 +1,15 @@
-import React from "react";
-import type { ReactElement } from "react";
-import Head from "next/head";
-import Button from "../components/Button";
-import CardBox from "../components/CardBox";
-import SectionFullScreen from "../components/Section/FullScreen";
-import LayoutGuest from "../layouts/Guest";
 import { Field, Form, Formik } from "formik";
-import FormField from "../components/Form/Field";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import Divider from "../components/Divider";
+import { useEffect, type ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import { useRouter } from "next/router";
+import CardBox from "../components/CardBox";
+import Divider from "../components/Divider";
+import FormCheckRadio from "../components/Form/CheckRadio";
+import FormField from "../components/Form/Field";
+import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
+import LayoutGuest from "../layouts/Guest";
 
 type LoginForm = {
   login: string;
@@ -19,12 +17,11 @@ type LoginForm = {
   remember: boolean;
 };
 
-const LoginPage = () => {
-  const router = useRouter();
+const Login = () => {
+  const navigate = useNavigate();
 
-  const handleSubmit = (formValues: LoginForm) => {
-    router.push("/dashboard");
-    console.log("Form values", formValues);
+  const handleSubmit = formValues => {
+    navigate("/dashboard");
   };
 
   const initialValues: LoginForm = {
@@ -33,14 +30,14 @@ const LoginPage = () => {
     remember: true,
   };
 
+  useEffect(() => {
+    document.title = getPageTitle("Login");
+  }, []);
+
   return (
     <>
-      <Head>
-        <title>{getPageTitle("Login")}</title>
-      </Head>
-
       <SectionFullScreen bg="pinkRed">
-        <CardBox className="w-11/12 md:w-7/12 lg:w-6/12 xl:w-4/12 shadow-2xl">
+        <CardBox className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12">
           <Formik initialValues={initialValues} onSubmit={handleSubmit}>
             <Form>
               <FormField label="Login" help="Please enter your login">
@@ -68,8 +65,8 @@ const LoginPage = () => {
   );
 };
 
-LoginPage.getLayout = function getLayout(page: ReactElement) {
+Login.getLayout = function getLayout(page: ReactElement) {
   return <LayoutGuest>{page}</LayoutGuest>;
 };
 
-export default LoginPage;
+export default Login;
