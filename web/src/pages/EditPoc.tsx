@@ -3,34 +3,30 @@ import { useEffect } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
+import CardBoxComponentTitle from "../components/CardBox/Component/Title";
+import Divider from "../components/Divider";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
 
 const EditPoc = () => {
   useEffect(() => {
-    document.title = getPageTitle("Add PoC");
+    document.title = getPageTitle("Edit PoC");
   }, []);
 
   return (
     <>
       <SectionMain>
-        <CardBox className="mb-6 flex" hasTable>
-          <table className="table-fixed">
-            <thead>
-              <tr>
-                <th>Edit PoC</th>
-              </tr>
-            </thead>
-            <tr>
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="text-center" noWrap>
-                  <Button label="Request/Response" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
-                  <Button label="Image" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
-                  <Button label="Text" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
-                </Buttons>
-              </td>
-            </tr>
-          </table>
+        <CardBox>
+          <CardBoxComponentTitle title="Edit PoC"></CardBoxComponentTitle>
+          <Buttons>
+            <Button label="Request/Response" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
+            <Button label="Image" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
+            <Button label="Text" color="contrast" icon={mdiPlus} onClick={() => undefined} small />
+          </Buttons>
+          <Divider />
+          <Buttons>
+            <Button label="Submit" color="info" />
+          </Buttons>
         </CardBox>
       </SectionMain>
     </>
