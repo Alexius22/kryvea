@@ -15,7 +15,7 @@ const (
 )
 
 type Customer struct {
-	model
+	Model
 	Name               string `json:"name" bson:"name"`
 	Language           string `json:"language" bson:"language"`
 	DefaultCVSSVersion int    `json:"default_cvss_version" bson:"default_cvss_version"`
@@ -47,7 +47,7 @@ func (ci CustomerIndex) init() error {
 }
 
 func (ci *CustomerIndex) Insert(customer *Customer) error {
-	customer.model = model{
+	customer.Model = Model{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -62,6 +62,16 @@ func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, erro
 }
 
 func (ci *CustomerIndex) GetAll() ([]Customer, error) {
-	// TODO
-	return nil, nil
+	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var customers []Customer
+	if err := cursor.All(context.Background(), &customers); err != nil {
+		return nil, err
+	}
+
+	return customers, nil
 }
