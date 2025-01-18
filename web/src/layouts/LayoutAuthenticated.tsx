@@ -13,23 +13,6 @@ export default function LayoutAuthenticated() {
   const [isAsideMobileExpanded, setIsAsideMobileExpanded] = useState(false);
   const [isAsideLgActive, setIsAsideLgActive] = useState(false);
 
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   const handleRouteChangeStart = () => {
-  //     setIsAsideMobileExpanded(false);
-  //     setIsAsideLgActive(false);
-  //   };
-
-  //   router.events.on("routeChangeStart", handleRouteChangeStart);
-
-  //   // If the component is unmounted, unsubscribe
-  //   // from the event with the `off` method:
-  //   return () => {
-  //     router.events.off("routeChangeStart", handleRouteChangeStart);
-  //   };
-  // }, [router.events]);
-
   const layoutAsidePadding = "xl:pl-60";
 
   return (
