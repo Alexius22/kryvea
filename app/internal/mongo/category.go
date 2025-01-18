@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"regexp"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -82,8 +83,8 @@ func (ci *CategoryIndex) GetByID(categoryID primitive.ObjectID) (*Category, erro
 
 func (ci *CategoryIndex) Search(query string) ([]Category, error) {
 	cursor, err := ci.collection.Find(context.Background(), bson.M{"$or": []bson.M{
-		{"index": bson.M{"$regex": primitive.Regex{Pattern: query, Options: "i"}}},
-		{"name": bson.M{"$regex": primitive.Regex{Pattern: query, Options: "i"}}},
+		{"index": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+		{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 	}})
 	if err != nil {
 		return nil, err
