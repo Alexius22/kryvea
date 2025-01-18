@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
+import RouteWatcher from "./src/layouts/RouteWatcher";
 import AddAssessment from "./src/pages/AddAssessment";
 import AddCustomer from "./src/pages/AddCustomer";
 import AddHost from "./src/pages/AddHost";
@@ -45,6 +46,7 @@ export default function App() {
       }}
     >
       <BrowserRouter>
+        <RouteWatcher />
         <Routes>
           <Route element={<LayoutAuthenticated />}>
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
