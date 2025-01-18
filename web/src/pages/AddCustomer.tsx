@@ -32,9 +32,9 @@ const AddCustomer = () => {
 
               <FormField label="Default CVSS Version" labelFor="cvss">
                 <Field name="cvss" id="cvss" component="select">
-                  <option value="2">2</option>
-                  <option value="3.1">3.1</option>
                   <option value="4">4</option>
+                  <option value="3.1">3.1</option>
+                  <option value="2">2</option>
                 </Field>
               </FormField>
 
