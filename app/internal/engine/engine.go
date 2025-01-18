@@ -51,7 +51,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/assessments/:customer", api.GetAllAssessments)
 		apiGroup.Post("/assessment", api.AddAssessment)
 
-		apiGroup.Get("/targets/search", api.SearchTargets)
+		apiGroup.Get("/targets/:customer/search", api.SearchTargets)
 		apiGroup.Get("/targets/:customer", api.GetAllTargets)
 		apiGroup.Post("/target", api.AddTarget)
 

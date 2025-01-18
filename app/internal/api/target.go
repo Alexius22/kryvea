@@ -58,6 +58,22 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchTargets(c *fiber.Ctx) error {
+	customer := c.Params("customer")
+	if customer == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Customer ID is required",
+		})
+	}
+
+	customerId, err := util.ParseMongoID(customer)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
 	query := c.Query("query")
 	if query == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -66,7 +82,7 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	target, err := d.mongo.Target().Search(query)
+	target, err := d.mongo.Target().Search(customerId, query)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
