@@ -57,7 +57,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) SearchTarget(c *fiber.Ctx) error {
+func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 	query := c.Query("query")
 	if query == "" {
 		c.Status(fiber.StatusBadRequest)
