@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
 import AddAssessment from "./src/pages/AddAssessment";
+import AddCustomer from "./src/pages/AddCustomer";
 import AddHost from "./src/pages/AddHost";
 import AddUser from "./src/pages/AddUser";
 import AddVulnerability from "./src/pages/AddVulnerability";
@@ -10,14 +11,14 @@ import Assessments from "./src/pages/Assessments";
 import Customer from "./src/pages/Customer";
 import Customers from "./src/pages/Customers";
 import Dashboard from "./src/pages/Dashboard";
+import EditPoc from "./src/pages/EditPoc";
+import EditReport from "./src/pages/EditReport";
+import Error from "./src/pages/Error";
 import Login from "./src/pages/Login";
 import Profile from "./src/pages/Profile";
 import Users from "./src/pages/Users";
 import Vulnerabilities from "./src/pages/Vulnerabilities";
 import Vulnerability from "./src/pages/Vulnerability";
-import EditPoc from "./src/pages/EditPoc";
-import AddCustomer from "./src/pages/AddCustomer";
-import EditReport from "./src/pages/EditReport";
 
 export const GlobalContext = createContext<any>({});
 
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
+            <Route path="/error" element={<Error />} />
           </Route>
         </Routes>
       </BrowserRouter>
