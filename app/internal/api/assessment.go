@@ -110,13 +110,13 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot create customer",
+			"error": "Cannot create assessment",
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Customer created",
+		"message": "Assessment created",
 	})
 }
 

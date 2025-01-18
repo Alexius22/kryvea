@@ -59,8 +59,9 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories", api.GetAllCategories)
 		apiGroup.Post("/category", api.AddCategory)
 
-		// apiGroup.Post("/vulnerabilities", api.GetAllVulnerabilities)
-		// apiGroup.Post("/add-vulnerability", api.AddVulnerability)
+		apiGroup.Get("/vulnerabilities/:assessment/search", api.SearchVulnerabilities)
+		apiGroup.Get("/vulnerabilities/:assessment", api.GetAllVulnerabilities)
+		apiGroup.Post("/vulnerability", api.AddVulnerability)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
