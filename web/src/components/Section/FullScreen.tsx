@@ -1,7 +1,7 @@
-import React, { ReactNode, useContext } from "react";
-import { BgKey } from "../../interfaces";
-import { gradientBgPurplePink, gradientBgDark, gradientBgPinkRed } from "../../colors";
+import { ReactNode, useContext } from "react";
 import { GlobalContext } from "../../../App";
+import { gradientBgDark, gradientBgPinkRed, gradientBgPurplePink } from "../../colors";
+import { BgKey } from "../../interfaces";
 
 type Props = {
   bg: BgKey;
@@ -13,7 +13,7 @@ export default function SectionFullScreen({ bg, children }: Props) {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
 
-  let componentClass = "flex min-h-screen items-center justify-center ";
+  let componentClass = "flex min-h-screen items-center justify-center absolute h-[104vh] -top-10 w-screen left-0 z-50 ";
 
   if (darkTheme) {
     componentClass += gradientBgDark;

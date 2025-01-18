@@ -1,5 +1,5 @@
 import { Field, Form, Formik } from "formik";
-import { useEffect, type ReactElement } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
@@ -9,7 +9,6 @@ import FormCheckRadio from "../components/Form/CheckRadio";
 import FormField from "../components/Form/Field";
 import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
-import LayoutGuest from "../layouts/Guest";
 
 type LoginForm = {
   login: string;
@@ -20,13 +19,13 @@ type LoginForm = {
 const Login = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = formValues => {
+  const handleSubmit = _ => {
     navigate("/dashboard");
   };
 
   const initialValues: LoginForm = {
-    login: "john.doe",
-    password: "bG1sL9eQ1uD2sK3b",
+    login: "TestUser",
+    password: "secretpassword",
     remember: true,
   };
 
@@ -40,11 +39,11 @@ const Login = () => {
         <CardBox className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12">
           <Formik initialValues={initialValues} onSubmit={handleSubmit}>
             <Form>
-              <FormField label="Login" help="Please enter your login">
+              <FormField label="Login">
                 <Field name="login" />
               </FormField>
 
-              <FormField label="Password" help="Please enter your password">
+              <FormField label="Password">
                 <Field name="password" type="password" />
               </FormField>
 
@@ -63,10 +62,6 @@ const Login = () => {
       </SectionFullScreen>
     </>
   );
-};
-
-Login.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutGuest>{page}</LayoutGuest>;
 };
 
 export default Login;

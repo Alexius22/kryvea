@@ -1,8 +1,7 @@
-import { useEffect, type ReactElement } from "react";
+import { useEffect } from "react";
 import Button from "../components/Button";
 import CardBox from "../components/CardBox";
 import SectionFullScreen from "../components/Section/FullScreen";
-import LayoutGuest from "../layouts/Guest";
 import { getPageTitle } from "../config";
 
 const Error = () => {
@@ -19,17 +18,12 @@ const Error = () => {
         >
           <div className="space-y-3">
             <h1 className="text-2xl">Unhandled exception</h1>
-
-            <p>An Error Occurred</p>
+            <p>An error occurred</p>
           </div>
         </CardBox>
       </SectionFullScreen>
     </>
   );
-};
-
-Error.getLayout = function getLayout(page: ReactElement) {
-  return <LayoutGuest>{page}</LayoutGuest>;
 };
 
 export default Error;
