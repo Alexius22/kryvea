@@ -91,10 +91,13 @@ func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target,
 	return targets, nil
 }
 
-func (ti *TargetIndex) Search(ip string) ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{"$or": []bson.M{
-		{"ip": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-		{"hostname": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+func (ti *TargetIndex) Search(customerID primitive.ObjectID, ip string) ([]Target, error) {
+	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
+		{"customer_id": customerID},
+		{"$or": []bson.M{
+			{"ip": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"hostname": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+		}},
 	}})
 	if err != nil {
 		return nil, err
