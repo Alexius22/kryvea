@@ -47,22 +47,20 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/customer", api.AddCustomer)
 
-		apiGroup.Get("/assessments/search", api.SearchAssessment)
-		apiGroup.Get("/assessments/:customer", api.GetAllAssessment)
+		apiGroup.Get("/assessments/search", api.SearchAssessments)
+		apiGroup.Get("/assessments/:customer", api.GetAllAssessments)
 		apiGroup.Post("/assessment", api.AddAssessment)
 
-		apiGroup.Get("/targets/search", api.SearchTarget)
+		apiGroup.Get("/targets/search", api.SearchTargets)
 		apiGroup.Get("/targets/:customer", api.GetAllTargets)
 		apiGroup.Post("/target", api.AddTarget)
-		// apiGroup.Post("/targets", api.GetAllTargets)
-		// apiGroup.Post("/add-target", api.AddTarget)
-		// apiGroup.Post("/search-target", api.SearchTarget)
+
+		apiGroup.Get("/categories/search", api.SearchCategories)
+		apiGroup.Get("/categories", api.GetAllCategories)
+		apiGroup.Post("/category", api.AddCategory)
 
 		// apiGroup.Post("/vulnerabilities", api.GetAllVulnerabilities)
 		// apiGroup.Post("/add-vulnerability", api.AddVulnerability)
-
-		// apiGroup.Get("/categories", api.GetAllCategories)
-		// apiGroup.Post("/add-category", api.AddCategory)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

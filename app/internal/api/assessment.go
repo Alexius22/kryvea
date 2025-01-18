@@ -120,7 +120,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) SearchAssessment(c *fiber.Ctx) error {
+func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	name := c.Query("name")
 	if name == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -141,7 +141,7 @@ func (d *Driver) SearchAssessment(c *fiber.Ctx) error {
 	return c.JSON(assessments)
 }
 
-func (d *Driver) GetAllAssessment(c *fiber.Ctx) error {
+func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
 	customer := c.Params("customer")
 	if customer == "" {
 		c.Status(fiber.StatusBadRequest)
