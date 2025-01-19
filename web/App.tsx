@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
 import RouteWatcher from "./src/layouts/RouteWatcher";
@@ -22,7 +22,12 @@ import {
   Vulnerabilities,
   Vulnerability,
 } from "./src/pages";
-export const GlobalContext = createContext<any>({});
+export const GlobalContext = createContext<{
+  useUserEmail: [string, Dispatch<SetStateAction<string>>];
+  useUsername: [string, Dispatch<SetStateAction<string>>];
+  useCustomerName: [string, Dispatch<SetStateAction<string>>];
+  useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+}>(null);
 
 export default function App() {
   const useUserEmail = useState<string>("test@email.com");
