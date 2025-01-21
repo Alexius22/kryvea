@@ -102,7 +102,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetAllUsers(c *fiber.Ctx) error {
-	users, err := d.mongo.User().GetAllUsers()
+	users, err := d.mongo.User().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

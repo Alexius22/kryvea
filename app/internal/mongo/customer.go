@@ -57,8 +57,11 @@ func (ci *CustomerIndex) Insert(customer *Customer) error {
 }
 
 func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, error) {
-	// TODO
-	return nil, nil
+	var customer Customer
+	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
+		return nil, err
+	}
+	return &customer, nil
 }
 
 func (ci *CustomerIndex) GetAll() ([]Customer, error) {
