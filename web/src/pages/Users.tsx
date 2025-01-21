@@ -1,17 +1,17 @@
-import { mdiAccountEdit, mdiEye, mdiHumanEdit, mdiListBox, mdiPlus, mdiTagEdit, mdiTrashCan } from "@mdi/js";
+import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import FormCheckRadio from "../components/Form/CheckRadio";
+import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 
 const Users = () => {
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
@@ -85,7 +85,7 @@ const Users = () => {
       </CardBoxModal>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-          <Button icon={mdiPlus} label="New user" roundedFull small color="contrast" href="/adduser" />
+          <Button icon={mdiPlus} label="New user" roundedFull small color="contrast" href="/add_user" />
         </SectionTitleLineWithButton>
         <Formik
           initialValues={{
