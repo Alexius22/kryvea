@@ -2,7 +2,6 @@ package engine
 
 import (
 	"github.com/Alexius22/kryvea/internal/api"
-	"github.com/Alexius22/kryvea/internal/middleware"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -42,7 +41,7 @@ func (e *Engine) Serve() {
 
 	api := api.NewDriver(e.mongo)
 
-	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), middleware.Api)
+	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), api.Middleware)
 	{
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/customer", api.AddCustomer)

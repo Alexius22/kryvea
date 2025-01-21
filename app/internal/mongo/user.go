@@ -77,7 +77,7 @@ func (ui *UserIndex) Insert(user *User) error {
 func (ui *UserIndex) Login(username, password string) (string, time.Time, error) {
 	var user User
 	if err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user); err != nil {
-		return "", time.Time{}, ErrInvalidCredentials
+		return "", time.Time{}, err
 	}
 
 	if !crypto.Compare(password, user.Password) {
@@ -99,7 +99,7 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	return token, expires, nil
 }
 
-func (ui *UserIndex) GetAllUsers() ([]User, error) {
+func (ui *UserIndex) GetAll() ([]User, error) {
 	opts := options.Find().SetProjection(bson.M{
 		"_id":        1,
 		"created_at": 1,
@@ -123,4 +123,13 @@ func (ui *UserIndex) GetAllUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func (ui *UserIndex) GetByToken(token string) (*User, error) {
+	var user User
+	if err := ui.collection.FindOne(context.Background(), bson.M{"token": token}).Decode(&user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
