@@ -4,7 +4,7 @@ import Icon from "../Icon";
 import "./Accordion.css";
 
 //  accordionitem component
-const AccordionItem = ({ question, answer, isOpen, onClick }) => {
+const AccordionItem = ({ question, isOpen, onClick, children }) => {
   const contentHeight = useRef<HTMLDivElement>();
   return (
     <div className="wrapper">
@@ -18,15 +18,15 @@ const AccordionItem = ({ question, answer, isOpen, onClick }) => {
         className="answer-container"
         style={isOpen ? { height: contentHeight.current.scrollHeight } : { height: "0px" }}
       >
-        <p className="answer-content">{answer}</p>
+        {children}
       </div>
     </div>
   );
 };
 
-const Accordion = () => {
+const Accordion = ({ children }) => {
   const [activeIndex, setActiveIndex] = useState(null);
-  const [yes, setYes] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleItemClick = index => {
     setActiveIndex(prevIndex => (prevIndex === index ? null : index));
@@ -34,14 +34,15 @@ const Accordion = () => {
   const index = "accordion1";
 
   return (
-    <div className="container">
+    <div className="Accordion-container">
       <AccordionItem
         key={index}
         question={"are you a developer?"}
-        answer={"yes, I am a developer"}
-        isOpen={yes}
-        onClick={() => setYes(prev => !prev)}
-      />
+        isOpen={isOpen}
+        onClick={() => setIsOpen(prev => !prev)}
+      >
+        {children}
+      </AccordionItem>
     </div>
   );
 };
