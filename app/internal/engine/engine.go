@@ -65,6 +65,10 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/pocs/:vulnerability", api.GetAllPocs)
 		apiGroup.Post("/poc", api.AddPoc)
+
+		apiGroup.Get("/users", api.GetAllUsers)
+		apiGroup.Post("/login", api.Login)
+		apiGroup.Post("/register", api.Register)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

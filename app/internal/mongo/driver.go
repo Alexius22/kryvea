@@ -31,6 +31,7 @@ func NewDriver(uri string) (*Driver, error) {
 		d.Category(),
 		d.Vulnerability(),
 		d.Poc(),
+		d.User(),
 	}
 
 	for _, i := range indexes {
