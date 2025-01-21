@@ -1,8 +1,8 @@
-import { Children, cloneElement, ReactElement, ReactNode } from "react";
+import React, { Children, cloneElement, ReactElement, ReactNode } from "react";
 import Icon from "../Icon";
 
 type Props = {
-  label?: string;
+  label?: string | string[];
   labelFor?: string;
   help?: string;
   icons?: string[] | null[];
@@ -23,6 +23,9 @@ const FormField = ({ icons = [], ...props }: Props) => {
       break;
     case 3:
       elementWrapperClass = "grid grid-cols-1 gap-3 md:grid-cols-3";
+      break;
+    default:
+      elementWrapperClass = "grid grid-cols-1 gap-3";
   }
 
   const controlClassName = [
@@ -33,31 +36,40 @@ const FormField = ({ icons = [], ...props }: Props) => {
     props.isTransparent ? "bg-transparent" : "bg-white dark:bg-slate-800",
   ].join(" ");
 
+  const labels = Array.isArray(props.label) ? props.label : [props.label];
+
   return (
     <div className="mb-6 last:mb-0">
-      {props.label && (
-        <label htmlFor={props.labelFor} className={`block font-bold mb-2 ${props.labelFor ? "cursor-pointer" : ""}`}>
-          {props.label}
-        </label>
-      )}
-      <div className={`${elementWrapperClass}`}>
-        {Children.map(props.children, (child: ReactElement, index) => (
-          <div className="relative">
-            {cloneElement(child, {
-              className: `${controlClassName} ${icons[index] ? "pl-10" : ""}`,
-            })}
-            {icons[index] && (
-              <Icon
-                path={icons[index]}
-                w="w-10"
-                h={props.hasTextareaHeight ? "h-full" : "h-12"}
-                className="absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-              />
-            )}
-          </div>
-        ))}
+      <div className={elementWrapperClass}>
+        {Children.toArray(props.children)
+          .filter((child): child is ReactElement => React.isValidElement(child))
+          .map((child, index) => (
+            <div className="relative" key={index}>
+              {labels[index] ? (
+                <label
+                  htmlFor={props.labelFor}
+                  className={`mb-2 block font-bold ${props.labelFor ? "cursor-pointer" : ""}`}
+                >
+                  {labels[index]}
+                </label>
+              ) : (
+                <div className="mb-2 block h-6 font-bold" />
+              )}
+              {cloneElement(child, {
+                className: `${controlClassName} ${icons[index] ? "pl-10" : ""}`,
+              })}
+              {icons[index] && (
+                <Icon
+                  path={icons[index]}
+                  w="w-10"
+                  h={props.hasTextareaHeight ? "h-full" : "h-12"}
+                  className="pointer-events-none absolute left-0 top-0 z-10 text-gray-500 dark:text-slate-400"
+                />
+              )}
+            </div>
+          ))}
       </div>
-      {props.help && <div className="text-xs text-gray-500 dark:text-slate-400 mt-1">{props.help}</div>}
+      {props.help && <div className="mt-1 text-xs text-gray-500 dark:text-slate-400">{props.help}</div>}
     </div>
   );
 };
