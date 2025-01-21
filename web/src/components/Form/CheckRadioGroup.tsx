@@ -7,7 +7,7 @@ type Props = {
 
 const FormCheckRadioGroup = (props: Props) => {
   return (
-    <div className={`-mb-3 flex flex-wrap justify-start ${props.isColumn ? "flex-col" : ""}`}>
+    <div className={`-mb-3 flex h-full flex-wrap justify-start gap-10 ${props.isColumn ? "flex-col" : ""}`}>
       {Children.toArray(props.children)
         .filter((child): child is ReactElement => React.isValidElement(child))
         .map(child =>
