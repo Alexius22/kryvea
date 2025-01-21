@@ -9,10 +9,11 @@ type Props = {
   isBorderless?: boolean;
   isTransparent?: boolean;
   hasTextareaHeight?: boolean;
+  noHeight?: boolean;
   children: ReactNode;
 };
 
-const FormField = ({ icons = [], ...props }: Props) => {
+const FormField = ({ icons = [], noHeight, ...props }: Props) => {
   const childrenCount = Children.count(props.children);
 
   let elementWrapperClass = "";
@@ -53,7 +54,7 @@ const FormField = ({ icons = [], ...props }: Props) => {
                   {labels[index]}
                 </label>
               ) : (
-                <div className="mb-2 block h-6 font-bold" />
+                <div className={`mb-2 block font-bold ${noHeight ? "" : "h-6"}`} />
               )}
               {cloneElement(child, {
                 className: `${controlClassName} ${icons[index] ? "pl-10" : ""}`,
@@ -63,7 +64,7 @@ const FormField = ({ icons = [], ...props }: Props) => {
                   path={icons[index]}
                   w="w-10"
                   h={props.hasTextareaHeight ? "h-full" : "h-12"}
-                  className="pointer-events-none absolute left-0 top-0 z-10 text-gray-500 dark:text-slate-400"
+                  className="pointer-events-none absolute left-0 top-8 z-10 text-gray-500 dark:text-slate-400"
                 />
               )}
             </div>

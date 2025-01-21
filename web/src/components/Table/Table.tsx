@@ -64,8 +64,8 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
           )}
         </tbody>
       </table>
-      <div className="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800">
-        <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0">
+      <div className="border-t border-gray-100 p-3 dark:border-slate-800 lg:px-6">
+        <div className="flex flex-col items-center justify-between py-3 md:flex-row md:py-0">
           <Buttons>
             {pagesList.map(page => (
               <Button
@@ -80,7 +80,7 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
           </Buttons>
           <Formik initialValues={undefined} onSubmit={undefined}>
             <Form className="ml-auto mr-2 w-20">
-              <FormField>
+              <FormField noHeight>
                 <Field type="number" value={perPage} onChange={val => setPerPage(+val.target.value)} />
               </FormField>
             </Form>
