@@ -1,9 +1,8 @@
 import { useContext, useState } from "react";
-import Select from "react-select";
-import { SelectOption } from "./SelectWrapper.types";
-import { ActionMeta, InputActionMeta, MultiValue } from "react-select";
-import { GlobalContext } from "../../../App";
+import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
+import { GlobalContext } from "../../../App";
+import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
   options: SelectOption[];
@@ -49,35 +48,34 @@ export default function SelectWrapper({
       styles={{
         control: (base, state) => ({
           ...base,
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF", // Match dark background
-          borderColor: state.isFocused ? "#3F4E65" : "#374151", // Border colors for focus and default
-          borderRadius: "4px", // Rounded corners
-          // boxShadow: state.isFocused ? "0 0 0 1px #3F4E65" : "none",
-          boxShadow: state.isFocused ? "none" : "none", // Remove focus box-shadow
-          outline: "none", // Remove blue ring
-          color: "#FFFFFF", // Text color
-          padding: "2px", // Match padding
+          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
+          borderColor: state.isFocused ? "#3F4E65" : "#374151",
+          borderRadius: "4px",
+          boxShadow: state.isFocused ? "none" : "none",
+          outline: "none",
+          color: "#FFFFFF",
+          padding: "2px",
           "&:hover": {
-            borderColor: "#3F4E65", // Hover effect
+            borderColor: "#3F4E65",
           },
           height: "3rem",
         }),
         menu: base => ({
           ...base,
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF", // Dropdown background
-          borderRadius: "6px", // Match dropdown corner style
-          overflow: "hidden", // Hide overflow
+          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
+          borderRadius: "6px",
+          overflow: "hidden",
           border: "1px solid #2E3B4E",
           marginTop: 0,
-          color: darkTheme ? "whitesmoke" : "black", // Dropdown text color
+          color: darkTheme ? "whitesmoke" : "black",
         }),
         menuList: base => ({
           ...base,
-          padding: 0, // Remove extra padding
+          padding: 0,
         }),
         option: (base, state) => ({
           ...base,
-          backgroundColor: state.isFocused ? "#2064d4" : darkTheme ? "#1E293B" : "#FFFFFF", // Focus effect
+          backgroundColor: state.isFocused ? "#2064d4" : darkTheme ? "#1E293B" : "#FFFFFF",
           color: state.isFocused ? "white" : darkTheme ? "#FFFFFF" : "black",
           cursor: "pointer",
           "&:active": {
@@ -86,34 +84,36 @@ export default function SelectWrapper({
         }),
         singleValue: base => ({
           ...base,
-          color: darkTheme ? "white" : "black", // Selected text color
+          color: darkTheme ? "white" : "black",
         }),
         multiValue: base => ({
           ...base,
-          backgroundColor: darkTheme ? "#3E495B" : "#cccccc", // Selected background color
+          backgroundColor: darkTheme ? "#3E495B" : "#cccccc",
         }),
         multiValueLabel: base => ({
           ...base,
-          color: darkTheme ? "white" : "black", // Selected text color
+          color: darkTheme ? "white" : "black",
         }),
         placeholder: base => ({
           ...base,
-          color: "#6c757d", // Placeholder color
+          color: "#6c757d",
         }),
         dropdownIndicator: base => ({
           ...base,
-          color: "#6c757d", // Arrow color
+          color: "#6c757d",
           "&:hover": {
-            color: darkTheme ? "white" : "black", // Arrow hover color
+            color: darkTheme ? "white" : "black",
           },
         }),
         indicatorSeparator: () => ({
-          display: "none", // Remove the line separator
+          display: "none",
         }),
         input: base => ({
           ...base,
-          color: darkTheme ? "whitesmoke" : "black", // Input text color
-          outline: "none", // Remove the focus outline for the input
+          color: darkTheme ? "whitesmoke" : "black",
+          "input:focus": {
+            boxShadow: "none",
+          },
         }),
       }}
     />
