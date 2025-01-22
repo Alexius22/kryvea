@@ -58,7 +58,6 @@ const FormField = ({ icons = [], noHeight, ...props }: Props) => {
               )}
               {cloneElement(child, {
                 className: `${controlClassName} ${icons[index] ? "pl-10" : ""}`,
-                classJack: `${controlClassName} ${icons[index] ? "pl-10" : ""} ${props.isTransparent ? "bg-transparent" : "bg-white dark:bg-slate-800"}`,
               })}
               {icons[index] && (
                 <Icon
