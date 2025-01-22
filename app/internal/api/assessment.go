@@ -11,6 +11,8 @@ import (
 )
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	type reqData struct {
 		Name          string    `json:"name"`
 		Notes         string    `json:"notes"`
@@ -53,7 +55,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessmentId, err := util.ParseMongoID(assessment.CustomerID)
+	customerID, err := util.ParseMongoID(assessment.CustomerID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -61,7 +63,14 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	customer, err := d.mongo.Customer().GetByID(assessmentId)
+	if !util.CanAccessCustomer(user.Customers, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	customer, err := d.mongo.Customer().GetByID(customerID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -105,7 +114,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Network:       assessment.Network,
 		Method:        assessment.Method,
 		OSSTMMVector:  assessment.OSSTMMVector,
-		CustomerID:    assessmentId,
+		CustomerID:    customerID,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)

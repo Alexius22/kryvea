@@ -23,11 +23,12 @@ const (
 
 type User struct {
 	Model          `bson:",inline"`
-	Username       string    `json:"username" bson:"username"`
-	Password       string    `json:"-" bson:"password"`
-	PasswordExpiry time.Time `json:"-" bson:"password_expiry"`
-	Token          string    `json:"-" bson:"token"`
-	TokenExpiry    time.Time `json:"-" bson:"token_expiry"`
+	Username       string               `json:"username" bson:"username"`
+	Password       string               `json:"-" bson:"password"`
+	PasswordExpiry time.Time            `json:"-" bson:"password_expiry"`
+	Token          string               `json:"-" bson:"token"`
+	TokenExpiry    time.Time            `json:"-" bson:"token_expiry"`
+	Customers      []primitive.ObjectID `json:"customers" bson:"customers"`
 }
 
 type UserIndex struct {
@@ -105,6 +106,7 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 		"created_at": 1,
 		"updated_at": 1,
 		"username":   1,
+		"customers":  1,
 	})
 
 	var users []User
@@ -126,8 +128,18 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 }
 
 func (ui *UserIndex) GetByToken(token string) (*User, error) {
+	opts := options.FindOne().SetProjection(bson.M{
+		"_id":             1,
+		"created_at":      1,
+		"updated_at":      1,
+		"username":        1,
+		"customers":       1,
+		"password_expiry": 1,
+		"token_expiry":    1,
+	})
+
 	var user User
-	if err := ui.collection.FindOne(context.Background(), bson.M{"token": token}).Decode(&user); err != nil {
+	if err := ui.collection.FindOne(context.Background(), bson.M{"token": token}, opts).Decode(&user); err != nil {
 		return nil, err
 	}
 

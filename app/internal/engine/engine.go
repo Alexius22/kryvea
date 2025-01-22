@@ -43,7 +43,7 @@ func (e *Engine) Serve() {
 
 	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), api.Middleware)
 	{
-		apiGroup.Get("/customers", api.GetAllCustomers)
+		apiGroup.Get("/customers", api.GetOwnCustomers)
 		apiGroup.Post("/customer", api.AddCustomer)
 
 		apiGroup.Get("/assessments/search", api.SearchAssessments)
