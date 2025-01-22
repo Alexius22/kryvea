@@ -4,12 +4,12 @@ import Icon from "../Icon";
 import "./Accordion.css";
 
 //  accordionitem component
-const AccordionItem = ({ question, isOpen, onClick, children }) => {
+const AccordionItem = ({ title, isOpen, onClick, children }) => {
   const contentHeight = useRef<HTMLDivElement>();
   return (
     <div className="wrapper">
       <button className={`question-container ${isOpen ? "active" : ""}`} onClick={onClick}>
-        <p className="question-content">{question}</p>
+        <p className="question-content">{title}</p>
         <Icon className={`arrow ${isOpen ? "active" : ""}`} path={mdiChevronDown} w="w-16" size="18" />
       </button>
 
@@ -24,7 +24,7 @@ const AccordionItem = ({ question, isOpen, onClick, children }) => {
   );
 };
 
-const Accordion = ({ children }) => {
+const Accordion = ({ title, children }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,12 +35,7 @@ const Accordion = ({ children }) => {
 
   return (
     <div className="Accordion-container">
-      <AccordionItem
-        key={index}
-        question={"are you a developer?"}
-        isOpen={isOpen}
-        onClick={() => setIsOpen(prev => !prev)}
-      >
+      <AccordionItem key={index} title={title} isOpen={isOpen} onClick={() => setIsOpen(prev => !prev)}>
         {children}
       </AccordionItem>
     </div>
