@@ -57,23 +57,17 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) GetOwnCustomers(c *fiber.Ctx) error {
+func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	customers, err := d.mongo.Customer().GetByIDList(user.Customers)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error": "Cannot get customers",
-		})
+	var customers []mongo.Customer
+	var err error
+	if user.IsAdmin {
+		customers, err = d.mongo.Customer().GetAll()
+	} else {
+		customers, err = d.mongo.Customer().GetByIDList(user.Customers)
 	}
 
-	c.Status(fiber.StatusOK)
-	return c.JSON(customers)
-}
-
-func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
-	customers, err := d.mongo.Customer().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

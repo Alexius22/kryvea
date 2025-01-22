@@ -1,9 +1,16 @@
 package util
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"github.com/Alexius22/kryvea/internal/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
-func CanAccessCustomer(allowedCustomers []primitive.ObjectID, customer primitive.ObjectID) bool {
-	for _, allowedCustomer := range allowedCustomers {
+func CanAccessCustomer(user *mongo.User, customer primitive.ObjectID) bool {
+	if user.IsAdmin {
+		return true
+	}
+
+	for _, allowedCustomer := range user.Customers {
 		if allowedCustomer == customer {
 			return true
 		}

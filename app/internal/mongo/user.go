@@ -28,6 +28,7 @@ type User struct {
 	PasswordExpiry time.Time            `json:"-" bson:"password_expiry"`
 	Token          string               `json:"-" bson:"token"`
 	TokenExpiry    time.Time            `json:"-" bson:"token_expiry"`
+	IsAdmin        bool                 `json:"is_admin" bson:"is_admin"`
 	Customers      []primitive.ObjectID `json:"customers" bson:"customers"`
 }
 
@@ -63,6 +64,7 @@ func (ui *UserIndex) Insert(user *User) error {
 		UpdatedAt: time.Now(),
 	}
 
+	user.IsAdmin = false
 	user.PasswordExpiry = time.Time{}
 
 	hash, err := crypto.Encrypt(user.Password)
@@ -133,9 +135,10 @@ func (ui *UserIndex) GetByToken(token string) (*User, error) {
 		"created_at":      1,
 		"updated_at":      1,
 		"username":        1,
-		"customers":       1,
 		"password_expiry": 1,
 		"token_expiry":    1,
+		"is_admin":        1,
+		"customers":       1,
 	})
 
 	var user User
