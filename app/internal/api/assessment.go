@@ -63,7 +63,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user.Customers, customerID) {
+	if !util.CanAccessCustomer(user, customerID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
