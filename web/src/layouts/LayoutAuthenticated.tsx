@@ -7,7 +7,7 @@ import Icon from "../components/Icon";
 import NavBar from "../components/NavBar";
 import NavBarItemPlain from "../components/NavBar/Item/Plain";
 import menuNavBar from "../menuNavBar";
-import NextBreadcrumb from "./NextBreadcrumb";
+import Breadcrumb from "./Breadcrumb";
 
 export default function LayoutAuthenticated() {
   const [isAsideMobileExpanded, setIsAsideMobileExpanded] = useState(false);
@@ -31,7 +31,7 @@ export default function LayoutAuthenticated() {
             <Icon path={mdiMenu} size="24" />
           </NavBarItemPlain>
           <NavBarItemPlain useMargin>
-            <NextBreadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
+            <Breadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
           </NavBarItemPlain>
         </NavBar>
         <AsideMenu
