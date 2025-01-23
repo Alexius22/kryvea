@@ -1,13 +1,13 @@
-import { Children, cloneElement, ReactElement } from "react";
-import type { ReactNode } from "react";
+import { Children, cloneElement, isValidElement, ReactElement } from "react";
 
 type Props = {
   type?: string;
   mb?: string;
   noWrap?: boolean;
   classAddon?: string;
-  children: ReactNode;
+  children: ReactElement | ReactElement[];
   className?: string;
+  label?: string;
 };
 
 const Buttons = ({
@@ -17,12 +17,21 @@ const Buttons = ({
   noWrap = false,
   children,
   className,
+  label,
 }: Props) => {
   return (
-    <div className={`flex items-center ${type} ${className} ${mb} ${noWrap ? "flex-nowrap" : "flex-wrap"}`}>
-      {Children.map(children, (child: ReactElement) =>
-        child ? cloneElement(child, { className: `${classAddon} ${child.props.className}` }) : null
-      )}
+    <div className={className}>
+      {label && <div className="my-2 font-bold">{label}</div>}
+      <div className={`flex items-center ${type} ${mb} ${noWrap ? "flex-nowrap" : "flex-wrap"}`}>
+        {Children.map(children, child => {
+          if (isValidElement(child)) {
+            return cloneElement(child as ReactElement<any>, {
+              className: `${classAddon} ${(child.props as any).className || ""}`,
+            });
+          }
+          return null;
+        })}
+      </div>
     </div>
   );
 };
