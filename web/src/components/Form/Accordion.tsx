@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { mdiChevronDown } from "@mdi/js";
-import Icon from "../Icon";
+import Icon from "../Icon/Icon";
 import "./Accordion.css";
 
 //  accordionitem component

@@ -3,7 +3,7 @@ import React from "react";
 import { ColorKey, TrendType } from "../../interfaces";
 import { colorsText } from "../../colors";
 import Button from "../Button";
-import Icon from "../Icon";
+import Icon from "../Icon/Icon";
 import CardBox from ".";
 import NumberDynamic from "../NumberDynamic";
 import PillTagTrend from "../PillTag/Trend";
@@ -24,7 +24,7 @@ const CardBoxWidget = (props: Props) => {
   return (
     <CardBox>
       {props.trendLabel && props.trendType && props.trendColor && (
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <PillTagTrend label={props.trendLabel} type={props.trendType} color={props.trendColor} small />
           <Button icon={mdiCog} color="lightDark" small />
         </div>
@@ -32,7 +32,7 @@ const CardBoxWidget = (props: Props) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg leading-tight text-gray-500 dark:text-slate-400">{props.label}</h3>
-          <h1 className="text-3xl leading-tight font-semibold">
+          <h1 className="text-3xl font-semibold leading-tight">
             <NumberDynamic value={props.number} prefix={props.numberPrefix} suffix={props.numberSuffix} />
           </h1>
         </div>

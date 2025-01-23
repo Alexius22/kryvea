@@ -1,8 +1,8 @@
 import React from "react";
 import { getButtonColor } from "../colors";
-import Icon from "./Icon";
 import type { ColorButtonKey } from "../interfaces";
 import { Link } from "react-router";
+import Icon from "./Icon/Icon";
 
 type Props = {
   label?: string;

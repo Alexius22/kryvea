@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getButtonColor } from "../../colors";
-import Icon from "../Icon";
+import Icon from "../Icon/Icon";
 import AsideMenu from "./AsideMenu";
 import { mdiMinus, mdiPlus } from "@mdi/js";
 import { Link } from "react-router";

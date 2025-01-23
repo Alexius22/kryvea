@@ -1,6 +1,6 @@
 import { mdiClose } from "@mdi/js";
 import React, { useContext } from "react";
-import Icon from "../Icon";
+import Icon from "../Icon/Icon";
 import AsideMenu from "./AsideMenu";
 import { GlobalContext } from "../../../App";
 import { Link } from "react-router";
