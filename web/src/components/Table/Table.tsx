@@ -1,14 +1,45 @@
+import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 import Button from "../Button";
 import Buttons from "../Buttons";
 import CardBoxModal from "../CardBox/Modal";
 import FormField from "../Form/Field";
+import Icon from "../Icon/Icon";
 
 const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom }) => {
+  const [originalData] = useState([...data]);
   const [perPage, setPerPage] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemPaginated = arr => arr.slice(perPage * currentPage, perPage * (currentPage + 1));
+  const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
+
+  const sortAscend = (a, b) => {
+    if (a[keySort.header] > b[keySort.header]) return 1;
+    if (a[keySort.header] < b[keySort.header]) return -1;
+    return 0;
+  };
+  const sortDescend = (a, b) => {
+    if (a[keySort.header] < b[keySort.header]) return 1;
+    if (a[keySort.header] > b[keySort.header]) return -1;
+    return 0;
+  };
+
+  const itemPaginated = (arr: any[]) => {
+    switch (keySort?.order) {
+      case 1:
+        arr = arr.sort(sortAscend);
+        break;
+      case 2:
+        arr = arr.sort(sortDescend);
+        break;
+      case undefined:
+        arr = originalData; // reset to original order
+        break;
+      default:
+        console.warn("keySort unknown value = ", keySort);
+    }
+    return arr.slice(perPage * currentPage, perPage * (currentPage + 1));
+  };
   const numPages = Math.ceil(data.length / perPage);
   const pagesList = [];
 
@@ -22,6 +53,18 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
   const handleModalAction = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
+  };
+
+  const onHeaderClick = key => () => {
+    setKeySort(prev => {
+      if (prev === undefined || prev.header !== key) {
+        return { header: key, order: 1 };
+      }
+      if (prev.header === key && prev.order === 1) {
+        return { header: key, order: 2 };
+      }
+      return undefined;
+    });
   };
 
   return (
@@ -43,7 +86,21 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
       <table>
         <thead>
           <tr>
-            {data.length === 0 ? <th>empty</th> : Object.keys(data[0]).map(key => <th>{key}</th>)}
+            {data.length === 0 ? (
+              <th>empty</th>
+            ) : (
+              Object.keys(data[0]).map(key => (
+                <th className="cursor-pointer align-middle hover:opacity-60" onClick={onHeaderClick(key)}>
+                  {key}
+                  <Icon
+                    className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
+                    h="h-min"
+                    w="w-min"
+                    path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
+                  />
+                </th>
+              ))
+            )}
             {buttons == undefined ? <></> : <th />}
           </tr>
         </thead>
@@ -55,7 +112,7 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
           ) : (
             itemPaginated(data).map(obj => (
               <tr>
-                {Object.values(obj).map((value: any) => (
+                {Object.entries<any>(obj).map(([key, value]) => (
                   <td>{value}</td>
                 ))}
                 {buttons && buttons}
