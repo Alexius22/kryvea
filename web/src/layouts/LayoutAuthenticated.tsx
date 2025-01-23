@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Outlet } from "react-router";
 import AsideMenu from "../components/AsideMenu";
 import FooterBar from "../components/FooterBar";
-import Icon from "../components/Icon";
+import Icon from "../components/Icon/Icon";
 import NavBar from "../components/NavBar";
 import NavBarItemPlain from "../components/NavBar/Item/Plain";
 import menuNavBar from "../menuNavBar";
