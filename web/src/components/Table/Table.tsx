@@ -1,6 +1,6 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
-import { useState } from "react";
+import { isValidElement, useState } from "react";
 import Button from "../Button";
 import Buttons from "../Buttons";
 import CardBoxModal from "../CardBox/Modal";
@@ -14,13 +14,25 @@ const Table = ({ data, buttons, perPageCustom }: { data; buttons?; perPageCustom
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
 
   const sortAscend = (a, b) => {
-    if (a[keySort.header] > b[keySort.header]) return 1;
-    if (a[keySort.header] < b[keySort.header]) return -1;
+    a = a[keySort.header];
+    b = b[keySort.header];
+    if (isValidElement(a)) {
+      a = (a as any).props.children;
+      b = (b as any).props.children;
+    }
+    if (a > b) return 1;
+    if (a < b) return -1;
     return 0;
   };
   const sortDescend = (a, b) => {
-    if (a[keySort.header] < b[keySort.header]) return 1;
-    if (a[keySort.header] > b[keySort.header]) return -1;
+    a = a[keySort.header];
+    b = b[keySort.header];
+    if (isValidElement(a)) {
+      a = (a as any).props.children;
+      b = (b as any).props.children;
+    }
+    if (a < b) return 1;
+    if (a > b) return -1;
     return 0;
   };
 
