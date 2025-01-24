@@ -102,6 +102,15 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetAllUsers(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if !user.IsAdmin {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	users, err := d.mongo.User().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)

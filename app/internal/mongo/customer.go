@@ -64,27 +64,14 @@ func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, erro
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetByIDList(customerIDs []primitive.ObjectID) ([]Customer, error) {
-	if len(customerIDs) == 0 {
-		return nil, nil
+func (ci *CustomerIndex) GetAll(customerIDs []primitive.ObjectID) ([]Customer, error) {
+	filter := bson.M{}
+
+	if customerIDs != nil {
+		filter["_id"] = bson.M{"$in": customerIDs}
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), bson.M{"_id": bson.M{"$in": customerIDs}})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var customers []Customer
-	if err := cursor.All(context.Background(), &customers); err != nil {
-		return nil, err
-	}
-
-	return customers, nil
-}
-
-func (ci *CustomerIndex) GetAll() ([]Customer, error) {
-	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,15 @@ import (
 )
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if !user.IsAdmin {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	type reqData struct {
 		Index              string `json:"index"`
 		Name               string `json:"name"`
