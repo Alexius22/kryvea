@@ -7,6 +7,15 @@ import (
 )
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if !user.IsAdmin {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	type reqData struct {
 		Name               string `json:"name"`
 		Language           string `json:"language"`
@@ -60,13 +69,12 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	var customers []mongo.Customer
-	var err error
+	userCustomers := user.Customers
 	if user.IsAdmin {
-		customers, err = d.mongo.Customer().GetAll()
-	} else {
-		customers, err = d.mongo.Customer().GetByIDList(user.Customers)
+		userCustomers = nil
 	}
+
+	customers, err := d.mongo.Customer().GetAll(userCustomers)
 
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)

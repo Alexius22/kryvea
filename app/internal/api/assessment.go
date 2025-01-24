@@ -91,14 +91,14 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 
 	var targets []primitive.ObjectID
 	for _, target := range assessment.Targets {
-		targetId, err := util.ParseMongoID(target)
+		targetID, err := util.ParseMongoID(target)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, targetId)
+		targets = append(targets, targetID)
 	}
 
 	err = d.mongo.Assessment().Insert(&mongo.Assessment{
@@ -130,6 +130,8 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	name := c.Query("name")
 	if name == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -138,7 +140,12 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	assessments, err := d.mongo.Assessment().Search(name)
+	customers := user.Customers
+	if user.IsAdmin {
+		customers = nil
+	}
+
+	assessments, err := d.mongo.Assessment().Search(customers, name)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -151,6 +158,8 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	customer := c.Params("customer")
 	if customer == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -159,7 +168,7 @@ func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	customerId, err := util.ParseMongoID(customer)
+	customerID, err := util.ParseMongoID(customer)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -167,7 +176,14 @@ func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	assessments, err := d.mongo.Assessment().GetByCustomerID(customerId)
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	assessments, err := d.mongo.Assessment().GetByCustomerID(customerID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

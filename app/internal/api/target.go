@@ -7,6 +7,8 @@ import (
 )
 
 func (d *Driver) AddTarget(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	type reqData struct {
 		IP         string `json:"ip"`
 		Port       int    `json:"port"`
@@ -29,11 +31,18 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	customerId, err := util.ParseMongoID(target.CustomerID)
+	customerID, err := util.ParseMongoID(target.CustomerID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid customer ID",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
 		})
 	}
 
@@ -42,7 +51,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		Port:       target.Port,
 		Protocol:   target.Protocol,
 		Hostname:   target.Hostname,
-		CustomerID: customerId,
+		CustomerID: customerID,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -58,6 +67,8 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchTargets(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	customer := c.Params("customer")
 	if customer == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -66,11 +77,18 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	customerId, err := util.ParseMongoID(customer)
+	customerID, err := util.ParseMongoID(customer)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid customer ID",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
 		})
 	}
 
@@ -82,7 +100,7 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	target, err := d.mongo.Target().Search(customerId, query)
+	target, err := d.mongo.Target().Search(customerID, query)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -95,6 +113,8 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	customer := c.Params("customer")
 	if customer == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -103,7 +123,7 @@ func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	targetId, err := util.ParseMongoID(customer)
+	customerID, err := util.ParseMongoID(customer)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -111,7 +131,14 @@ func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	targets, err := d.mongo.Target().GetByCustomerID(targetId)
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	targets, err := d.mongo.Target().GetByCustomerID(customerID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

@@ -97,8 +97,14 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Ass
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) Search(name string) ([]Assessment, error) {
-	cursor, err := ai.collection.Find(context.Background(), bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}})
+func (ai *AssessmentIndex) Search(customers []primitive.ObjectID, name string) ([]Assessment, error) {
+	filter := bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
+
+	if customers != nil {
+		filter["customer_id"] = bson.M{"$in": customers}
+	}
+
+	cursor, err := ai.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}

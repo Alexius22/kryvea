@@ -8,6 +8,8 @@ import (
 )
 
 func (d *Driver) AddPoc(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	type reqData struct {
 		Index           int    `json:"index" bson:"index"`
 		Type            string `json:"type" bson:"type"`
@@ -33,11 +35,26 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err = d.mongo.Vulnerability().GetByID(vulnerabilityID)
+	vulnerability, err := d.mongo.Vulnerability().GetByID(vulnerabilityID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid vulnerability ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid vulnerability",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
 		})
 	}
 
@@ -78,19 +95,44 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetAllPocs(c *fiber.Ctx) error {
-	vulnerability := c.Params("vulnerability")
-	if vulnerability == "" {
+	user := c.Locals("user").(*mongo.User)
+
+	vulnerabilityParam := c.Params("vulnerability")
+	if vulnerabilityParam == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Vulnerability ID is required",
 		})
 	}
 
-	vulnerabilityID, err := util.ParseMongoID(vulnerability)
+	vulnerabilityID, err := util.ParseMongoID(vulnerabilityParam)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid vulnerability ID",
+		})
+	}
+
+	vulnerability, err := d.mongo.Vulnerability().GetByID(vulnerabilityID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid vulnerability ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid vulnerability",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
 		})
 	}
 
