@@ -59,6 +59,28 @@ func (ci *CategoryIndex) Insert(category *Category) error {
 	return err
 }
 
+func (ci *CategoryIndex) Update(ID primitive.ObjectID, category *Category) error {
+	filter := bson.M{"_id": ID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":          time.Now(),
+			"index":               category.Index,
+			"name":                category.Name,
+			"generic_description": category.GenericDescription,
+			"generic_remediation": category.GenericRemediation,
+		},
+	}
+
+	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ci *CategoryIndex) Delete(ID primitive.ObjectID) error {
+	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	return err
+}
+
 func (ci *CategoryIndex) GetAll() ([]Category, error) {
 	var categories []Category
 	cursor, err := ci.collection.Find(context.Background(), bson.M{})
