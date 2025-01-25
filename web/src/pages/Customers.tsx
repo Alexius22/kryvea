@@ -56,7 +56,7 @@ const Customers = () => {
           onSubmit={values => alert(JSON.stringify(values, null, 2))}
         >
           <Form className="mb-2">
-            <FormField isBorderless>
+            <FormField isBorderless noHeight>
               <Field className="input-style" name="search" placeholder="Search" />
             </FormField>
           </Form>
