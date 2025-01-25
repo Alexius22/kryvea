@@ -94,7 +94,7 @@ const Users = () => {
           onSubmit={values => alert(JSON.stringify(values, null, 2))}
         >
           <Form className="mb-2">
-            <FormField isBorderless isTransparent>
+            <FormField isBorderless isTransparent noHeight>
               <Field name="search" placeholder="Search" />
             </FormField>
           </Form>
