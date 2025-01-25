@@ -10,24 +10,20 @@ type Props = {
   isTransparent?: boolean;
   hasTextareaHeight?: boolean;
   noHeight?: boolean;
+  gridTemplateColumns?: string;
   children: ReactNode;
 };
 
-const FormField = ({ icons = [], noHeight, ...props }: Props) => {
+const FormField = ({ icons = [], noHeight, gridTemplateColumns, ...props }: Props) => {
   const childrenCount = Children.count(props.children);
 
-  let elementWrapperClass = "";
-
-  switch (childrenCount) {
-    case 2:
-      elementWrapperClass = "grid grid-cols-1 gap-3 md:grid-cols-2";
-      break;
-    case 3:
-      elementWrapperClass = "grid grid-cols-1 gap-3 md:grid-cols-3";
-      break;
-    default:
-      elementWrapperClass = "grid grid-cols-1 gap-3";
-  }
+  const elementWrapperClass = gridTemplateColumns
+    ? `grid gap-3 ${gridTemplateColumns}`
+    : childrenCount === 2
+      ? "grid grid-cols-1 gap-3 md:grid-cols-2"
+      : childrenCount === 3
+        ? "grid grid-cols-1 gap-3 md:grid-cols-3"
+        : "grid grid-cols-1 gap-3";
 
   const controlClassName = [
     "px-3 py-2 max-w-full border-gray-700 rounded w-full dark:placeholder-gray-400",
