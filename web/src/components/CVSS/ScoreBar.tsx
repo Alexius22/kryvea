@@ -38,7 +38,7 @@ export default function ScoreBar({ score }: ScoreBarProps) {
       </div>
       <div className="h-3 w-full rounded-full bg-neutral-500/25">
         <div
-          className={`${getScoreColor(score)} h-3 rounded-full`}
+          className={`${getScoreColor(score)} h-3 rounded-full transition-all duration-500 ease-out`}
           style={{
             width: `${score * 10}%`,
           }}
