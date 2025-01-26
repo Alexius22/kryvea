@@ -22,6 +22,9 @@ import {
   Vulnerabilities,
   Vulnerability,
 } from "./src/pages";
+import Categories from "./src/pages/Categories";
+import ManageCategory from "./src/pages/ManageCategory";
+
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
@@ -74,6 +77,8 @@ export default function App() {
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
             <Route path="/error" element={<Error />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/manage_category" element={<ManageCategory />} />
           </Route>
         </Routes>
       </BrowserRouter>

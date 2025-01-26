@@ -53,6 +53,10 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
           href: "/users",
           label: "Users",
         },
+        {
+          href: "/categories",
+          label: "Categories",
+        },
       ],
     },
   ];
