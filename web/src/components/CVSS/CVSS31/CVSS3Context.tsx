@@ -28,6 +28,12 @@ export const CVSSProvider = ({ children }: { children: React.ReactNode }) => {
     ModifiedAvailability: "X",
   });
 
+  for (const key in selectedValues) {
+    if (selectedValues[key] === undefined) {
+      selectedValues[key] = "X";
+    }
+  }
+
   return <CVSSContext.Provider value={{ selectedValues, setSelectedValues }}>{children}</CVSSContext.Provider>;
 };
 
