@@ -101,7 +101,7 @@ const Assessments = () => {
             buttons={
               <td className="whitespace-nowrap before:hidden lg:w-1">
                 <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
+                  <Button color="info" icon={mdiStar} small />
                   <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
