@@ -65,6 +65,50 @@ func (ti *TargetIndex) Insert(target *Target) error {
 	return err
 }
 
+func (ti *TargetIndex) Update(targetID primitive.ObjectID, target *Target) error {
+	filter := bson.M{"_id": targetID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+			"ip":         target.IP,
+			"port":       target.Port,
+			"protocol":   target.Protocol,
+			"hostname":   target.Hostname,
+		},
+	}
+
+	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
+	_, err := ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"target_id": targetID}
+	update := bson.M{
+		"$set": bson.M{
+			"target_id": primitive.NilObjectID,
+		},
+	}
+	_, err = ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	filter = bson.M{"targets": targetID}
+	update = bson.M{
+		"$pull": bson.M{
+			"targets": targetID,
+		},
+	}
+	_, err = ti.driver.Assessment().collection.UpdateMany(context.Background(), filter, update)
+	return err
+}
+
 func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
 	var target Target
 	err := ti.collection.FindOne(context.Background(), bson.M{"_id": targetID}).Decode(&target)

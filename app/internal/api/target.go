@@ -66,6 +66,128 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	type reqData struct {
+		IP       string `json:"ip"`
+		Port     int    `json:"port"`
+		Protocol string `json:"protocol"`
+		Hostname string `json:"hostname"`
+	}
+	target := &reqData{}
+	if err := c.BodyParser(target); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	targetParam := c.Params("target")
+	if targetParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Target ID is required",
+		})
+	}
+
+	targetID, err := util.ParseMongoID(targetParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid target ID",
+		})
+	}
+
+	if target.IP == "" && target.Hostname == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "IP/Hostname is required",
+		})
+	}
+
+	targetData, err := d.mongo.Target().GetByID(targetID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get target",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, targetData.CustomerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	err = d.mongo.Target().Update(targetID, &mongo.Target{
+		IP:       target.IP,
+		Port:     target.Port,
+		Protocol: target.Protocol,
+		Hostname: target.Hostname,
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update target",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Target updated",
+	})
+}
+
+func (d *Driver) DeleteTarget(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	targetParam := c.Params("target")
+	if targetParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Target ID is required",
+		})
+	}
+
+	targetID, err := util.ParseMongoID(targetParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid target ID",
+		})
+	}
+
+	targetData, err := d.mongo.Target().GetByID(targetID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get target",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, targetData.CustomerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	err = d.mongo.Target().Delete(targetID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot delete target",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Target deleted",
+	})
+}
+
 func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 

@@ -65,6 +65,30 @@ func (pi *PocIndex) Insert(poc *Poc) error {
 	return err
 }
 
+func (pi *PocIndex) Update(ID primitive.ObjectID, poc *Poc) error {
+	filter := bson.M{"_id": ID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":  time.Now(),
+			"index":       poc.Index,
+			"type":        poc.Type,
+			"title":       poc.Title,
+			"description": poc.Description,
+			"content":     poc.Content,
+			"url":         poc.URL,
+		},
+	}
+
+	_, err := pi.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (pi *PocIndex) Delete(ID primitive.ObjectID) error {
+	_, err := pi.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	return err
+}
+
 func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID primitive.ObjectID) ([]Poc, error) {
 	cursor, err := pi.collection.Find(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
 	if err != nil {

@@ -78,6 +78,18 @@ func (ci *CategoryIndex) Update(ID primitive.ObjectID, category *Category) error
 
 func (ci *CategoryIndex) Delete(ID primitive.ObjectID) error {
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"category_id": ID}
+	update := bson.M{
+		"$set": bson.M{
+			"category_id": primitive.NilObjectID,
+		},
+	}
+
+	_, err = ci.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
 	return err
 }
 

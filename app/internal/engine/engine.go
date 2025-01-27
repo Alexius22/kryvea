@@ -53,10 +53,13 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/targets/:customer/search", api.SearchTargets)
 		apiGroup.Get("/targets/:customer", api.GetAllTargets)
 		apiGroup.Post("/target", api.AddTarget)
+		apiGroup.Put("/target/:target", api.UpdateTarget)
+		apiGroup.Delete("/target/:target", api.DeleteTarget)
 
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetAllCategories)
 		apiGroup.Post("/category", api.AddCategory)
+		apiGroup.Put("/category/:category", api.UpdateCategory)
 		apiGroup.Delete("/category/:category", api.DeleteCategory)
 
 		apiGroup.Get("/vulnerabilities/:assessment/search", api.SearchVulnerabilities)
@@ -65,6 +68,7 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/pocs/:vulnerability", api.GetAllPocs)
 		apiGroup.Post("/poc", api.AddPoc)
+		apiGroup.Delete("/poc/:poc", api.DeletePoc)
 
 		apiGroup.Get("/users", api.GetAllUsers)
 		apiGroup.Post("/login", api.Login)

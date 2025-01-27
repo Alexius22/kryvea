@@ -4,7 +4,6 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
@@ -33,26 +32,6 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	var categoryID primitive.ObjectID
-	if category.ID != "" {
-		var err error
-		categoryID, err = util.ParseMongoID(category.ID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid category ID",
-			})
-		}
-
-		_, err = d.mongo.Category().GetByID(categoryID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid category ID",
-			})
-		}
-	}
-
 	if category.Index == "" || category.Name == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -60,29 +39,12 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	mongoCategory := &mongo.Category{
+	err := d.mongo.Category().Insert(&mongo.Category{
 		Index:              category.Index,
 		Name:               category.Name,
 		GenericDescription: category.GenericDescription,
 		GenericRemediation: category.GenericRemediation,
-	}
-
-	if categoryID != primitive.NilObjectID {
-		err := d.mongo.Category().Update(categoryID, mongoCategory)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot update category",
-			})
-		}
-
-		c.Status(fiber.StatusOK)
-		return c.JSON(fiber.Map{
-			"message": "Category updated",
-		})
-	}
-
-	err := d.mongo.Category().Insert(mongoCategory)
+	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -93,6 +55,81 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "Category created",
+	})
+}
+
+func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if !user.IsAdmin {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	type reqData struct {
+		Index              string `json:"index"`
+		Name               string `json:"name"`
+		GenericDescription string `json:"generic_description"`
+		GenericRemediation string `json:"generic_remediation"`
+	}
+
+	category := &reqData{}
+	if err := c.BodyParser(category); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	categoryParam := c.Params("category")
+	if categoryParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Category ID is required",
+		})
+	}
+
+	categoryID, err := util.ParseMongoID(categoryParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid category ID",
+		})
+	}
+
+	_, err = d.mongo.Category().GetByID(categoryID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid category ID",
+		})
+	}
+
+	if category.Index == "" || category.Name == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Index and Name are required",
+		})
+	}
+
+	err = d.mongo.Category().Update(categoryID, &mongo.Category{
+		Index:              category.Index,
+		Name:               category.Name,
+		GenericDescription: category.GenericDescription,
+		GenericRemediation: category.GenericRemediation,
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update category",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Category updated",
 	})
 }
 
