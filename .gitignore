@@ -1,9 +1,4 @@
-# production
 **/build/
-
-# dependencies
 **/node_modules
 **/package-lock.json
-
-# next.js
-**/.next/
+.data/
