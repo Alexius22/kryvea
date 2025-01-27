@@ -24,6 +24,8 @@ const Assessments = () => {
     document.title = getPageTitle("Assessments");
   }, []);
 
+  const owners = ["Owner1", "Owner2", "Owner3"];
+
   return (
     <>
       <CardBoxModal
@@ -92,10 +94,29 @@ const Assessments = () => {
                 Title: i + 1,
                 Type: i + 1,
                 "CVSS Type": i + 1,
-                "Vulnerabilties count": i + 1,
+                "Vuln count": i + 1,
                 Start: i + 1,
                 End: i + 1,
-                Owners: i + 1,
+                Owners: (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "auto auto",
+                      columnGap: "1rem",
+                      justifyContent: "start",
+                    }}
+                  >
+                    {owners.flatMap((owner, index, arr) =>
+                      index > 1
+                        ? []
+                        : [
+                            <div key={"table-owner-col-" + index}>
+                              {index === 1 && arr.length > 2 ? `${owner} ...` : owner}
+                            </div>,
+                          ]
+                    )}
+                  </div>
+                ),
                 Status: i + 1,
               }))}
             buttons={
