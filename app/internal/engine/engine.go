@@ -65,9 +65,12 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/vulnerabilities/:assessment/search", api.SearchVulnerabilities)
 		apiGroup.Get("/vulnerabilities/:assessment", api.GetAllVulnerabilities)
 		apiGroup.Post("/vulnerability", api.AddVulnerability)
+		apiGroup.Put("/vulnerability/:vulnerability", api.UpdateVulnerability)
+		apiGroup.Delete("/vulnerability/:vulnerability", api.DeleteVulnerability)
 
 		apiGroup.Get("/pocs/:vulnerability", api.GetAllPocs)
 		apiGroup.Post("/poc", api.AddPoc)
+		apiGroup.Put("/poc/:poc", api.UpdatePoc)
 		apiGroup.Delete("/poc/:poc", api.DeletePoc)
 
 		apiGroup.Get("/users", api.GetAllUsers)
