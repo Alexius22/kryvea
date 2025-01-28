@@ -3,9 +3,9 @@ import { Field, Form, Formik } from "formik";
 import { isValidElement, useEffect, useState } from "react";
 import Button from "../Button";
 import Buttons from "../Buttons";
+import CardBox from "../CardBox";
 import FormField from "../Form/Field";
 import Icon from "../Icon/Icon";
-import CardBox from "../CardBox";
 
 const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPageCustom }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
@@ -91,7 +91,7 @@ const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPag
   return (
     <>
       <input
-        className="mb-2 h-10 w-80 rounded-lg border-0 bg-slate-900/50"
+        className="mb-2 h-10 w-1/4 rounded-lg border-0 bg-gray-200 dark:bg-slate-900 dark:text-white"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -99,39 +99,37 @@ const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPag
       />
       <CardBox hasTable>
         <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              {filteredData.length === 0 ? (
-                <th>empty</th>
-              ) : (
-                Object.keys(filteredData[0]).map((key, i, arr) => {
-                  return (
-                    <th
-                      style={{
-                        width: `${100 / arr.length}%`,
-                      }}
-                      className="cursor-pointer align-middle hover:opacity-60"
-                      onClick={onHeaderClick(key)}
-                      key={`header-${key}`}
-                    >
-                      {key}
-                      <Icon
-                        className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
-                        h="h-min"
-                        w="w-min"
-                        path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
-                      />
-                    </th>
-                  );
-                })
-              )}
-              {buttons == undefined ? <></> : <th className="w-min" />}
-            </tr>
-          </thead>
+          {filteredData.length > 0 && (
+            <thead>
+              <tr>
+                {Object.keys(filteredData[0]).map((key, i, arr) => (
+                  <th
+                    style={{
+                      width: `${100 / arr.length}%`,
+                    }}
+                    className="cursor-pointer align-middle hover:opacity-60"
+                    onClick={onHeaderClick(key)}
+                    key={`header-${key}`}
+                  >
+                    {key}
+                    <Icon
+                      className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
+                      h="h-min"
+                      w="w-min"
+                      path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
+                    />
+                  </th>
+                ))}
+                {buttons == undefined ? <></> : <th className="w-min" />}
+              </tr>
+            </thead>
+          )}
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td>empty</td>
+                <td colSpan={Object.keys(filteredData[0] || {}).length + (buttons ? 1 : 0)} className="text-center">
+                  No results available
+                </td>
               </tr>
             ) : (
               itemPaginated(filteredData).map((obj, i) => (
