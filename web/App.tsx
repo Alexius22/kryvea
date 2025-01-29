@@ -1,4 +1,4 @@
-import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
 import RouteWatcher from "./src/layouts/RouteWatcher";
@@ -40,7 +40,7 @@ export default function App() {
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme, _] = useDarkTheme;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
     document.body.classList[darkTheme ? "add" : "remove"]("dark-scrollbars");
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark", "dark-scrollbars-compat");
