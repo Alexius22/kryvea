@@ -24,6 +24,7 @@ import {
 } from "./src/pages";
 import Categories from "./src/pages/Categories";
 import ManageCategory from "./src/pages/ManageCategory";
+import Hosts from "./src/pages/Hosts";
 
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/users" element={<Users />} />
             <Route path="/assessments" element={<Assessments />} />
+            <Route path="/hosts" element={<Hosts />} />
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/vulnerability" element={<Vulnerability />} />
             <Route path="/profile" element={<Profile />} />
