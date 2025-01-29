@@ -1,50 +1,55 @@
 import { mdiTabSearch } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import CardBox from "../components/CardBox";
-import FormField from "../components/Form/Field";
 import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
+import useFetch from "../hooks/useFetch";
+import { vulnerabilities } from "../mockup_data/vulnerabilities";
+import { Vulnerability } from "../types/common.types";
 
 const Vulnerabilities = () => {
+  const navigate = useNavigate();
+  //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities/search");
+  const loading = false;
+  const error = false;
+
   useEffect(() => {
     document.title = getPageTitle("Vulnerabilities");
   }, []);
+
   return (
-    <>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless isTransparent noHeight>
-              <Field name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
-        <CardBox hasTable>
+    <SectionMain>
+      <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
+      <CardBox hasTable>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
           <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Vulnerability: i + 1,
-                "CVSS score": i + 1,
-                "CVSS Vector": i + 1,
-                Customer: i + 1,
-                Host: i + 1,
-              }))}
+            data={vulnerabilities?.map(vulnerability => ({
+              Vulnerability: (
+                <span
+                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
+                >
+                  {vulnerability.detailed_title}
+                </span>
+              ),
+              "CVSS score": vulnerability.cvss_score,
+              "CVSS Vector": vulnerability.cvss_vector,
+              Assessment: vulnerability.assessment_id,
+              Host: vulnerability.target_id,
+            }))}
             buttons={undefined}
             perPageCustom={10}
           />
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </SectionMain>
   );
 };
 

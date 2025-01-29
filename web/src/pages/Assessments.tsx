@@ -1,6 +1,7 @@
 import { mdiDownload, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -10,11 +11,19 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
+import useFetch from "../hooks/useFetch";
+import { assessments } from "../mockup_data/assessments";
+import { Assessment } from "../types/common.types";
 
 const Assessments = () => {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  //const { data: assessment, loading, error } = useFetch<Assessment[]>(`/api/assessments/${id}`);
+  const loading = false;
+  const error = false;
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
   const handleModalAction = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
@@ -72,31 +81,36 @@ const Assessments = () => {
       </CardBoxModal>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-          <Button icon={mdiPlus} label="New assessment" roundedFull small color="contrast" href="/add_assessment" />
+          <Button
+            icon={mdiPlus}
+            label="New assessment"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_assessment")}
+          />
         </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless isTransparent noHeight>
-              <Field name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
         <CardBox hasTable>
-          <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Title: i + 1,
-                Type: i + 1,
-                "CVSS Type": i + 1,
-                "Vuln count": i + 1,
-                Start: i + 1,
-                End: i + 1,
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p>Error: {error}</p>
+          ) : (
+            <Table
+              data={assessments.map(assessment => ({
+                Title: (
+                  <span
+                    className="cursor-pointer hover:text-blue-500 hover:underline"
+                    onClick={() => navigate(`/assessment`)}
+                  >
+                    {assessment.name}
+                  </span>
+                ),
+                Type: assessment.type,
+                "CVSS Version": assessment.cvss_version,
+                //"Vuln count": ,
+                Start: assessment.start_date_time,
+                End: assessment.end_date_time,
                 Owners: (
                   <div
                     style={{
@@ -117,19 +131,20 @@ const Assessments = () => {
                     )}
                   </div>
                 ),
-                Status: i + 1,
+                Status: assessment.status,
               }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiStar} small />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              </td>
-            }
-            perPageCustom={50}
-          />
+              buttons={
+                <td className="whitespace-nowrap before:hidden lg:w-1">
+                  <Buttons type="justify-start lg:justify-end" noWrap>
+                    <Button color="info" icon={mdiStar} small />
+                    <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
+                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  </Buttons>
+                </td>
+              }
+              perPageCustom={50}
+            />
+          )}
         </CardBox>
       </SectionMain>
     </>

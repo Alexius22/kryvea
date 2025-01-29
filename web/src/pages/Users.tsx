@@ -12,11 +12,19 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
+import useFetch from "../hooks/useFetch";
+import { users } from "../mockup_data/users";
+import { User } from "../types/common.types";
+import { useNavigate } from "react-router";
 
 const Users = () => {
+  const navigate = useNavigate();
+  //const { data: users, loading, error } = useFetch<User[]>("/users");
+  const loading = false;
+  const error = false;
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
   const handleModalAction = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
@@ -36,13 +44,7 @@ const Users = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Formik
-          initialValues={{
-            username: "TestUser",
-            role: "Administrator",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
+        <Formik initialValues={undefined} onSubmit={undefined}>
           <Form>
             <FormField label="Username" help="Required">
               <Field name="username" placeholder="username" id="username" />
@@ -85,40 +87,48 @@ const Users = () => {
       </CardBoxModal>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-          <Button icon={mdiPlus} label="New user" roundedFull small color="contrast" href="/add_user" />
-        </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless isTransparent noHeight>
-              <Field name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
-        <CardBox hasTable>
-          <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Username: i + 1,
-                Role: i + 1,
-                Customers: i + 1,
-                Active: i + 1,
-              }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              </td>
-            }
-            perPageCustom={100}
+          <Button
+            icon={mdiPlus}
+            label="New user"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_user")}
           />
+        </SectionTitleLineWithButton>
+        <CardBox hasTable>
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p>Error: {error}</p>
+          ) : (
+            <Table
+              data={users.map(user => ({
+                Username: user.username,
+                Role: user.role,
+                Customers: (
+                  <td>
+                    {" "}
+                    <ul>
+                      {user.customers.map((customer, index) => (
+                        <li key={index}>{customer}</li>
+                      ))}
+                    </ul>
+                  </td>
+                ),
+                Active: user.id,
+              }))}
+              buttons={
+                <td className="whitespace-nowrap before:hidden lg:w-1">
+                  <Buttons type="justify-start lg:justify-end" noWrap>
+                    <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
+                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  </Buttons>
+                </td>
+              }
+              perPageCustom={100}
+            />
+          )}
         </CardBox>
       </SectionMain>
     </>
