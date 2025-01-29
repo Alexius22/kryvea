@@ -1,5 +1,7 @@
-import { mdiEye, mdiListBox, mdiPlus, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useState, type ReactElement } from "react";
+import { mdiEye, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { GlobalContext } from "../../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -8,12 +10,16 @@ import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
-import { Field, Form, Formik } from "formik";
-import FormField from "../components/Form/Field";
-import { GlobalContext } from "../../App";
+import useFetch from "../hooks/useFetch";
+import { customers } from "../mockup_data/customers";
+import { Customer } from "../types/common.types";
 
 const Customers = () => {
+  const navigate = useNavigate();
+  // const { data: customers, loading, error } = useFetch<Customer>(`/api/customers`);
+  const loading = false;
+  const error = false;
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
@@ -47,53 +53,45 @@ const Customers = () => {
       </CardBoxModal>
       <SectionMain>
         <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-          <Button icon={mdiPlus} label="New customer" roundedFull small color="contrast" href="/add_customer" />
+          <Button
+            icon={mdiPlus}
+            label="New customer"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_customer")}
+          />
         </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless noHeight>
-              <Field className="input-style" name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
         <CardBox hasTable>
-          <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p>Error: {error}</p>
+          ) : (
+            <Table
+              data={customers.map(customer => ({
                 Name: (
                   <span
                     className="cursor-pointer hover:text-blue-500 hover:underline"
-                    onClick={() => setCustomerName("customer" + i + 1)}
+                    onClick={() => setCustomerName(customer.name)}
                   >
-                    {i + 1}
+                    {customer.name}
                   </span>
                 ),
-                Host: i + 2,
-                Assessments: i + 3,
-                Language: i + 4,
+                "CVSS Version": customer.default_cvss_version,
+                "Default language": customer.language,
               }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button
-                    color="info"
-                    icon={mdiEye}
-                    onClick={() => setIsModalInfoActive(true)}
-                    small
-                    href="/customer"
-                  />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              </td>
-            }
-            perPageCustom={100}
-          />
+              buttons={
+                <td className="whitespace-nowrap before:hidden lg:w-1">
+                  <Buttons type="justify-start lg:justify-end" noWrap>
+                    <Button color="info" icon={mdiEye} small onClick={() => navigate("/customer")} />
+                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  </Buttons>
+                </td>
+              }
+              perPageCustom={100}
+            />
+          )}
         </CardBox>
       </SectionMain>
     </>

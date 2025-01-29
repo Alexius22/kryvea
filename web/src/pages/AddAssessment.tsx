@@ -1,6 +1,7 @@
 import { mdiCalendar, mdiPlus } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -10,6 +11,8 @@ import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
 
 const AddAssessment = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = getPageTitle("Login");
   }, []);
@@ -44,7 +47,13 @@ const AddAssessment = () => {
                   <Field name="session_target" id="session_target" placeholder="Insert a target" />
                 </FormField>
                 <div className="mt-[2rem]">
-                  <Button className="h-12" color="info" icon={mdiPlus} label="Add Host" href="/add_host" />
+                  <Button
+                    className="h-12"
+                    color="info"
+                    icon={mdiPlus}
+                    label="Add Host"
+                    onClick={() => navigate("/add_host")}
+                  />
                 </div>
               </div>
 
