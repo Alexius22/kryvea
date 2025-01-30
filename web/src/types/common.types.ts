@@ -23,6 +23,7 @@ export type Assessment = {
     start_date_time: string;
     end_date_time: string;
     status: string;
+    customer_id: string;
 };
 
 export type Host = {
