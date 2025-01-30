@@ -18,6 +18,7 @@ export default function RouteWatcher() {
     switch (currentPathname) {
       case "/customers":
       case "/assessments":
+      case "/hosts":
         break;
       default:
         setCustomerName("");
