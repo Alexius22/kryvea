@@ -11,6 +11,7 @@ type SelectWrapperProps = {
   defaultValue?;
   isMulti?;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  closeMenuOnSelect?: boolean;
 };
 
 export default function SelectWrapper({
@@ -20,6 +21,7 @@ export default function SelectWrapper({
   onChange,
   isMulti,
   onInputChange,
+  closeMenuOnSelect,
 }: SelectWrapperProps) {
   const {
     useDarkTheme: [darkTheme],
@@ -43,6 +45,7 @@ export default function SelectWrapper({
         options,
         onChange,
         defaultValue,
+        closeMenuOnSelect,
       }}
       components={animatedComponents}
       styles={{
@@ -59,6 +62,7 @@ export default function SelectWrapper({
             borderColor: "#3F4E65",
           },
           height: "3rem",
+          overflowX: "auto",
         }),
         menu: base => ({
           ...base,

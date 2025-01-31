@@ -16,6 +16,7 @@ import useFetch from "../hooks/useFetch";
 import { users } from "../mockup_data/users";
 import { User } from "../types/common.types";
 import { useNavigate } from "react-router";
+import SelectWrapper from "../components/Form/SelectWrapper";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -34,6 +35,15 @@ const Users = () => {
     document.title = getPageTitle("Users");
   }, []);
 
+  const customerOptions = users.flatMap(user =>
+    user.customers.map((customer, index) => ({
+      value: customer,
+      label: customer,
+    }))
+  );
+
+  const selectAllOption = { value: "all", label: "Select All" };
+
   return (
     <>
       <CardBoxModal
@@ -44,32 +54,56 @@ const Users = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Formik initialValues={undefined} onSubmit={undefined}>
-          <Form>
-            <FormField label="Username" help="Required">
-              <Field name="username" placeholder="username" id="username" />
-            </FormField>
+        <Formik
+          initialValues={{ username: "", role: "", customers: [], active_user: true }}
+          onSubmit={values => console.log("Submitted values:", values)}
+        >
+          {({ setFieldValue, values }) => {
+            const handleSelectChange = selectedOptions => {
+              if (selectedOptions.some(option => option.value === "all")) {
+                setFieldValue(
+                  "customers",
+                  customerOptions.map(option => option.value)
+                );
+              } else {
+                setFieldValue(
+                  "customers",
+                  selectedOptions.map(option => option.value)
+                );
+              }
+            };
 
-            <FormField label="Role">
-              <Field id="role" component="select">
-                <option value="administrator">Administrator</option>
-                <option value="user">User</option>
-              </Field>
-            </FormField>
-            <FormField label="Customers">
-              <Field id="customers" component="select">
-                <option value="customer1">customer1</option>
-                <option value="customer2">customer2</option>
-              </Field>
-            </FormField>
-            <FormField label="User enabled">
-              <FormCheckRadioGroup>
-                <FormCheckRadio type="checkbox" label="Active">
-                  <Field checked type="checkbox" name="active_user" value="active" />
-                </FormCheckRadio>
-              </FormCheckRadioGroup>
-            </FormField>
-          </Form>
+            return (
+              <Form>
+                <FormField label="Username" help="Required">
+                  <Field name="username" placeholder="username" id="username" />
+                </FormField>
+
+                <FormField label="Role">
+                  <Field id="role" name="role" as="select">
+                    <option value="administrator">Administrator</option>
+                    <option value="user">User</option>
+                  </Field>
+                </FormField>
+                <FormField label="Customers">
+                  <SelectWrapper
+                    options={[selectAllOption, ...customerOptions]}
+                    isMulti
+                    value={customerOptions.filter(option => values.customers.includes(option.value))}
+                    onChange={handleSelectChange}
+                    closeMenuOnSelect={false}
+                  />
+                </FormField>
+                <FormField label="User enabled">
+                  <FormCheckRadioGroup>
+                    <FormCheckRadio type="checkbox" label="Active">
+                      <Field type="checkbox" name="active_user" />
+                    </FormCheckRadio>
+                  </FormCheckRadioGroup>
+                </FormField>
+              </Form>
+            );
+          }}
         </Formik>
       </CardBoxModal>
       <CardBoxModal
