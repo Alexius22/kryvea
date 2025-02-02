@@ -49,14 +49,14 @@ func (ci CategoryIndex) init() error {
 	return err
 }
 
-func (ci *CategoryIndex) Insert(category *Category) error {
+func (ci *CategoryIndex) Insert(category *Category) (primitive.ObjectID, error) {
 	category.Model = Model{
 		ID:        primitive.NewObjectID(),
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
 	_, err := ci.collection.InsertOne(context.Background(), category)
-	return err
+	return category.ID, err
 }
 
 func (ci *CategoryIndex) Update(ID primitive.ObjectID, category *Category) error {

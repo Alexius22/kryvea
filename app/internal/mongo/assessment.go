@@ -57,10 +57,10 @@ func (ai AssessmentIndex) init() error {
 	return err
 }
 
-func (ai *AssessmentIndex) Insert(assessment *Assessment) error {
+func (ai *AssessmentIndex) Insert(assessment *Assessment) (primitive.ObjectID, error) {
 	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.CustomerID}).Err()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 
 	assessment.Model = Model{
@@ -69,7 +69,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment) error {
 		UpdatedAt: time.Now(),
 	}
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
-	return err
+	return assessment.ID, err
 }
 
 func (ai *AssessmentIndex) GetByID(assessmentID primitive.ObjectID) (*Assessment, error) {

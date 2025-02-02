@@ -46,14 +46,14 @@ func (ci CustomerIndex) init() error {
 	return err
 }
 
-func (ci *CustomerIndex) Insert(customer *Customer) error {
+func (ci *CustomerIndex) Insert(customer *Customer) (primitive.ObjectID, error) {
 	customer.Model = Model{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 	_, err := ci.collection.InsertOne(context.Background(), customer)
-	return err
+	return customer.ID, err
 }
 
 func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, error) {

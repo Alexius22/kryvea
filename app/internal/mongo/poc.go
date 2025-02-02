@@ -50,10 +50,10 @@ func (pi PocIndex) init() error {
 	return err
 }
 
-func (pi *PocIndex) Insert(poc *Poc) error {
+func (pi *PocIndex) Insert(poc *Poc) (primitive.ObjectID, error) {
 	err := pi.driver.Vulnerability().collection.FindOne(context.Background(), bson.M{"_id": poc.VulnerabilityID}).Err()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 
 	poc.Model = Model{
@@ -62,7 +62,7 @@ func (pi *PocIndex) Insert(poc *Poc) error {
 		CreatedAt: time.Now(),
 	}
 	_, err = pi.collection.InsertOne(context.Background(), poc)
-	return err
+	return poc.ID, err
 }
 
 func (pi *PocIndex) Update(ID primitive.ObjectID, poc *Poc) error {
