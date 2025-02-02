@@ -39,7 +39,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	err := d.mongo.Category().Insert(&mongo.Category{
+	categoryID, err := d.mongo.Category().Insert(&mongo.Category{
 		Index:              category.Index,
 		Name:               category.Name,
 		GenericDescription: category.GenericDescription,
@@ -54,7 +54,8 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Category created",
+		"message":     "Category created",
+		"category_id": categoryID.Hex(),
 	})
 }
 

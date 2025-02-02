@@ -48,7 +48,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	err := d.mongo.Customer().Insert(&mongo.Customer{
+	customerID, err := d.mongo.Customer().Insert(&mongo.Customer{
 		Name:               customer.Name,
 		Language:           customer.Language,
 		DefaultCVSSVersion: customer.DefaultCVSSVersion,
@@ -62,7 +62,8 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Customer created",
+		"message":     "Customer created",
+		"customer_id": customerID.Hex(),
 	})
 }
 

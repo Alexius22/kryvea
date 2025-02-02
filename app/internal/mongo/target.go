@@ -52,10 +52,10 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target) error {
+func (ti *TargetIndex) Insert(target *Target) (primitive.ObjectID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.CustomerID}).Err()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 
 	target.Model = Model{
@@ -64,7 +64,7 @@ func (ti *TargetIndex) Insert(target *Target) error {
 		CreatedAt: time.Now(),
 	}
 	_, err = ti.collection.InsertOne(context.Background(), target)
-	return err
+	return target.ID, err
 }
 
 func (ti *TargetIndex) Update(targetID primitive.ObjectID, target *Target) error {

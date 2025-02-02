@@ -92,7 +92,7 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 		return "", time.Time{}, err
 	}
 
-	if time.Now().After(user.PasswordExpiry) {
+	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
 		return "", time.Time{}, ErrInvalidCredentials
 	}
 
@@ -122,6 +122,7 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 		"updated_at":  1,
 		"disabled_at": 1,
 		"username":    1,
+		"role":        1,
 		"customers":   1,
 	})
 
@@ -152,7 +153,7 @@ func (ui *UserIndex) GetByToken(token string) (*User, error) {
 		"username":        1,
 		"password_expiry": 1,
 		"token_expiry":    1,
-		"is_admin":        1,
+		"role":            1,
 		"customers":       1,
 	})
 

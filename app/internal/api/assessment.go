@@ -101,7 +101,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		targets = append(targets, targetID)
 	}
 
-	err = d.mongo.Assessment().Insert(&mongo.Assessment{
+	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
 		Name:          assessment.Name,
 		Notes:         assessment.Notes,
 		StartDateTime: assessment.StartDateTime,
@@ -125,7 +125,8 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Assessment created",
+		"message":       "Assessment created",
+		"assessment_id": assessmentID.Hex(),
 	})
 }
 

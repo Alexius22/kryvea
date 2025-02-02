@@ -46,7 +46,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	err = d.mongo.Target().Insert(&mongo.Target{
+	targetID, err := d.mongo.Target().Insert(&mongo.Target{
 		IP:         target.IP,
 		Port:       target.Port,
 		Protocol:   target.Protocol,
@@ -62,7 +62,8 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Target created",
+		"message":   "Target created",
+		"target_id": targetID.Hex(),
 	})
 }
 

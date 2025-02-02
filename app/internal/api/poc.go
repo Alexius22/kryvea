@@ -73,7 +73,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	err = d.mongo.Poc().Insert(&mongo.Poc{
+	pocID, err := d.mongo.Poc().Insert(&mongo.Poc{
 		Index:           pocData.Index,
 		Type:            pocData.Type,
 		Title:           pocData.Title,
@@ -92,6 +92,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "PoC created",
+		"poc_id":  pocID.Hex(),
 	})
 }
 
