@@ -191,3 +191,35 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		"message": "User updated",
 	})
 }
+
+func (d *Driver) DeleteUser(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	userID, err := util.ParseMongoID(c.Params("user"))
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid user ID",
+		})
+	}
+
+	err = d.mongo.User().Delete(userID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot delete user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "User deleted",
+	})
+}

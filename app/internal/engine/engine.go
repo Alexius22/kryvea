@@ -74,9 +74,11 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/poc/:poc", api.DeletePoc)
 
 		apiGroup.Get("/users", api.GetAllUsers)
+		apiGroup.Put("/user/:user", api.UpdateUser)
+		apiGroup.Delete("/user/:user", api.DeleteUser)
+
 		apiGroup.Post("/login", api.Login)
 		apiGroup.Post("/register", api.Register)
-		apiGroup.Put("/user/:user", api.UpdateUser)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
