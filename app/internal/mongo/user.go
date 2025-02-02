@@ -19,16 +19,24 @@ var (
 
 const (
 	userCollection = "user"
+
+	ROLE_ADMIN = "admin"
+	ROLE_USER  = "user"
+)
+
+var (
+	ROLES = []string{ROLE_ADMIN, ROLE_USER}
 )
 
 type User struct {
 	Model          `bson:",inline"`
+	DisabledAt     time.Time            `json:"disabled_at" bson:"disabled_at"`
 	Username       string               `json:"username" bson:"username"`
 	Password       string               `json:"-" bson:"password"`
 	PasswordExpiry time.Time            `json:"-" bson:"password_expiry"`
 	Token          string               `json:"-" bson:"token"`
 	TokenExpiry    time.Time            `json:"-" bson:"token_expiry"`
-	IsAdmin        bool                 `json:"is_admin" bson:"is_admin"`
+	Role           string               `json:"role" bson:"role"`
 	Customers      []primitive.ObjectID `json:"customers" bson:"customers"`
 }
 
@@ -64,7 +72,8 @@ func (ui *UserIndex) Insert(user *User) error {
 		UpdatedAt: time.Now(),
 	}
 
-	user.IsAdmin = false
+	user.DisabledAt = time.Time{}
+	user.Role = ROLE_USER
 	user.PasswordExpiry = time.Time{}
 
 	hash, err := crypto.Encrypt(user.Password)
@@ -81,6 +90,10 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	var user User
 	if err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user); err != nil {
 		return "", time.Time{}, err
+	}
+
+	if time.Now().After(user.PasswordExpiry) {
+		return "", time.Time{}, ErrInvalidCredentials
 	}
 
 	if !crypto.Compare(password, user.Password) {
@@ -104,11 +117,12 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 
 func (ui *UserIndex) GetAll() ([]User, error) {
 	opts := options.Find().SetProjection(bson.M{
-		"_id":        1,
-		"created_at": 1,
-		"updated_at": 1,
-		"username":   1,
-		"customers":  1,
+		"_id":         1,
+		"created_at":  1,
+		"updated_at":  1,
+		"disabled_at": 1,
+		"username":    1,
+		"customers":   1,
 	})
 
 	var users []User
@@ -134,6 +148,7 @@ func (ui *UserIndex) GetByToken(token string) (*User, error) {
 		"_id":             1,
 		"created_at":      1,
 		"updated_at":      1,
+		"disabled_at":     1,
 		"username":        1,
 		"password_expiry": 1,
 		"token_expiry":    1,
@@ -147,4 +162,26 @@ func (ui *UserIndex) GetByToken(token string) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
+	filter := bson.M{"_id": ID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":  time.Now(),
+			"disabled_at": user.DisabledAt,
+			"username":    user.Username,
+			"role":        user.Role,
+			"customers":   user.Customers,
+		},
+	}
+
+	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ui *UserIndex) Delete(ID primitive.ObjectID) error {
+	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	return err
 }
