@@ -8,7 +8,7 @@ func TestParseVector(t *testing.T) {
 	tests := []struct {
 		name          string
 		vector        string
-		version       int
+		version       string
 		expectedScore float64
 		expectError   bool
 	}{
@@ -76,7 +76,7 @@ func TestParseVector(t *testing.T) {
 		{
 			name:        "Invalid CVSS version",
 			vector:      "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-			version:     99,
+			version:     "99",
 			expectError: true,
 		},
 	}

@@ -24,7 +24,7 @@ type Assessment struct {
 	Targets       []primitive.ObjectID `json:"targets" bson:"targets"`
 	Status        string               `json:"status" bson:"status"`
 	Type          string               `json:"type" bson:"type"`
-	CVSSVersion   int                  `json:"cvss_version" bson:"cvss_version"`
+	CVSSVersion   string               `json:"cvss_version" bson:"cvss_version"`
 	Environment   string               `json:"environment" bson:"environment"`
 	Network       string               `json:"network" bson:"network"`
 	Method        string               `json:"method" bson:"method"`

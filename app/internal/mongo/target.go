@@ -21,6 +21,7 @@ type Target struct {
 	Port       int                `json:"port" bson:"port"`
 	Protocol   string             `json:"protocol" bson:"protocol"`
 	Hostname   string             `json:"hostname" bson:"hostname"`
+	Name       string             `json:"name" bson:"name"`
 	CustomerID primitive.ObjectID `json:"customer_id" bson:"customer_id"`
 }
 
@@ -43,6 +44,7 @@ func (ti TargetIndex) init() error {
 			Keys: bson.D{
 				{Key: "ip", Value: 1},
 				{Key: "hostname", Value: 1},
+				{Key: "name", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},

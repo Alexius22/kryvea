@@ -18,7 +18,7 @@ type Customer struct {
 	Model              `bson:",inline"`
 	Name               string `json:"name" bson:"name"`
 	Language           string `json:"language" bson:"language"`
-	DefaultCVSSVersion int    `json:"default_cvss_version" bson:"default_cvss_version"`
+	DefaultCVSSVersion string `json:"default_cvss_version" bson:"default_cvss_version"`
 }
 
 type CustomerIndex struct {
