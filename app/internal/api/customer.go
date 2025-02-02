@@ -9,7 +9,7 @@ import (
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	if !user.IsAdmin {
+	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -70,7 +70,7 @@ func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	userCustomers := user.Customers
-	if user.IsAdmin {
+	if user.Role == mongo.ROLE_ADMIN {
 		userCustomers = nil
 	}
 

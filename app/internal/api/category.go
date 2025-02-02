@@ -9,7 +9,7 @@ import (
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	if !user.IsAdmin {
+	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -61,7 +61,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	if !user.IsAdmin {
+	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -136,7 +136,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	if !user.IsAdmin {
+	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",

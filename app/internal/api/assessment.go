@@ -141,7 +141,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	}
 
 	customers := user.Customers
-	if user.IsAdmin {
+	if user.Role == mongo.ROLE_ADMIN {
 		customers = nil
 	}
 

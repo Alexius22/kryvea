@@ -6,12 +6,21 @@ import (
 )
 
 func CanAccessCustomer(user *mongo.User, customer primitive.ObjectID) bool {
-	if user.IsAdmin {
+	if user.Role == mongo.ROLE_ADMIN {
 		return true
 	}
 
 	for _, allowedCustomer := range user.Customers {
 		if allowedCustomer == customer {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidRole(role string) bool {
+	for _, r := range mongo.ROLES {
+		if r == role {
 			return true
 		}
 	}
