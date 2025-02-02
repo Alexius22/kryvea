@@ -76,6 +76,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/users", api.GetAllUsers)
 		apiGroup.Post("/login", api.Login)
 		apiGroup.Post("/register", api.Register)
+		apiGroup.Put("/user/:user", api.UpdateUser)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
