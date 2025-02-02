@@ -19,7 +19,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	type reqData struct {
 		Name               string `json:"name"`
 		Language           string `json:"language"`
-		DefaultCVSSVersion int    `json:"default_cvss_version"`
+		DefaultCVSSVersion string `json:"default_cvss_version"`
 	}
 
 	customer := &reqData{}
@@ -37,7 +37,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	if customer.DefaultCVSSVersion == 0 {
+	if customer.DefaultCVSSVersion == "" {
 		customer.DefaultCVSSVersion = cvss.CVSS4
 	}
 

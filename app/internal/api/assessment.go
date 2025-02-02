@@ -21,7 +21,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Status        string    `json:"status"`
 		Targets       []string  `json:"targets"`
 		Type          string    `json:"type"`
-		CVSSVersion   int       `json:"cvss_version"`
+		CVSSVersion   string    `json:"cvss_version"`
 		Environment   string    `json:"environment"`
 		Network       string    `json:"network"`
 		Method        string    `json:"method"`
@@ -78,7 +78,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	if assessment.CVSSVersion == 0 {
+	if assessment.CVSSVersion == "" {
 		assessment.CVSSVersion = customer.DefaultCVSSVersion
 	}
 

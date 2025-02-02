@@ -9,7 +9,7 @@ import (
 	gocvss40 "github.com/pandatix/go-cvss/40"
 )
 
-func ParseVector(vector string, version int) (float64, error) {
+func ParseVector(vector string, version string) (float64, error) {
 	switch version {
 	case CVSS2:
 		cvss, err := gocvss20.ParseVector(vector)
