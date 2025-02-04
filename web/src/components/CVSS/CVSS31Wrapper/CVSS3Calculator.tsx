@@ -2,9 +2,7 @@ import Button from "../../Button";
 import Buttons from "../../Buttons";
 import { CVSS3Context } from "./CVSS3Context";
 
-type SelectedValuesType = ReturnType<typeof CVSS3Context>["selectedValues"];
-
-const CVSS3Calculator = ({ updateVectorString }: { updateVectorString: (values: SelectedValuesType) => void }) => {
+const CVSS3Calculator = ({ updateVectorString, selectedValues, setSelectedValues }) => {
   const metricLabels = {
     AttackVector: "Attack Vector (AV)",
     AttackComplexity: "Attack Complexity (AC)",
@@ -54,8 +52,6 @@ const CVSS3Calculator = ({ updateVectorString }: { updateVectorString: (values: 
     IntegrityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
     AvailabilityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
   };
-
-  const { selectedValues, setSelectedValues } = CVSS3Context();
 
   const handleChange = (key: string, value: string) => {
     setSelectedValues(prev => {
@@ -118,7 +114,9 @@ const CVSS3Calculator = ({ updateVectorString }: { updateVectorString: (values: 
         {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
           <Button
             key={optionKey}
-            color={selectedValues[metricKey] === optionKey ? "success" : "contrast"}
+            color={(() => {
+              return selectedValues[metricKey] === optionKey ? "success" : "contrast";
+            })()}
             label={`${optionObj} (${optionKey})`}
             onClick={() => handleChange(metricKey, optionKey)}
             small

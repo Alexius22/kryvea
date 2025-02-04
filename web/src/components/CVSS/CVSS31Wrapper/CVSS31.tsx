@@ -316,6 +316,13 @@ export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
       }
     }
   }
+
+  for (const key in metricValues) {
+    if (metricValues[key] === undefined) {
+      metricValues[key] = "X";
+    }
+  }
+
   if (badMetrics.length > 0) {
     return { success: false, errorType: "MultipleDefinitionsOfMetric", errorMetrics: badMetrics };
   }
