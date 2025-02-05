@@ -1,9 +1,8 @@
 import { useMemo } from "react";
 import Button from "../../Button";
 import Buttons from "../../Buttons";
-import { CVSS40 } from "./CVSS40";
 
-const CVSS4Vector = ({ selectedValues, setSelectedValues, setCvss4Score }) => {
+const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
   const metricLabels = useMemo(
     () => ({
       AttackVector: "Attack Vector (AV)",
@@ -80,83 +79,103 @@ const CVSS4Vector = ({ selectedValues, setSelectedValues, setCvss4Score }) => {
     []
   );
 
-  const metricLabelsShort = useMemo(
-    () => ({
-      AttackVector: "AV",
-      AttackComplexity: "AC",
-      AttackRequirements: "AT",
-      PrivilegesRequired: "PR",
-      UserInteraction: "UI",
-      Confidentiality: "VC",
-      Integrity: "VI",
-      Availability: "VA",
-      SubsequentConfidentiality: "SC",
-      SubsequentIntegrity: "SI",
-      SubsequentAvailability: "SA",
-      Safety: "S",
-      Automatable: "AU",
-      Recovery: "R",
-      ValueDensity: "V",
-      ResponseEffort: "RE",
-      ProviderUrgency: "U",
-      ModifiedAttackVector: "MAV",
-      ModifiedAttackComplexity: "MAC",
-      ModifiedAttackRequirements: "MAT",
-      ModifiedPrivilegesRequired: "MPR",
-      ModifiedUserInteraction: "MUI",
-      ModifiedConfidentiality: "MVC",
-      ModifiedIntegrity: "MVI",
-      ModifiedAvailability: "MVA",
-      ModifiedSubsequentConfidentiality: "MSC",
-      ModifiedSubsequentIntegrity: "MSI",
-      ModifiedSubsequentAvailability: "MSA",
-      ConfidentialityRequirements: "CR",
-      IntegrityRequirements: "IR",
-      AvailabilityRequirements: "AR",
-      ExploitMaturity: "E",
-    }),
-    []
-  );
-
-  const updateMetric = (metricKey, value) => {
-    setSelectedValues(prev => ({ ...prev, [metricKey]: value }));
+  const handleChange = (key: string, value: string) => {
+    setSelectedValues(prev => {
+      const updatedValues = { ...prev, [key]: value };
+      updateVectorString(updatedValues);
+      return updatedValues;
+    });
   };
 
-  const raw = useMemo(() => {
-    const baseString = "CVSS:4.0";
-    const metricEntries = Object.entries(selectedValues)
-      .filter(([, value]) => value !== "X")
-      .map(([key, value]) => `/${metricLabelsShort[key]}:${value}`)
-      .join("");
-    const cvss40string = baseString + metricEntries;
-    return cvss40string;
-  }, [selectedValues]);
-
-  const cvss40 = useMemo(() => {
-    const instance = new CVSS40(raw);
-    setCvss4Score(instance.calculateScore());
-    setSelectedValues(instance.vector.metrics);
-    return instance;
-  }, [raw]);
-
   return (
-    <div>
-      <h3>Generated Vector: {raw}</h3>
-      {Object.entries(metricLabels).map(([metricKey, label]) => (
-        <Buttons key={metricKey} label={label}>
-          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
-            <Button
-              key={`${optionLabel}-optionKey`}
-              color={selectedValues[metricKey] === optionKey ? "success" : "contrast"}
-              label={`${metricValues[metricKey][optionKey]} (${optionKey})`}
-              onClick={() => updateMetric(metricKey, optionKey)}
-              small
-            />
-          ))}
-        </Buttons>
-      ))}
+    <div className="ml-8">
+      {/* Base Metrics */}
+      <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Base Metrics</h3>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+        {/* Exploitability Metrics */}
+        <div>
+          <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Exploitability Metrics</h4>
+          {Object.entries(metricLabels).slice(0, 5).map(renderMetricButtons)}
+        </div>
+        {/* Vulnerable System Impact Metrics */}
+        <div>
+          <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Vulnerable System Impact Metrics</h4>
+          {Object.entries(metricLabels).slice(5, 8).map(renderMetricButtons)}
+        </div>
+        {/* Subsequent System Impact Metrics */}
+        <div>
+          <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Subsequent System Impact Metrics</h4>
+          {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
+        </div>
+      </div>
+
+      {/* Supplemental Metrics */}
+      <div style={{ marginTop: "2rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr" }}>
+          <div>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Supplemental Metrics</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
+              <div>{Object.entries(metricLabels).slice(11, 14).map(renderMetricButtons)}</div>
+              <div>{Object.entries(metricLabels).slice(14, 17).map(renderMetricButtons)}</div>
+            </div>
+          </div>
+          {/* Threat Metrics */}
+          <div>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Threat Metrics</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+              {Object.entries(metricLabels).slice(31, 32).map(renderMetricButtons)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Environmental (Modified Base Metrics) */}
+      <div style={{ marginTop: "2rem" }}>
+        <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Environmental (Modified Base Metrics)</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+          {/* Exploitability Metrics */}
+          <div>
+            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Exploitability Metrics</h4>
+            {Object.entries(metricLabels).slice(17, 22).map(renderMetricButtons)}
+          </div>
+          {/* Vulnerable System Impact Metrics */}
+          <div>
+            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Vulnerable System Impact Metrics</h4>
+            {Object.entries(metricLabels).slice(22, 25).map(renderMetricButtons)}
+          </div>
+          {/* Subsequent System Impact Metrics */}
+          <div>
+            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Subsequent System Impact Metrics</h4>
+            {Object.entries(metricLabels).slice(25, 28).map(renderMetricButtons)}
+          </div>
+        </div>
+      </div>
+
+      {/* Environmental (Security Requirements) */}
+      <div style={{ marginTop: "2rem" }}>
+        <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Environmental (Security Requirements)</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+          {Object.entries(metricLabels).slice(28, 31).map(renderMetricButtons)}
+        </div>
+      </div>
     </div>
   );
+
+  function renderMetricButtons([metricKey, metricLabel]) {
+    return (
+      <Buttons key={metricKey} label={metricLabel}>
+        {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
+          <Button
+            key={`${optionLabel}-optionKey`}
+            color={selectedValues[metricKey] === optionKey ? "success" : "contrast"}
+            label={`${metricValues[metricKey][optionKey]} (${optionKey})`}
+            onClick={() => handleChange(metricKey, optionKey)}
+            small
+          />
+        ))}
+      </Buttons>
+    );
+  }
 };
 
-export default CVSS4Vector;
+export default CVSS40Render;
