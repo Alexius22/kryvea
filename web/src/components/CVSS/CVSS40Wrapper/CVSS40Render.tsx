@@ -16,12 +16,10 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       SubsequentConfidentiality: "Confidentiality (SC)",
       SubsequentIntegrity: "Integrity (SI)",
       SubsequentAvailability: "Availability (SA)",
-      Safety: "Safety (S)",
-      Automatable: "Automatable (AU)",
-      Recovery: "Recovery (R)",
-      ValueDensity: "Value Density (V)",
-      ResponseEffort: "Vulnerability Response Effort (RE)",
-      ProviderUrgency: "Provider Urgency (U)",
+      ExploitMaturity: "Exploit Maturity (E)",
+      ConfidentialityRequirements: "Confidentiality Requirements (CR)",
+      IntegrityRequirements: "Integrity Requirements (IR)",
+      AvailabilityRequirements: "Availability Requirements (AR)",
       ModifiedAttackVector: "Attack Vector (MAV)",
       ModifiedAttackComplexity: "Attack Complexity (MAC)",
       ModifiedAttackRequirements: "Attack Requirements (MAT)",
@@ -33,10 +31,12 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       ModifiedSubsequentConfidentiality: "Confidentiality (MSC)",
       ModifiedSubsequentIntegrity: "Integrity (MSI)",
       ModifiedSubsequentAvailability: "Availability (MSA)",
-      ConfidentialityRequirements: "Confidentiality Requirements (CR)",
-      IntegrityRequirements: "Integrity Requirements (IR)",
-      AvailabilityRequirements: "Availability Requirements (AR)",
-      ExploitMaturity: "Exploit Maturity (E)",
+      Safety: "Safety (S)",
+      Automatable: "Automatable (AU)",
+      Recovery: "Recovery (R)",
+      ValueDensity: "Value Density (V)",
+      ResponseEffort: "Vulnerability Response Effort (RE)",
+      ProviderUrgency: "Provider Urgency (U)",
     }),
     []
   );
@@ -54,12 +54,10 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       SubsequentConfidentiality: { N: "None", L: "Low", H: "High" },
       SubsequentIntegrity: { N: "None", L: "Low", H: "High" },
       SubsequentAvailability: { N: "None", L: "Low", H: "High" },
-      Safety: { X: "Not Defined", N: "Negligible", P: "Present" },
-      Automatable: { X: "Not Defined", N: "No", Y: "Yes" },
-      Recovery: { X: "Not Defined", A: "Automatic", U: "User", I: "Irrecoverable" },
-      ValueDensity: { X: "Not Defined", D: "Diffuse", C: "Concentrated" },
-      ResponseEffort: { X: "Not Defined", L: "Low", M: "Moderate", H: "High" },
-      ProviderUrgency: { X: "Not Defined", Clear: "Clear", Green: "Green", Amber: "Amber", Red: "Red" },
+      ExploitMaturity: { X: "Not Defined", U: "Unreported", P: "POC", A: "Attacked" },
+      ConfidentialityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
+      IntegrityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
+      AvailabilityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
       ModifiedAttackVector: { X: "Not Defined", N: "Network", A: "Adjacent", L: "Local", P: "Physical" },
       ModifiedAttackComplexity: { X: "Not Defined", L: "Low", H: "High" },
       ModifiedAttackRequirements: { X: "Not Defined", N: "None", P: "Present" },
@@ -71,10 +69,12 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       ModifiedSubsequentConfidentiality: { X: "Not Defined", N: "Negligible", L: "Low", H: "High" },
       ModifiedSubsequentIntegrity: { X: "Not Defined", N: "Negligible", L: "Low", H: "High", S: "Safety" },
       ModifiedSubsequentAvailability: { X: "Not Defined", N: "Negligible", L: "Low", H: "High", S: "Safety" },
-      ConfidentialityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
-      IntegrityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
-      AvailabilityRequirements: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
-      ExploitMaturity: { X: "Not Defined", U: "Unreported", P: "POC", A: "Attacked" },
+      Safety: { X: "Not Defined", N: "Negligible", P: "Present" },
+      Automatable: { X: "Not Defined", N: "No", Y: "Yes" },
+      Recovery: { X: "Not Defined", A: "Automatic", U: "User", I: "Irrecoverable" },
+      ValueDensity: { X: "Not Defined", D: "Diffuse", C: "Concentrated" },
+      ResponseEffort: { X: "Not Defined", L: "Low", M: "Moderate", H: "High" },
+      ProviderUrgency: { X: "Not Defined", Clear: "Clear", Green: "Green", Amber: "Amber", Red: "Red" },
     }),
     []
   );
@@ -115,15 +115,15 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
           <div>
             <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Supplemental Metrics</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
-              <div>{Object.entries(metricLabels).slice(11, 14).map(renderMetricButtons)}</div>
-              <div>{Object.entries(metricLabels).slice(14, 17).map(renderMetricButtons)}</div>
+              <div>{Object.entries(metricLabels).slice(26, 29).map(renderMetricButtons)}</div>
+              <div>{Object.entries(metricLabels).slice(29, 32).map(renderMetricButtons)}</div>
             </div>
           </div>
           {/* Threat Metrics */}
           <div>
             <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Threat Metrics</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-              {Object.entries(metricLabels).slice(31, 32).map(renderMetricButtons)}
+              {Object.entries(metricLabels).slice(11, 12).map(renderMetricButtons)}
             </div>
           </div>
         </div>
@@ -136,17 +136,17 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
           {/* Exploitability Metrics */}
           <div>
             <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Exploitability Metrics</h4>
-            {Object.entries(metricLabels).slice(17, 22).map(renderMetricButtons)}
+            {Object.entries(metricLabels).slice(16, 20).map(renderMetricButtons)}
           </div>
           {/* Vulnerable System Impact Metrics */}
           <div>
             <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Vulnerable System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(22, 25).map(renderMetricButtons)}
+            {Object.entries(metricLabels).slice(20, 23).map(renderMetricButtons)}
           </div>
           {/* Subsequent System Impact Metrics */}
           <div>
             <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Subsequent System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(25, 28).map(renderMetricButtons)}
+            {Object.entries(metricLabels).slice(23, 26).map(renderMetricButtons)}
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       <div style={{ marginTop: "2rem" }}>
         <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Environmental (Security Requirements)</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
-          {Object.entries(metricLabels).slice(28, 31).map(renderMetricButtons)}
+          {Object.entries(metricLabels).slice(12, 15).map(renderMetricButtons)}
         </div>
       </div>
     </div>
