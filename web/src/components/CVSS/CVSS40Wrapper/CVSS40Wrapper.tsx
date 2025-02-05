@@ -11,18 +11,18 @@ type LH = "L" | "H";
 type NP = "N" | "P";
 type NPA = "N" | "P" | "A";
 type NLH = "N" | "L" | "H";
+type XUPA = "X" | "U" | "P" | "A";
+type XLMH = "X" | "L" | "M" | "H";
+type XNALP = "X" | "N" | "A" | "L" | "P";
+type XLH = "X" | "L" | "H";
 type XNP = "X" | "N" | "P";
+type XNLH = "X" | "N" | "L" | "H";
+type XNPA = "X" | "N" | "P" | "A";
+type XNLHS = "X" | "N" | "L" | "H" | "S";
 type XNY = "X" | "N" | "Y";
 type XAUI = "X" | "A" | "U" | "I";
 type XDC = "X" | "D" | "C";
-type XLMH = "X" | "L" | "M" | "H";
 type XClearGreenAmberRed = "X" | "Clear" | "Green" | "Amber" | "Red";
-type XNALP = "X" | "N" | "A" | "L" | "P";
-type XLH = "X" | "L" | "H";
-type XNPA = "X" | "N" | "P" | "A";
-type XNLH = "X" | "N" | "L" | "H";
-type XNLHS = "X" | "N" | "L" | "H" | "S";
-type XUPA = "X" | "U" | "P" | "A";
 type Metrics = {
   AttackVector: NALP;
   AttackComplexity: LH;
@@ -35,12 +35,10 @@ type Metrics = {
   SubsequentConfidentiality: NLH;
   SubsequentIntegrity: NLH;
   SubsequentAvailability: NLH;
-  Safety: XNP;
-  Automatable: XNY;
-  Recovery: XAUI;
-  ValueDensity: XDC;
-  ResponseEffort: XLMH;
-  ProviderUrgency: XClearGreenAmberRed;
+  ExploitMaturity: XUPA;
+  ConfidentialityRequirements: XLMH;
+  IntegrityRequirements: XLMH;
+  AvailabilityRequirements: XLMH;
   ModifiedAttackVector: XNALP;
   ModifiedAttackComplexity: XLH;
   ModifiedAttackRequirements: XNP;
@@ -52,10 +50,12 @@ type Metrics = {
   ModifiedSubsequentConfidentiality: XNLH;
   ModifiedSubsequentIntegrity: XNLHS;
   ModifiedSubsequentAvailability: XNLHS;
-  ConfidentialityRequirements: XLMH;
-  IntegrityRequirements: XLMH;
-  AvailabilityRequirements: XLMH;
-  ExploitMaturity: XUPA;
+  Safety: XNP;
+  Automatable: XNY;
+  Recovery: XAUI;
+  ValueDensity: XDC;
+  ResponseEffort: XLMH;
+  ProviderUrgency: XClearGreenAmberRed;
 };
 
 export default function CVSS40Wrapper() {
@@ -71,12 +71,10 @@ export default function CVSS40Wrapper() {
     SubsequentConfidentiality: "N",
     SubsequentIntegrity: "N",
     SubsequentAvailability: "N",
-    Safety: "X",
-    Automatable: "X",
-    Recovery: "X",
-    ValueDensity: "X",
-    ResponseEffort: "X",
-    ProviderUrgency: "X",
+    ExploitMaturity: "X",
+    ConfidentialityRequirements: "X",
+    IntegrityRequirements: "X",
+    AvailabilityRequirements: "X",
     ModifiedAttackVector: "X",
     ModifiedAttackComplexity: "X",
     ModifiedAttackRequirements: "X",
@@ -88,10 +86,12 @@ export default function CVSS40Wrapper() {
     ModifiedSubsequentConfidentiality: "X",
     ModifiedSubsequentIntegrity: "X",
     ModifiedSubsequentAvailability: "X",
-    ConfidentialityRequirements: "X",
-    IntegrityRequirements: "X",
-    AvailabilityRequirements: "X",
-    ExploitMaturity: "X",
+    Safety: "X",
+    Automatable: "X",
+    Recovery: "X",
+    ValueDensity: "X",
+    ResponseEffort: "X",
+    ProviderUrgency: "X",
   });
   const metricLabelsShort = useMemo(
     () => ({
@@ -106,12 +106,10 @@ export default function CVSS40Wrapper() {
       SubsequentConfidentiality: "SC",
       SubsequentIntegrity: "SI",
       SubsequentAvailability: "SA",
-      Safety: "S",
-      Automatable: "AU",
-      Recovery: "R",
-      ValueDensity: "V",
-      ResponseEffort: "RE",
-      ProviderUrgency: "U",
+      ExploitMaturity: "E",
+      ConfidentialityRequirements: "CR",
+      IntegrityRequirements: "IR",
+      AvailabilityRequirements: "AR",
       ModifiedAttackVector: "MAV",
       ModifiedAttackComplexity: "MAC",
       ModifiedAttackRequirements: "MAT",
@@ -123,10 +121,12 @@ export default function CVSS40Wrapper() {
       ModifiedSubsequentConfidentiality: "MSC",
       ModifiedSubsequentIntegrity: "MSI",
       ModifiedSubsequentAvailability: "MSA",
-      ConfidentialityRequirements: "CR",
-      IntegrityRequirements: "IR",
-      AvailabilityRequirements: "AR",
-      ExploitMaturity: "E",
+      Safety: "S",
+      Automatable: "AU",
+      Recovery: "R",
+      ValueDensity: "V",
+      ResponseEffort: "RE",
+      ProviderUrgency: "U",
     }),
     []
   );
@@ -190,12 +190,10 @@ export default function CVSS40Wrapper() {
         SubsequentConfidentiality: parsedVector.metrics.SC,
         SubsequentIntegrity: parsedVector.metrics.SI,
         SubsequentAvailability: parsedVector.metrics.SA,
-        Safety: parsedVector.metrics.S,
-        Automatable: parsedVector.metrics.AU,
-        Recovery: parsedVector.metrics.R,
-        ValueDensity: parsedVector.metrics.V,
-        ResponseEffort: parsedVector.metrics.RE,
-        ProviderUrgency: parsedVector.metrics.U,
+        ExploitMaturity: parsedVector.metrics.E,
+        ConfidentialityRequirements: parsedVector.metrics.CR,
+        IntegrityRequirements: parsedVector.metrics.IR,
+        AvailabilityRequirements: parsedVector.metrics.AR,
         ModifiedAttackVector: parsedVector.metrics.MAV,
         ModifiedAttackComplexity: parsedVector.metrics.MAC,
         ModifiedAttackRequirements: parsedVector.metrics.MAT,
@@ -207,10 +205,12 @@ export default function CVSS40Wrapper() {
         ModifiedSubsequentConfidentiality: parsedVector.metrics.MSC,
         ModifiedSubsequentIntegrity: parsedVector.metrics.MSI,
         ModifiedSubsequentAvailability: parsedVector.metrics.MSA,
-        ConfidentialityRequirements: parsedVector.metrics.CR,
-        IntegrityRequirements: parsedVector.metrics.IR,
-        AvailabilityRequirements: parsedVector.metrics.AR,
-        ExploitMaturity: parsedVector.metrics.E,
+        Safety: parsedVector.metrics.S,
+        Automatable: parsedVector.metrics.AU,
+        Recovery: parsedVector.metrics.R,
+        ValueDensity: parsedVector.metrics.V,
+        ResponseEffort: parsedVector.metrics.RE,
+        ProviderUrgency: parsedVector.metrics.U,
       };
       setSelectedValues(parsedValues);
       setCvssValue(onChangeCvssValue);
