@@ -1,5 +1,5 @@
 import { Field } from "formik";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Accordion from "../../Form/Accordion";
 import FormField from "../../Form/Field";
 import ScoreBar from "../ScoreBar";
@@ -59,7 +59,7 @@ type Metrics = {
 };
 
 export default function CVSS40Wrapper() {
-  const [selectedValues, setSelectedValues] = useState<Metrics>({
+  const [selectedValues, setSelectedValues] = useState({
     AttackVector: "N",
     AttackComplexity: "L",
     AttackRequirements: "N",
@@ -130,80 +130,95 @@ export default function CVSS40Wrapper() {
     }),
     []
   );
+  const [cvssValue, setCvssValue] = useState<string>("");
+  const [cvss4Score, setCvss4Score] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
+
+  const validateCvssVector = (vector: string): boolean => {
+    const vectorInstance = new Vector();
+    const isValid = vectorInstance.validateStringVector(vector);
+    if (!isValid) {
+      setError("Malformed CVSS Vector");
+    } else {
+      setError("");
+    }
+    return isValid;
+  };
+
   const cvssVector = useMemo(() => {
     const baseString = "CVSS:4.0";
     const metricEntries = Object.entries(selectedValues)
       .filter(([, value]) => value !== "X")
       .map(([key, value]) => `/${metricLabelsShort[key]}:${value}`)
       .join("");
-    const cvss40string = baseString + metricEntries;
-    return cvss40string;
+
+    return baseString + metricEntries;
   }, [selectedValues]);
 
-  const [cvss4Score, setCvss4Score] = useState(0);
+  const displayCvssVector = isEditing ? cvssValue : cvssVector;
 
-  const cvss40 = useMemo(() => {
+  useEffect(() => {
     const instance = new CVSS40(cvssVector);
     setCvss4Score(instance.calculateScore());
-    // setSelectedValues(instance.vector.metrics.AV);
-    return instance;
   }, [cvssVector]);
 
-  const [cvssValue, setCvssValue] = useState<Metrics>();
-  const [error, setError] = useState("");
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCvssValue = e.target.value;
+    const parsedCvss = newCvssValue.startsWith("CVSS:4.0/") ? newCvssValue : "CVSS:4.0/" + newCvssValue;
+    setCvssValue(parsedCvss);
+    setIsEditing(true);
 
-  const handleInputChange = e => {
-    setCvssValue(e.target.value);
-    handleFieldUpdateToSelectedValues(e.target.value);
-    setError("");
-  };
-
-  const handleFieldUpdateToSelectedValues = onChangeCvssValue => {
-    const parsedCvss = onChangeCvssValue.startsWith("CVSS:4.0/") ? onChangeCvssValue : "CVSS:4.0/" + onChangeCvssValue;
-    if (new Vector().validateStringVector(parsedCvss)) {
-      const parsedValues = {
-        AttackVector: cvss40.vector.metrics.AV,
-        AttackComplexity: cvss40.vector.metrics.AC,
-        AttackRequirements: cvss40.vector.metrics.AT,
-        PrivilegesRequired: cvss40.vector.metrics.PR,
-        UserInteraction: cvss40.vector.metrics.UI,
-        Confidentiality: cvss40.vector.metrics.VC,
-        Integrity: cvss40.vector.metrics.VI,
-        Availability: cvss40.vector.metrics.VA,
-        SubsequentConfidentiality: cvss40.vector.metrics.SC,
-        SubsequentIntegrity: cvss40.vector.metrics.SI,
-        SubsequentAvailability: cvss40.vector.metrics.SA,
-        Safety: cvss40.vector.metrics.S,
-        Automatable: cvss40.vector.metrics.AU,
-        Recovery: cvss40.vector.metrics.R,
-        ValueDensity: cvss40.vector.metrics.V,
-        ResponseEffort: cvss40.vector.metrics.RE,
-        ProviderUrgency: cvss40.vector.metrics.U,
-        ModifiedAttackVector: cvss40.vector.metrics.MAV,
-        ModifiedAttackComplexity: cvss40.vector.metrics.MAC,
-        ModifiedAttackRequirements: cvss40.vector.metrics.MAT,
-        ModifiedPrivilegesRequired: cvss40.vector.metrics.MPR,
-        ModifiedUserInteraction: cvss40.vector.metrics.MUI,
-        ModifiedConfidentiality: cvss40.vector.metrics.MVC,
-        ModifiedIntegrity: cvss40.vector.metrics.MVI,
-        ModifiedAvailability: cvss40.vector.metrics.MVA,
-        ModifiedSubsequentConfidentiality: cvss40.vector.metrics.MSC,
-        ModifiedSubsequentIntegrity: cvss40.vector.metrics.MSI,
-        ModifiedSubsequentAvailability: cvss40.vector.metrics.MSA,
-        ConfidentialityRequirements: cvss40.vector.metrics.CR,
-        IntegrityRequirements: cvss40.vector.metrics.IR,
-        AvailabilityRequirements: cvss40.vector.metrics.AR,
-        ExploitMaturity: cvss40.vector.metrics.E,
-      };
-      setSelectedValues(parsedValues);
-      setError("");
-    } else {
-      setError("Malformed CVSS Vector");
+    if (validateCvssVector(parsedCvss)) {
+      handleFieldUpdateToSelectedValues(parsedCvss);
+      setIsEditing(false);
     }
   };
 
-  const updateVectorString = (updatedValues: typeof selectedValues) => {
-    //const updatedVectorString = new Vector().updateMetricsFromVectorString(updatedValues);
+  const handleFieldUpdateToSelectedValues = (onChangeCvssValue: string) => {
+    if (validateCvssVector(onChangeCvssValue)) {
+      const parsedVector = new Vector(onChangeCvssValue);
+      const parsedValues: Metrics = {
+        AttackVector: parsedVector.metrics.AV,
+        AttackComplexity: parsedVector.metrics.AC,
+        AttackRequirements: parsedVector.metrics.AT,
+        PrivilegesRequired: parsedVector.metrics.PR,
+        UserInteraction: parsedVector.metrics.UI,
+        Confidentiality: parsedVector.metrics.VC,
+        Integrity: parsedVector.metrics.VI,
+        Availability: parsedVector.metrics.VA,
+        SubsequentConfidentiality: parsedVector.metrics.SC,
+        SubsequentIntegrity: parsedVector.metrics.SI,
+        SubsequentAvailability: parsedVector.metrics.SA,
+        Safety: parsedVector.metrics.S,
+        Automatable: parsedVector.metrics.AU,
+        Recovery: parsedVector.metrics.R,
+        ValueDensity: parsedVector.metrics.V,
+        ResponseEffort: parsedVector.metrics.RE,
+        ProviderUrgency: parsedVector.metrics.U,
+        ModifiedAttackVector: parsedVector.metrics.MAV,
+        ModifiedAttackComplexity: parsedVector.metrics.MAC,
+        ModifiedAttackRequirements: parsedVector.metrics.MAT,
+        ModifiedPrivilegesRequired: parsedVector.metrics.MPR,
+        ModifiedUserInteraction: parsedVector.metrics.MUI,
+        ModifiedConfidentiality: parsedVector.metrics.MVC,
+        ModifiedIntegrity: parsedVector.metrics.MVI,
+        ModifiedAvailability: parsedVector.metrics.MVA,
+        ModifiedSubsequentConfidentiality: parsedVector.metrics.MSC,
+        ModifiedSubsequentIntegrity: parsedVector.metrics.MSI,
+        ModifiedSubsequentAvailability: parsedVector.metrics.MSA,
+        ConfidentialityRequirements: parsedVector.metrics.CR,
+        IntegrityRequirements: parsedVector.metrics.IR,
+        AvailabilityRequirements: parsedVector.metrics.AR,
+        ExploitMaturity: parsedVector.metrics.E,
+      };
+      setSelectedValues(parsedValues);
+      setCvssValue(onChangeCvssValue);
+      setError("");
+    }
+  };
+
+  const updateVectorString = (updatedValues: string) => {
     setCvssValue(updatedValues);
     setError("");
   };
@@ -216,7 +231,7 @@ export default function CVSS40Wrapper() {
         help={error || ""}
         isError={!!error}
       >
-        <Field name="cvss" id="cvss" value={cvssVector} onChange={handleInputChange} isError={!!error} />
+        <Field name="cvss" id="cvss" value={displayCvssVector} onChange={handleInputChange} isError={!!error} />
         <ScoreBar score={cvss4Score} />
       </FormField>
       <Accordion title={"CVSS Calculator"}>
