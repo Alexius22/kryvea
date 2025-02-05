@@ -1,8 +1,7 @@
 import Button from "../../Button";
 import Buttons from "../../Buttons";
-import { CVSS3Context } from "./CVSS3Context";
 
-const CVSS3Calculator = ({ updateVectorString, selectedValues, setSelectedValues }) => {
+const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
   const metricLabels = {
     AttackVector: "Attack Vector (AV)",
     AttackComplexity: "Attack Complexity (AC)",
@@ -113,7 +112,7 @@ const CVSS3Calculator = ({ updateVectorString, selectedValues, setSelectedValues
       <Buttons key={metricKey} label={metricLabel}>
         {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
           <Button
-            key={optionKey}
+            key={`${optionKey}-optionKey`}
             color={(() => {
               return selectedValues[metricKey] === optionKey ? "success" : "contrast";
             })()}
@@ -127,4 +126,4 @@ const CVSS3Calculator = ({ updateVectorString, selectedValues, setSelectedValues
   }
 };
 
-export default CVSS3Calculator;
+export default CVSS31Render;
