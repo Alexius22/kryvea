@@ -4,7 +4,7 @@ import Accordion from "../../Form/Accordion";
 import FormField from "../../Form/Field";
 import ScoreBar from "../ScoreBar";
 import calculateCVSSFromMetrics, { calculateCVSSFromVector } from "./CVSS31";
-import CVSS3Calculator from "./CVSS3Calculator";
+import CVSS31Render from "./CVSS31Render";
 
 export default function CVSS31Wrapper() {
   const [selectedValues, setSelectedValues] = useState({
@@ -101,18 +101,11 @@ export default function CVSS31Wrapper() {
         help={error || ""}
         isError={!!error}
       >
-        <Field
-          name="cvss"
-          id="cvss"
-          placeholder="CVSS"
-          value={cvssValue}
-          onChange={handleInputChange}
-          isError={!!error}
-        />
+        <Field name="cvss" id="cvss" value={cvssValue} onChange={handleInputChange} isError={!!error} />
         <ScoreBar score={handleScoreBar()} />
       </FormField>
       <Accordion title={"CVSS Calculator"}>
-        <CVSS3Calculator
+        <CVSS31Render
           {...{
             selectedValues,
             setSelectedValues,
