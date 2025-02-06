@@ -7,7 +7,7 @@ import CardBox from "../CardBox";
 import FormField from "../Form/Field";
 import Icon from "../Icon/Icon";
 
-const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPageCustom }) => {
+const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
@@ -15,18 +15,19 @@ const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPag
   const [filteredData, setFilteredData] = useState(data);
 
   useEffect(() => {
-    setCurrentPage(0);
     setFilteredData(
       data.filter(obj => {
-        return Object.values(obj).some(value => {
-          if (isValidElement(value)) {
-            value = (value as any).props.children;
-          }
-          return value.toString().toLowerCase().includes(filterText.toLowerCase());
-        });
+        return Object.entries(obj)
+          .filter(([key]) => key !== "buttons")
+          .some(([_, value]) => {
+            if (isValidElement(value)) {
+              value = (value as any).props.children;
+            }
+            return value?.toString().toLowerCase().includes(filterText.toLowerCase());
+          });
       })
     );
-  }, [filterText]);
+  }, [filterText, data]);
 
   const sortAscend = (a, b) => {
     a = a[keySort.header];
@@ -95,39 +96,45 @@ const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPag
         placeholder="Search"
         type="text"
         value={filterText}
-        onChange={e => setFilterText(e.target.value)}
+        onChange={e => {
+          setCurrentPage(0);
+          setFilterText(e.target.value);
+        }}
       />
       <CardBox hasTable>
         <table className="w-full table-auto border-collapse">
           {filteredData.length > 0 && (
             <thead>
               <tr>
-                {Object.keys(filteredData[0]).map((key, i, arr) => (
-                  <th
-                    style={{
-                      width: `${100 / arr.length}%`,
-                    }}
-                    className="cursor-pointer align-middle hover:opacity-60"
-                    onClick={onHeaderClick(key)}
-                    key={`header-${key}`}
-                  >
-                    {key}
-                    <Icon
-                      className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
-                      h="h-min"
-                      w="w-min"
-                      path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
-                    />
-                  </th>
-                ))}
-                {buttons == undefined ? <></> : <th className="w-min" />}
+                {Object.keys(filteredData[0]).map((key, i, arr) =>
+                  key === "buttons" ? (
+                    <th className="w-min" key={`header-${key}`} />
+                  ) : (
+                    <th
+                      style={{
+                        width: `${100 / arr.length}%`,
+                      }}
+                      className="cursor-pointer align-middle hover:opacity-60"
+                      onClick={onHeaderClick(key)}
+                      key={`header-${key}`}
+                    >
+                      {key}
+                      <Icon
+                        className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
+                        h="h-min"
+                        w="w-min"
+                        path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
+                      />
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
           )}
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={Object.keys(filteredData[0] || {}).length + (buttons ? 1 : 0)} className="text-center">
+                <td colSpan={Object.keys(filteredData[0] ?? {}).length} className="text-center">
                   No results available
                 </td>
               </tr>
@@ -137,7 +144,6 @@ const Table = ({ data, buttons, perPageCustom }: { data: any[]; buttons?; perPag
                   {Object.entries<any>(obj).map(([key, value]) => (
                     <td key={`${key}-value-${i}`}>{value}</td>
                   ))}
-                  {buttons && buttons}
                 </tr>
               ))
             )}
