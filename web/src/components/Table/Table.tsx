@@ -108,12 +108,15 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
               <tr>
                 {Object.keys(filteredData[0]).map((key, i, arr) =>
                   key === "buttons" ? (
-                    <th key={`header-${key}`} />
-                  ) : (
                     <th
                       style={{
-                        width: `${100 / (arr.some(el => el === "buttons") ? arr.length - 1 : arr.length)}%`,
+                        width: "1%",
+                        whiteSpace: "nowrap",
                       }}
+                      key={`header-${key}`}
+                    />
+                  ) : (
+                    <th
                       className="cursor-pointer align-middle hover:opacity-60"
                       onClick={onHeaderClick(key)}
                       key={`header-${key}`}
@@ -141,9 +144,15 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
             ) : (
               itemPaginated(filteredData).map((obj, i) => (
                 <tr key={`row-${i}`}>
-                  {Object.entries<any>(obj).map(([key, value]) => (
-                    <td key={`${key}-value-${i}`}>{value}</td>
-                  ))}
+                  {Object.entries<any>(obj).map(([key, value]) =>
+                    key == "buttons" ? (
+                      <td className="py-0" key={`${key}-value-${i}`}>
+                        {value}
+                      </td>
+                    ) : (
+                      <td key={`${key}-value-${i}`}>{value}</td>
+                    )
+                  )}
                 </tr>
               ))
             )}

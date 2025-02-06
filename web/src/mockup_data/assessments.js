@@ -18,7 +18,8 @@ export const assessments = [
     "network": "Internal",
     "method": "Black Box",
     "osstmm_vector": "Inside to Inside",
-    "customer_id": "64b9b35b8f8e4b7a84c7f19a"
+    "customer_id": "64b9b35b8f8e4b7a84c7f19a",
+    "is_owned": true
   },
   {
     "id": "64b9b35b8f8e4b7a84c7f1a3",
@@ -38,7 +39,8 @@ export const assessments = [
     "network": "External",
     "method": "Gray Box",
     "osstmm_vector": "Outside to Inside",
-    "customer_id": "64b9b35b8f8e4b7a84c7f19b"
+    "customer_id": "64b9b35b8f8e4b7a84c7f19b",
+    "is_owned": false
   },
   {
     "id": "64b9b35b8f8e4b7a84c7f1a5",
@@ -59,7 +61,8 @@ export const assessments = [
     "network": "Wireless",
     "method": "White Box",
     "osstmm_vector": "Gay to Gay",
-    "customer_id": "64b9b35b8f8e4b7a84c7f19c"
+    "customer_id": "64b9b35b8f8e4b7a84c7f19c",
+    "is_owned": true
   },
   {
     "id": "64b9b35b8f8e4b7a84c7f1a8",
@@ -79,7 +82,8 @@ export const assessments = [
     "network": "Hybrid",
     "method": "Black Box",
     "osstmm_vector": "Outside to Outside",
-    "customer_id": "64b9b35b8f8e4b7a84c7f19d"
+    "customer_id": "64b9b35b8f8e4b7a84c7f19d",
+    "is_owned": false
   },
   {
     "id": "64b9b35b8f8e4b7a84c7f1aa",
@@ -100,6 +104,7 @@ export const assessments = [
     "network": "LAN",
     "method": "White Box",
     "osstmm_vector": "",
-    "customer_id": "64b9b35b8f8e4b7a84c7f19e"
+    "customer_id": "64b9b35b8f8e4b7a84c7f19e",
+    "is_owned": true
   }
 ]

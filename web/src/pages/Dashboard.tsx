@@ -10,6 +10,7 @@ import { getPageTitle } from "../config";
 import useFetch from "../hooks/useFetch";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
+import { formatDate } from "../components/DateUtils";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -53,8 +54,8 @@ export default function Dashboard() {
                 </span>
               ),
               "Assessment Type": assessment.type,
-              Start: assessment.start_date_time,
-              End: assessment.end_date_time,
+              Start: formatDate(assessment.start_date_time),
+              End: formatDate(assessment.end_date_time),
               Status: assessment.status,
             }))}
             perPageCustom={10}
