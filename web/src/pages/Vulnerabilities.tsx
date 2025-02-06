@@ -44,7 +44,6 @@ const Vulnerabilities = () => {
               Assessment: vulnerability.assessment_id,
               Host: vulnerability.target_id,
             }))}
-            buttons={undefined}
             perPageCustom={10}
           />
         )}
