@@ -14,6 +14,7 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
 import { Assessment } from "../types/common.types";
+import { formatDate } from "../components/DateUtils";
 
 const Assessments = () => {
   const navigate = useNavigate();
@@ -134,15 +135,6 @@ const Assessments = () => {
   useEffect(() => {
     document.title = getPageTitle("Assessments");
   }, []);
-
-  // Format date to DD/MM/YYYY
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
 
   const handleFavoriteToggle = id => () => {
     setAssessmentsData(
