@@ -163,6 +163,7 @@ const Assessments = () => {
               <Field name="type" component="select">
                 <option value="word">Word (.docx)</option>
                 <option value="excel">Excel (.xlsx)</option>
+                <option value="zip">Archive (.zip)</option>
               </Field>
             </FormField>
             <FormField label="Encryption">
@@ -186,7 +187,7 @@ const Assessments = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>Are you sure to delete this customer?</p>
+        <p>Are you sure to delete this assessment?</p>
         <p>
           <b>Action irreversible</b>
         </p>

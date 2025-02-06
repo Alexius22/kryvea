@@ -41,7 +41,14 @@ const Vulnerabilities = () => {
               ),
               "CVSS score": vulnerability.cvss_score,
               "CVSS Vector": vulnerability.cvss_vector,
-              Assessment: vulnerability.assessment_id,
+              Assessment: (
+                <span
+                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  onClick={() => navigate(`/assessment`)}
+                >
+                  {vulnerability.assessment_id}
+                </span>
+              ),
               Host: vulnerability.target_id,
             }))}
             perPageCustom={10}
