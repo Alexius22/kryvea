@@ -65,15 +65,15 @@ const Categories = () => {
                 Name: category.name,
                 Source: category.source,
                 Language: category.language,
+                buttons: (
+                  <td className="whitespace-nowrap before:hidden lg:w-1">
+                    <Buttons type="justify-start lg:justify-end" noWrap>
+                      <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
+                      <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                    </Buttons>
+                  </td>
+                ),
               }))}
-              buttons={
-                <td className="whitespace-nowrap before:hidden lg:w-1">
-                  <Buttons type="justify-start lg:justify-end" noWrap>
-                    <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                </td>
-              }
               perPageCustom={50}
             />
           )}

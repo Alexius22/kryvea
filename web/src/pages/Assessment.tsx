@@ -82,14 +82,14 @@ const Assessment = () => {
                 ),
                 Host: vulnerability.target_id,
                 "CVSS Score": vulnerability.cvss_score,
+                buttons: (
+                  <td className="whitespace-nowrap before:hidden lg:w-1">
+                    <Buttons type="justify-start lg:justify-end" noWrap>
+                      <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                    </Buttons>
+                  </td>
+                ),
               }))}
-              buttons={
-                <td className="whitespace-nowrap before:hidden lg:w-1">
-                  <Buttons type="justify-start lg:justify-end" noWrap>
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                </td>
-              }
               perPageCustom={10}
             />
           )}
