@@ -108,11 +108,11 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
               <tr>
                 {Object.keys(filteredData[0]).map((key, i, arr) =>
                   key === "buttons" ? (
-                    <th className="w-min" key={`header-${key}`} />
+                    <th key={`header-${key}`} />
                   ) : (
                     <th
                       style={{
-                        width: `${100 / arr.length}%`,
+                        width: `${100 / (arr.some(el => el === "buttons") ? arr.length - 1 : arr.length)}%`,
                       }}
                       className="cursor-pointer align-middle hover:opacity-60"
                       onClick={onHeaderClick(key)}
