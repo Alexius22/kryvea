@@ -24,6 +24,16 @@ export type Assessment = {
     end_date_time: string;
     status: string;
     customer_id: string;
+    created_at: string;
+    updated_at: string;
+    notes: string;
+    targets: string[];
+    cvss_version: number;
+    environment: string;
+    network: string;
+    method: string;
+    osstmm_vector: string;
+    is_favourite: boolean;
 };
 
 export type Host = {
