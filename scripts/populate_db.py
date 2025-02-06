@@ -8,6 +8,10 @@ base_url = "https://kryvea.local/api"
 
 session = requests.Session()
 session.verify = False
+session.proxies = {
+    "http": "http://127.0.0.1:8080",
+    "https": "http://127.0.0.1:8080",
+}
 
 class bcolors:
     HEADER = '\033[95m'
@@ -21,7 +25,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
     
 class User:
-    def __init__(self, username="giorgio2", password="giorgio123"):
+    def __init__(self, username="kryvea", password="kryveapassword"):
         self.username = username
         self.password = password
         
@@ -30,6 +34,12 @@ class User:
             "username": self.username,
             "password": self.password
         }
+        
+    def register(self) -> bool:
+        response = session.post(base_url + "/register", json=self.json())
+        if response.status_code == 201:
+            return True
+        return False
 
     def login(self) -> bool:
         response = session.post(base_url + "/login", json=self.json())
@@ -185,6 +195,10 @@ class Vulnerability:
 
 if __name__ == "__main__":
     user = User()
+    # if not user.register():
+    #     print("Registration failed")
+    #     exit(1)
+    
     if not user.login():
         print("Login failed")
         exit(1)

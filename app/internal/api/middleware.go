@@ -9,7 +9,7 @@ import (
 
 func (d *Driver) Middleware(c *fiber.Ctx) error {
 	var user *mongo.User
-	if c.Path() != "/api/login" {
+	if c.Path() != "/api/login" && c.Path() != "/api/register" {
 		session := c.Cookies("kryvea")
 		if session == "" {
 			c.Status(fiber.StatusUnauthorized)

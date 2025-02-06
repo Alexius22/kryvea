@@ -29,15 +29,16 @@ var (
 )
 
 type User struct {
-	Model          `bson:",inline"`
-	DisabledAt     time.Time            `json:"disabled_at" bson:"disabled_at"`
-	Username       string               `json:"username" bson:"username"`
-	Password       string               `json:"-" bson:"password"`
-	PasswordExpiry time.Time            `json:"-" bson:"password_expiry"`
-	Token          string               `json:"-" bson:"token"`
-	TokenExpiry    time.Time            `json:"-" bson:"token_expiry"`
-	Role           string               `json:"role" bson:"role"`
-	Customers      []primitive.ObjectID `json:"customers" bson:"customers"`
+	Model            `bson:",inline"`
+	DisabledAt       time.Time            `json:"disabled_at" bson:"disabled_at"`
+	Username         string               `json:"username" bson:"username"`
+	Password         string               `json:"-" bson:"password"`
+	PasswordExpiry   time.Time            `json:"-" bson:"password_expiry"`
+	Token            string               `json:"-" bson:"token"`
+	TokenExpiry      time.Time            `json:"-" bson:"token_expiry"`
+	Role             string               `json:"role" bson:"role"`
+	Customers        []primitive.ObjectID `json:"customers" bson:"customers"`
+	OwnedAssessments []primitive.ObjectID `json:"owned_assessments" bson:"owned_assessments"`
 }
 
 type UserIndex struct {

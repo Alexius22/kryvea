@@ -45,10 +45,14 @@ func (e *Engine) Serve() {
 	{
 		apiGroup.Get("/customers", api.GetAllCustomers)
 		apiGroup.Post("/customer", api.AddCustomer)
+		apiGroup.Put("/customer/:customer", api.UpdateCustomer)
+		apiGroup.Delete("/customer/:customer", api.DeleteCustomer)
 
 		apiGroup.Get("/assessments/search", api.SearchAssessments)
 		apiGroup.Get("/assessments/:customer", api.GetAllAssessments)
 		apiGroup.Post("/assessment", api.AddAssessment)
+		apiGroup.Put("/assessment/:assessment", api.UpdateAssessment)
+		apiGroup.Delete("/assessment/:assessment", api.DeleteAssessment)
 
 		apiGroup.Get("/targets/:customer/search", api.SearchTargets)
 		apiGroup.Get("/targets/:customer", api.GetAllTargets)

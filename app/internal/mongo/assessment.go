@@ -131,3 +131,53 @@ func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
 
 	return assessments, nil
 }
+
+func (ai *AssessmentIndex) Update(assessmentID primitive.ObjectID, assessment *Assessment) error {
+	filter := bson.M{"_id": assessmentID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":      time.Now(),
+			"name":            assessment.Name,
+			"notes":           assessment.Notes,
+			"start_date_time": assessment.StartDateTime,
+			"end_date_time":   assessment.EndDateTime,
+			"targets":         assessment.Targets,
+			"status":          assessment.Status,
+			"type":            assessment.Type,
+			"cvss_version":    assessment.CVSSVersion,
+			"environment":     assessment.Environment,
+			"network":         assessment.Network,
+			"method":          assessment.Method,
+			"osstmm_vector":   assessment.OSSTMMVector,
+		},
+	}
+
+	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ai *AssessmentIndex) Delete(assessmentID primitive.ObjectID) error {
+	_, err := ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
+	if err != nil {
+		return err
+	}
+
+	// Delete all vulnerabilities and PoCs associated with the assessment
+	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
+	if err != nil {
+		return err
+	}
+
+	for _, vulnerability := range vulnerabilities {
+		if err := ai.driver.Vulnerability().Delete(vulnerability.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove the assessment from the user's list
+	filter := bson.M{"owned_assessments": assessmentID}
+	update := bson.M{"$pull": bson.M{"owned_assessments": assessmentID}}
+	_, err = ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	return err
+}
