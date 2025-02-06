@@ -33,7 +33,7 @@ export type Assessment = {
     network: string;
     method: string;
     osstmm_vector: string;
-    is_favourite: boolean;
+    is_owned: boolean;
 };
 
 export type Host = {
