@@ -56,6 +56,59 @@ func (ci *CustomerIndex) Insert(customer *Customer) (primitive.ObjectID, error) 
 	return customer.ID, err
 }
 
+func (ci *CustomerIndex) Update(customerID primitive.ObjectID, customer *Customer) error {
+	filter := bson.M{"_id": customerID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":           time.Now(),
+			"name":                 customer.Name,
+			"language":             customer.Language,
+			"default_cvss_version": customer.DefaultCVSSVersion,
+		},
+	}
+
+	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ci *CustomerIndex) Delete(customerID primitive.ObjectID) error {
+	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
+	if err != nil {
+		return err
+	}
+
+	// Remove all assessments for the customer
+	assessments, err := ci.driver.Assessment().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, assessment := range assessments {
+		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove all targets for the customer
+	targets, err := ci.driver.Target().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, target := range targets {
+		if err := ci.driver.Target().Delete(target.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove the customer from the user's list
+	filter := bson.M{"customers": customerID}
+	update := bson.M{"$pull": bson.M{"customers": customerID}}
+	_, err = ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	return err
+}
+
 func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, error) {
 	var customer Customer
 	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
