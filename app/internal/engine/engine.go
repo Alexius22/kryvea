@@ -57,6 +57,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/targets/:customer/search", api.SearchTargets)
 		apiGroup.Get("/targets/:customer", api.GetAllTargets)
 		apiGroup.Post("/target", api.AddTarget)
+		apiGroup.Get("/target/:target", api.GetTarget)
 		apiGroup.Put("/target/:target", api.UpdateTarget)
 		apiGroup.Delete("/target/:target", api.DeleteTarget)
 

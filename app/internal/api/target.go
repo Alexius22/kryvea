@@ -271,5 +271,42 @@ func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(targets)
+}
 
+func (d *Driver) GetTarget(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	targetParam := c.Params("target")
+	if targetParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Target ID is required",
+		})
+	}
+
+	targetID, err := util.ParseMongoID(targetParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid target ID",
+		})
+	}
+
+	target, err := d.mongo.Target().GetByID(targetID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get target",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, target.Customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(target)
 }

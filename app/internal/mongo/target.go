@@ -15,6 +15,23 @@ const (
 	targetCollection = "target"
 )
 
+var TargetPipeline = mongo.Pipeline{
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "customer"},
+			{Key: "localField", Value: "customer._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "customerData"},
+		}}},
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "customer.name", Value: bson.D{
+				{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+			}},
+		}}},
+	bson.D{{Key: "$unset", Value: "customerData"}},
+}
+
 type Target struct {
 	Model    `bson:",inline"`
 	IP       string         `json:"ip" bson:"ip"`
@@ -117,24 +134,11 @@ func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
 }
 
 func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
-		bson.D{
-			{Key: "$lookup", Value: bson.D{
-				{Key: "from", Value: "customer"},
-				{Key: "localField", Value: "customer._id"},
-				{Key: "foreignField", Value: "_id"},
-				{Key: "as", Value: "customerData"},
-			}}},
-		bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "customer.name", Value: bson.D{
-					{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
-				}},
-			}}},
-		bson.D{{Key: "$unset", Value: "customerData"}},
+	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
-	})
+	)
+	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -151,23 +155,8 @@ func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
 }
 
 func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
-		bson.D{
-			{Key: "$lookup", Value: bson.D{
-				{Key: "from", Value: "customer"},
-				{Key: "localField", Value: "customer._id"},
-				{Key: "foreignField", Value: "_id"},
-				{Key: "as", Value: "customerData"},
-			}}},
-		bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "customer.name", Value: bson.D{
-					{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
-				}},
-			}}},
-		bson.D{{Key: "$unset", Value: "customerData"}},
-		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}},
-	})
+	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
+	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
