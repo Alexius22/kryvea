@@ -16,13 +16,18 @@ const (
 )
 
 type Target struct {
-	Model      `bson:",inline"`
-	IP         string             `json:"ip" bson:"ip"`
-	Port       int                `json:"port" bson:"port"`
-	Protocol   string             `json:"protocol" bson:"protocol"`
-	Hostname   string             `json:"hostname" bson:"hostname"`
-	Name       string             `json:"name" bson:"name"`
-	CustomerID primitive.ObjectID `json:"customer_id" bson:"customer_id"`
+	Model    `bson:",inline"`
+	IP       string         `json:"ip" bson:"ip"`
+	Port     int            `json:"port" bson:"port"`
+	Protocol string         `json:"protocol" bson:"protocol"`
+	Hostname string         `json:"hostname" bson:"hostname"`
+	Name     string         `json:"name" bson:"name"`
+	Customer TargetCustomer `json:"customer" bson:"customer"`
+}
+
+type TargetCustomer struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name" bson:"name"`
 }
 
 type TargetIndex struct {
@@ -53,7 +58,7 @@ func (ti TargetIndex) init() error {
 }
 
 func (ti *TargetIndex) Insert(target *Target) (primitive.ObjectID, error) {
-	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.CustomerID}).Err()
+	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.Customer.ID}).Err()
 	if err != nil {
 		return primitive.NilObjectID, err
 	}
@@ -112,17 +117,57 @@ func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
 }
 
 func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
-	var target Target
-	err := ti.collection.FindOne(context.Background(), bson.M{"_id": targetID}).Decode(&target)
+	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
+		bson.D{
+			{Key: "$lookup", Value: bson.D{
+				{Key: "from", Value: "customer"},
+				{Key: "localField", Value: "customer._id"},
+				{Key: "foreignField", Value: "_id"},
+				{Key: "as", Value: "customerData"},
+			}}},
+		bson.D{
+			{Key: "$set", Value: bson.D{
+				{Key: "customer.name", Value: bson.D{
+					{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+				}},
+			}}},
+		bson.D{{Key: "$unset", Value: "customerData"}},
+		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
+		bson.D{{Key: "$limit", Value: 1}},
+	})
 	if err != nil {
 		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var target Target
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(&target); err != nil {
+			return nil, err
+		}
 	}
 
 	return &target, nil
 }
 
 func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{"customer_id": customerID})
+	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
+		bson.D{
+			{Key: "$lookup", Value: bson.D{
+				{Key: "from", Value: "customer"},
+				{Key: "localField", Value: "customer._id"},
+				{Key: "foreignField", Value: "_id"},
+				{Key: "as", Value: "customerData"},
+			}}},
+		bson.D{
+			{Key: "$set", Value: bson.D{
+				{Key: "customer.name", Value: bson.D{
+					{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+				}},
+			}}},
+		bson.D{{Key: "$unset", Value: "customerData"}},
+		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -130,11 +175,7 @@ func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target,
 
 	var targets []Target
 	err = cursor.All(context.Background(), &targets)
-	if err != nil {
-		return nil, err
-	}
-
-	return targets, nil
+	return targets, err
 }
 
 func (ti *TargetIndex) Search(customerID primitive.ObjectID, ip string) ([]Target, error) {

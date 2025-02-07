@@ -195,9 +195,9 @@ class Vulnerability:
 
 if __name__ == "__main__":
     user = User()
-    # if not user.register():
-    #     print("Registration failed")
-    #     exit(1)
+    if not user.register():
+        print("Registration failed")
+        # exit(1)
     
     if not user.login():
         print("Login failed")
