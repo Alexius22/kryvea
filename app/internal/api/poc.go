@@ -44,7 +44,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -148,7 +148,7 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -233,7 +233,7 @@ func (d *Driver) DeletePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -289,7 +289,7 @@ func (d *Driver) GetAllPocs(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.AssessmentID)
+	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{

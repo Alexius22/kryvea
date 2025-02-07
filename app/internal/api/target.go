@@ -47,11 +47,11 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	}
 
 	targetID, err := d.mongo.Target().Insert(&mongo.Target{
-		IP:         target.IP,
-		Port:       target.Port,
-		Protocol:   target.Protocol,
-		Hostname:   target.Hostname,
-		CustomerID: customerID,
+		IP:       target.IP,
+		Port:     target.Port,
+		Protocol: target.Protocol,
+		Hostname: target.Hostname,
+		Customer: mongo.TargetCustomer{ID: customerID},
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -115,7 +115,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, targetData.CustomerID) {
+	if !util.CanAccessCustomer(user, targetData.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -168,7 +168,7 @@ func (d *Driver) DeleteTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, targetData.CustomerID) {
+	if !util.CanAccessCustomer(user, targetData.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
