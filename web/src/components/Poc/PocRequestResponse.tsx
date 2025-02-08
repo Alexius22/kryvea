@@ -1,8 +1,8 @@
 import React from "react";
-import { PocDoc } from "../../pages/EditPoc";
+import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
 
 type PocProps = {
-  pocDoc: PocDoc;
+  pocDoc: PocRequestResponseDoc;
   currentIndex;
   pocList: PocDoc[];
   setPocList: React.Dispatch<React.SetStateAction<PocDoc[]>>;
@@ -18,12 +18,12 @@ export default function PocRequestResponse({ pocDoc, currentIndex, pocList, setP
           <input
             id={`poc-title-${currentIndex}`}
             className="max-w-96 rounded dark:bg-slate-800"
-            value={pocDoc.title}
+            value={pocDoc.url}
             onChange={e =>
               setPocList(prev => {
                 const newText = e.target.value;
                 const newPocList = [...prev];
-                newPocList[currentIndex] = { ...newPocList[currentIndex], title: newText };
+                newPocList[currentIndex] = { ...newPocList[currentIndex], url: newText } as PocRequestResponseDoc;
                 return newPocList;
               })
             }
