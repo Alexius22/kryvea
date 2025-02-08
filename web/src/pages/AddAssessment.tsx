@@ -14,7 +14,7 @@ const AddAssessment = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = getPageTitle("Login");
+    document.title = getPageTitle("Add Assessment");
   }, []);
 
   return (

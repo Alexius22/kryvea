@@ -9,6 +9,7 @@ import { getPageTitle } from "../config";
 import useFetch from "../hooks/useFetch";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 import { Vulnerability } from "../types/common.types";
+import { formatDate } from "../components/DateUtils";
 
 const Vulnerabilities = () => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const Vulnerabilities = () => {
                   {vulnerability.assessment_id}
                 </span>
               ),
+              Date: formatDate(vulnerability.updated_at),
               Host: vulnerability.target_id,
             }))}
             perPageCustom={10}
