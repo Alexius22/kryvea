@@ -1,8 +1,8 @@
 import React from "react";
-import { PocDoc } from "../../pages/EditPoc";
+import { PocDoc, PocImageDoc } from "./Poc.types";
 
 type PocProps = {
-  pocDoc: PocDoc;
+  pocDoc: PocImageDoc;
   currentIndex;
   pocList: PocDoc[];
   setPocList: React.Dispatch<React.SetStateAction<PocDoc[]>>;
@@ -23,7 +23,7 @@ export default function PocImage({ pocDoc, currentIndex, pocList, setPocList, on
               setPocList(prev => {
                 const newText = e.target.value;
                 const newPocList = [...prev];
-                newPocList[currentIndex] = { ...newPocList[currentIndex], title: newText };
+                newPocList[currentIndex] = { ...newPocList[currentIndex], title: newText } as PocImageDoc;
                 return newPocList;
               })
             }

@@ -10,18 +10,11 @@ import { getPageTitle } from "../config";
 import PocText from "../components/Poc/PocText";
 import PocImage from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
-
-type PocType = "text" | "image" | "request/response";
-
-export type PocDoc = {
-  type: PocType;
-  title: string;
-  description: string;
-  position: number;
-};
+import { PocDoc, PocType } from "../components/Poc/Poc.types";
 
 const EditPoc = () => {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
+  const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
@@ -31,29 +24,87 @@ const EditPoc = () => {
     setPocList(prev => prev.sort((a, b) => (a.position < b.position ? -1 : 1)));
   }, [pocList]);
 
-  const addPoc = (type: PocType) => () =>
-    setPocList(prev => [...prev, { type, title: "", description: "", position: prev.length }]);
-
+  const addPoc = (type: PocType) => () => {
+    switch (type) {
+      case "text":
+        setPocList(prev => [
+          ...prev,
+          {
+            type,
+            description: undefined,
+            language: undefined,
+            title: undefined,
+            position: prev.length,
+          },
+        ]);
+        break;
+      case "image":
+        setPocList(prev => [
+          ...prev,
+          {
+            type,
+            description: undefined,
+            caption: undefined,
+            chooseFile: undefined,
+            title: undefined,
+            position: prev.length,
+          },
+        ]);
+        break;
+      case "request/response":
+        setPocList(prev => [
+          ...prev,
+          {
+            type,
+            description: undefined,
+            request: undefined,
+            response: undefined,
+            url: undefined,
+            position: prev.length,
+          },
+        ]);
+        break;
+    }
+  };
   const onPositionChange = currentIndex => e => {
-    setPocList(prev => {
+    const shift = (prev: PocDoc[]) => {
       const newIndex = +e.target.value;
-
-      if (newIndex >= prev.length) {
+      if (newIndex < 0 || newIndex >= prev.length) {
         return prev;
       }
 
-      const newPocList = [...prev];
-      const copyPocDoc = newPocList[newIndex];
-      newPocList[newIndex] = {
-        ...newPocList[currentIndex],
-        position: newIndex,
-      };
-      newPocList[currentIndex] = {
-        ...copyPocDoc,
-        position: currentIndex,
-      };
-      return newPocList;
-    });
+      const arr = [...prev];
+
+      const copyCurrent = { ...arr[currentIndex] };
+
+      if (newIndex < currentIndex) {
+        for (let i = currentIndex; i > newIndex; i--) {
+          arr[i] = { ...arr[i - 1], position: arr[i - 1].position + 1 };
+        }
+        arr[newIndex] = { ...copyCurrent, position: newIndex };
+        return arr;
+      }
+
+      for (let i = currentIndex; i < newIndex; i++) {
+        arr[i] = { ...arr[i + 1], position: arr[i + 1].position - 1 };
+      }
+      arr[newIndex] = { ...copyCurrent, position: newIndex };
+
+      return arr;
+    };
+    const swap = (prev: PocDoc[]) => {
+      const newIndex = +e.target.value;
+      if (newIndex < 0 || newIndex >= prev.length) {
+        return prev;
+      }
+
+      const arr = [...prev];
+      const copyCurrent = { ...arr[currentIndex] };
+      arr[currentIndex] = { ...arr[newIndex], position: currentIndex };
+      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      return arr;
+    };
+    setPocList(onPositionChangeMode === "shift" ? shift : swap);
   };
 
   const switchPocType = (pocDoc: PocDoc, i: number) => {
