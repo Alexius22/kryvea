@@ -252,18 +252,16 @@ const Assessments = () => {
                   />
                 ),
                 buttons: (
-                  <span className="whitespace-nowrap before:hidden lg:w-1">
-                    <Buttons type="justify-start lg:justify-end" noWrap>
-                      <Button
-                        color={assessment.is_owned ? "warning" : "info"}
-                        icon={mdiStar}
-                        onClick={handleFavoriteToggle(assessment.id)}
-                        small
-                      />
-                      <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
-                      <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                    </Buttons>
-                  </span>
+                  <Buttons noWrap>
+                    <Button
+                      color={assessment.is_owned ? "warning" : "info"}
+                      icon={mdiStar}
+                      onClick={handleFavoriteToggle(assessment.id)}
+                      small
+                    />
+                    <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
+                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  </Buttons>
                 ),
               }))}
               perPageCustom={50}
