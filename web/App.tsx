@@ -25,6 +25,7 @@ import {
 import Categories from "./src/pages/Categories";
 import ManageCategory from "./src/pages/ManageCategory";
 import Hosts from "./src/pages/Hosts";
+import LiveEditor from "./src/pages/LiveEditor";
 
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="/error" element={<Error />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
+            <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
         </Routes>
       </BrowserRouter>
