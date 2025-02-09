@@ -1,51 +1,22 @@
 import React from "react";
 import { PocDoc, PocImageDoc } from "./Poc.types";
+import { mdiImage } from "@mdi/js";
+import Icon from "../Icon/Icon";
 
-type PocProps = {
+type PocImageProps = {
   pocDoc: PocImageDoc;
   currentIndex;
   pocList: PocDoc[];
-  setPocList: React.Dispatch<React.SetStateAction<PocDoc[]>>;
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPocTextChange: <T>(currentIndex, key: keyof T) => (e: React.ChangeEvent) => void;
 };
 
-export default function PocImage({ pocDoc, currentIndex, pocList, setPocList, onPositionChange }: PocProps) {
+export default function PocImage({ pocDoc, currentIndex, pocList, onPositionChange, onPocTextChange }: PocImageProps) {
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col">
+      <Icon className="absolute left-[-35px] top-[-35px]" path={mdiImage} size={100} />
       <div className="flex flex-col gap-3">
-        <div className="col-span-4 grid">
-          <label htmlFor={`poc-title-${currentIndex}`}>Title</label>
-          <input
-            id={`poc-title-${currentIndex}`}
-            className="max-w-96 rounded dark:bg-slate-800"
-            value={pocDoc.title}
-            onChange={e =>
-              setPocList(prev => {
-                const newText = e.target.value;
-                const newPocList = [...prev];
-                newPocList[currentIndex] = { ...newPocList[currentIndex], title: newText } as PocImageDoc;
-                return newPocList;
-              })
-            }
-          />
-        </div>
-        <div className="col-span-8 grid">
-          <label htmlFor={`poc-description-${currentIndex}`}>Description</label>
-          <textarea
-            className="rounded dark:bg-slate-800"
-            value={pocDoc.description}
-            id={`poc-description-${currentIndex}`}
-            onChange={e => {
-              setPocList(prev => {
-                const newText = e.target.value;
-                const newPocList = [...prev];
-                newPocList[currentIndex] = { ...newPocList[currentIndex], description: newText };
-                return newPocList;
-              });
-            }}
-          />
-        </div>
-        <div className="col-span-full col-start-12 grid">
+        <div className="col-span-1 grid">
           <label htmlFor={`poc-position-${currentIndex}`}>Position</label>
           <input
             className="w-20 rounded dark:bg-slate-800"
@@ -55,6 +26,33 @@ export default function PocImage({ pocDoc, currentIndex, pocList, setPocList, on
             min={0}
             max={pocList.length - 1}
             onChange={onPositionChange(currentIndex)}
+          />
+        </div>
+        <div className="col-span-8 grid">
+          <label htmlFor={`poc-description-${currentIndex}`}>Description</label>
+          <textarea
+            className="rounded dark:bg-slate-800"
+            value={pocDoc.description}
+            id={`poc-description-${currentIndex}`}
+            onChange={onPocTextChange<PocImageDoc>(currentIndex, "description")}
+          />
+        </div>
+        <div className="col-span-4 grid">
+          <label htmlFor={`poc-title-${currentIndex}`}>Choose File</label>
+          <input
+            id={`poc-title-${currentIndex}`}
+            className="max-w-96 rounded dark:bg-slate-800"
+            value={pocDoc.chooseFile}
+            onChange={() => alert("Not implemented")}
+          />
+        </div>
+        <div className="col-span-8 grid">
+          <label htmlFor={`poc-description-${currentIndex}`}>Caption</label>
+          <textarea
+            className="rounded dark:bg-slate-800"
+            value={pocDoc.caption}
+            id={`poc-description-${currentIndex}`}
+            onChange={onPocTextChange<PocImageDoc>(currentIndex, "caption")}
           />
         </div>
       </div>

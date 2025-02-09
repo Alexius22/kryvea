@@ -24,6 +24,16 @@ const EditPoc = () => {
     setPocList(prev => prev.sort((a, b) => (a.position < b.position ? -1 : 1)));
   }, [pocList]);
 
+  function onPocTextChange<T>(currentIndex, key: keyof T) {
+    return e => {
+      setPocList(prev => {
+        const newText = e.target.value;
+        const newPocList = [...prev];
+        newPocList[currentIndex] = { ...newPocList[currentIndex], [key]: newText };
+        return newPocList;
+      });
+    };
+  }
   const addPoc = (type: PocType) => () => {
     switch (type) {
       case "text":
@@ -31,10 +41,10 @@ const EditPoc = () => {
           ...prev,
           {
             type,
+            position: prev.length,
             description: undefined,
             language: undefined,
-            title: undefined,
-            position: prev.length,
+            text: undefined,
           },
         ]);
         break;
@@ -43,11 +53,11 @@ const EditPoc = () => {
           ...prev,
           {
             type,
+            position: prev.length,
             description: undefined,
             caption: undefined,
             chooseFile: undefined,
             title: undefined,
-            position: prev.length,
           },
         ]);
         break;
@@ -56,11 +66,11 @@ const EditPoc = () => {
           ...prev,
           {
             type,
+            position: prev.length,
             description: undefined,
             request: undefined,
             response: undefined,
             url: undefined,
-            position: prev.length,
           },
         ]);
         break;
@@ -74,7 +84,6 @@ const EditPoc = () => {
       }
 
       const arr = [...prev];
-
       const copyCurrent = { ...arr[currentIndex] };
 
       if (newIndex < currentIndex) {
@@ -112,14 +121,34 @@ const EditPoc = () => {
       case "text":
         return (
           <>
-            <PocText {...{ currentIndex: i, pocDoc, pocList, setPocList, onPositionChange, key: `poc-text-${i}` }} />
+            <PocText
+              {...{
+                currentIndex: i,
+                pocDoc,
+                pocList,
+                setPocList,
+                onPositionChange,
+                onPocTextChange,
+                key: `poc-text-${i}`,
+              }}
+            />
             <Divider />
           </>
         );
       case "image":
         return (
           <>
-            <PocImage {...{ currentIndex: i, pocDoc, pocList, setPocList, onPositionChange, key: `poc-image-${i}` }} />
+            <PocImage
+              {...{
+                currentIndex: i,
+                pocDoc,
+                pocList,
+                setPocList,
+                onPositionChange,
+                onPocTextChange,
+                key: `poc-image-${i}`,
+              }}
+            />
             <Divider />
           </>
         );
@@ -127,7 +156,15 @@ const EditPoc = () => {
         return (
           <>
             <PocRequestResponse
-              {...{ currentIndex: i, pocDoc, pocList, setPocList, onPositionChange, key: `poc-request-response-${i}` }}
+              {...{
+                currentIndex: i,
+                pocDoc,
+                pocList,
+                setPocList,
+                onPositionChange,
+                onPocTextChange,
+                key: `poc-request-response-${i}`,
+              }}
             />
             <Divider />
           </>
