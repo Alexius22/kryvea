@@ -1,7 +1,7 @@
-import React from "react";
-import { PocDoc, PocImageDoc } from "./Poc.types";
 import { mdiImage } from "@mdi/js";
+import React from "react";
 import Icon from "../Icon/Icon";
+import { PocDoc, PocImageDoc } from "./Poc.types";
 
 type PocImageProps = {
   pocDoc: PocImageDoc;
