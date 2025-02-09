@@ -5,6 +5,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -71,7 +72,10 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	userCustomers := user.Customers
+	var userCustomers []primitive.ObjectID
+	for _, uc := range user.Customers {
+		userCustomers = append(userCustomers, uc.ID)
+	}
 	if user.Role == mongo.ROLE_ADMIN {
 		userCustomers = nil
 	}

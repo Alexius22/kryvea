@@ -141,7 +141,10 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	customers := user.Customers
+	var customers []primitive.ObjectID
+	for _, uc := range user.Customers {
+		customers = append(customers, uc.ID)
+	}
 	if user.Role == mongo.ROLE_ADMIN {
 		customers = nil
 	}

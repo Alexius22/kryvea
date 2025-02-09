@@ -79,6 +79,7 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/poc/:poc", api.DeletePoc)
 
 		apiGroup.Get("/users", api.GetAllUsers)
+		apiGroup.Get("/user/:user", api.GetUser)
 		apiGroup.Put("/user/:user", api.UpdateUser)
 		apiGroup.Delete("/user/:user", api.DeleteUser)
 

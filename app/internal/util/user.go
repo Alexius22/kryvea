@@ -11,7 +11,7 @@ func CanAccessCustomer(user *mongo.User, customer primitive.ObjectID) bool {
 	}
 
 	for _, allowedCustomer := range user.Customers {
-		if allowedCustomer == customer {
+		if allowedCustomer.ID == customer {
 			return true
 		}
 	}

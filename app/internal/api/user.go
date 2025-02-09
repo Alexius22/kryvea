@@ -6,7 +6,6 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (d *Driver) Register(c *fiber.Ctx) error {
@@ -127,6 +126,44 @@ func (d *Driver) GetAllUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+func (d *Driver) GetUser(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	userParam := c.Params("user")
+	if userParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "User ID is required",
+		})
+	}
+
+	userID, err := util.ParseMongoID(userParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid user ID",
+		})
+	}
+
+	user, err = d.mongo.User().Get(userID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(user)
+}
+
 func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
@@ -160,7 +197,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	var customers []primitive.ObjectID
+	var customers []mongo.UserCustomer
 	for _, customer := range req.Customers {
 		customerID, err := util.ParseMongoID(customer)
 		if err != nil {
@@ -169,7 +206,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 				"error": "Invalid customer ID",
 			})
 		}
-		customers = append(customers, customerID)
+		customers = append(customers, mongo.UserCustomer{ID: customerID})
 	}
 
 	err := d.mongo.User().Update(user.ID, &mongo.User{

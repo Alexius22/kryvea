@@ -28,17 +28,116 @@ var (
 	ROLES = []string{ROLE_ADMIN, ROLE_USER}
 )
 
+var UserPipeline = mongo.Pipeline{
+	bson.D{{Key: "$lookup", Value: bson.D{
+		{Key: "from", Value: "customer"},
+		{Key: "localField", Value: "customers._id"},
+		{Key: "foreignField", Value: "_id"},
+		{Key: "as", Value: "customerData"},
+	}}},
+	bson.D{{Key: "$set", Value: bson.D{
+		{Key: "customers", Value: bson.D{
+			{Key: "$map", Value: bson.D{
+				{Key: "input", Value: "$customers"},
+				{Key: "as", Value: "customer"},
+				{Key: "in", Value: bson.D{
+					{Key: "_id", Value: "$$customer._id"},
+					{Key: "name", Value: bson.D{
+						{Key: "$let", Value: bson.D{
+							{Key: "vars", Value: bson.D{
+								{Key: "matched", Value: bson.D{
+									{Key: "$arrayElemAt", Value: bson.A{
+										bson.D{{Key: "$filter", Value: bson.D{
+											{Key: "input", Value: "$customerData"},
+											{Key: "as", Value: "cust"},
+											{Key: "cond", Value: bson.D{
+												{Key: "$eq", Value: bson.A{"$$cust._id", "$$customer._id"}},
+											}},
+										}}},
+										0,
+									}},
+								}},
+							}},
+							{Key: "in", Value: "$$matched.name"},
+						}},
+					}},
+				}},
+			}},
+		}},
+	}}},
+	bson.D{{Key: "$unset", Value: "customerData"}},
+
+	bson.D{{Key: "$lookup", Value: bson.D{
+		{Key: "from", Value: "assessment"},
+		{Key: "localField", Value: "assessments._id"},
+		{Key: "foreignField", Value: "_id"},
+		{Key: "as", Value: "assessmentData"},
+	}}},
+	bson.D{{Key: "$set", Value: bson.D{
+		{Key: "assessments", Value: bson.D{
+			{Key: "$map", Value: bson.D{
+				{Key: "input", Value: "$assessments"},
+				{Key: "as", Value: "assessment"},
+				{Key: "in", Value: bson.D{
+					{Key: "_id", Value: "$$assessment._id"},
+					{Key: "name", Value: bson.D{
+						{Key: "$let", Value: bson.D{
+							{Key: "vars", Value: bson.D{
+								{Key: "matched", Value: bson.D{
+									{Key: "$arrayElemAt", Value: bson.A{
+										bson.D{{Key: "$filter", Value: bson.D{
+											{Key: "input", Value: "$assessmentData"},
+											{Key: "as", Value: "cust"},
+											{Key: "cond", Value: bson.D{
+												{Key: "$eq", Value: bson.A{"$$cust._id", "$$assessment._id"}},
+											}},
+										}}},
+										0,
+									}},
+								}},
+							}},
+							{Key: "in", Value: "$$matched.name"},
+						}},
+					}},
+				}},
+			}},
+		}},
+	}}},
+	bson.D{{Key: "$unset", Value: "assessmentData"}},
+
+	bson.D{{Key: "$project", Value: bson.D{
+		{Key: "_id", Value: 1},
+		{Key: "created_at", Value: 1},
+		{Key: "updated_at", Value: 1},
+		{Key: "disabled_at", Value: 1},
+		{Key: "username", Value: 1},
+		{Key: "role", Value: 1},
+		{Key: "customers", Value: 1},
+		{Key: "assessments", Value: 1},
+	}}},
+}
+
 type User struct {
-	Model            `bson:",inline"`
-	DisabledAt       time.Time            `json:"disabled_at" bson:"disabled_at"`
-	Username         string               `json:"username" bson:"username"`
-	Password         string               `json:"-" bson:"password"`
-	PasswordExpiry   time.Time            `json:"-" bson:"password_expiry"`
-	Token            string               `json:"-" bson:"token"`
-	TokenExpiry      time.Time            `json:"-" bson:"token_expiry"`
-	Role             string               `json:"role" bson:"role"`
-	Customers        []primitive.ObjectID `json:"customers" bson:"customers"`
-	OwnedAssessments []primitive.ObjectID `json:"owned_assessments" bson:"owned_assessments"`
+	Model          `bson:",inline"`
+	DisabledAt     time.Time         `json:"disabled_at" bson:"disabled_at"`
+	Username       string            `json:"username" bson:"username"`
+	Password       string            `json:"-" bson:"password"`
+	PasswordExpiry time.Time         `json:"-" bson:"password_expiry"`
+	Token          string            `json:"-" bson:"token"`
+	TokenExpiry    time.Time         `json:"-" bson:"token_expiry"`
+	Role           string            `json:"role" bson:"role"`
+	Customers      []UserCustomer    `json:"customers" bson:"customers"`
+	Assessments    []UserAssessments `json:"assessments" bson:"assessments"`
+}
+
+type UserCustomer struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name" bson:"name"`
+}
+
+type UserAssessments struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name" bson:"name"`
 }
 
 type UserIndex struct {
@@ -116,46 +215,42 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	return token, expires, nil
 }
 
-func (ui *UserIndex) GetAll() ([]User, error) {
-	opts := options.Find().SetProjection(bson.M{
-		"_id":         1,
-		"created_at":  1,
-		"updated_at":  1,
-		"disabled_at": 1,
-		"username":    1,
-		"role":        1,
-		"customers":   1,
-	})
-
-	var users []User
-	cursor, err := ui.collection.Find(context.Background(), bson.M{}, opts)
+func (ui *UserIndex) Get(ID primitive.ObjectID) (*User, error) {
+	pipeline := append(
+		UserPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"_id": ID}}},
+		bson.D{{Key: "$limit", Value: 1}})
+	cursor, err := ui.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	for cursor.Next(context.Background()) {
-		var user User
+	var user User
+	if cursor.Next(context.Background()) {
 		if err := cursor.Decode(&user); err != nil {
 			return nil, err
 		}
-		users = append(users, user)
 	}
 
+	return &user, nil
+}
+
+func (ui *UserIndex) GetAll() ([]User, error) {
+	cursor, err := ui.collection.Aggregate(context.Background(), UserPipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var users []User
+	err = cursor.All(context.Background(), &users)
 	return users, nil
 }
 
 func (ui *UserIndex) GetByToken(token string) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
-		"_id":             1,
-		"created_at":      1,
-		"updated_at":      1,
-		"disabled_at":     1,
-		"username":        1,
-		"password_expiry": 1,
-		"token_expiry":    1,
-		"role":            1,
-		"customers":       1,
+		"password": 0,
 	})
 
 	var user User
@@ -176,6 +271,7 @@ func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
 			"username":    user.Username,
 			"role":        user.Role,
 			"customers":   user.Customers,
+			"assessments": user.Assessments,
 		},
 	}
 
