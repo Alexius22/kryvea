@@ -5,12 +5,12 @@ import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxComponentTitle from "../components/CardBox/Component/Title";
 import Divider from "../components/Divider";
-import SectionMain from "../components/Section/Main";
-import { getPageTitle } from "../config";
-import PocText from "../components/Poc/PocText";
+import { PocDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
-import { PocDoc, PocType } from "../components/Poc/Poc.types";
+import PocText from "../components/Poc/PocText";
+import SectionMain from "../components/Section/Main";
+import { getPageTitle } from "../config";
 
 const EditPoc = () => {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
