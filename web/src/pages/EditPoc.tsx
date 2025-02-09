@@ -34,6 +34,47 @@ const EditPoc = () => {
       });
     };
   }
+
+  const onPositionChange = currentIndex => e => {
+    const shift = (prev: PocDoc[]) => {
+      const newIndex = +e.target.value;
+      if (newIndex < 0 || newIndex >= prev.length) {
+        return prev;
+      }
+
+      const arr = [...prev];
+      const copyCurrent = { ...arr[currentIndex] };
+
+      if (newIndex < currentIndex) {
+        for (let i = currentIndex; i > newIndex; i--) {
+          arr[i] = { ...arr[i - 1], position: arr[i - 1].position + 1 };
+        }
+        arr[newIndex] = { ...copyCurrent, position: newIndex };
+        return arr;
+      }
+
+      for (let i = currentIndex; i < newIndex; i++) {
+        arr[i] = { ...arr[i + 1], position: arr[i + 1].position - 1 };
+      }
+      arr[newIndex] = { ...copyCurrent, position: newIndex };
+
+      return arr;
+    };
+    const swap = (prev: PocDoc[]) => {
+      const newIndex = +e.target.value;
+      if (newIndex < 0 || newIndex >= prev.length) {
+        return prev;
+      }
+
+      const arr = [...prev];
+      const copyCurrent = { ...arr[currentIndex] };
+      arr[currentIndex] = { ...arr[newIndex], position: currentIndex };
+      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      return arr;
+    };
+    setPocList(onPositionChangeMode === "shift" ? shift : swap);
+  };
+
   const addPoc = (type: PocType) => () => {
     switch (type) {
       case "text":
@@ -75,45 +116,6 @@ const EditPoc = () => {
         ]);
         break;
     }
-  };
-  const onPositionChange = currentIndex => e => {
-    const shift = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
-      if (newIndex < 0 || newIndex >= prev.length) {
-        return prev;
-      }
-
-      const arr = [...prev];
-      const copyCurrent = { ...arr[currentIndex] };
-
-      if (newIndex < currentIndex) {
-        for (let i = currentIndex; i > newIndex; i--) {
-          arr[i] = { ...arr[i - 1], position: arr[i - 1].position + 1 };
-        }
-        arr[newIndex] = { ...copyCurrent, position: newIndex };
-        return arr;
-      }
-
-      for (let i = currentIndex; i < newIndex; i++) {
-        arr[i] = { ...arr[i + 1], position: arr[i + 1].position - 1 };
-      }
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
-
-      return arr;
-    };
-    const swap = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
-      if (newIndex < 0 || newIndex >= prev.length) {
-        return prev;
-      }
-
-      const arr = [...prev];
-      const copyCurrent = { ...arr[currentIndex] };
-      arr[currentIndex] = { ...arr[newIndex], position: currentIndex };
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
-      return arr;
-    };
-    setPocList(onPositionChangeMode === "shift" ? shift : swap);
   };
 
   const switchPocType = (pocDoc: PocDoc, i: number) => {
