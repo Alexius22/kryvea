@@ -7,13 +7,12 @@ type PocBaseDoc = {
 
 export interface PocTextDoc extends PocBaseDoc {
   type: "text";
-  title: string;
   language: string;
+  text: string;
 };
 
 export interface PocImageDoc extends PocBaseDoc {
   type: "image";
-  title: string;
   chooseFile: string;
   caption: string;
 };
