@@ -108,16 +108,14 @@ var AssessmentPipeline = mongo.Pipeline{
 type Assessment struct {
 	Model              `bson:",inline"`
 	Name               string             `json:"name" bson:"name"`
-	Notes              string             `json:"notes" bson:"notes"`
 	StartDateTime      time.Time          `json:"start_date_time" bson:"start_date_time"`
 	EndDateTime        time.Time          `json:"end_date_time" bson:"end_date_time"`
 	Targets            []AssessmentTarget `json:"targets" bson:"targets"`
 	Status             string             `json:"status" bson:"status"`
-	Type               string             `json:"type" bson:"type"`
+	AssessmentType     string             `json:"assessment_type" bson:"assessment_type"`
 	CVSSVersion        string             `json:"cvss_version" bson:"cvss_version"`
 	Environment        string             `json:"environment" bson:"environment"`
-	Network            string             `json:"network" bson:"network"`
-	Method             string             `json:"method" bson:"method"`
+	TestingType        string             `json:"testing_type" bson:"testing_type"`
 	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
 	VulnerabilityCount int                `json:"vulnerability_count" bson:"vulnerability_count"`
 	Customer           AssessmentCustomer `json:"customer" bson:"customer"`
@@ -243,16 +241,14 @@ func (ai *AssessmentIndex) Update(assessmentID primitive.ObjectID, assessment *A
 		"$set": bson.M{
 			"updated_at":      time.Now(),
 			"name":            assessment.Name,
-			"notes":           assessment.Notes,
 			"start_date_time": assessment.StartDateTime,
 			"end_date_time":   assessment.EndDateTime,
 			"targets":         assessment.Targets,
 			"status":          assessment.Status,
-			"type":            assessment.Type,
+			"type":            assessment.AssessmentType,
 			"cvss_version":    assessment.CVSSVersion,
 			"environment":     assessment.Environment,
-			"network":         assessment.Network,
-			"method":          assessment.Method,
+			"method":          assessment.TestingType,
 			"osstmm_vector":   assessment.OSSTMMVector,
 		},
 	}
