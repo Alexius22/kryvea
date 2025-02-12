@@ -14,19 +14,17 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	type reqData struct {
-		Name          string    `json:"name"`
-		Notes         string    `json:"notes"`
-		StartDateTime time.Time `json:"start_date_time"`
-		EndDateTime   time.Time `json:"end_date_time"`
-		Status        string    `json:"status"`
-		Targets       []string  `json:"targets"`
-		Type          string    `json:"type"`
-		CVSSVersion   string    `json:"cvss_version"`
-		Environment   string    `json:"environment"`
-		Network       string    `json:"network"`
-		Method        string    `json:"method"`
-		OSSTMMVector  string    `json:"osstmm_vector"`
-		CustomerID    string    `json:"customer_id"`
+		Name           string    `json:"name"`
+		StartDateTime  time.Time `json:"start_date_time"`
+		EndDateTime    time.Time `json:"end_date_time"`
+		Status         string    `json:"status"`
+		Targets        []string  `json:"targets"`
+		AssessmentType string    `json:"assessment_type"`
+		CVSSVersion    string    `json:"cvss_version"`
+		Environment    string    `json:"environment"`
+		TestingType    string    `json:"testing_type"`
+		OSSTMMVector   string    `json:"osstmm_vector"`
+		CustomerID     string    `json:"customer_id"`
 	}
 
 	assessment := &reqData{}
@@ -102,18 +100,16 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
-		Name:          assessment.Name,
-		Notes:         assessment.Notes,
-		StartDateTime: assessment.StartDateTime,
-		EndDateTime:   assessment.EndDateTime,
-		Targets:       targets,
-		Status:        assessment.Status,
-		Type:          assessment.Type,
-		CVSSVersion:   assessment.CVSSVersion,
-		Environment:   assessment.Environment,
-		Network:       assessment.Network,
-		Method:        assessment.Method,
-		OSSTMMVector:  assessment.OSSTMMVector,
+		Name:           assessment.Name,
+		StartDateTime:  assessment.StartDateTime,
+		EndDateTime:    assessment.EndDateTime,
+		Targets:        targets,
+		Status:         assessment.Status,
+		AssessmentType: assessment.AssessmentType,
+		CVSSVersion:    assessment.CVSSVersion,
+		Environment:    assessment.Environment,
+		TestingType:    assessment.TestingType,
+		OSSTMMVector:   assessment.OSSTMMVector,
 		Customer: mongo.AssessmentCustomer{
 			ID: customer.ID,
 		},
@@ -205,18 +201,16 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	type reqData struct {
-		Name          string    `json:"name"`
-		Notes         string    `json:"notes"`
-		StartDateTime time.Time `json:"start_date_time"`
-		EndDateTime   time.Time `json:"end_date_time"`
-		Targets       []string  `json:"targets"`
-		Status        string    `json:"status"`
-		Type          string    `json:"type"`
-		CVSSVersion   string    `json:"cvss_version"`
-		Environment   string    `json:"environment"`
-		Method        string    `json:"method"`
-		Network       string    `json:"network"`
-		OSSTMMVector  string    `json:"osstmm_vector"`
+		Name           string    `json:"name"`
+		StartDateTime  time.Time `json:"start_date_time"`
+		EndDateTime    time.Time `json:"end_date_time"`
+		Targets        []string  `json:"targets"`
+		Status         string    `json:"status"`
+		AssessmentType string    `json:"assessment_type"`
+		CVSSVersion    string    `json:"cvss_version"`
+		Environment    string    `json:"environment"`
+		TestingType    string    `json:"testing_type"`
+		OSSTMMVector   string    `json:"osstmm_vector"`
 	}
 
 	data := &reqData{}
@@ -301,18 +295,16 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	err = d.mongo.Assessment().Update(assessmentID, &mongo.Assessment{
-		Name:          data.Name,
-		Notes:         data.Notes,
-		StartDateTime: data.StartDateTime,
-		EndDateTime:   data.EndDateTime,
-		Targets:       targets,
-		Status:        data.Status,
-		Type:          data.Type,
-		CVSSVersion:   data.CVSSVersion,
-		Environment:   data.Environment,
-		Network:       data.Network,
-		Method:        data.Method,
-		OSSTMMVector:  data.OSSTMMVector,
+		Name:           data.Name,
+		StartDateTime:  data.StartDateTime,
+		EndDateTime:    data.EndDateTime,
+		Targets:        targets,
+		Status:         data.Status,
+		AssessmentType: data.AssessmentType,
+		CVSSVersion:    data.CVSSVersion,
+		Environment:    data.Environment,
+		TestingType:    data.TestingType,
+		OSSTMMVector:   data.OSSTMMVector,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
