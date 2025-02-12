@@ -52,7 +52,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -156,7 +156,7 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -241,7 +241,7 @@ func (d *Driver) DeletePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -297,7 +297,7 @@ func (d *Driver) GetAllPocs(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.CustomerID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
