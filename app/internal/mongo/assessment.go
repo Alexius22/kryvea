@@ -15,21 +15,123 @@ const (
 	assessmentCollection = "assessment"
 )
 
+var AssessmentPipeline = mongo.Pipeline{
+	bson.D{{Key: "$lookup", Value: bson.D{
+		{Key: "from", Value: "target"},
+		{Key: "localField", Value: "targets._id"},
+		{Key: "foreignField", Value: "_id"},
+		{Key: "as", Value: "targetData"},
+	}}},
+	bson.D{{Key: "$set", Value: bson.D{
+		{Key: "targets", Value: bson.D{
+			{Key: "$map", Value: bson.D{
+				{Key: "input", Value: "$targets"},
+				{Key: "as", Value: "target"},
+				{Key: "in", Value: bson.D{
+					// TODO: there must be a way to improve this
+					{Key: "_id", Value: "$$target._id"},
+					{Key: "ip", Value: bson.D{
+						{Key: "$let", Value: bson.D{
+							{Key: "vars", Value: bson.D{
+								{Key: "matched", Value: bson.D{
+									{Key: "$arrayElemAt", Value: bson.A{
+										bson.D{{Key: "$filter", Value: bson.D{
+											{Key: "input", Value: "$targetData"},
+											{Key: "as", Value: "tar"},
+											{Key: "cond", Value: bson.D{
+												{Key: "$eq", Value: bson.A{"$$tar._id", "$$target._id"}},
+											}},
+										}}},
+										0,
+									}},
+								}},
+							}},
+							{Key: "in", Value: "$$matched.ip"},
+						}},
+					}},
+					{Key: "hostname", Value: bson.D{
+						{Key: "$let", Value: bson.D{
+							{Key: "vars", Value: bson.D{
+								{Key: "matched", Value: bson.D{
+									{Key: "$arrayElemAt", Value: bson.A{
+										bson.D{{Key: "$filter", Value: bson.D{
+											{Key: "input", Value: "$targetData"},
+											{Key: "as", Value: "tar"},
+											{Key: "cond", Value: bson.D{
+												{Key: "$eq", Value: bson.A{"$$tar._id", "$$target._id"}},
+											}},
+										}}},
+										0,
+									}},
+								}},
+							}},
+							{Key: "in", Value: "$$matched.hostname"},
+						}},
+					}},
+				}},
+			}},
+		}},
+	}}},
+	bson.D{{Key: "$unset", Value: "targetData"}},
+
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "vulnerability"},
+			{Key: "localField", Value: "_id"},
+			{Key: "foreignField", Value: "assessment._id"},
+			{Key: "as", Value: "vulnerabilityData"},
+		}}},
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "vulnerability_count", Value: bson.D{
+				{Key: "$size", Value: "$vulnerabilityData"},
+			}},
+		}}},
+	bson.D{{Key: "$unset", Value: "vulnerabilityData"}},
+
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "customer"},
+			{Key: "localField", Value: "customer._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "customerData"},
+		}}},
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "customer.name", Value: bson.D{
+				{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+			}},
+		}}},
+	bson.D{{Key: "$unset", Value: "customerData"}},
+}
+
 type Assessment struct {
-	Model         `bson:",inline"`
-	Name          string               `json:"name" bson:"name"`
-	Notes         string               `json:"notes" bson:"notes"`
-	StartDateTime time.Time            `json:"start_date_time" bson:"start_date_time"`
-	EndDateTime   time.Time            `json:"end_date_time" bson:"end_date_time"`
-	Targets       []primitive.ObjectID `json:"targets" bson:"targets"`
-	Status        string               `json:"status" bson:"status"`
-	Type          string               `json:"type" bson:"type"`
-	CVSSVersion   string               `json:"cvss_version" bson:"cvss_version"`
-	Environment   string               `json:"environment" bson:"environment"`
-	Network       string               `json:"network" bson:"network"`
-	Method        string               `json:"method" bson:"method"`
-	OSSTMMVector  string               `json:"osstmm_vector" bson:"osstmm_vector"`
-	CustomerID    primitive.ObjectID   `json:"customer_id" bson:"customer_id"`
+	Model              `bson:",inline"`
+	Name               string             `json:"name" bson:"name"`
+	Notes              string             `json:"notes" bson:"notes"`
+	StartDateTime      time.Time          `json:"start_date_time" bson:"start_date_time"`
+	EndDateTime        time.Time          `json:"end_date_time" bson:"end_date_time"`
+	Targets            []AssessmentTarget `json:"targets" bson:"targets"`
+	Status             string             `json:"status" bson:"status"`
+	Type               string             `json:"type" bson:"type"`
+	CVSSVersion        string             `json:"cvss_version" bson:"cvss_version"`
+	Environment        string             `json:"environment" bson:"environment"`
+	Network            string             `json:"network" bson:"network"`
+	Method             string             `json:"method" bson:"method"`
+	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
+	VulnerabilityCount int                `json:"vulnerability_count" bson:"vulnerability_count"`
+	Customer           AssessmentCustomer `json:"customer" bson:"customer"`
+}
+
+type AssessmentTarget struct {
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
+	IP       string             `json:"ip" bson:"ip"`
+	Hostname string             `json:"hostname" bson:"hostname"`
+}
+
+type AssessmentCustomer struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name" bson:"name"`
 }
 
 type AssessmentIndex struct {
@@ -58,7 +160,7 @@ func (ai AssessmentIndex) init() error {
 }
 
 func (ai *AssessmentIndex) Insert(assessment *Assessment) (primitive.ObjectID, error) {
-	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.CustomerID}).Err()
+	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.Customer.ID}).Err()
 	if err != nil {
 		return primitive.NilObjectID, err
 	}
@@ -83,7 +185,8 @@ func (ai *AssessmentIndex) GetByID(assessmentID primitive.ObjectID) (*Assessment
 }
 
 func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Assessment, error) {
-	cursor, err := ai.collection.Find(context.Background(), bson.M{"customer_id": customerID})
+	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
+	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +204,7 @@ func (ai *AssessmentIndex) Search(customers []primitive.ObjectID, name string) (
 	filter := bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
 
 	if customers != nil {
-		filter["customer_id"] = bson.M{"$in": customers}
+		filter["customer._id"] = bson.M{"$in": customers}
 	}
 
 	cursor, err := ai.collection.Find(context.Background(), filter)
@@ -118,7 +221,8 @@ func (ai *AssessmentIndex) Search(customers []primitive.ObjectID, name string) (
 }
 
 func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
-	cursor, err := ai.collection.Find(context.Background(), bson.M{})
+	pipeline := append(AssessmentPipeline, bson.D{{Key: "$sort", Value: bson.M{"name": 1}}})
+	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}

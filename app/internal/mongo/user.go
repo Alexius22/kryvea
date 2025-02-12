@@ -87,9 +87,9 @@ var UserPipeline = mongo.Pipeline{
 									{Key: "$arrayElemAt", Value: bson.A{
 										bson.D{{Key: "$filter", Value: bson.D{
 											{Key: "input", Value: "$assessmentData"},
-											{Key: "as", Value: "cust"},
+											{Key: "as", Value: "assess"},
 											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$cust._id", "$$assessment._id"}},
+												{Key: "$eq", Value: bson.A{"$$assess._id", "$$assessment._id"}},
 											}},
 										}}},
 										0,
