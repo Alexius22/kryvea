@@ -17,11 +17,11 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	}
 
 	type reqData struct {
-		ID                 string `json:"id"`
-		Index              string `json:"index"`
-		Name               string `json:"name"`
-		GenericDescription string `json:"generic_description"`
-		GenericRemediation string `json:"generic_remediation"`
+		ID                 string            `json:"id"`
+		Index              string            `json:"index"`
+		Name               string            `json:"name"`
+		GenericDescription map[string]string `json:"generic_description"`
+		GenericRemediation map[string]string `json:"generic_remediation"`
 	}
 
 	category := &reqData{}
@@ -70,10 +70,10 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 	}
 
 	type reqData struct {
-		Index              string `json:"index"`
-		Name               string `json:"name"`
-		GenericDescription string `json:"generic_description"`
-		GenericRemediation string `json:"generic_remediation"`
+		Index              string            `json:"index"`
+		Name               string            `json:"name"`
+		GenericDescription map[string]string `json:"generic_description"`
+		GenericRemediation map[string]string `json:"generic_remediation"`
 	}
 
 	category := &reqData{}

@@ -17,10 +17,10 @@ const (
 
 type Category struct {
 	Model              `bson:",inline"`
-	Index              string `json:"index" bson:"index"`
-	Name               string `json:"name" bson:"name"`
-	GenericDescription string `json:"generic_description" bson:"generic_description"`
-	GenericRemediation string `json:"generic_remediation" bson:"generic_remediation"`
+	Index              string            `json:"index" bson:"index"`
+	Name               string            `json:"name" bson:"name"`
+	GenericDescription map[string]string `json:"generic_description" bson:"generic_description"`
+	GenericRemediation map[string]string `json:"generic_remediation" bson:"generic_remediation"`
 }
 
 type CategoryIndex struct {
@@ -64,12 +64,18 @@ func (ci *CategoryIndex) Update(ID primitive.ObjectID, category *Category) error
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at":          time.Now(),
-			"index":               category.Index,
-			"name":                category.Name,
-			"generic_description": category.GenericDescription,
-			"generic_remediation": category.GenericRemediation,
+			"updated_at": time.Now(),
+			"index":      category.Index,
+			"name":       category.Name,
 		},
+	}
+
+	for key, value := range category.GenericDescription {
+		update["$set"].(bson.M)["generic_description."+key] = value
+	}
+
+	for key, value := range category.GenericRemediation {
+		update["$set"].(bson.M)["generic_remediation."+key] = value
 	}
 
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
