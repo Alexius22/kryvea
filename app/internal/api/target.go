@@ -223,7 +223,7 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 		})
 	}
 
-	target, err := d.mongo.Target().Search(customerID, query)
+	targets, err := d.mongo.Target().Search(customerID, query)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -231,8 +231,12 @@ func (d *Driver) SearchTargets(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(targets) == 0 {
+		targets = []mongo.Target{}
+	}
+
 	c.Status(fiber.StatusOK)
-	return c.JSON(target)
+	return c.JSON(targets)
 }
 
 func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
@@ -254,6 +258,14 @@ func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
 		})
 	}
 
+	_, err = d.mongo.Customer().GetByID(customerID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
 	if !util.CanAccessCustomer(user, customerID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -267,6 +279,10 @@ func (d *Driver) GetAllTargets(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"error": "Cannot get targets",
 		})
+	}
+
+	if len(targets) == 0 {
+		targets = []mongo.Target{}
 	}
 
 	c.Status(fiber.StatusOK)

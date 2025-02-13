@@ -173,8 +173,10 @@ func (ui *UserIndex) Insert(user *User) error {
 	}
 
 	user.DisabledAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
-	user.Role = ROLE_USER
 	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
+	user.Role = ROLE_USER
+	user.Customers = []UserCustomer{}
+	user.Assessments = []UserAssessments{}
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {
@@ -231,9 +233,10 @@ func (ui *UserIndex) Get(ID primitive.ObjectID) (*User, error) {
 		if err := cursor.Decode(&user); err != nil {
 			return nil, err
 		}
+		return &user, nil
 	}
 
-	return &user, nil
+	return nil, mongo.ErrNoDocuments
 }
 
 func (ui *UserIndex) GetAll() ([]User, error) {
@@ -265,15 +268,43 @@ func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
-		"$set": bson.M{
-			"updated_at":  time.Now(),
-			"disabled_at": user.DisabledAt,
-			"username":    user.Username,
-			"role":        user.Role,
-			"customers":   user.Customers,
-			"assessments": user.Assessments,
-		},
+		"$set": bson.M{},
 	}
+
+	if !user.DisabledAt.IsZero() {
+		update["$set"].(bson.M)["disabled_at"] = user.DisabledAt
+	}
+
+	if user.Username != "" {
+		update["$set"].(bson.M)["username"] = user.Username
+	}
+
+	if user.Password != "" {
+		hash, err := crypto.Encrypt(user.Password)
+		if err != nil {
+			return err
+		}
+
+		update["$set"].(bson.M)["password"] = hash
+	}
+
+	if !user.PasswordExpiry.IsZero() {
+		update["$set"].(bson.M)["password_expiry"] = user.PasswordExpiry
+	}
+
+	if user.Role != "" {
+		update["$set"].(bson.M)["role"] = user.Role
+	}
+
+	if user.Customers != nil {
+		update["$set"].(bson.M)["customers"] = user.Customers
+	}
+
+	if user.Assessments != nil {
+		update["$set"].(bson.M)["assessments"] = user.Assessments
+	}
+
+	user.UpdatedAt = time.Now()
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
 	return err
