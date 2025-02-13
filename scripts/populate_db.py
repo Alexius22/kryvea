@@ -121,7 +121,7 @@ def rand_status() -> str:
 
 
 def rand_assessment_type() -> str:
-    types = ["WAPT", "VAPT", "Pentest", "Red Team", "Blue Team"]
+    types = ["WAPT", "VAPT", "MAPT", "IoT", "Red Team Assessment"]
     return random.choice(types)
 
 
@@ -391,8 +391,8 @@ class Vulnerability:
 
 
 if __name__ == "__main__":
-    user = User()
-    if not user.register():
+    admin_user = User()
+    if not admin_user.register():
         print("Registration failed")
         # exit(1)
         
@@ -405,7 +405,7 @@ if __name__ == "__main__":
         users.append(user)
         print(f"{bcolors.OKGREEN}[*] Registered user {user.username}{bcolors.ENDC}")
 
-    if not user.login():
+    if not admin_user.login():
         print("Login failed")
         exit(1)
 
@@ -458,15 +458,23 @@ if __name__ == "__main__":
 
     categories = []
     for i in range(5):
-        language = rand_language()
+        languages = [rand_language() for i in range(5)]
         category = Category(
             index=rand_string(),
             name=rand_name(3),
             generic_description={
-                language: rand_name(50),
+                languages[0]: rand_name(50),
+                languages[1]: rand_name(50),
+                languages[2]: rand_name(50),
+                languages[3]: rand_name(50),
+                languages[4]: rand_name(50),
             },
             generic_remediation={
-                language: rand_name(50),
+                languages[0]: rand_name(50),
+                languages[1]: rand_name(50),
+                languages[2]: rand_name(50),
+                languages[3]: rand_name(50),
+                languages[4]: rand_name(50),
             },
         )
         # print(category.json())
