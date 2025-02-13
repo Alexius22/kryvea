@@ -172,9 +172,9 @@ func (ui *UserIndex) Insert(user *User) error {
 		UpdatedAt: time.Now(),
 	}
 
-	user.DisabledAt = time.Time{}
+	user.DisabledAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 	user.Role = ROLE_USER
-	user.PasswordExpiry = time.Time{}
+	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {
