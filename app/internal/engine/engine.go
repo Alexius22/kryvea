@@ -80,6 +80,7 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/users", api.GetAllUsers)
 		apiGroup.Get("/user/:user", api.GetUser)
+		apiGroup.Put("/user/self", api.UpdateSelf)
 		apiGroup.Put("/user/:user", api.UpdateUser)
 		apiGroup.Delete("/user/:user", api.DeleteUser)
 

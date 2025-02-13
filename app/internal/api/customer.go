@@ -81,12 +81,15 @@ func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
 	}
 
 	customers, err := d.mongo.Customer().GetAll(userCustomers)
-
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get customers",
 		})
+	}
+
+	if len(customers) == 0 {
+		customers = []mongo.Customer{}
 	}
 
 	c.Status(fiber.StatusOK)

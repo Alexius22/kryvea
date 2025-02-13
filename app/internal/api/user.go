@@ -122,6 +122,10 @@ func (d *Driver) GetAllUsers(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(users) == 0 {
+		users = []mongo.User{}
+	}
+
 	c.Status(fiber.StatusOK)
 	return c.JSON(users)
 }
@@ -174,6 +178,22 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	userParam := c.Params("user")
+	if userParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "User ID is required",
+		})
+	}
+
+	userID, err := util.ParseMongoID(userParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid user ID",
+		})
+	}
+
 	type reqData struct {
 		DisabledAt     time.Time `json:"disabled_at"`
 		Username       string    `json:"username"`
@@ -198,23 +218,102 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	var customers []mongo.UserCustomer
-	for _, customer := range req.Customers {
-		customerID, err := util.ParseMongoID(customer)
+	for _, customerID := range req.Customers {
+		parsedCustomerID, err := util.ParseMongoID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Invalid customer ID",
 			})
 		}
-		customers = append(customers, mongo.UserCustomer{ID: customerID})
+
+		_, err = d.mongo.Customer().GetByID(parsedCustomerID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid customer ID",
+			})
+		}
+
+		customers = append(customers, mongo.UserCustomer{ID: parsedCustomerID})
 	}
 
-	err := d.mongo.User().Update(user.ID, &mongo.User{
+	err = d.mongo.User().Update(userID, &mongo.User{
 		DisabledAt:     req.DisabledAt,
 		Username:       req.Username,
 		PasswordExpiry: req.PasswordExpiry,
 		Role:           req.Role,
 		Customers:      customers,
+	})
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "User updated",
+	})
+}
+
+func (d *Driver) UpdateSelf(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	type reqData struct {
+		Username    string   `json:"username"`
+		Password    string   `json:"password"`
+		Assessments []string `json:"assessments"`
+	}
+
+	req := &reqData{}
+	if err := c.BodyParser(req); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	if req.Username == "" && req.Password == "" && len(req.Assessments) == 0 {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "No data to update",
+		})
+	}
+
+	var assessments []mongo.UserAssessments
+	for _, assessmentID := range req.Assessments {
+		parsedAssessmentID, err := util.ParseMongoID(assessmentID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid assessment ID",
+			})
+		}
+
+		assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid assessment ID",
+			})
+		}
+
+		if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, assessment.Customer.ID) {
+			c.Status(fiber.StatusUnauthorized)
+			return c.JSON(fiber.Map{
+				"error": "Unauthorized",
+			})
+		}
+
+		assessments = append(assessments, mongo.UserAssessments{ID: parsedAssessmentID})
+	}
+
+	err := d.mongo.User().Update(user.ID, &mongo.User{
+		Username:    req.Username,
+		Password:    req.Password,
+		Assessments: assessments,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)

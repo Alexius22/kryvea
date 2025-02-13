@@ -149,9 +149,11 @@ func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
 		if err := cursor.Decode(&target); err != nil {
 			return nil, err
 		}
+
+		return &target, nil
 	}
 
-	return &target, nil
+	return nil, mongo.ErrNoDocuments
 }
 
 func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target, error) {

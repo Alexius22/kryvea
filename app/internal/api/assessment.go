@@ -155,6 +155,10 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(assessments) == 0 {
+		assessments = []mongo.Assessment{}
+	}
+
 	c.Status(fiber.StatusOK)
 	return c.JSON(assessments)
 }
@@ -178,6 +182,14 @@ func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
 		})
 	}
 
+	_, err = d.mongo.Customer().GetByID(customerID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
 	if !util.CanAccessCustomer(user, customerID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -191,6 +203,10 @@ func (d *Driver) GetAllAssessments(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"error": "Cannot get assessments",
 		})
+	}
+
+	if len(assessments) == 0 {
+		assessments = []mongo.Assessment{}
 	}
 
 	c.Status(fiber.StatusOK)

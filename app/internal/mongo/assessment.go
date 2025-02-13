@@ -168,6 +168,11 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment) (primitive.ObjectID, e
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+
+	if assessment.Targets == nil {
+		assessment.Targets = []AssessmentTarget{}
+	}
+
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	return assessment.ID, err
 }
