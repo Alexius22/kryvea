@@ -31,6 +31,10 @@ const AddHost = () => {
                 <Field name="fqdn" id="fdqn" placeholder="Fully Qualified Domain Name"></Field>
               </FormField>
 
+              <FormField label="Name" help="Specify a name to distinguish hosts with the same IP and FQDN">
+                <Field name="name" id="name" placeholder="Sample name"></Field>
+              </FormField>
+
               <Divider />
 
               <Buttons>

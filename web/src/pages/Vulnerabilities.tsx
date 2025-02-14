@@ -37,21 +37,21 @@ const Vulnerabilities = () => {
                   className="cursor-pointer hover:text-blue-500 hover:underline"
                   onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
                 >
-                  {vulnerability.detailed_title}
+                  {vulnerability.category.name + " - " + vulnerability.detailed_title}
                 </span>
               ),
-              "CVSS score": vulnerability.cvss_score,
+              "CVSS Score": vulnerability.cvss_score,
               "CVSS Vector": vulnerability.cvss_vector,
               Assessment: (
                 <span
                   className="cursor-pointer hover:text-blue-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
-                  {vulnerability.assessment_id}
+                  {vulnerability.assessment.name}
                 </span>
               ),
               Date: formatDate(vulnerability.updated_at),
-              Host: vulnerability.target_id,
+              User: vulnerability.user.username,
             }))}
             perPageCustom={10}
           />
