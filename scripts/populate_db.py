@@ -116,7 +116,7 @@ def rand_language() -> str:
 
 
 def rand_status() -> str:
-    statuses = ["hold", "progress", "completed"]
+    statuses = ["On Hold", "In Progress", "Completed",]
     return random.choice(statuses)
 
 
@@ -126,12 +126,12 @@ def rand_assessment_type() -> str:
 
 
 def rand_environment() -> str:
-    environments = ["pre-production", "production"]
+    environments = ["Pre-Production", "Production"]
     return random.choice(environments)
 
 
 def rand_testing_type() -> str:
-    types = ["black box", "white box", "grey box"]
+    types = ["Black Box", "White Box", "Grey Box"]
     return random.choice(types)
 
 

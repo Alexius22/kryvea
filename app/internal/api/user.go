@@ -36,7 +36,7 @@ func (d *Driver) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	err := d.mongo.User().Insert(&mongo.User{
+	userID, err := d.mongo.User().Insert(&mongo.User{
 		Username: user.Username,
 		Password: user.Password,
 	})
@@ -50,6 +50,7 @@ func (d *Driver) Register(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "User registered successfully",
+		"user_id": userID.Hex(),
 	})
 }
 
@@ -258,7 +259,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) UpdateSelf(c *fiber.Ctx) error {
+func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	type reqData struct {
