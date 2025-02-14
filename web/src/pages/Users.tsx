@@ -141,16 +141,7 @@ const Users = () => {
               data={users.map(user => ({
                 Username: user.username,
                 Role: user.role,
-                Customers: (
-                  <td>
-                    {" "}
-                    <ul>
-                      {user.customers.map((customer, index) => (
-                        <li key={index}>{customer.name}</li>
-                      ))}
-                    </ul>
-                  </td>
-                ),
+                Customers: user.customers.map(customer => customer.name).join(" | "),
                 Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
                 buttons: (
                   <Buttons noWrap>
@@ -159,7 +150,7 @@ const Users = () => {
                   </Buttons>
                 ),
               }))}
-              perPageCustom={100}
+              perPageCustom={50}
             />
           )}
         </CardBox>

@@ -19,6 +19,13 @@ const Customers = () => {
   // const { data: customers, loading, error } = useFetch<Customer>(`/api/customers`);
   const loading = false;
   const error = false;
+  const languageMapping: Record<string, string> = {
+    en: "English",
+    it: "Italian",
+    fr: "French",
+    de: "German",
+    es: "Spanish",
+  };
 
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -79,7 +86,7 @@ const Customers = () => {
                   </span>
                 ),
                 "CVSS Version": customer.default_cvss_version,
-                "Default language": customer.language,
+                "Default language": languageMapping[customer.language] || customer.language,
                 buttons: (
                   <Buttons noWrap>
                     <Button color="info" icon={mdiEye} small onClick={() => navigate("/customer")} />
