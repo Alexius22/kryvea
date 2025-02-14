@@ -17,6 +17,7 @@ import { users } from "../mockup_data/users";
 import { User } from "../types/common.types";
 import { useNavigate } from "react-router";
 import SelectWrapper from "../components/Form/SelectWrapper";
+import { formatDate } from "../components/DateUtils";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -37,8 +38,8 @@ const Users = () => {
 
   const customerOptions = users.flatMap(user =>
     user.customers.map((customer, index) => ({
-      value: customer,
-      label: customer,
+      value: customer.name,
+      label: customer.name,
     }))
   );
 
@@ -145,12 +146,12 @@ const Users = () => {
                     {" "}
                     <ul>
                       {user.customers.map((customer, index) => (
-                        <li key={index}>{customer}</li>
+                        <li key={index}>{customer.name}</li>
                       ))}
                     </ul>
                   </td>
                 ),
-                Active: user.id,
+                Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
                 buttons: (
                   <Buttons noWrap>
                     <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />

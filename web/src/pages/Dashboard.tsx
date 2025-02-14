@@ -40,9 +40,9 @@ export default function Dashboard() {
               Customer: (
                 <span
                   className="cursor-pointer hover:text-blue-500 hover:underline"
-                  onClick={() => setCustomerName(assessment.customer_id)}
+                  onClick={() => setCustomerName(assessment.customer.name)}
                 >
-                  {assessment.customer_id}
+                  {assessment.customer.name}
                 </span>
               ),
               "Assessment Name": (
@@ -53,7 +53,7 @@ export default function Dashboard() {
                   {assessment.name}
                 </span>
               ),
-              "Assessment Type": assessment.type,
+              "Assessment Type": assessment.assessment_type,
               Start: formatDate(assessment.start_date_time),
               End: formatDate(assessment.end_date_time),
               Status: assessment.status,

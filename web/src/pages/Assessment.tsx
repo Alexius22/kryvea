@@ -127,10 +127,12 @@ const Assessment = () => {
                     className="cursor-pointer hover:text-blue-500 hover:underline"
                     onClick={() => navigate(`/vulnerability`)}
                   >
-                    {vulnerability.category_id} ({vulnerability.detailed_title})
+                    {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
                   </span>
                 ),
-                Host: vulnerability.target_id,
+                Host:
+                  vulnerability.target.ip +
+                  (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),
                 "CVSS Score": vulnerability.cvss_score,
                 buttons: (
                   <Buttons noWrap>

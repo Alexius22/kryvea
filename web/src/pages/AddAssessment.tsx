@@ -44,7 +44,7 @@ const AddAssessment = () => {
 
               <div className="grid grid-cols-[1fr_auto] gap-4">
                 <FormField label="Session targets">
-                  <Field name="session_target" id="session_target" placeholder="Insert a target" />
+                  <Field name="targets" id="targets" placeholder="Insert a target" />
                 </FormField>
                 <div className="mt-[2rem]">
                   <Button
@@ -58,7 +58,7 @@ const AddAssessment = () => {
               </div>
 
               <FormField label="CVSS Version">
-                <Field name="cvss" id="cvss" component="select">
+                <Field name="cvss_version" id="cvss_version" component="select">
                   <option value="4">4</option>
                   <option value="3.1">3.1</option>
                   <option value="2">2</option>
@@ -72,8 +72,8 @@ const AddAssessment = () => {
                 </Field>
               </FormField>
 
-              <FormField label="Test type">
-                <Field name="test_type" id="test_type" component="select">
+              <FormField label="Testing type">
+                <Field name="testing_type" id="testing_type" component="select">
                   <option value="white">White Box</option>
                   <option value="gray">Gray Box</option>
                   <option value="black">Black Box</option>
@@ -81,7 +81,7 @@ const AddAssessment = () => {
               </FormField>
 
               <FormField label="OSSTMM Vector">
-                <Field name="osstmm" id="osstmm" component="select">
+                <Field name="osstmm_vector" id="osstmm_vector" component="select">
                   <option value="i2i">Inside to inside</option>
                   <option value="o2o">Outside to outside</option>
                   <option value="o2i">Outside to inside</option>

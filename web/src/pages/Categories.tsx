@@ -64,7 +64,7 @@ const Categories = () => {
                 Identifier: category.index,
                 Name: category.name,
                 Source: category.source,
-                Language: category.language,
+                Languages: Object.keys(category.generic_description || {}).join(" | "),
                 buttons: (
                   <Buttons noWrap>
                     <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
