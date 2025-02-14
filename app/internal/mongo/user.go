@@ -165,7 +165,7 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User) error {
+func (ui *UserIndex) Insert(user *User) (primitive.ObjectID, error) {
 	user.Model = Model{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
@@ -180,12 +180,12 @@ func (ui *UserIndex) Insert(user *User) error {
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 	user.Password = hash
 
 	_, err = ui.collection.InsertOne(context.Background(), user)
-	return err
+	return user.ID, err
 }
 
 func (ui *UserIndex) Login(username, password string) (string, time.Time, error) {
@@ -258,6 +258,19 @@ func (ui *UserIndex) GetByToken(token string) (*User, error) {
 
 	var user User
 	if err := ui.collection.FindOne(context.Background(), bson.M{"token": token}, opts).Decode(&user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (ui *UserIndex) GetByUsername(username string) (*User, error) {
+	opts := options.FindOne().SetProjection(bson.M{
+		"password": 0,
+	})
+
+	var user User
+	if err := ui.collection.FindOne(context.Background(), bson.M{"username": username}, opts).Decode(&user); err != nil {
 		return nil, err
 	}
 

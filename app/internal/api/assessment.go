@@ -43,7 +43,17 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	if assessment.StartDateTime.IsZero() {
-		assessment.StartDateTime = time.Now()
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Start date is required",
+		})
+	}
+
+	if assessment.EndDateTime.IsZero() {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "End date is required",
+		})
 	}
 
 	if assessment.CustomerID == "" {
