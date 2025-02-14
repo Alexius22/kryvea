@@ -1,59 +1,69 @@
 export type ObjectKey = string | number | symbol;
 
 export type Vulnerability = {
-    id: string;
-    detailed_title: string;
-    cvss_score: number;
-    cvss_vector: string;
-    assessment_id: number;
-    target_id: string;
+  updated_at: string;
+  category: { id: string; name: string };
+  detailed_title: string;
+  cvss_vector: string;
+  cvss_score: number;
+  cvss_severity: string;
+  cvss_description: string;
+  references: string[];
+  generic_description: { enabled: boolean; text: string };
+  generic_remediation: { enabled: boolean; text: string };
+  description: string;
+  remediation: string;
+  target: { id: string; ip: string; hostname: string };
+  assessment: { id: string; name: string };
+  user: { id: string; username: string };
 };
 
 export type User = {
-    id: string;
-    username: string;
-    role: string;
-    customers: string[];
+  id: string;
+  disabled_at: string;
+  username: string;
+  role: string;
+  customers: { id: string; name: string };
+  assessments: { id: string; name: string };
 };
 
 export type Assessment = {
-    id: string;
-    name: string;
-    type: string;
-    start_date_time: string;
-    end_date_time: string;
-    status: string;
-    customer_id: string;
-    created_at: string;
-    updated_at: string;
-    notes: string;
-    targets: string[];
-    cvss_version: number;
-    environment: string;
-    network: string;
-    method: string;
-    osstmm_vector: string;
-    is_owned: boolean;
+  id: string;
+  name: string;
+  start_date_time: string;
+  end_date_time: string;
+  targets: { id: string; ip: string; hostname: string }[];
+  status: string;
+  assessment_type: string;
+  cvss_version: string;
+  environment: string;
+  testing_type: string;
+  osstmm_vector: string;
+  vulnerability_count: number;
+  customer: { id: string; name: string };
 };
 
 export type Host = {
-    id: string;
-    ip: string;
-    hostname: string;
-    customer_id: string;
-}
+  id: string;
+  ip: string;
+  port: number;
+  protocol: string;
+  hostname: string;
+  name: string;
+  customer_id: { id: string; name: string };
+};
 
 export type Customer = {
-    id: string;
-    name: string;
-    language: string;
-    default_cvss_version: string;
-}
+  id: string;
+  name: string;
+  language: string;
+  default_cvss_version: string;
+};
 
 export type Category = {
-    id: string;
-    index: string;
-    name: string;
-    generic_description: string;
-    generic_remediation: string;
-}
+  id: string;
+  index: string;
+  name: string;
+  generic_description: { language: string };
+  generic_remediation: { language: string };
+};
