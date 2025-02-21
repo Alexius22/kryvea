@@ -169,6 +169,30 @@ func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target,
 	return targets, err
 }
 
+func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID primitive.ObjectID) (*Target, error) {
+	pipeline := append(TargetPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID, "_id": targetID}}},
+		bson.D{{Key: "$limit", Value: 1}},
+	)
+	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var target Target
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(&target); err != nil {
+			return nil, err
+		}
+
+		return &target, nil
+	}
+
+	return nil, mongo.ErrNoDocuments
+}
+
+// TODO: Fix
 func (ti *TargetIndex) Search(customerID primitive.ObjectID, ip string) ([]Target, error) {
 	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
 		{"customer_id": customerID},

@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Driver struct {
 	client   *mongo.Client
 	database *mongo.Database
+	bucket   *gridfs.Bucket
 }
 
 func NewDriver(uri string) (*Driver, error) {
@@ -22,6 +24,11 @@ func NewDriver(uri string) (*Driver, error) {
 	d := &Driver{
 		client:   client,
 		database: client.Database("kryvea"),
+	}
+
+	d.bucket, err = gridfs.NewBucket(d.database)
+	if err != nil {
+		return nil, err
 	}
 
 	indexes := []Index{

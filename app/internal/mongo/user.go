@@ -317,7 +317,7 @@ func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
 		update["$set"].(bson.M)["assessments"] = user.Assessments
 	}
 
-	user.UpdatedAt = time.Now()
+	update["$set"].(bson.M)["updated_at"] = time.Now()
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
 	return err

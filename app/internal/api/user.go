@@ -105,7 +105,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) GetAllUsers(c *fiber.Ctx) error {
+func (d *Driver) GetUsers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	if user.Role != mongo.ROLE_ADMIN {

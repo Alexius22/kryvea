@@ -1,6 +1,7 @@
 from typing import Tuple
 import random, string
 import requests
+import base64
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -160,6 +161,16 @@ def rand_urls(n=1) -> list:
     ]
     return random.choices(urls, k=n)
 
+POC_TYPE_TEXT    = "text"
+POC_TYPE_REQUEST = "request"
+POC_TYPE_IMAGE   = "image"
+POC_TYPES = [POC_TYPE_TEXT, POC_TYPE_REQUEST, POC_TYPE_IMAGE]
+def rand_poc_type() -> str:
+    return random.choice(POC_TYPES)
+
+def rand_code_language() -> str:
+    languages = ["python", "javascript", "php", "java", "c", "c++", "c#", "ruby", "go", "rust"]
+    return random.choice(languages)
 
 class bcolors:
     HEADER = "\033[95m"
@@ -207,7 +218,7 @@ class Customer:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(base_url + "/customer", json=self.json())
+        response = session.post(base_url + "/customers", json=self.json())
         jr = response.json()
         if response.status_code == 201:
             return jr.get("customer_id"), ""
@@ -235,15 +246,14 @@ class Target:
             "port": self.port,
             "protocol": self.protocol,
             "hostname": self.hostname,
-            "customer_id": self.customer_id,
         }
 
     def get(self) -> list:
-        response = session.get(base_url + "/targets")
+        response = session.get(f"{base_url}/customers/{self.customer_id}/targets")
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(base_url + "/target", json=self.json())
+        response = session.post(f"{base_url}/customers/{self.customer_id}/targets", json=self.json())
         jr = response.json()
         if response.status_code == 201:
             return jr.get("target_id"), ""
@@ -254,6 +264,8 @@ class Assessment:
     def __init__(
         self,
         name="",
+        start_date_time="",
+        end_date_time="",
         targets=[],
         status="hold",
         assessment_type="WAPT",
@@ -265,6 +277,8 @@ class Assessment:
     ):
         self.id = ""
         self.name = name
+        self.start_date_time = start_date_time
+        self.end_date_time = end_date_time
         self.targets = targets
         self.status = status
         self.assessment_type = assessment_type
@@ -278,6 +292,8 @@ class Assessment:
         return {
             "id": self.id,
             "name": self.name,
+            "start_date_time": self.start_date_time,
+            "end_date_time": self.end_date_time,
             "targets": self.targets,
             "status": self.status,
             "assessment_type": self.assessment_type,
@@ -285,15 +301,14 @@ class Assessment:
             "environment": self.environment,
             "testing_type": self.testing_type,
             "osstmm_vector": self.osstmm_vector,
-            "customer_id": self.customer_id,
         }
 
     def get(self) -> list:
-        response = session.get(base_url + "/assessments")
+        response = session.get(f"{base_url}/customers/{self.customer_id}/assessments")
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(base_url + "/assessment", json=self.json())
+        response = session.post(f"{base_url}/customers/{self.customer_id}/assessments", json=self.json())
         jr = response.json()
         id = jr.get("assessment_id")
         self.id = id
@@ -324,7 +339,7 @@ class Category:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(base_url + "/category", json=self.json())
+        response = session.post(base_url + "/categories", json=self.json())
         jr = response.json()
         if response.status_code == 201:
             return jr.get("category_id"), ""
@@ -373,21 +388,94 @@ class Vulnerability:
             "description": self.description,
             "remediation": self.remediation,
             "target_id": self.target_id,
-            "assessment_id": self.assessment_id,
         }
 
     def get(self):
-        response = session.get(base_url + "/vulnerabilities")
+        response = session.get(f"{base_url}/assessments/{self.assessment_id}/vulnerabilities")
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(base_url + "/vulnerability", json=self.json())
+        response = session.post(f"{base_url}/assessments/{self.assessment_id}/vulnerabilities", json=self.json())
         jr = response.json()
         id = jr.get("vulnerability_id")
         self.id = id
         if response.status_code == 201:
             return id, ""
         return "", jr.get("error")
+        
+class POC:
+    def __init__(self, index=1, type="exploit", description="", uri="", request="", response="", image_data="", image_caption="", text_language="", text_data="", vulnerability_id=""):
+        self.index = index
+        self.type = type
+        self.description = description
+        self.uri = uri
+        self.request = request
+        self.response = response
+        self.image_data = image_data
+        self.image_caption = image_caption
+        self.text_language = text_language
+        self.text_data = text_data
+        self.vulnerability_id = vulnerability_id
+        
+    def json(self):
+        return {
+            "index": self.index,
+            "type": self.type,
+            "description": self.description,
+            "uri": self.uri,
+            "request": self.request,
+            "response": self.response,
+            "image_data": self.image_data,
+            "image_caption": self.image_caption,
+            "text_language": self.text_language,
+            "text_data": self.text_data,
+        }
+        
+    def get(self):
+        response = session.get(f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs")
+        return response.json()
+    
+    def create(self) -> Tuple[str, str]:
+        response = session.post(f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json())
+        jr = response.json()
+        id = jr.get("poc_id")
+        self.id = id
+        if response.status_code == 201:
+            return id, ""
+        return "", jr.get("error")
+
+
+def rand_poc_text() -> POC:
+    return POC(
+        index=1,
+        type=POC_TYPE_TEXT,
+        description=rand_string(),
+        text_language=rand_code_language(),
+        text_data=rand_string(),
+    )
+    
+image_paths = [ "images/1.png", "images/2.jpeg", "images/3.jpeg", "images/4.png" ]
+def rand_poc_image() -> POC:
+    image = random.choice(image_paths)
+    imageBytes = open(image, "rb").read()
+    imageb64 = base64.b64encode(imageBytes).decode("utf-8")
+    return POC(
+        index=1,
+        type=POC_TYPE_IMAGE,
+        description=rand_string(),
+        image_data=imageb64,
+        image_caption=rand_string(),
+    )
+
+def rand_poc_request() -> POC:
+    return POC(
+        index=1,
+        type=POC_TYPE_REQUEST,
+        description=rand_string(),
+        uri=random.choice(rand_urls()),
+        request=rand_string(),
+        response=rand_string(),
+    )
 
 
 if __name__ == "__main__":
@@ -438,6 +526,8 @@ if __name__ == "__main__":
     for i in range(5):
         assessment = Assessment(
             name=rand_name(3),
+            start_date_time="2025-01-01T00:00:00.000Z",
+            end_date_time="2025-02-01T00:00:00.000Z",
             targets=[x.id for x in random.choices(targets, k=random.randint(1, 6))],
             status=rand_status(),
             assessment_type=rand_assessment_type(),
@@ -514,3 +604,23 @@ if __name__ == "__main__":
         print(
             f"{bcolors.OKGREEN}[*] Created vulnerability {vulnerability_id}{bcolors.ENDC}"
         )
+
+    for vulnerability in vulnerabilities:
+        for i in range(7):
+            poc = None
+            poc_type = rand_poc_type()
+            if poc_type == POC_TYPE_TEXT:
+                poc = rand_poc_text()
+            elif poc_type == POC_TYPE_REQUEST:
+                poc = rand_poc_request()
+            elif poc_type == POC_TYPE_IMAGE:
+                poc = rand_poc_image()
+            poc.vulnerability_id = vulnerability.id
+            poc.index = i + 1
+            # print(poc.json())
+            poc_id, error = poc.create()
+            if error:
+                print(f"{bcolors.FAIL}{error}{bcolors.ENDC}")
+                exit(1)
+            poc.id = poc_id
+            print(f"{bcolors.OKGREEN}[*] Created POC {poc_id}{bcolors.ENDC}")
