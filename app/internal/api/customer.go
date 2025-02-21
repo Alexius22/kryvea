@@ -69,7 +69,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) GetAllCustomers(c *fiber.Ctx) error {
+func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	var userCustomers []primitive.ObjectID

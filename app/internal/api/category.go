@@ -199,7 +199,7 @@ func (d *Driver) SearchCategories(c *fiber.Ctx) error {
 	return c.JSON(categories)
 }
 
-func (d *Driver) GetAllCategories(c *fiber.Ctx) error {
+func (d *Driver) GetCategories(c *fiber.Ctx) error {
 	categories, err := d.mongo.Category().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
