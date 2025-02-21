@@ -5,10 +5,9 @@ import (
 	"regexp"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -43,8 +42,8 @@ type Target struct {
 }
 
 type TargetCustomer struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID   bson.ObjectID `json:"id" bson:"_id"`
+	Name string        `json:"name" bson:"name"`
 }
 
 type TargetIndex struct {
@@ -74,14 +73,14 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target) (primitive.ObjectID, error) {
+func (ti *TargetIndex) Insert(target *Target) (bson.ObjectID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.Customer.ID}).Err()
 	if err != nil {
-		return primitive.NilObjectID, err
+		return bson.NilObjectID, err
 	}
 
 	target.Model = Model{
-		ID:        primitive.NewObjectID(),
+		ID:        bson.NewObjectID(),
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
@@ -89,7 +88,7 @@ func (ti *TargetIndex) Insert(target *Target) (primitive.ObjectID, error) {
 	return target.ID, err
 }
 
-func (ti *TargetIndex) Update(targetID primitive.ObjectID, target *Target) error {
+func (ti *TargetIndex) Update(targetID bson.ObjectID, target *Target) error {
 	filter := bson.M{"_id": targetID}
 
 	update := bson.M{
@@ -106,7 +105,7 @@ func (ti *TargetIndex) Update(targetID primitive.ObjectID, target *Target) error
 	return err
 }
 
-func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
+func (ti *TargetIndex) Delete(targetID bson.ObjectID) error {
 	_, err := ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
 	if err != nil {
 		return err
@@ -115,7 +114,7 @@ func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
 	filter := bson.M{"target_id": targetID}
 	update := bson.M{
 		"$set": bson.M{
-			"target_id": primitive.NilObjectID,
+			"target_id": bson.NilObjectID,
 		},
 	}
 	_, err = ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
@@ -133,7 +132,7 @@ func (ti *TargetIndex) Delete(targetID primitive.ObjectID) error {
 	return err
 }
 
-func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
+func (ti *TargetIndex) GetByID(targetID bson.ObjectID) (*Target, error) {
 	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
@@ -156,7 +155,7 @@ func (ti *TargetIndex) GetByID(targetID primitive.ObjectID) (*Target, error) {
 	return nil, mongo.ErrNoDocuments
 }
 
-func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target, error) {
+func (ti *TargetIndex) GetByCustomerID(customerID bson.ObjectID) ([]Target, error) {
 	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
 	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
@@ -169,7 +168,7 @@ func (ti *TargetIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Target,
 	return targets, err
 }
 
-func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID primitive.ObjectID) (*Target, error) {
+func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID bson.ObjectID) (*Target, error) {
 	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID, "_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
@@ -192,13 +191,12 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID primitive.ObjectI
 	return nil, mongo.ErrNoDocuments
 }
 
-// TODO: Fix
-func (ti *TargetIndex) Search(customerID primitive.ObjectID, ip string) ([]Target, error) {
+func (ti *TargetIndex) Search(customerID bson.ObjectID, ip string) ([]Target, error) {
 	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
-		{"customer_id": customerID},
+		{"customer._id": customerID},
 		{"$or": []bson.M{
-			{"ip": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"hostname": primitive.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"ip": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"hostname": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
 		}},
 	}})
 	if err != nil {

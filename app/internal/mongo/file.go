@@ -2,12 +2,9 @@ package mongo
 
 import (
 	"bytes"
+	"context"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
-const (
-	filesCollection = "files"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type FileIndex struct {
@@ -22,18 +19,17 @@ func (d *Driver) File() *FileIndex {
 
 func (i *FileIndex) init() {}
 
-func (i *FileIndex) Insert(data []byte) (primitive.ObjectID, error) {
-	id, err := i.driver.bucket.UploadFromStream("", bytes.NewReader(data))
+func (i *FileIndex) Insert(data []byte) (bson.ObjectID, error) {
+	id, err := i.driver.bucket.UploadFromStream(context.Background(), "", bytes.NewReader(data))
 	return id, err
 }
 
-// TODO: Fix
-func (i *FileIndex) GetByID(id primitive.ObjectID) ([]byte, error) {
+func (i *FileIndex) GetByID(id bson.ObjectID) ([]byte, error) {
 	var buf bytes.Buffer
-	_, err := i.driver.bucket.DownloadToStream(id, &buf)
+	_, err := i.driver.bucket.DownloadToStream(context.Background(), id, &buf)
 	return buf.Bytes(), err
 }
 
-func (i *FileIndex) Delete(id primitive.ObjectID) error {
-	return i.driver.bucket.Delete(id)
+func (i *FileIndex) Delete(id bson.ObjectID) error {
+	return i.driver.bucket.Delete(context.Background(), id)
 }

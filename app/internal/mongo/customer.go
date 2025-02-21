@@ -4,10 +4,9 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -46,9 +45,9 @@ func (ci CustomerIndex) init() error {
 	return err
 }
 
-func (ci *CustomerIndex) Insert(customer *Customer) (primitive.ObjectID, error) {
+func (ci *CustomerIndex) Insert(customer *Customer) (bson.ObjectID, error) {
 	customer.Model = Model{
-		ID:        primitive.NewObjectID(),
+		ID:        bson.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -56,7 +55,7 @@ func (ci *CustomerIndex) Insert(customer *Customer) (primitive.ObjectID, error) 
 	return customer.ID, err
 }
 
-func (ci *CustomerIndex) Update(customerID primitive.ObjectID, customer *Customer) error {
+func (ci *CustomerIndex) Update(customerID bson.ObjectID, customer *Customer) error {
 	filter := bson.M{"_id": customerID}
 
 	update := bson.M{
@@ -72,7 +71,7 @@ func (ci *CustomerIndex) Update(customerID primitive.ObjectID, customer *Custome
 	return err
 }
 
-func (ci *CustomerIndex) Delete(customerID primitive.ObjectID) error {
+func (ci *CustomerIndex) Delete(customerID bson.ObjectID) error {
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
 	if err != nil {
 		return err
@@ -109,7 +108,7 @@ func (ci *CustomerIndex) Delete(customerID primitive.ObjectID) error {
 	return err
 }
 
-func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, error) {
+func (ci *CustomerIndex) GetByID(customerID bson.ObjectID) (*Customer, error) {
 	var customer Customer
 	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
 		return nil, err
@@ -117,7 +116,7 @@ func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, erro
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetAll(customerIDs []primitive.ObjectID) ([]Customer, error) {
+func (ci *CustomerIndex) GetAll(customerIDs []bson.ObjectID) ([]Customer, error) {
 	filter := bson.M{}
 
 	if customerIDs != nil {

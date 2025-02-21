@@ -1,11 +1,13 @@
 package util
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/v2/bson"
+)
 
-func ParseMongoID(id string) (primitive.ObjectID, error) {
-	objectID, err := primitive.ObjectIDFromHex(id)
+func ParseMongoID(id string) (bson.ObjectID, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return bson.NilObjectID, err
 	}
 	return objectID, nil
 }

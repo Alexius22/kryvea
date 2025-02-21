@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pandatix/go-cvss v0.6.2
 	github.com/rs/zerolog v1.33.0
-	go.mongodb.org/mongo-driver v1.17.2
+	go.mongodb.org/mongo-driver/v2 v2.0.1
 	golang.org/x/crypto v0.32.0
 )
 
@@ -18,7 +18,6 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect

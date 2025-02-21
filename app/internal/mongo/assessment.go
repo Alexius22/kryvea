@@ -5,10 +5,9 @@ import (
 	"regexp"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -122,14 +121,14 @@ type Assessment struct {
 }
 
 type AssessmentTarget struct {
-	ID       primitive.ObjectID `json:"id" bson:"_id"`
-	IP       string             `json:"ip" bson:"ip"`
-	Hostname string             `json:"hostname" bson:"hostname"`
+	ID       bson.ObjectID `json:"id" bson:"_id"`
+	IP       string        `json:"ip" bson:"ip"`
+	Hostname string        `json:"hostname" bson:"hostname"`
 }
 
 type AssessmentCustomer struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID   bson.ObjectID `json:"id" bson:"_id"`
+	Name string        `json:"name" bson:"name"`
 }
 
 type AssessmentIndex struct {
@@ -157,14 +156,14 @@ func (ai AssessmentIndex) init() error {
 	return err
 }
 
-func (ai *AssessmentIndex) Insert(assessment *Assessment) (primitive.ObjectID, error) {
+func (ai *AssessmentIndex) Insert(assessment *Assessment) (bson.ObjectID, error) {
 	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.Customer.ID}).Err()
 	if err != nil {
-		return primitive.NilObjectID, err
+		return bson.NilObjectID, err
 	}
 
 	assessment.Model = Model{
-		ID:        primitive.NewObjectID(),
+		ID:        bson.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -177,7 +176,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment) (primitive.ObjectID, e
 	return assessment.ID, err
 }
 
-func (ai *AssessmentIndex) GetByID(assessmentID primitive.ObjectID) (*Assessment, error) {
+func (ai *AssessmentIndex) GetByID(assessmentID bson.ObjectID) (*Assessment, error) {
 	var assessment Assessment
 	err := ai.collection.FindOne(context.Background(), bson.M{"_id": assessmentID}).Decode(&assessment)
 	if err != nil {
@@ -187,7 +186,7 @@ func (ai *AssessmentIndex) GetByID(assessmentID primitive.ObjectID) (*Assessment
 	return &assessment, nil
 }
 
-func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Assessment, error) {
+func (ai *AssessmentIndex) GetByCustomerID(customerID bson.ObjectID) ([]Assessment, error) {
 	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
 	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
@@ -203,8 +202,8 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID primitive.ObjectID) ([]Ass
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) Search(customers []primitive.ObjectID, name string) ([]Assessment, error) {
-	filter := bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
+func (ai *AssessmentIndex) Search(customers []bson.ObjectID, name string) ([]Assessment, error) {
+	filter := bson.M{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
 
 	if customers != nil {
 		filter["customer._id"] = bson.M{"$in": customers}
@@ -239,7 +238,7 @@ func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) Update(assessmentID primitive.ObjectID, assessment *Assessment) error {
+func (ai *AssessmentIndex) Update(assessmentID bson.ObjectID, assessment *Assessment) error {
 	filter := bson.M{"_id": assessmentID}
 
 	update := bson.M{
@@ -262,7 +261,7 @@ func (ai *AssessmentIndex) Update(assessmentID primitive.ObjectID, assessment *A
 	return err
 }
 
-func (ai *AssessmentIndex) Delete(assessmentID primitive.ObjectID) error {
+func (ai *AssessmentIndex) Delete(assessmentID bson.ObjectID) error {
 	_, err := ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
 	if err != nil {
 		return err
