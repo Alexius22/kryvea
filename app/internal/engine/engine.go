@@ -67,7 +67,7 @@ func (e *Engine) Serve() {
 		apiGroup.Patch("/categories/:category", api.UpdateCategory)
 		apiGroup.Delete("/categories/:category", api.DeleteCategory)
 
-		apiGroup.Get("/assessments/:assessment/vulnerabilities/search", api.SearchVulnerabilities)
+		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
 		apiGroup.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)
 		apiGroup.Patch("/assessments/:assessment/vulnerabilities/:vulnerability", api.UpdateVulnerability)

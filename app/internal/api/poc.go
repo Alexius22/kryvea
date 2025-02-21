@@ -380,7 +380,6 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get PoCs",
-			"err":   err.Error(),
 		})
 	}
 
