@@ -5,7 +5,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -72,7 +72,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	var userCustomers []primitive.ObjectID
+	var userCustomers []bson.ObjectID
 	for _, uc := range user.Customers {
 		userCustomers = append(userCustomers, uc.ID)
 	}

@@ -1,22 +1,18 @@
 package mongo
 
 import (
-	"context"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/gridfs"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type Driver struct {
 	client   *mongo.Client
 	database *mongo.Database
-	bucket   *gridfs.Bucket
+	bucket   *mongo.GridFSBucket
 }
 
 func NewDriver(uri string) (*Driver, error) {
-	client, err := mongo.Connect(context.Background(),
-		options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(options.Client().ApplyURI(uri))
 	if err != nil {
 		return nil, err
 	}
@@ -26,10 +22,7 @@ func NewDriver(uri string) (*Driver, error) {
 		database: client.Database("kryvea"),
 	}
 
-	d.bucket, err = gridfs.NewBucket(d.database)
-	if err != nil {
-		return nil, err
-	}
+	d.bucket = d.database.GridFSBucket()
 
 	indexes := []Index{
 		d.Customer(),

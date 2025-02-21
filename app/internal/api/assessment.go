@@ -7,7 +7,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
@@ -157,7 +157,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	var customers []primitive.ObjectID
+	var customers []bson.ObjectID
 	for _, uc := range user.Customers {
 		customers = append(customers, uc.ID)
 	}

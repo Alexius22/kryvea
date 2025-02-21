@@ -2,10 +2,10 @@ package util
 
 import (
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func CanAccessCustomer(user *mongo.User, customer primitive.ObjectID) bool {
+func CanAccessCustomer(user *mongo.User, customer bson.ObjectID) bool {
 	if user.Role == mongo.ROLE_ADMIN {
 		return true
 	}

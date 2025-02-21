@@ -7,7 +7,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func (d *Driver) AddPoc(c *fiber.Ctx) error {
@@ -80,7 +80,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	var imageID primitive.ObjectID
+	var imageID bson.ObjectID
 	if pocData.Type == poc.POC_TYPE_IMAGE && len(pocData.ImageData) != 0 {
 		decodedImage, err := base64.StdEncoding.DecodeString(pocData.ImageData)
 		if err != nil {
@@ -211,7 +211,7 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	var imageID primitive.ObjectID
+	var imageID bson.ObjectID
 	if oldPoc.Type == poc.POC_TYPE_IMAGE && len(pocData.ImageData) != 0 {
 		decodedImage, err := base64.StdEncoding.DecodeString(pocData.ImageData)
 		if err != nil {

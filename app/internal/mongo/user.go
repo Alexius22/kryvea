@@ -7,10 +7,9 @@ import (
 
 	"github.com/Alexius22/kryvea/internal/crypto"
 	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var (
@@ -131,13 +130,13 @@ type User struct {
 }
 
 type UserCustomer struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID   bson.ObjectID `json:"id" bson:"_id"`
+	Name string        `json:"name" bson:"name"`
 }
 
 type UserAssessments struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID   bson.ObjectID `json:"id" bson:"_id"`
+	Name string        `json:"name" bson:"name"`
 }
 
 type UserIndex struct {
@@ -165,9 +164,9 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User) (primitive.ObjectID, error) {
+func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
 	user.Model = Model{
-		ID:        primitive.NewObjectID(),
+		ID:        bson.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -180,7 +179,7 @@ func (ui *UserIndex) Insert(user *User) (primitive.ObjectID, error) {
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return bson.NilObjectID, err
 	}
 	user.Password = hash
 
@@ -217,7 +216,7 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	return token, expires, nil
 }
 
-func (ui *UserIndex) Get(ID primitive.ObjectID) (*User, error) {
+func (ui *UserIndex) Get(ID bson.ObjectID) (*User, error) {
 	pipeline := append(
 		UserPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": ID}}},
@@ -277,7 +276,7 @@ func (ui *UserIndex) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
+func (ui *UserIndex) Update(ID bson.ObjectID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -323,7 +322,7 @@ func (ui *UserIndex) Update(ID primitive.ObjectID, user *User) error {
 	return err
 }
 
-func (ui *UserIndex) Delete(ID primitive.ObjectID) error {
+func (ui *UserIndex) Delete(ID bson.ObjectID) error {
 	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	return err
 }
