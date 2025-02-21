@@ -454,7 +454,7 @@ def rand_poc_text() -> POC:
         text_data=rand_string(),
     )
     
-image_paths = [ "/home/chdoge/Downloads/SEC542 - Book 5_1099725.pdf", "scripts/images/1.png", "scripts/images/2.jpeg", "scripts/images/3.jpeg", "scripts/images/4.png" ]
+image_paths = [ "scripts/images/1.png", "scripts/images/2.jpeg", "scripts/images/3.jpeg", "scripts/images/4.png" ]
 def rand_poc_image() -> POC:
     image = random.choice(image_paths)
     imageBytes = open(image, "rb").read()
