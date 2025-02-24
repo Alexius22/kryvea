@@ -15,8 +15,8 @@ type Engine struct {
 	mongo    *mongo.Driver
 }
 
-func NewEngine(addr, rootPath, mongoURI string) (*Engine, error) {
-	mongo, err := mongo.NewDriver(mongoURI)
+func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string) (*Engine, error) {
+	mongo, err := mongo.NewDriver(mongoURI, adminUser, adminPass)
 	if err != nil {
 		return nil, err
 	}
