@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	ErrPasswordExpired    = errors.New("password expired")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
@@ -191,12 +192,13 @@ func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
 
 func (ui *UserIndex) Login(username, password string) (string, time.Time, error) {
 	var user User
-	if err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user); err != nil {
+	err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
+	if err != nil {
 		return "", time.Time{}, err
 	}
 
 	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
-		return "", time.Time{}, ErrInvalidCredentials
+		return "", time.Time{}, ErrPasswordExpired
 	}
 
 	if !crypto.Compare(password, user.Password) {
@@ -206,7 +208,7 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	token := uuid.New().String()
 	expires := time.Now().Add(9 * time.Hour)
 
-	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
 		"$set": bson.M{
 			"token":        token,
 			"token_expiry": expires,
@@ -338,10 +340,10 @@ func (ui *UserIndex) Delete(ID bson.ObjectID) error {
 	return err
 }
 
-func (ui *UserIndex) ForgotPassword(username string) error {
+func (ui *UserIndex) ForgotPassword(username string) (string, error) {
 	user, err := ui.GetByUsername(username)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	token := uuid.New().String()
@@ -353,12 +355,10 @@ func (ui *UserIndex) ForgotPassword(username string) error {
 			"reset_token_expiry": expires,
 		}})
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	// TODO: Send token to the user
-
-	return nil
+	return token, nil
 }
 
 func (ui *UserIndex) ResetPassword(reset_token, password string) error {
