@@ -379,3 +379,82 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 		"message": "User logged out",
 	})
 }
+
+func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
+	type reqData struct {
+		Username string `json:"username"`
+	}
+
+	req := &reqData{}
+	if err := c.BodyParser(req); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	if req.Username == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Username is required",
+		})
+	}
+
+	go d.mongo.User().ForgotPassword(req.Username)
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Reset token generated",
+	})
+}
+
+func (d *Driver) ResetPassword(c *fiber.Ctx) error {
+	type reqData struct {
+		ResetToken      string `json:"reset_token"`
+		Password        string `json:"password"`
+		ConfirmPassword string `json:"confirm_password"`
+	}
+
+	req := &reqData{}
+	if err := c.BodyParser(req); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	if req.ResetToken == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Reset token is required",
+		})
+	}
+
+	if req.Password != req.ConfirmPassword {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Passwords do not match",
+		})
+	}
+
+	// TODO: Make password complexity check as global
+	if req.Password == "" || len(req.Password) < 10 {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Password must be at least 10 characters",
+		})
+	}
+
+	err := d.mongo.User().ResetPassword(req.ResetToken, req.Password)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot reset password",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Password reset",
+	})
+}

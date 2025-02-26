@@ -117,16 +117,18 @@ var UserPipeline = mongo.Pipeline{
 }
 
 type User struct {
-	Model          `bson:",inline"`
-	DisabledAt     time.Time         `json:"disabled_at" bson:"disabled_at"`
-	Username       string            `json:"username" bson:"username"`
-	Password       string            `json:"-" bson:"password"`
-	PasswordExpiry time.Time         `json:"-" bson:"password_expiry"`
-	Token          string            `json:"-" bson:"token"`
-	TokenExpiry    time.Time         `json:"-" bson:"token_expiry"`
-	Role           string            `json:"role" bson:"role"`
-	Customers      []UserCustomer    `json:"customers" bson:"customers"`
-	Assessments    []UserAssessments `json:"assessments" bson:"assessments"`
+	Model            `bson:",inline"`
+	DisabledAt       time.Time         `json:"disabled_at" bson:"disabled_at"`
+	Username         string            `json:"username" bson:"username"`
+	Password         string            `json:"-" bson:"password"`
+	PasswordExpiry   time.Time         `json:"-" bson:"password_expiry"`
+	ResetToken       string            `json:"-" bson:"reset_token"`
+	ResetTokenExpiry time.Time         `json:"-" bson:"reset_token_expiry"`
+	Token            string            `json:"-" bson:"token"`
+	TokenExpiry      time.Time         `json:"-" bson:"token_expiry"`
+	Role             string            `json:"role" bson:"role"`
+	Customers        []UserCustomer    `json:"customers" bson:"customers"`
+	Assessments      []UserAssessments `json:"assessments" bson:"assessments"`
 }
 
 type UserCustomer struct {
@@ -333,5 +335,50 @@ func (ui *UserIndex) Update(ID bson.ObjectID, user *User) error {
 
 func (ui *UserIndex) Delete(ID bson.ObjectID) error {
 	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	return err
+}
+
+func (ui *UserIndex) ForgotPassword(username string) error {
+	user, err := ui.GetByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	token := uuid.New().String()
+	expires := time.Now().Add(30 * time.Minute)
+
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+		"$set": bson.M{
+			"reset_token":        token,
+			"reset_token_expiry": expires,
+		}})
+	if err != nil {
+		return err
+	}
+
+	// TODO: Send token to the user
+
+	return nil
+}
+
+func (ui *UserIndex) ResetPassword(reset_token, password string) error {
+	var user User
+	err := ui.collection.FindOne(context.Background(), bson.M{"reset_token": reset_token}).Decode(&user)
+	if err != nil {
+		return err
+	}
+
+	hash, err := crypto.Encrypt(password)
+	if err != nil {
+		return err
+	}
+
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+		"$set": bson.M{
+			"password":           hash,
+			"password_expiry":    time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC),
+			"reset_token":        "",
+			"reset_token_expiry": time.Time{},
+		}})
 	return err
 }

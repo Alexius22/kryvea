@@ -41,52 +41,63 @@ func (e *Engine) Serve() {
 
 	api := api.NewDriver(e.mongo)
 
-	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"), api.Middleware)
+	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"))
+
+	nonAuthenticatedApi := apiGroup.Use(api.ContentTypeMiddleware)
 	{
-		apiGroup.Get("/customers", api.GetCustomers)
-		apiGroup.Post("/customers", api.AddCustomer)
-		apiGroup.Patch("/customers/:customer", api.UpdateCustomer)
-		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
+		nonAuthenticatedApi.Post("/login", api.Login)
+		nonAuthenticatedApi.Post("/register", api.Register)
+		nonAuthenticatedApi.Post("/password/forgot", api.ForgotPassword)
+		nonAuthenticatedApi.Post("/password/reset", api.ResetPassword)
+	}
 
-		apiGroup.Get("/assessments/search", api.SearchAssessments)
-		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
-		apiGroup.Post("/customers/:customer/assessments", api.AddAssessment)
-		apiGroup.Patch("/customers/:customer/assessments/:assessment", api.UpdateAssessment)
-		apiGroup.Delete("/customers/:customer/assessments/:assessment", api.DeleteAssessment)
+	// TODO: It would be preferable to first handle user authentication
+	// and then check if the content type is correct
+	// Right now, the content type is checked first
+	authenticatedApi := apiGroup.Use(api.SessionMiddleware)
+	{
+		authenticatedApi.Get("/customers", api.GetCustomers)
+		authenticatedApi.Post("/customers", api.AddCustomer)
+		authenticatedApi.Patch("/customers/:customer", api.UpdateCustomer)
+		authenticatedApi.Delete("/customers/:customer", api.DeleteCustomer)
 
-		apiGroup.Get("/customers/:customer/targets/search", api.SearchTargets)
-		apiGroup.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
-		apiGroup.Get("/customers/:customer/targets/:target", api.GetTarget)
-		apiGroup.Post("/customers/:customer/targets", api.AddTarget)
-		apiGroup.Patch("/customers/:customer/targets/:target", api.UpdateTarget)
-		apiGroup.Delete("/customers/:customer/targets/:target", api.DeleteTarget)
+		authenticatedApi.Get("/assessments/search", api.SearchAssessments)
+		authenticatedApi.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
+		authenticatedApi.Post("/customers/:customer/assessments", api.AddAssessment)
+		authenticatedApi.Patch("/customers/:customer/assessments/:assessment", api.UpdateAssessment)
+		authenticatedApi.Delete("/customers/:customer/assessments/:assessment", api.DeleteAssessment)
 
-		apiGroup.Get("/categories/search", api.SearchCategories)
-		apiGroup.Get("/categories", api.GetCategories)
-		apiGroup.Post("/categories", api.AddCategory)
-		apiGroup.Patch("/categories/:category", api.UpdateCategory)
-		apiGroup.Delete("/categories/:category", api.DeleteCategory)
+		authenticatedApi.Get("/customers/:customer/targets/search", api.SearchTargets)
+		authenticatedApi.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
+		authenticatedApi.Get("/customers/:customer/targets/:target", api.GetTarget)
+		authenticatedApi.Post("/customers/:customer/targets", api.AddTarget)
+		authenticatedApi.Patch("/customers/:customer/targets/:target", api.UpdateTarget)
+		authenticatedApi.Delete("/customers/:customer/targets/:target", api.DeleteTarget)
 
-		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
-		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
-		apiGroup.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)
-		apiGroup.Patch("/assessments/:assessment/vulnerabilities/:vulnerability", api.UpdateVulnerability)
-		apiGroup.Delete("/assessments/:assessment/vulnerabilities/:vulnerability", api.DeleteVulnerability)
+		authenticatedApi.Get("/categories/search", api.SearchCategories)
+		authenticatedApi.Get("/categories", api.GetCategories)
+		authenticatedApi.Post("/categories", api.AddCategory)
+		authenticatedApi.Patch("/categories/:category", api.UpdateCategory)
+		authenticatedApi.Delete("/categories/:category", api.DeleteCategory)
 
-		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
-		apiGroup.Post("/vulnerabilities/:vulnerability/pocs", api.AddPoc)
-		apiGroup.Patch("/vulnerabilities/:vulnerability/pocs/:poc", api.UpdatePoc)
-		apiGroup.Delete("/vulnerabilities/:vulnerability/pocs/:poc", api.DeletePoc)
+		authenticatedApi.Get("/vulnerabilities/search", api.SearchVulnerabilities)
+		authenticatedApi.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
+		authenticatedApi.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)
+		authenticatedApi.Patch("/assessments/:assessment/vulnerabilities/:vulnerability", api.UpdateVulnerability)
+		authenticatedApi.Delete("/assessments/:assessment/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 
-		apiGroup.Get("/users", api.GetUsers)
-		apiGroup.Get("/users/:user", api.GetUser)
-		apiGroup.Patch("/users/me", api.UpdateMe)
-		apiGroup.Patch("/users/:user", api.UpdateUser)
-		apiGroup.Delete("/users/:user", api.DeleteUser)
+		authenticatedApi.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
+		authenticatedApi.Post("/vulnerabilities/:vulnerability/pocs", api.AddPoc)
+		authenticatedApi.Patch("/vulnerabilities/:vulnerability/pocs/:poc", api.UpdatePoc)
+		authenticatedApi.Delete("/vulnerabilities/:vulnerability/pocs/:poc", api.DeletePoc)
 
-		apiGroup.Post("/login", api.Login)
-		apiGroup.Post("/logout", api.Logout)
-		apiGroup.Post("/register", api.Register)
+		authenticatedApi.Get("/users", api.GetUsers)
+		authenticatedApi.Get("/users/:user", api.GetUser)
+		authenticatedApi.Patch("/users/me", api.UpdateMe)
+		authenticatedApi.Patch("/users/:user", api.UpdateUser)
+		authenticatedApi.Delete("/users/:user", api.DeleteUser)
+
+		authenticatedApi.Post("/logout", api.Logout)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
