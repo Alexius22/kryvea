@@ -360,3 +360,22 @@ func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 		"message": "User deleted",
 	})
 }
+
+func (d *Driver) Logout(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	err := d.mongo.User().Logout(user.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot logout user",
+		})
+	}
+
+	c.ClearCookie("kryvea")
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "User logged out",
+	})
+}

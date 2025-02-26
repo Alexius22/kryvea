@@ -85,6 +85,7 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/users/:user", api.DeleteUser)
 
 		apiGroup.Post("/login", api.Login)
+		apiGroup.Post("/logout", api.Logout)
 		apiGroup.Post("/register", api.Register)
 	}
 
