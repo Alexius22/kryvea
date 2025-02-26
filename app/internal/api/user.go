@@ -84,6 +84,22 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 
 	token, expires, err := d.mongo.User().Login(user.Username, user.Password)
 	if err != nil {
+		if err == mongo.ErrPasswordExpired {
+			resetToken, err := d.mongo.User().ForgotPassword(user.Username)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Password expired, cannot generate reset token",
+				})
+			}
+
+			c.Status(fiber.StatusUnauthorized)
+			return c.JSON(fiber.Map{
+				"error":       "Password expired",
+				"reset_token": resetToken,
+			})
+		}
+
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Invalid credentials",
@@ -401,6 +417,7 @@ func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
 	}
 
 	go d.mongo.User().ForgotPassword(req.Username)
+	// TODO: Send token to the user
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -410,9 +427,8 @@ func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
 
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	type reqData struct {
-		ResetToken      string `json:"reset_token"`
-		Password        string `json:"password"`
-		ConfirmPassword string `json:"confirm_password"`
+		ResetToken string `json:"reset_token"`
+		Password   string `json:"password"`
 	}
 
 	req := &reqData{}
@@ -427,13 +443,6 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Reset token is required",
-		})
-	}
-
-	if req.Password != req.ConfirmPassword {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Passwords do not match",
 		})
 	}
 
