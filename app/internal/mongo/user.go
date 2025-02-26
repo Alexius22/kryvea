@@ -216,6 +216,15 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 	return token, expires, nil
 }
 
+func (ui *UserIndex) Logout(ID bson.ObjectID) error {
+	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
+		"$set": bson.M{
+			"token":        "",
+			"token_expiry": time.Time{},
+		}})
+	return err
+}
+
 func (ui *UserIndex) Get(ID bson.ObjectID) (*User, error) {
 	pipeline := append(
 		UserPipeline,

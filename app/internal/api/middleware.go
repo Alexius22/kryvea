@@ -30,7 +30,7 @@ func (d *Driver) Middleware(c *fiber.Ctx) error {
 
 	c.Locals("user", user)
 
-	if c.Method() == fiber.MethodPost && c.Get("Content-Type") != "application/json" {
+	if (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch) && c.Request().Header.ContentLength() > 0 && c.Get("Content-Type") != "application/json" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Content-Type must be application/json",
