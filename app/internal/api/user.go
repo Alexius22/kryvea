@@ -8,48 +8,89 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (d *Driver) Register(c *fiber.Ctx) error {
-	type reqData struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+func (d *Driver) AddUser(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
 	}
 
-	user := &reqData{}
-	if err := c.BodyParser(user); err != nil {
+	type reqData struct {
+		Username  string   `json:"username"`
+		Password  string   `json:"password"`
+		Role      string   `json:"role"`
+		Customers []string `json:"customers"`
+	}
+
+	req := &reqData{}
+	if err := c.BodyParser(req); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if user.Username == "" {
+	if req.Username == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Username is required",
 		})
 	}
 
-	if user.Password == "" || len(user.Password) < 10 {
+	if !util.IsValidPassword(req.Password) {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Password must be at least 10 characters",
+			"error": "Password does not meet policy requirements",
 		})
 	}
 
+	if !util.IsValidRole(req.Role) {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid role",
+		})
+	}
+
+	var customers []mongo.UserCustomer
+	for _, customerID := range req.Customers {
+		parsedCustomerID, err := util.ParseMongoID(customerID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid customer ID",
+			})
+		}
+
+		_, err = d.mongo.Customer().GetByID(parsedCustomerID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid customer ID",
+			})
+		}
+
+		customers = append(customers, mongo.UserCustomer{ID: parsedCustomerID})
+	}
+
 	userID, err := d.mongo.User().Insert(&mongo.User{
-		Username: user.Username,
-		Password: user.Password,
+		Username:  req.Username,
+		Password:  req.Password,
+		Role:      req.Role,
+		Customers: customers,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot register user",
+			"error": "Cannot add user",
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "User registered successfully",
+		"message": "User added successfully",
 		"user_id": userID.Hex(),
 	})
 }
@@ -396,35 +437,6 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	})
 }
 
-// func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
-// 	type reqData struct {
-// 		Username string `json:"username"`
-// 	}
-
-// 	req := &reqData{}
-// 	if err := c.BodyParser(req); err != nil {
-// 		c.Status(fiber.StatusBadRequest)
-// 		return c.JSON(fiber.Map{
-// 			"error": "Cannot parse JSON",
-// 		})
-// 	}
-
-// 	if req.Username == "" {
-// 		c.Status(fiber.StatusBadRequest)
-// 		return c.JSON(fiber.Map{
-// 			"error": "Username is required",
-// 		})
-// 	}
-
-// 	go d.mongo.User().ForgotPassword(req.Username)
-// 	// Send token to the user
-
-// 	c.Status(fiber.StatusOK)
-// 	return c.JSON(fiber.Map{
-// 		"message": "Reset token generated",
-// 	})
-// }
-
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	type reqData struct {
 		ResetToken string `json:"reset_token"`
@@ -446,11 +458,10 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Make password complexity check as global
-	if req.Password == "" || len(req.Password) < 10 {
+	if !util.IsValidPassword(req.Password) {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Password must be at least 10 characters",
+			"error": "Password does not meet policy requirements",
 		})
 	}
 

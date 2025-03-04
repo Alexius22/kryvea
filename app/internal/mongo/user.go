@@ -176,9 +176,14 @@ func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
 
 	user.DisabledAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
-	user.Role = ROLE_USER
-	user.Customers = []UserCustomer{}
-	user.Assessments = []UserAssessments{}
+
+	if user.Customers == nil {
+		user.Customers = []UserCustomer{}
+	}
+
+	if user.Assessments == nil {
+		user.Assessments = []UserAssessments{}
+	}
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {

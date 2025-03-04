@@ -46,8 +46,6 @@ func (e *Engine) Serve() {
 	nonAuthenticatedApi := apiGroup.Use(api.ContentTypeMiddleware)
 	{
 		nonAuthenticatedApi.Post("/login", api.Login)
-		nonAuthenticatedApi.Post("/register", api.Register)
-		// nonAuthenticatedApi.Post("/password/forgot", api.ForgotPassword)
 		nonAuthenticatedApi.Post("/password/reset", api.ResetPassword)
 	}
 
@@ -94,6 +92,7 @@ func (e *Engine) Serve() {
 
 		authenticatedApi.Get("/users", api.GetUsers)
 		authenticatedApi.Get("/users/:user", api.GetUser)
+		authenticatedApi.Post("/users", api.AddUser)
 		authenticatedApi.Patch("/users/me", api.UpdateMe)
 		authenticatedApi.Patch("/users/:user", api.UpdateUser)
 		authenticatedApi.Delete("/users/:user", api.DeleteUser)
