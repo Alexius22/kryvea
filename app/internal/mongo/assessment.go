@@ -285,3 +285,35 @@ func (ai *AssessmentIndex) Delete(assessmentID bson.ObjectID) error {
 	_, err = ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	return err
 }
+
+func (ai *AssessmentIndex) Clone(assessmentID bson.ObjectID, assessmentName string) (bson.ObjectID, error) {
+	assessment, err := ai.GetByID(assessmentID)
+	if err != nil {
+		return bson.NilObjectID, err
+	}
+
+	assessment.ID = bson.NewObjectID()
+	assessment.Name = assessmentName
+	assessment.CreatedAt = time.Now()
+	assessment.UpdatedAt = time.Now()
+
+	_, err = ai.collection.InsertOne(context.Background(), assessment)
+	if err != nil {
+		return bson.NilObjectID, err
+	}
+
+	// Clone vulnerabilities
+	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
+	if err != nil {
+		return bson.NilObjectID, err
+	}
+
+	for _, vulnerability := range vulnerabilities {
+		_, err := ai.driver.Vulnerability().Clone(vulnerability.ID, assessment.ID)
+		if err != nil {
+			return bson.NilObjectID, err
+		}
+	}
+
+	return assessment.ID, nil
+}

@@ -396,34 +396,34 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
-	type reqData struct {
-		Username string `json:"username"`
-	}
+// func (d *Driver) ForgotPassword(c *fiber.Ctx) error {
+// 	type reqData struct {
+// 		Username string `json:"username"`
+// 	}
 
-	req := &reqData{}
-	if err := c.BodyParser(req); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
-	}
+// 	req := &reqData{}
+// 	if err := c.BodyParser(req); err != nil {
+// 		c.Status(fiber.StatusBadRequest)
+// 		return c.JSON(fiber.Map{
+// 			"error": "Cannot parse JSON",
+// 		})
+// 	}
 
-	if req.Username == "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Username is required",
-		})
-	}
+// 	if req.Username == "" {
+// 		c.Status(fiber.StatusBadRequest)
+// 		return c.JSON(fiber.Map{
+// 			"error": "Username is required",
+// 		})
+// 	}
 
-	go d.mongo.User().ForgotPassword(req.Username)
-	// TODO: Send token to the user
+// 	go d.mongo.User().ForgotPassword(req.Username)
+// 	// Send token to the user
 
-	c.Status(fiber.StatusOK)
-	return c.JSON(fiber.Map{
-		"message": "Reset token generated",
-	})
-}
+// 	c.Status(fiber.StatusOK)
+// 	return c.JSON(fiber.Map{
+// 		"message": "Reset token generated",
+// 	})
+// }
 
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	type reqData struct {
