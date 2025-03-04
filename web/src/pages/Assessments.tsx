@@ -22,11 +22,18 @@ const Assessments = () => {
   const loading = false;
   const error = false;
 
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [isModalCloneActive, setIsModalCloneActive] = useState(false);
+  const [assessmentToClone, setAssessmentToClone] = useState<Assessment>();
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalDownloadActive(false);
+    setIsModalCloneActive(false);
     setIsModalTrashActive(false);
+  };
+  const openCloneModal = (assessment: Assessment) => {
+    setAssessmentToClone(assessment);
+    setIsModalCloneActive(true);
   };
   const [statusSelectOptions, setStatusSelectOptions] = useState<SelectOption[]>([
     { label: "On Hold", value: "hold" },
@@ -54,10 +61,26 @@ const Assessments = () => {
   return (
     <>
       <CardBoxModal
+        title="Clone assessment"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalCloneActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik initialValues={{ name: assessmentToClone?.name + " (Copy)" }} onSubmit={undefined}>
+          <Form>
+            <FormField label="Assessment Name">
+              <Field name="name" placeholder="Cloned assessment name" />
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
+      <CardBoxModal
         title="Download report"
         buttonColor="info"
         buttonLabel="Confirm"
-        isActive={isModalInfoActive}
+        isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
@@ -144,8 +167,13 @@ const Assessments = () => {
                       small
                     />
                     <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                    <Button color="lightDark" icon={mdiContentDuplicate} small />
-                    <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
+                    <Button
+                      color="lightDark"
+                      icon={mdiContentDuplicate}
+                      onClick={() => openCloneModal(assessment)}
+                      small
+                    />
+                    <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
                     <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                   </Buttons>
                 ),
