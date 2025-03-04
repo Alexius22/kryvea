@@ -192,3 +192,28 @@ func (pi *PocIndex) GetByVulnerabilityAndID(vulnerabilityID, pocID bson.ObjectID
 
 	return &poc, nil
 }
+
+func (pi *PocIndex) Clone(pocID, vulnerabilityID bson.ObjectID) (bson.ObjectID, error) {
+	poc, err := pi.GetByID(pocID)
+	if err != nil {
+		return bson.NilObjectID, err
+	}
+
+	// Clone Image
+	if poc.ImageID != bson.NilObjectID {
+		imageID, err := pi.driver.File().Clone(poc.ImageID)
+		if err != nil {
+			return bson.NilObjectID, err
+		}
+
+		poc.ImageID = imageID
+	}
+
+	poc.ID = bson.NewObjectID()
+	poc.UpdatedAt = time.Now()
+	poc.CreatedAt = time.Now()
+	poc.VulnerabilityID = vulnerabilityID
+
+	_, err = pi.collection.InsertOne(context.Background(), poc)
+	return poc.ID, err
+}

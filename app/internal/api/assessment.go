@@ -448,3 +448,92 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 		"message": "Assessment deleted",
 	})
 }
+
+func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	type reqData struct {
+		Name string `json:"name"`
+	}
+
+	data := &reqData{}
+	if err := c.BodyParser(data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	customerParam := c.Params("customer")
+	if customerParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Customer ID is required",
+		})
+	}
+
+	customerID, err := util.ParseMongoID(customerParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	_, err = d.mongo.Customer().GetByID(customerID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Assessment ID is required",
+		})
+	}
+
+	assessmentID, err := util.ParseMongoID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByID(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	if data.Name == "" {
+		data.Name = assessment.Name + " (Clone)"
+	}
+
+	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot clone assessment",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message":       "Assessment cloned",
+		"assessment_id": cloneAssessmentID.Hex(),
+	})
+}

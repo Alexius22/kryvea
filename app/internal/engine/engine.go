@@ -47,7 +47,7 @@ func (e *Engine) Serve() {
 	{
 		nonAuthenticatedApi.Post("/login", api.Login)
 		nonAuthenticatedApi.Post("/register", api.Register)
-		nonAuthenticatedApi.Post("/password/forgot", api.ForgotPassword)
+		// nonAuthenticatedApi.Post("/password/forgot", api.ForgotPassword)
 		nonAuthenticatedApi.Post("/password/reset", api.ResetPassword)
 	}
 
@@ -66,6 +66,7 @@ func (e *Engine) Serve() {
 		authenticatedApi.Post("/customers/:customer/assessments", api.AddAssessment)
 		authenticatedApi.Patch("/customers/:customer/assessments/:assessment", api.UpdateAssessment)
 		authenticatedApi.Delete("/customers/:customer/assessments/:assessment", api.DeleteAssessment)
+		authenticatedApi.Post("/customers/:customer/assessments/:assessment/clone", api.CloneAssessment)
 
 		authenticatedApi.Get("/customers/:customer/targets/search", api.SearchTargets)
 		authenticatedApi.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
