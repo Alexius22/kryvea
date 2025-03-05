@@ -65,6 +65,7 @@ func (e *Engine) Serve() {
 		authenticatedApi.Patch("/customers/:customer/assessments/:assessment", api.UpdateAssessment)
 		authenticatedApi.Delete("/customers/:customer/assessments/:assessment", api.DeleteAssessment)
 		authenticatedApi.Post("/customers/:customer/assessments/:assessment/clone", api.CloneAssessment)
+		authenticatedApi.Post("/assessments/:assessment/export", api.ExportAssessment)
 
 		authenticatedApi.Get("/customers/:customer/targets/search", api.SearchTargets)
 		authenticatedApi.Get("/customers/:customer/targets", api.GetTargetsByCustomer)

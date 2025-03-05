@@ -55,7 +55,7 @@ func TestXlsx(t *testing.T) {
 		},
 	}
 
-	vulnerabilities := []*mongo.Vulnerability{vulnerability}
+	vulnerabilities := []mongo.Vulnerability{*vulnerability}
 
 	poc := &mongo.Poc{
 		Index:       1,
@@ -66,11 +66,12 @@ func TestXlsx(t *testing.T) {
 		Response:    "HTTP/1.1 200 OK",
 	}
 
-	pocs := []*mongo.Poc{poc}
+	pocs := []mongo.Poc{*poc}
 
 	t.Run("test", func(t *testing.T) {
-		if got := GenerateReport(customer, assessment, vulnerabilities, pocs); got != true {
-			t.Errorf("GenerateReport() = %v, want %v", got, true)
+		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
+		if err != nil {
+			t.Errorf("GenerateReport() = %v, want %v", err, true)
 		}
 	})
 }
