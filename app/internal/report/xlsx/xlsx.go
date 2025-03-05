@@ -22,7 +22,7 @@ func alignmentCell(xl *excelize.File, sheet string, col string, alignmentH strin
 	_ = xl.SetColStyle(sheet, col, styleID)
 }
 
-func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []*mongo.Vulnerability, pocs []*mongo.Poc) (string, error) {
+func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
 	//timestamp := time.Now().Format("20060102_150405")
 	fileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.xlsx", assessment.AssessmentType, customer.Name, assessment.Name)
 	xl := excelize.NewFile()
@@ -178,13 +178,8 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	return zipName, nil
 }
 
-func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []*mongo.Vulnerability, pocs []*mongo.Poc) bool {
-	zipPath, err := renderReport(customer, assessment, vulnerabilities, pocs)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return false
-	} else {
-		fmt.Println("Generated report:", zipPath)
-	}
-	return true
+// TODO: A major refactoring is needed on the DB functions that should return arrays of pointers instead of arrays of values
+// This function should then be refactored to accept arrays of pointers for the vulnerabilities and pocs
+func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
+	return renderReport(customer, assessment, vulnerabilities, pocs)
 }
