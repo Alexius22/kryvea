@@ -303,7 +303,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err = d.mongo.Assessment().GetByID(assessmentID)
+	_, err = d.mongo.Assessment().GetByCustomerAndID(customerID, assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -428,7 +428,7 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err = d.mongo.Assessment().GetByID(assessmentID)
+	_, err = d.mongo.Assessment().GetByCustomerAndID(customerID, assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -512,7 +512,7 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(assessmentID)
+	assessment, err := d.mongo.Assessment().GetByCustomerAndID(customerID, assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -554,6 +554,37 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	customerParam := c.Params("customer")
+	if customerParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Customer ID is required",
+		})
+	}
+
+	customerID, err := util.ParseMongoID(customerParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	_, err = d.mongo.Customer().GetByID(customerID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customerID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	assessmentParam := c.Params("assessment")
 	if assessmentParam == "" {
 		c.Status(fiber.StatusBadRequest)
@@ -570,18 +601,11 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(assessmentID)
+	assessment, err := d.mongo.Assessment().GetByCustomerAndID(customerID, assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid assessment ID",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
 		})
 	}
 
