@@ -202,6 +202,16 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID bson.ObjectID) ([]Assessme
 	return assessments, nil
 }
 
+func (ai *AssessmentIndex) GetByCustomerAndID(customerID, assessmentID bson.ObjectID) (*Assessment, error) {
+	var assessment Assessment
+	err := ai.collection.FindOne(context.Background(), bson.M{"_id": assessmentID, "customer._id": customerID}).Decode(&assessment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &assessment, nil
+}
+
 func (ai *AssessmentIndex) Search(customers []bson.ObjectID, name string) ([]Assessment, error) {
 	filter := bson.M{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
 
