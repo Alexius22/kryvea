@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -34,11 +35,14 @@ func addFileToZip(zipWriter *zip.Writer, filePath, baseInZip string) error {
 	// If it's a directory, create a folder entry and recursively add contents
 	if info.IsDir() {
 		// Create a directory entry in the ZIP
-		header := &zip.FileHeader{
-			Name:   baseInZip + "/", // Ensure it is treated as a directory
-			Method: zip.Deflate,
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
 		}
-		_, err := zipWriter.CreateHeader(header)
+		header.Name = baseInZip + "/"
+		header.Method = zip.Store
+
+		_, err = zipWriter.CreateHeader(header)
 		if err != nil {
 			return err
 		}
@@ -85,6 +89,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath, baseInZip string) error {
 func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
 	//timestamp := time.Now().Format("20060102_150405")
 	fileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.xlsx", assessment.AssessmentType, customer.Name, assessment.Name)
+	fileName = sanitizeFileName(fileName)
 	xl := excelize.NewFile()
 	defer xl.Close()
 
@@ -150,7 +155,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	}
 
 	// Header row
-	headers := []string{"ID", "Severity", "Status", "Name", "Introduction", "Description", "Proof of Concept", "CVSSv3.1 Vector", "CVSSv3.1 Score", "Remediations", "References"}
+	headers := []string{"ID", "Severity", "Status", "Name", "Introduction", "Description", "Proof of Concept", fmt.Sprintf("CVSSv%s Vector", assessment.CVSSVersion), fmt.Sprintf("CVSSv%s Score", assessment.CVSSVersion), "Remediations", "References"}
 	for i, header := range headers {
 		cell := fmt.Sprintf("%c1", 'A'+i)
 		xl.SetCellValue(vulnSheet, cell, header)
@@ -167,6 +172,14 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 	tmpDir, err := os.MkdirTemp(".", "prefix-")
 	pocRow := 2
+
+	// sort vulnerabilities by score. if score is equal, sort by name in ascending order
+	sort.Slice(vulnerabilities, func(i, j int) bool {
+		if vulnerabilities[i].CVSSScore == vulnerabilities[j].CVSSScore {
+			return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
+		}
+		return vulnerabilities[i].CVSSScore > vulnerabilities[j].CVSSScore
+	})
 
 	for i, vuln := range vulnerabilities {
 		row := i + 2
@@ -249,6 +262,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 	// Create ZIP file
 	zipName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.zip", assessment.AssessmentType, customer.Name, assessment.Name)
+	zipName = sanitizeFileName(zipName)
 	zipFile, err := os.Create(zipName)
 	if err != nil {
 		fmt.Println("Error creating ZIP:", err)
@@ -284,6 +298,21 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 	fmt.Println("ZIP created:", zipName)
 	return zipName, nil
+}
+
+func sanitizeFileName(name string) string {
+	// Replace invalid characters with underscores
+	replacer := strings.NewReplacer(
+		"/", "_",
+		"\\", "_",
+		":", "_",
+		"*", "_",
+		"?", "_",
+		"<", "_",
+		">", "_",
+		"|", "_",
+	)
+	return replacer.Replace(name)
 }
 
 func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
