@@ -68,6 +68,36 @@ func randOSSTMMVector() string {
 
 func randCVSSVector(version string) string {
 	switch version {
+	case cvss.CVSS2:
+		vectors := []string{
+			"AV:N/AC:L/Au:N/C:N/I:N/A:C",
+			"AV:N/AC:L/Au:N/C:P/I:N/A:C",
+			"AV:N/AC:L/Au:N/C:C/I:N/A:C",
+			"AV:N/AC:L/Au:N/C:C/I:C/A:C",
+			"AV:N/AC:L/Au:N/C:C/I:C/A:N",
+			"AV:N/AC:L/Au:N/C:C/I:N/A:N",
+			"AV:N/AC:L/Au:N/C:P/I:P/A:C",
+			"AV:N/AC:L/Au:N/C:P/I:P/A:N",
+			"AV:N/AC:L/Au:N/C:P/I:N/A:C",
+			"AV:N/AC:L/Au:N/C:P/I:N/A:N",
+			"AV:N/AC:L/Au:N/C:N/I:P/A:C",
+			"AV:N/AC:L/Au:N/C:N/I:P/A:N",
+		}
+		return vectors[rand.Intn(len(vectors))]
+	case cvss.CVSS3:
+		vectors := []string{
+			"CVSS:3.0/AV:A/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L",
+			"CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:H",
+			"CVSS:3.0/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:L/A:H",
+			"CVSS:3.0/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:N",
+			"CVSS:3.0/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:N",
+			"CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+			"CVSS:3.0/AV:A/AC:H/PR:H/UI:N/S:U/C:N/I:H/A:N",
+			"CVSS:3.0/AV:P/AC:H/PR:H/UI:N/S:C/C:N/I:L/A:N",
+			"CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
+			"CVSS:3.0/AV:A/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
+		}
+		return vectors[rand.Intn(len(vectors))]
 	case cvss.CVSS31:
 		vectors := []string{
 			"CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L",
@@ -106,7 +136,8 @@ func TestXlsx(t *testing.T) {
 	customer := &mongo.Customer{
 		Name:               randName(3),
 		Language:           randLanguage(),
-		DefaultCVSSVersion: randCVSSVersion(),
+		DefaultCVSSVersion: cvss.CVSS2,
+		// DefaultCVSSVersion: randCVSSVersion(),
 	}
 
 	var targets []mongo.AssessmentTarget
@@ -135,7 +166,7 @@ func TestXlsx(t *testing.T) {
 		cvssVector := randCVSSVector(assessment.CVSSVersion)
 		cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, assessment.CVSSVersion)
 		if err != nil {
-			t.Errorf("ParseVector() = %v, want %v", err, nil)
+			t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, assessment.CVSSVersion)
 		}
 
 		vulnerability := mongo.Vulnerability{
@@ -199,7 +230,7 @@ func TestXlsx(t *testing.T) {
 	t.Run("test", func(t *testing.T) {
 		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
 		if err != nil {
-			t.Errorf("GenerateReport() = %v, want %v", err, true)
+			t.Errorf("GenerateReport() = %v, want %v, cvss version %s", err, true, assessment.CVSSVersion)
 		}
 	})
 }
