@@ -2,16 +2,28 @@ package api
 
 import (
 	"github.com/Alexius22/kryvea/internal/mongo"
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
 )
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
-	type reqData struct {
-		Index              string `json:"index"`
-		Name               string `json:"name"`
-		GenericDescription string `json:"generic_description"`
-		GenericRemediation string `json:"generic_remediation"`
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
 	}
+
+	type reqData struct {
+		ID                 string            `json:"id"`
+		Index              string            `json:"index"`
+		Name               string            `json:"name"`
+		GenericDescription map[string]string `json:"generic_description"`
+		GenericRemediation map[string]string `json:"generic_remediation"`
+	}
+
 	category := &reqData{}
 	if err := c.BodyParser(category); err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -27,7 +39,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	err := d.mongo.Category().Insert(&mongo.Category{
+	categoryID, err := d.mongo.Category().Insert(&mongo.Category{
 		Index:              category.Index,
 		Name:               category.Name,
 		GenericDescription: category.GenericDescription,
@@ -42,7 +54,123 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
-		"message": "Category created",
+		"message":     "Category created",
+		"category_id": categoryID.Hex(),
+	})
+}
+
+func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	type reqData struct {
+		Index              string            `json:"index"`
+		Name               string            `json:"name"`
+		GenericDescription map[string]string `json:"generic_description"`
+		GenericRemediation map[string]string `json:"generic_remediation"`
+	}
+
+	category := &reqData{}
+	if err := c.BodyParser(category); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	categoryParam := c.Params("category")
+	if categoryParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Category ID is required",
+		})
+	}
+
+	categoryID, err := util.ParseMongoID(categoryParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid category ID",
+		})
+	}
+
+	_, err = d.mongo.Category().GetByID(categoryID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid category ID",
+		})
+	}
+
+	if category.Index == "" || category.Name == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Index and Name are required",
+		})
+	}
+
+	err = d.mongo.Category().Update(categoryID, &mongo.Category{
+		Index:              category.Index,
+		Name:               category.Name,
+		GenericDescription: category.GenericDescription,
+		GenericRemediation: category.GenericRemediation,
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update category",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Category updated",
+	})
+}
+
+func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	categoryParam := c.Params("category")
+	if categoryParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Category ID is required",
+		})
+	}
+
+	categoryID, err := util.ParseMongoID(categoryParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid category ID",
+		})
+	}
+
+	err = d.mongo.Category().Delete(categoryID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot delete category",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Category deleted",
 	})
 }
 
@@ -63,17 +191,25 @@ func (d *Driver) SearchCategories(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(categories) == 0 {
+		categories = []mongo.Category{}
+	}
+
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
 }
 
-func (d *Driver) GetAllCategories(c *fiber.Ctx) error {
+func (d *Driver) GetCategories(c *fiber.Ctx) error {
 	categories, err := d.mongo.Category().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get categories",
 		})
+	}
+
+	if len(categories) == 0 {
+		categories = []mongo.Category{}
 	}
 
 	c.Status(fiber.StatusOK)
