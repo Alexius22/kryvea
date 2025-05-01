@@ -1,7 +1,10 @@
 # production
 **/dist/
+**/build/
 
 # dependencies
 **/node_modules
 **/package-lock.json
 **/tsconfig.tsbuildinfo
+
+.data/

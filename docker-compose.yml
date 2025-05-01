@@ -2,37 +2,41 @@ services:
   db:
     image: mongo
     container_name: kryvea-db
+    restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=kryveauser
       - MONGO_INITDB_ROOT_PASSWORD=kryveapass
     volumes:
-      - kryvea-db-storage:/data/db
+      - ./.data/mongodb:/data/db
     networks:
-      - kryvea-net
-    restart: unless-stopped
+      - kryvea-data
+    expose:
+      - 27017
 
   app:
     build: app
     container_name: kryvea-app
+    restart: unless-stopped
     environment:
-      - KRYVEA_ADDR=0.0.0.0:80
+      - KRYVEA_ADDR=0.0.0.0:8080
       - KRYVEA_ROOT_PATH=/
       - KRYVEA_MONGO_URI=mongodb://kryveauser:kryveapass@kryvea-db:27017
     volumes:
-      - kryvea-static:/opt/kryvea/static
-      - /var/local/kryvea/log:/var/log/kryvea/
+      - ./.data/log:/var/log/kryvea/
     depends_on:
       - db
     networks:
       - kryvea-net
-    restart: unless-stopped
+      - kryvea-data
+    expose:
+      - 8080
 
   web:
-    build: nginx
-    container_name: kryvea-nginx
+    build: web
+    container_name: kryvea-web
+    restart: unless-stopped
     volumes:
-      - kryvea-static:/var/www/kryvea/html/static
-      - /var/local/kryvea/ssl:/etc/nginx/ssl
+      - ./.data/ssl:/etc/nginx/ssl
     depends_on:
       - db
       - app
@@ -40,10 +44,11 @@ services:
       - 443:443
     networks:
       - kryvea-net
-    restart: unless-stopped
 
 networks:
   kryvea-net:
+    driver: bridge
+  kryvea-data:
     driver: bridge
 
 volumes:
