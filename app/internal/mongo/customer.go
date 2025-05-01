@@ -4,10 +4,9 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -18,7 +17,7 @@ type Customer struct {
 	Model              `bson:",inline"`
 	Name               string `json:"name" bson:"name"`
 	Language           string `json:"language" bson:"language"`
-	DefaultCVSSVersion int    `json:"default_cvss_version" bson:"default_cvss_version"`
+	DefaultCVSSVersion string `json:"default_cvss_version" bson:"default_cvss_version"`
 }
 
 type CustomerIndex struct {
@@ -46,23 +45,85 @@ func (ci CustomerIndex) init() error {
 	return err
 }
 
-func (ci *CustomerIndex) Insert(customer *Customer) error {
+func (ci *CustomerIndex) Insert(customer *Customer) (bson.ObjectID, error) {
 	customer.Model = Model{
-		ID:        primitive.NewObjectID(),
+		ID:        bson.NewObjectID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 	_, err := ci.collection.InsertOne(context.Background(), customer)
+	return customer.ID, err
+}
+
+func (ci *CustomerIndex) Update(customerID bson.ObjectID, customer *Customer) error {
+	filter := bson.M{"_id": customerID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at":           time.Now(),
+			"name":                 customer.Name,
+			"language":             customer.Language,
+			"default_cvss_version": customer.DefaultCVSSVersion,
+		},
+	}
+
+	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }
 
-func (ci *CustomerIndex) GetByID(customerID primitive.ObjectID) (*Customer, error) {
-	// TODO
-	return nil, nil
+func (ci *CustomerIndex) Delete(customerID bson.ObjectID) error {
+	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
+	if err != nil {
+		return err
+	}
+
+	// Remove all assessments for the customer
+	assessments, err := ci.driver.Assessment().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, assessment := range assessments {
+		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove all targets for the customer
+	targets, err := ci.driver.Target().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, target := range targets {
+		if err := ci.driver.Target().Delete(target.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove the customer from the user's list
+	filter := bson.M{"customers": customerID}
+	update := bson.M{"$pull": bson.M{"customers": customerID}}
+	_, err = ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	return err
 }
 
-func (ci *CustomerIndex) GetAll() ([]Customer, error) {
-	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+func (ci *CustomerIndex) GetByID(customerID bson.ObjectID) (*Customer, error) {
+	var customer Customer
+	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
+		return nil, err
+	}
+	return &customer, nil
+}
+
+func (ci *CustomerIndex) GetAll(customerIDs []bson.ObjectID) ([]Customer, error) {
+	filter := bson.M{}
+
+	if customerIDs != nil {
+		filter["_id"] = bson.M{"$in": customerIDs}
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}

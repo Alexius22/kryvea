@@ -12,6 +12,8 @@ func main() {
 		config.GetListeningAddr(),
 		config.GetRootPath(),
 		config.GetMongoURI(),
+		config.GetAdminUser(),
+		config.GetAdminPass(),
 	)
 	if err != nil {
 		log.Fatal("Unable to create engine:", err)
