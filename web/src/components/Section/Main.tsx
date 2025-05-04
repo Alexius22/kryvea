@@ -6,5 +6,5 @@ type Props = {
 };
 
 export default function SectionMain({ children }: Props) {
-  return <section className={`py-2 px-6 ${containerMaxW}`}>{children}</section>;
+  return <section className={`px-6 py-2 ${containerMaxW}`}>{children}</section>;
 }
