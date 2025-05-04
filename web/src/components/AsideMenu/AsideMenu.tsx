@@ -1,4 +1,4 @@
-import { mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiViewList } from "@mdi/js";
+import { mdiListBox, mdiMagnify, mdiMonitor, mdiPocket, mdiResponsive, mdiViewList } from "@mdi/js";
 import { useContext } from "react";
 import { GlobalContext } from "../../../App";
 import { MenuAsideItem } from "../../interfaces";
@@ -62,6 +62,11 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
           label: "Categories",
         },
       ],
+    },
+    {
+      href: "/edit_poc",
+      label: "Edit POC",
+      icon: mdiPocket,
     },
   ];
 
