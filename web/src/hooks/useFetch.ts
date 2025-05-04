@@ -6,7 +6,7 @@ type FetchResult<T> = {
   error: string | null;
 };
 
-const useFetch = <T,>(url: string): FetchResult<T> => {
+const useFetch = <T>(url: string): FetchResult<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

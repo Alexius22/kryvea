@@ -9,5 +9,6 @@
   "quoteProps": "as-needed",
   "bracketSpacing": true,
   "bracketSameLine": false,
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
 }
