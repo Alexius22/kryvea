@@ -8,19 +8,24 @@ type PocTextProps = {
   currentIndex;
   pocList: PocDoc[];
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPocTextChange: <T>(currentIndex, key: keyof T) => (e: React.ChangeEvent) => void;
+  onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
 };
 
-export default function PocText({ pocDoc, currentIndex, pocList, onPositionChange, onPocTextChange }: PocTextProps) {
+export default function PocText({ pocDoc, currentIndex, pocList, onPositionChange, onTextChange }: PocTextProps) {
+  const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
+  const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
+  const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
+  const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
+
   return (
     <div className="relative flex flex-col">
       <Icon className="absolute left-[-35px] top-[-35px]" path={mdiPencil} size={100} />
       <div className="flex flex-col gap-3">
         <div className="col-span-1 col-start-12 grid">
-          <label htmlFor={`poc-position-${currentIndex}`}>Position</label>
+          <label htmlFor={positionInputId}>Position</label>
           <input
             className="w-20 rounded dark:bg-slate-800"
-            id={`poc-position-${currentIndex}`}
+            id={positionInputId}
             type="number"
             value={pocDoc.position}
             min={0}
@@ -28,31 +33,34 @@ export default function PocText({ pocDoc, currentIndex, pocList, onPositionChang
             onChange={onPositionChange(currentIndex)}
           />
         </div>
+
         <div className="col-span-8 grid">
-          <label htmlFor={`poc-description-${currentIndex}`}>Description</label>
+          <label htmlFor={descriptionTextareaId}>Description</label>
           <textarea
             className="rounded dark:bg-slate-800"
             value={pocDoc.description}
-            id={`poc-description-${currentIndex}`}
-            onChange={onPocTextChange<PocTextDoc>(currentIndex, "description")}
+            id={descriptionTextareaId}
+            onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
           />
         </div>
+
         <div className="col-span-4 grid">
-          <label htmlFor={`poc-title-${currentIndex}`}>Language</label>
+          <label htmlFor={languageInputId}>Language</label>
           <input
-            id={`poc-title-${currentIndex}`}
+            id={languageInputId}
             className="max-w-96 rounded dark:bg-slate-800"
             value={pocDoc.language}
-            onChange={onPocTextChange<PocTextDoc>(currentIndex, "language")}
+            onChange={onTextChange<PocTextDoc>(currentIndex, "language")}
           />
         </div>
+
         <div className="col-span-4 grid">
-          <label htmlFor={`poc-title-${currentIndex}`}>Text</label>
+          <label htmlFor={textInputId}>Text</label>
           <input
-            id={`poc-title-${currentIndex}`}
+            id={textInputId}
             className="max-w-96 rounded dark:bg-slate-800"
             value={pocDoc.text}
-            onChange={onPocTextChange<PocTextDoc>(currentIndex, "text")}
+            onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
           />
         </div>
       </div>
