@@ -8,7 +8,7 @@ type PocRequestResponseProps = {
   currentIndex;
   pocList: PocDoc[];
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPocTextChange: <T>(currentIndex, key: keyof T) => (e: React.ChangeEvent) => void;
+  onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
 };
 
 export default function PocRequestResponse({
@@ -16,17 +16,23 @@ export default function PocRequestResponse({
   currentIndex,
   pocList,
   onPositionChange,
-  onPocTextChange,
+  onTextChange,
 }: PocRequestResponseProps) {
+  const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
+  const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
+  const urlInputId = `poc-url-${currentIndex}-${pocDoc.key}`;
+  const requestTextareaId = `poc-request-${currentIndex}-${pocDoc.key}`;
+  const responseTextareaId = `poc-response-${currentIndex}-${pocDoc.key}`;
+
   return (
     <div className="relative flex flex-col">
       <Icon className="absolute left-[-35px] top-[-35px]" path={mdiCableData} size={100} />
       <div className="flex flex-col gap-3">
         <div className="col-span-1 grid">
-          <label htmlFor={`poc-position-${currentIndex}`}>Position</label>
+          <label htmlFor={positionInputId}>Position</label>
           <input
             className="w-20 rounded dark:bg-slate-800"
-            id={`poc-position-${currentIndex}`}
+            id={positionInputId}
             type="number"
             value={pocDoc.position}
             min={0}
@@ -34,40 +40,44 @@ export default function PocRequestResponse({
             onChange={onPositionChange(currentIndex)}
           />
         </div>
+
         <div className="col-span-8 grid">
-          <label htmlFor={`poc-description-${currentIndex}`}>Description</label>
+          <label htmlFor={descriptionTextareaId}>Description</label>
           <textarea
             className="rounded dark:bg-slate-800"
             value={pocDoc.description}
-            id={`poc-description-${currentIndex}`}
-            onChange={onPocTextChange<PocRequestResponseDoc>(currentIndex, "description")}
+            id={descriptionTextareaId}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
           />
         </div>
+
         <div className="col-span-4 grid">
-          <label htmlFor={`poc-title-${currentIndex}`}>Url</label>
+          <label htmlFor={urlInputId}>Url</label>
           <input
-            id={`poc-title-${currentIndex}`}
+            id={urlInputId}
             className="max-w-96 rounded dark:bg-slate-800"
             value={pocDoc.url}
-            onChange={onPocTextChange<PocRequestResponseDoc>(currentIndex, "url")}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "url")}
           />
         </div>
+
         <div className="col-span-8 grid">
-          <label htmlFor={`poc-description-${currentIndex}`}>Request</label>
+          <label htmlFor={requestTextareaId}>Request</label>
           <textarea
             className="rounded dark:bg-slate-800"
             value={pocDoc.request}
-            id={`poc-description-${currentIndex}`}
-            onChange={onPocTextChange<PocRequestResponseDoc>(currentIndex, "request")}
+            id={requestTextareaId}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
           />
         </div>
+
         <div className="col-span-8 grid">
-          <label htmlFor={`poc-description-${currentIndex}`}>Response</label>
+          <label htmlFor={responseTextareaId}>Response</label>
           <textarea
             className="rounded dark:bg-slate-800"
             value={pocDoc.response}
-            id={`poc-description-${currentIndex}`}
-            onChange={onPocTextChange<PocRequestResponseDoc>(currentIndex, "response")}
+            id={responseTextareaId}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}
           />
         </div>
       </div>

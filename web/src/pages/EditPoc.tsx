@@ -1,16 +1,17 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxComponentTitle from "../components/CardBox/Component/Title";
 import Divider from "../components/Divider";
-import { PocDoc, PocType } from "../components/Poc/Poc.types";
-import PocImage from "../components/Poc/PocImage";
+import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
+import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocText from "../components/Poc/PocText";
 import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
+import { v4 } from "uuid";
 
 const EditPoc = () => {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
@@ -24,15 +25,22 @@ const EditPoc = () => {
     setPocList(prev => prev.sort((a, b) => (a.position < b.position ? -1 : 1)));
   }, [pocList]);
 
-  function onPocTextChange<T>(currentIndex, key: keyof T) {
+  function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
       setPocList(prev => {
         const newText = e.target.value;
         const newPocList = [...prev];
-        newPocList[currentIndex] = { ...newPocList[currentIndex], [key]: newText };
+        newPocList[currentIndex] = { ...newPocList[currentIndex], [property]: newText };
         return newPocList;
       });
     };
+  }
+  function onImageChange(currentIndex, image: File) {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList[currentIndex] = { ...newPocList[currentIndex], choseImage: image } as PocImageDoc;
+      return newPocList;
+    });
   }
 
   const onPositionChange = currentIndex => e => {
@@ -76,16 +84,18 @@ const EditPoc = () => {
   };
 
   const addPoc = (type: PocType) => () => {
+    const key = `poc-${type}-${v4()}`;
     switch (type) {
       case "text":
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            language: undefined,
-            text: undefined,
+            description: "",
+            language: "",
+            text: "",
           },
         ]);
         break;
@@ -93,12 +103,13 @@ const EditPoc = () => {
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            caption: undefined,
-            chooseFile: undefined,
-            title: undefined,
+            description: "",
+            caption: "",
+            choseImage: null,
+            title: "",
           },
         ]);
         break;
@@ -106,12 +117,13 @@ const EditPoc = () => {
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            request: undefined,
-            response: undefined,
-            url: undefined,
+            description: "",
+            request: "",
+            response: "",
+            url: "",
           },
         ]);
         break;
@@ -122,7 +134,7 @@ const EditPoc = () => {
     switch (pocDoc.type) {
       case "text":
         return (
-          <>
+          <React.Fragment key={pocDoc.key}>
             <PocText
               {...{
                 currentIndex: i,
@@ -130,33 +142,30 @@ const EditPoc = () => {
                 pocList,
                 setPocList,
                 onPositionChange,
-                onPocTextChange,
-                key: `poc-text-${i}`,
+                onTextChange,
               }}
             />
             <Divider />
-          </>
+          </React.Fragment>
         );
       case "image":
+        const pocImageProps: PocImageProps = {
+          currentIndex: i,
+          pocDoc,
+          pocList,
+          onPositionChange,
+          onTextChange,
+          onImageChange,
+        };
         return (
-          <>
-            <PocImage
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onPocTextChange,
-                key: `poc-image-${i}`,
-              }}
-            />
+          <React.Fragment key={pocDoc.key}>
+            <PocImage {...pocImageProps} />
             <Divider />
-          </>
+          </React.Fragment>
         );
       case "request/response":
         return (
-          <>
+          <React.Fragment key={pocDoc.key}>
             <PocRequestResponse
               {...{
                 currentIndex: i,
@@ -164,12 +173,11 @@ const EditPoc = () => {
                 pocList,
                 setPocList,
                 onPositionChange,
-                onPocTextChange,
-                key: `poc-request-response-${i}`,
+                onTextChange,
               }}
             />
             <Divider />
-          </>
+          </React.Fragment>
         );
     }
   };
