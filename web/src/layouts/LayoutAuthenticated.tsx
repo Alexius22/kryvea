@@ -27,9 +27,11 @@ export default function LayoutAuthenticated() {
           <NavBarItemPlain display="flex lg:hidden" onClick={() => setIsAsideMobileExpanded(!isAsideMobileExpanded)}>
             <Icon path={isAsideMobileExpanded ? mdiBackburger : mdiForwardburger} size="24" />
           </NavBarItemPlain>
+
           <NavBarItemPlain display="hidden lg:flex xl:hidden" onClick={() => setIsAsideLgActive(true)}>
             <Icon path={mdiMenu} size="24" />
           </NavBarItemPlain>
+
           <NavBarItemPlain useMargin>
             <Breadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
           </NavBarItemPlain>
