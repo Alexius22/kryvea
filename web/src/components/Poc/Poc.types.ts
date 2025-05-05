@@ -2,7 +2,6 @@ export type PocType = "text" | "image" | "request/response";
 
 type PocBaseDoc = {
   key: string;
-  position: number;
   description: string;
 };
 
