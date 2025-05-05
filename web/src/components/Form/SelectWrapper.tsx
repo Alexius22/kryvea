@@ -5,16 +5,28 @@ import { GlobalContext } from "../../../App";
 import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
+  className?: string;
   options: SelectOption[];
-  onChange: (newValue: SelectOption | SelectOption[], actionMeta: ActionMeta<any>) => any;
+  onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
   value?: SelectOption | SelectOption[];
   defaultValue?;
-  isMulti?;
+  isMulti?: false;
+  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  closeMenuOnSelect?: boolean;
+};
+type SelectWrapperMultiProps = {
+  className?: string;
+  options: SelectOption[];
+  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
+  value?: SelectOption | SelectOption[];
+  defaultValue?;
+  isMulti?: true;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
 };
 
 export default function SelectWrapper({
+  className,
   options,
   defaultValue,
   value,
@@ -22,7 +34,7 @@ export default function SelectWrapper({
   isMulti,
   onInputChange,
   closeMenuOnSelect,
-}: SelectWrapperProps) {
+}: SelectWrapperProps | SelectWrapperMultiProps) {
   const {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
@@ -38,6 +50,7 @@ export default function SelectWrapper({
   return (
     <Select
       {...{
+        className,
         isMulti,
         value,
         onInputChange: handleOnInputChange,
