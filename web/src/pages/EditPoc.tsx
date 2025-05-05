@@ -21,10 +21,6 @@ const EditPoc = () => {
     document.title = getPageTitle("Edit PoC");
   }, []);
 
-  useEffect(() => {
-    setPocList(prev => prev.sort((a, b) => (a.position < b.position ? -1 : 1)));
-  }, [pocList]);
-
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
       setPocList(prev => {
@@ -55,16 +51,16 @@ const EditPoc = () => {
 
       if (newIndex < currentIndex) {
         for (let i = currentIndex; i > newIndex; i--) {
-          arr[i] = { ...arr[i - 1], position: arr[i - 1].position + 1 };
+          arr[i] = { ...arr[i - 1] };
         }
-        arr[newIndex] = { ...copyCurrent, position: newIndex };
+        arr[newIndex] = { ...copyCurrent };
         return arr;
       }
 
       for (let i = currentIndex; i < newIndex; i++) {
-        arr[i] = { ...arr[i + 1], position: arr[i + 1].position - 1 };
+        arr[i] = { ...arr[i + 1] };
       }
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      arr[newIndex] = { ...copyCurrent };
 
       return arr;
     };
@@ -76,11 +72,18 @@ const EditPoc = () => {
 
       const arr = [...prev];
       const copyCurrent = { ...arr[currentIndex] };
-      arr[currentIndex] = { ...arr[newIndex], position: currentIndex };
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      arr[currentIndex] = { ...arr[newIndex] };
+      arr[newIndex] = { ...copyCurrent };
       return arr;
     };
     setPocList(onPositionChangeMode === "shift" ? shift : swap);
+  };
+  const onRemovePoc = (currentIndex: number) => () => {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList.splice(currentIndex, 1);
+      return newPocList;
+    });
   };
 
   const addPoc = (type: PocType) => () => {
@@ -143,6 +146,7 @@ const EditPoc = () => {
                 setPocList,
                 onPositionChange,
                 onTextChange,
+                onRemovePoc,
               }}
             />
             <Divider />
@@ -155,6 +159,7 @@ const EditPoc = () => {
           pocList,
           onPositionChange,
           onTextChange,
+          onRemovePoc,
           onImageChange,
         };
         return (
@@ -174,6 +179,7 @@ const EditPoc = () => {
                 setPocList,
                 onPositionChange,
                 onTextChange,
+                onRemovePoc,
               }}
             />
             <Divider />

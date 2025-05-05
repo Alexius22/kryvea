@@ -1,13 +1,14 @@
 import { mdiClose } from "@mdi/js";
 import Button from "../Button";
 import Icon from "../Icon/Icon";
+import { useEffect, useState } from "react";
 
 export default function PocTemplate({ icon, pocDoc, currentIndex, pocList, onPositionChange, onRemovePoc, children }) {
   const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
 
   return (
     <div className="relative flex flex-col">
-      <Icon className="absolute left-[-35px] top-[-35px]" path={icon} size={25} />
+      <Icon className="absolute left-[-35px]" path={icon} size={25} />
       <button
         className="absolute right-[-21px] top-[-20px] h-[25px] cursor-pointer rounded text-red-600 hover:opacity-50"
         onClick={onRemovePoc(currentIndex)}
@@ -22,15 +23,16 @@ export default function PocTemplate({ icon, pocDoc, currentIndex, pocList, onPos
               className="w-20 rounded dark:bg-slate-800"
               id={positionInputId}
               type="number"
-              value={pocDoc.position}
+              value={currentIndex}
               min={0}
               max={pocList.length - 1}
               onChange={onPositionChange(currentIndex)}
             />
           </div>
+
           <div>
             <div>
-              <label>&nbsp;</label>
+              <span>&nbsp;</span>
               <div className="flex h-full gap-2">
                 <Button
                   label="Move Up"
