@@ -3,8 +3,35 @@ import Button from "../Button";
 import Icon from "../Icon/Icon";
 import { useEffect, useState } from "react";
 
-export default function PocTemplate({ icon, pocDoc, currentIndex, pocList, onPositionChange, onRemovePoc, children }) {
+export default function PocTemplate({
+  icon,
+  pocDoc,
+  currentIndex,
+  pocList,
+  onPositionChange,
+  onRemovePoc,
+  children,
+}: {
+  pocList: any[];
+  [key: string | number | symbol]: any;
+}) {
+  const [tmpPosition, setTmpPosition] = useState(currentIndex);
+
+  useEffect(() => {
+    setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
+  }, [currentIndex]);
+
   const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
+
+  const handleKeyDown = e => {
+    if (e.key === "Enter") {
+      onPositionChange(currentIndex)({ target: { value: e.target.value } });
+    }
+  };
+
+  const handleBlur = () => {
+    onPositionChange(currentIndex)({ target: { value: tmpPosition } });
+  };
 
   return (
     <div className="relative flex flex-col">
@@ -23,10 +50,12 @@ export default function PocTemplate({ icon, pocDoc, currentIndex, pocList, onPos
               className="w-20 rounded dark:bg-slate-800"
               id={positionInputId}
               type="number"
-              value={currentIndex}
+              value={tmpPosition}
               min={0}
               max={pocList.length - 1}
-              onChange={onPositionChange(currentIndex)}
+              onChange={e => setTmpPosition(+e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleBlur}
             />
           </div>
 
