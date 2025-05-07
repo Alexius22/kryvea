@@ -40,8 +40,9 @@ const EditPoc = () => {
   }
 
   const onPositionChange = currentIndex => e => {
+    const num = e.target.value.toString().replace(/^0+(?!$)/, "");
+    const newIndex = +num;
     const shift = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
       if (newIndex < 0 || newIndex >= prev.length) {
         return prev;
       }
@@ -65,7 +66,6 @@ const EditPoc = () => {
       return arr;
     };
     const swap = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
       if (newIndex < 0 || newIndex >= prev.length) {
         return prev;
       }
