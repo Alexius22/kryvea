@@ -60,12 +60,7 @@ export default function PocText({
           onChange={({ value }) => {
             setSelectedLanguage(value);
           }}
-        />
-        <input
           id={languageInputId}
-          className="max-w-96 rounded dark:bg-slate-800"
-          value={pocDoc.language}
-          onChange={onTextChange<PocTextDoc>(currentIndex, "language")}
         />
       </div>
 
