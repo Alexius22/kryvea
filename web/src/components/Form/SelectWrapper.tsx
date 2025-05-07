@@ -13,6 +13,7 @@ type SelectWrapperProps = {
   isMulti?: false;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
+  id?: string;
 };
 type SelectWrapperMultiProps = {
   className?: string;
@@ -23,6 +24,7 @@ type SelectWrapperMultiProps = {
   isMulti?: true;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
+  id?: string;
 };
 
 export default function SelectWrapper({
@@ -34,6 +36,7 @@ export default function SelectWrapper({
   isMulti,
   onInputChange,
   closeMenuOnSelect,
+  id,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
   const {
     useDarkTheme: [darkTheme],
@@ -59,6 +62,7 @@ export default function SelectWrapper({
         onChange,
         defaultValue,
         closeMenuOnSelect,
+        id,
       }}
       components={animatedComponents}
       styles={{
