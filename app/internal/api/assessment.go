@@ -634,6 +634,17 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	var pocs []mongo.Poc
 	for _, v := range vulnerabilities {
+		switch assessment.CVSSVersion {
+		case cvss.CVSS2:
+			v.CVSSReport = v.CVSSv2
+		case cvss.CVSS3:
+			v.CVSSReport = v.CVSSv3
+		case cvss.CVSS31:
+			v.CVSSReport = v.CVSSv31
+		case cvss.CVSS4:
+			v.CVSSReport = v.CVSSv4
+		}
+
 		pocsByVuln, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)

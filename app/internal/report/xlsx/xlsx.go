@@ -175,16 +175,16 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 	// sort vulnerabilities by score. if score is equal, sort by name in ascending order
 	sort.Slice(vulnerabilities, func(i, j int) bool {
-		if vulnerabilities[i].CVSSScore == vulnerabilities[j].CVSSScore {
+		if vulnerabilities[i].CVSSReport.CVSSScore == vulnerabilities[j].CVSSReport.CVSSScore {
 			return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
 		}
-		return vulnerabilities[i].CVSSScore > vulnerabilities[j].CVSSScore
+		return vulnerabilities[i].CVSSReport.CVSSScore > vulnerabilities[j].CVSSReport.CVSSScore
 	})
 
 	for i, vuln := range vulnerabilities {
 		row := i + 2
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("A%d", row), i)
-		xl.SetCellValue(vulnSheet, fmt.Sprintf("B%d", row), vuln.CVSSSeverity)
+		xl.SetCellValue(vulnSheet, fmt.Sprintf("B%d", row), vuln.CVSSReport.CVSSSeverity)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("C%d", row), "Open")
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("D%d", row), fmt.Sprintf("%s: %s", vuln.Category.Name, vuln.DetailedTitle))
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("E%d", row), vuln.GenericDescription.Text)
@@ -249,8 +249,8 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("F%d", row), description)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("G%d", row), strings.Join(pocEntries, "\n"))
-		xl.SetCellValue(vulnSheet, fmt.Sprintf("H%d", row), vuln.CVSSVector)
-		xl.SetCellValue(vulnSheet, fmt.Sprintf("I%d", row), vuln.CVSSScore)
+		xl.SetCellValue(vulnSheet, fmt.Sprintf("H%d", row), vuln.CVSSReport.CVSSVector)
+		xl.SetCellValue(vulnSheet, fmt.Sprintf("I%d", row), vuln.CVSSReport.CVSSScore)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("J%d", row), vuln.Remediation)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("K%d", row), strings.Join(vuln.References, "\n"))
 	}
