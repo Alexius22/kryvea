@@ -170,14 +170,16 @@ func TestXlsx(t *testing.T) {
 		}
 
 		vulnerability := mongo.Vulnerability{
-			Model:           mongo.Model{ID: bson.NewObjectID()},
-			Category:        mongo.VulnerabilityCategory{Name: randName(3)},
-			DetailedTitle:   randName(3),
-			CVSSVector:      cvssVector,
-			CVSSScore:       cvssScore,
-			CVSSSeverity:    cvssSeverity,
-			CVSSDescription: cvss.GenerateDescription(cvssVector, assessment.CVSSVersion, "en"),
-			References:      []string{randUrl(), randUrl()},
+			Model:         mongo.Model{ID: bson.NewObjectID()},
+			Category:      mongo.VulnerabilityCategory{Name: randName(3)},
+			DetailedTitle: randName(3),
+			CVSSReport: mongo.VulnerabilityCVSS{
+				CVSSVector:      cvssVector,
+				CVSSScore:       cvssScore,
+				CVSSSeverity:    cvssSeverity,
+				CVSSDescription: cvss.GenerateDescription(cvssVector, assessment.CVSSVersion, "en"),
+			},
+			References: []string{randUrl(), randUrl()},
 			GenericDescription: mongo.VulnerabilityGeneric{
 				Text: randName(20),
 			},

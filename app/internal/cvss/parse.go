@@ -15,7 +15,7 @@ func ParseVector(vector string, version string) (float64, string, error) {
 		return 0, "", err
 	}
 
-	severityThresholds, ok := severityLevels[version] // Use the "ok" idiom
+	severityThresholds, ok := severityLevels[version]
 	if !ok {
 		return score, "", errors.New("no severity levels found for given CVSS version")
 	}
