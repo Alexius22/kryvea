@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"strings"
 
@@ -122,27 +121,16 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 		target := &mongo.Target{
 			IP:       hostIP,
 			Hostname: hostFQDN,
+			Name:     "nessus",
 			Customer: mongo.TargetCustomer{
 				ID: customer.ID,
 			},
 		}
 
-		targetIDs, err := d.mongo.Target().Search(customer.ID, target.IP)
+		targetID, err := d.mongo.Target().FirstOrInsert(target)
 		if err != nil {
 			return err
 		}
-		var targetID bson.ObjectID
-		if len(targetIDs) == 0 {
-			targetID, err = d.mongo.Target().Insert(target)
-			if err != nil {
-				return err
-			}
-		}
-		if len(targetIDs) > 0 {
-			targetID = targetIDs[0].ID
-		}
-
-		fmt.Printf("ip: %s, fqdn: %s\n", hostIP, hostFQDN)
 
 		for _, item := range host.ReportItems {
 			category := &mongo.Category{
@@ -156,19 +144,9 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 				},
 			}
 
-			categoryIDs, err := d.mongo.Category().Search(category.Name)
+			categoryID, err := d.mongo.Category().FirstOrInsert(category)
 			if err != nil {
 				return err
-			}
-			var categoryID bson.ObjectID
-			if len(categoryIDs) == 0 {
-				categoryID, err = d.mongo.Category().Insert(category)
-				if err != nil {
-					return err
-				}
-			}
-			if len(categoryIDs) > 0 {
-				categoryID = categoryIDs[0].ID
 			}
 
 			vulnerability := &mongo.Vulnerability{
@@ -233,7 +211,6 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 				VulnerabilityID: vulnerabilityID,
 			}
 
-			// insert poc
 			_, err = d.mongo.Poc().Insert(poc)
 			if err != nil {
 				return err
