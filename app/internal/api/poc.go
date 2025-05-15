@@ -73,7 +73,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 		})
 	}
 
-	if poc.IsValidType(pocData.Type) == false {
+	if !poc.IsValidType(pocData.Type) {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Invalid type",

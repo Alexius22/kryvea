@@ -31,6 +31,8 @@ func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string) (*Engine, 
 func (e *Engine) Serve() {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
+		// TODO: this is a temporary solution to allow large files
+		BodyLimit: 50 * 1024 * 1024,
 	})
 
 	app.Use(logger.New(logger.Config{
@@ -90,6 +92,8 @@ func (e *Engine) Serve() {
 		authenticatedApi.Post("/vulnerabilities/:vulnerability/pocs", api.AddPoc)
 		authenticatedApi.Patch("/vulnerabilities/:vulnerability/pocs/:poc", api.UpdatePoc)
 		authenticatedApi.Delete("/vulnerabilities/:vulnerability/pocs/:poc", api.DeletePoc)
+
+		authenticatedApi.Post("/assessments/:assessment/nessus", api.UploadNessus)
 
 		authenticatedApi.Get("/users", api.GetUsers)
 		authenticatedApi.Get("/users/:user", api.GetUser)
