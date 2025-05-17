@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import CardBoxComponentFooter from "./Component/Footer";
 
 type Props = {
   className?: string;
@@ -15,7 +14,7 @@ export default function CardBox({ className, noPadding = false, isHoverable = fa
       className={`flex flex-1 flex-col rounded-2xl bg-white dark:bg-slate-900 ${className} ${noPadding ? "" : "p-6"} ${isHoverable && "transition-shadow duration-500 hover:shadow-lg"}`}
     >
       {children}
-      {footer && <CardBoxComponentFooter>{footer}</CardBoxComponentFooter>}
+      {footer && <div className="p-6">{footer}</div>}
     </div>
   );
 }
