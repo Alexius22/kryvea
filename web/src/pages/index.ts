@@ -6,7 +6,6 @@ import AddVulnerability from "./AddVulnerability";
 import Assessment from "./Assessment";
 import Assessments from "./Assessments";
 import Categories from "./Categories";
-import Customer from "./Customer";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
 import EditPoc from "./EditPoc";
@@ -29,7 +28,6 @@ export {
   Assessment,
   Assessments,
   Categories,
-  Customer,
   Customers,
   Dashboard,
   EditPoc,
