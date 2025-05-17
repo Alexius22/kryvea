@@ -7,13 +7,10 @@ import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import FormField from "../components/Form/Field";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
-import { Vulnerability } from "../types/common.types";
 
 const Assessment = () => {
   const navigate = useNavigate();
@@ -33,7 +30,7 @@ const Assessment = () => {
   }, []);
 
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Download report"
         buttonColor="info"
@@ -77,75 +74,73 @@ const Assessment = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
-          <Buttons>
-            <Button
-              icon={mdiFileEye}
-              label="Live editor"
-              roundedFull
-              small
-              color="danger"
-              onClick={() => navigate("/live_editor")}
-            />
-            <Button
-              icon={mdiDownload}
-              label="Download report"
-              roundedFull
-              small
-              color="success"
-              onClick={() => setIsModalInfoActive(true)}
-            />
-            <Button
-              icon={mdiPlus}
-              label="New host"
-              roundedFull
-              small
-              color="contrast"
-              onClick={() => navigate("/add_host")}
-            />
-            <Button
-              icon={mdiPlus}
-              label="New vulnerability"
-              roundedFull
-              small
-              color="contrast"
-              onClick={() => navigate("/add_vulnerability")}
-            />
-          </Buttons>
-        </SectionTitleLineWithButton>
-        <CardBox hasTable>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error: {error}</p>
-          ) : (
-            <Table
-              data={vulnerabilities.map(vulnerability => ({
-                Vulnerability: (
-                  <span
-                    className="cursor-pointer hover:text-blue-500 hover:underline"
-                    onClick={() => navigate(`/vulnerability`)}
-                  >
-                    {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
-                  </span>
-                ),
-                Host:
-                  vulnerability.target.ip +
-                  (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),
-                "CVSS Score": vulnerability.cvss_score,
-                buttons: (
-                  <Buttons noWrap>
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={10}
-            />
-          )}
-        </CardBox>
-      </SectionMain>
-    </>
+
+      <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
+        <Buttons>
+          <Button
+            icon={mdiFileEye}
+            label="Live editor"
+            roundedFull
+            small
+            color="danger"
+            onClick={() => navigate("/live_editor")}
+          />
+          <Button
+            icon={mdiDownload}
+            label="Download report"
+            roundedFull
+            small
+            color="success"
+            onClick={() => setIsModalInfoActive(true)}
+          />
+          <Button
+            icon={mdiPlus}
+            label="New host"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_host")}
+          />
+          <Button
+            icon={mdiPlus}
+            label="New vulnerability"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_vulnerability")}
+          />
+        </Buttons>
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <Table
+            data={vulnerabilities.map(vulnerability => ({
+              Vulnerability: (
+                <span
+                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  onClick={() => navigate(`/vulnerability`)}
+                >
+                  {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
+                </span>
+              ),
+              Host:
+                vulnerability.target.ip + (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),
+              "CVSS Score": vulnerability.cvss_score,
+              buttons: (
+                <Buttons noWrap>
+                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={10}
+          />
+        )}
+      </CardBox>
+    </div>
   );
 };
 

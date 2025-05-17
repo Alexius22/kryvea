@@ -1,6 +1,5 @@
 import { ReactNode, useContext } from "react";
 import { GlobalContext } from "../../../App";
-import { gradientBgDark, gradientBgPinkRed, gradientBgPurplePink } from "../../colors";
 import { BgKey } from "../../interfaces";
 
 type Props = {
@@ -13,15 +12,9 @@ export default function SectionFullScreen({ bg, children }: Props) {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
 
-  let componentClass = "flex min-h-screen items-center justify-center absolute h-[104vh] -top-10 w-screen left-0 z-50 ";
-
-  if (darkTheme) {
-    componentClass += gradientBgDark;
-  } else if (bg === "purplePink") {
-    componentClass += gradientBgPurplePink;
-  } else if (bg === "pinkRed") {
-    componentClass += gradientBgPinkRed;
-  }
-
-  return <div className={componentClass}>{children}</div>;
+  return (
+    <div className="fixed flex min-h-screen w-screen items-center justify-center bg-gradient-to-b from-slate-300 to-slate-200 dark:from-slate-800 dark:to-slate-700 dark:text-white">
+      {children}
+    </div>
+  );
 }

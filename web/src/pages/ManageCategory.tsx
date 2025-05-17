@@ -9,7 +9,6 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
 
@@ -44,7 +43,7 @@ const ManageCategory = () => {
   }, []);
 
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Add language"
         buttonColor="info"
@@ -56,7 +55,7 @@ const ManageCategory = () => {
         <p>The English language option is not available, as it is the default language.</p>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Select language">
+            <FormField label="Select language" singleChild>
               <SelectWrapper
                 options={LanguageSelectOptions}
                 onChange={selectedOptions => setSelectedLanguageOptions(selectedOptions)}
@@ -66,66 +65,65 @@ const ManageCategory = () => {
           </Form>
         </Formik>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
-          <Button
-            icon={mdiPlus}
-            label="New language"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => setIsModalInfoActive(true)}
-          />
-        </SectionTitleLineWithButton>
-        <CardBox>
-          <Formik initialValues={undefined} onSubmit={undefined}>
-            <Form>
-              <FormField label={["Identifier", "Name"]}>
-                <Field name="identifier" id="identifier" placeholder="A01:2021" />
-                <Field name="Name" id="Name" placeholder="Name" />
-              </FormField>
-              <Divider />
-              <p className="mb-2">
-                <b>English</b>
-              </p>
-              <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
-                <Field name="gen_desc_en" as="textarea" placeholder="Description here" />
-                <Field name="gen_rem_en" as="textarea" placeholder="Description here" />
-              </FormField>
-              {additionalFields.map((language, index) => (
-                <div key={index}>
-                  <Divider />
-                  <p className="mb-2">
-                    <b>{language.label}</b>
-                  </p>
-                  <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
-                    <Field
-                      name={`gen_desc_${language.value.toLowerCase()}`}
-                      as="textarea"
-                      placeholder={"Description here"}
-                    />
-                    <Field
-                      name={`gen_rem_${language.value.toLowerCase()}`}
-                      as="textarea"
-                      placeholder={"Description here"}
-                    />
-                  </FormField>
-                </div>
-              ))}
-              <Divider />
-              <FormField label="References" hasTextareaHeight>
-                <Field name="ref" as="textarea" placeholder="References here" />
-              </FormField>
-              <Divider />
-              <Buttons>
-                <Button type="submit" color="info" label="Submit" />
-                <Button type="cancel" color="info" outline label="Cancel" />
-              </Buttons>
-            </Form>
-          </Formik>
-        </CardBox>
-      </SectionMain>
-    </>
+
+      <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
+        <Button
+          icon={mdiPlus}
+          label="New language"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => setIsModalInfoActive(true)}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox>
+        <Formik initialValues={undefined} onSubmit={undefined}>
+          <Form>
+            <FormField label={["Identifier", "Name"]}>
+              <Field name="identifier" id="identifier" placeholder="A01:2021" />
+              <Field name="Name" id="Name" placeholder="Name" />
+            </FormField>
+            <Divider />
+            <p className="mb-2">
+              <b>English</b>
+            </p>
+            <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
+              <Field name="gen_desc_en" as="textarea" placeholder="Description here" />
+              <Field name="gen_rem_en" as="textarea" placeholder="Description here" />
+            </FormField>
+            {additionalFields.map((language, index) => (
+              <div key={index}>
+                <Divider />
+                <p className="mb-2">
+                  <b>{language.label}</b>
+                </p>
+                <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
+                  <Field
+                    name={`gen_desc_${language.value.toLowerCase()}`}
+                    as="textarea"
+                    placeholder={"Description here"}
+                  />
+                  <Field
+                    name={`gen_rem_${language.value.toLowerCase()}`}
+                    as="textarea"
+                    placeholder={"Description here"}
+                  />
+                </FormField>
+              </div>
+            ))}
+            <Divider />
+            <FormField label="References" hasTextareaHeight>
+              <Field name="ref" as="textarea" placeholder="References here" />
+            </FormField>
+            <Divider />
+            <Buttons>
+              <Button type="submit" color="info" label="Submit" />
+              <Button type="cancel" color="info" outline label="Cancel" />
+            </Buttons>
+          </Form>
+        </Formik>
+      </CardBox>
+    </div>
   );
 };
 

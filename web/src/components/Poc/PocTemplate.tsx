@@ -1,10 +1,12 @@
-import { mdiClose } from "@mdi/js";
-import Button from "../Button";
-import Icon from "../Icon/Icon";
+import { mdiDelete } from "@mdi/js";
 import { useEffect, useState } from "react";
+import Button from "../Button";
+import Divider from "../Divider";
+import Icon from "../Icon/Icon";
 
 export default function PocTemplate({
   icon,
+  title,
   pocDoc,
   currentIndex,
   pocList,
@@ -34,57 +36,62 @@ export default function PocTemplate({
   };
 
   return (
-    <div className="relative flex flex-col">
-      <Icon className="absolute left-[-35px]" path={icon} size={25} />
-      <button
-        className="absolute right-[-21px] top-[-20px] h-[25px] cursor-pointer rounded text-red-600 hover:opacity-50"
-        onClick={onRemovePoc(currentIndex)}
-      >
-        <Icon path={mdiClose} size={25} />
-      </button>
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-6">
-          <div className="col-span-1 col-start-12 grid">
-            <label htmlFor={positionInputId}>Position</label>
-            <input
-              className="w-20 rounded dark:bg-slate-800"
-              id={positionInputId}
-              type="number"
-              value={tmpPosition}
-              min={0}
-              max={pocList.length - 1}
-              onChange={e => setTmpPosition(+e.target.value)}
-              onKeyDown={handleKeyDown}
-              onBlur={handleBlur}
-            />
-          </div>
+    <div className="rounded-3xl bg-slate-900/70">
+      <div className="relative flex flex-col p-6">
+        <div className="mb-4 flex h-min w-min items-center gap-4">
+          <h1 className="flex w-min items-center gap-2 rounded px-2 font-mono text-2xl uppercase">
+            <Icon path={icon} size={25} />
+            {title}
+          </h1>
+          <button className="flex cursor-pointer text-red-600 hover:opacity-50" onClick={onRemovePoc(currentIndex)}>
+            <Icon path={mdiDelete} size={25} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-6">
+            <div className="col-span-1 col-start-12 grid">
+              <label htmlFor={positionInputId}>Position</label>
+              <input
+                className="w-20 rounded dark:bg-slate-800"
+                id={positionInputId}
+                type="number"
+                value={tmpPosition}
+                min={0}
+                max={pocList.length - 1}
+                onChange={e => setTmpPosition(+e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+              />
+            </div>
 
-          <div>
             <div>
-              <span>&nbsp;</span>
-              <div className="flex h-full gap-2">
-                <Button
-                  label="Move Up"
-                  disabled={currentIndex === 0}
-                  onClick={() =>
-                    onPositionChange(currentIndex)({ target: { value: currentIndex <= 0 ? 0 : currentIndex - 1 } })
-                  }
-                />
-                <Button
-                  label="Move Down"
-                  disabled={currentIndex === pocList.length - 1}
-                  onClick={() =>
-                    onPositionChange(currentIndex)({
-                      target: { value: currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1 },
-                    })
-                  }
-                />
+              <div>
+                <span>&nbsp;</span>
+                <div className="flex h-full gap-2">
+                  <Button
+                    label="Move Up"
+                    disabled={currentIndex === 0}
+                    onClick={() =>
+                      onPositionChange(currentIndex)({ target: { value: currentIndex <= 0 ? 0 : currentIndex - 1 } })
+                    }
+                  />
+                  <Button
+                    label="Move Down"
+                    disabled={currentIndex === pocList.length - 1}
+                    onClick={() =>
+                      onPositionChange(currentIndex)({
+                        target: { value: currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1 },
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
+          {children}
         </div>
-        {children}
       </div>
+      <Divider noMargin />
     </div>
   );
 }

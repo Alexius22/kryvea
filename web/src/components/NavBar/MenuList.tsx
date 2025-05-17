@@ -8,10 +8,10 @@ type Props = {
 
 export default function NavBarMenuList({ menu }: Props) {
   return (
-    <>
+    <div className="flex flex-col lg:flex-row">
       {menu.map((item, index) => (
         <NavBarItem key={index} item={item} />
       ))}
-    </>
+    </div>
   );
 }

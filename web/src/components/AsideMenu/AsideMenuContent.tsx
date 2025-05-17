@@ -5,12 +5,12 @@ import { MenuAsideItem } from "../../interfaces";
 import Item from "./Item";
 
 type Props = {
+  className?: string;
   nestedMenu?: MenuAsideItem[];
   isDropdownList?: boolean;
-  className?: string;
 };
 
-export default function AsideMenu({ nestedMenu, isDropdownList = false, className = "" }: Props) {
+export default function AsideMenuContent({ nestedMenu, isDropdownList = false, className = "" }: Props) {
   const {
     useCustomerName: [customerName],
   } = useContext(GlobalContext);

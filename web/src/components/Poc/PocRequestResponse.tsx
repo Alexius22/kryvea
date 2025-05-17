@@ -35,6 +35,7 @@ export default function PocRequestResponse({
         icon: mdiCableData,
         onPositionChange,
         onRemovePoc,
+        title: "Request/Response",
       }}
     >
       <div className="col-span-8 grid">
@@ -48,7 +49,7 @@ export default function PocRequestResponse({
       </div>
 
       <div className="col-span-4 grid">
-        <label htmlFor={urlInputId}>Url</label>
+        <label htmlFor={urlInputId}>URL</label>
         <input
           id={urlInputId}
           className="rounded dark:bg-slate-800"

@@ -71,7 +71,6 @@ export default function App() {
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/vulnerability" element={<Vulnerability />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/add_assessment" element={<AddAssessment />} />
             <Route path="/add_host" element={<AddHost />} />
@@ -84,6 +83,7 @@ export default function App() {
             <Route path="/manage_category" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
+          <Route path="/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </GlobalContext.Provider>

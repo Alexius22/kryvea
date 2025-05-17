@@ -5,13 +5,10 @@ import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { targets } from "../mockup_data/targets";
-import { Host } from "../types/common.types";
 
 const Hosts = () => {
   const navigate = useNavigate();
@@ -29,7 +26,7 @@ const Hosts = () => {
   }, []);
 
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
@@ -44,41 +41,39 @@ const Hosts = () => {
         </p>
       </CardBoxModal>
 
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
-          <Buttons>
-            <Button
-              icon={mdiPlus}
-              label="New host"
-              roundedFull
-              small
-              color="contrast"
-              onClick={() => navigate("/add_host")}
-            />
-          </Buttons>
-        </SectionTitleLineWithButton>
-        <CardBox hasTable>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error: {error}</p>
-          ) : (
-            <Table
-              data={targets.map(target => ({
-                IP: target.ip,
-                Hostname: target.hostname,
-                buttons: (
-                  <Buttons noWrap>
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={10}
-            />
-          )}
-        </CardBox>
-      </SectionMain>
-    </>
+      <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
+        <Buttons>
+          <Button
+            icon={mdiPlus}
+            label="New host"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => navigate("/add_host")}
+          />
+        </Buttons>
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <Table
+            data={targets.map(target => ({
+              IP: target.ip,
+              Hostname: target.hostname,
+              buttons: (
+                <Buttons noWrap>
+                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={10}
+          />
+        )}
+      </CardBox>
+    </div>
   );
 };
 
