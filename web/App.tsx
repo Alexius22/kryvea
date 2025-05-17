@@ -10,7 +10,6 @@ import {
   AddVulnerability,
   Assessment,
   Assessments,
-  Customer,
   Customers,
   Dashboard,
   EditPoc,
@@ -23,9 +22,9 @@ import {
   Vulnerability,
 } from "./src/pages";
 import Categories from "./src/pages/Categories";
-import ManageCategory from "./src/pages/ManageCategory";
 import Hosts from "./src/pages/Hosts";
 import LiveEditor from "./src/pages/LiveEditor";
+import ManageCategory from "./src/pages/ManageCategory";
 
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];
@@ -63,7 +62,6 @@ export default function App() {
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/customer" element={<Customer />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/users" element={<Users />} />
             <Route path="/assessments" element={<Assessments />} />
