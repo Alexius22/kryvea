@@ -467,7 +467,7 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 
 	err := d.mongo.User().ResetPassword(req.ResetToken, req.Password)
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot reset password",
 		})
