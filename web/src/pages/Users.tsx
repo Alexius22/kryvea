@@ -82,7 +82,7 @@ const Users = () => {
                     <option value="user">User</option>
                   </Field>
                 </FormField>
-                <FormField label="Customers">
+                <FormField label="Customers" singleChild>
                   <SelectWrapper
                     options={[selectAllOption, ...customerOptions]}
                     isMulti
