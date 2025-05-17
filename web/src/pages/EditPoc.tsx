@@ -1,17 +1,15 @@
-import { mdiPlus } from "@mdi/js";
-import React, { useEffect, useState } from "react";
+import { mdiPlus, mdiSend } from "@mdi/js";
+import { useEffect, useState } from "react";
+import { v4 } from "uuid";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
-import CardBoxComponentTitle from "../components/CardBox/Component/Title";
 import Divider from "../components/Divider";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocText from "../components/Poc/PocText";
-import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
-import { v4 } from "uuid";
 
 const EditPoc = () => {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
@@ -137,20 +135,17 @@ const EditPoc = () => {
     switch (pocDoc.type) {
       case "text":
         return (
-          <React.Fragment key={pocDoc.key}>
-            <PocText
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onTextChange,
-                onRemovePoc,
-              }}
-            />
-            <Divider />
-          </React.Fragment>
+          <PocText
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+            }}
+            key={pocDoc.key}
+          />
         );
       case "image":
         const pocImageProps: PocImageProps = {
@@ -162,37 +157,29 @@ const EditPoc = () => {
           onRemovePoc,
           onImageChange,
         };
-        return (
-          <React.Fragment key={pocDoc.key}>
-            <PocImage {...pocImageProps} />
-            <Divider />
-          </React.Fragment>
-        );
+        return <PocImage {...pocImageProps} key={pocDoc.key} />;
       case "request/response":
         return (
-          <React.Fragment key={pocDoc.key}>
-            <PocRequestResponse
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onTextChange,
-                onRemovePoc,
-              }}
-            />
-            <Divider />
-          </React.Fragment>
+          <PocRequestResponse
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+            }}
+            key={pocDoc.key}
+          />
         );
     }
   };
 
   return (
-    <>
-      <SectionMain>
-        <CardBox>
-          <CardBoxComponentTitle title="Edit PoC"></CardBoxComponentTitle>
+    <div>
+      <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-800">
+        <CardBox noPadding className="rounded-3xl p-6 dark:!bg-slate-700">
+          <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button
               label="Request/Response"
@@ -203,15 +190,13 @@ const EditPoc = () => {
             />
             <Button label="Image" color="contrast" icon={mdiPlus} onClick={addPoc("image")} small />
             <Button label="Text" color="contrast" icon={mdiPlus} onClick={addPoc("text")} small />
-          </Buttons>
-          <Divider />
-          <div className="flex flex-col">{pocList.map(switchPocType)}</div>
-          <Buttons>
-            <Button label="Submit" color="info" />
+            <Button className="ml-auto" label="Submit" color="info" icon={mdiSend} />
           </Buttons>
         </CardBox>
-      </SectionMain>
-    </>
+      </div>
+      <Divider noMargin />
+      <div className="relative flex w-full flex-col">{pocList.map(switchPocType)}</div>
+    </div>
   );
 };
 

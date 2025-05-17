@@ -90,7 +90,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   };
 
   return (
-    <>
+    <div>
       <input
         className="mb-2 h-10 w-1/4 rounded-lg border-0 bg-gray-200 dark:bg-slate-900 dark:text-white"
         placeholder="Search"
@@ -101,7 +101,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
           setFilterText(e.target.value);
         }}
       />
-      <CardBox hasTable>
+      <CardBox noPadding>
         <table className="w-full table-auto border-collapse">
           {filteredData.length > 0 && (
             <thead>
@@ -185,7 +185,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
           </div>
         </div>
       </CardBox>
-    </>
+    </div>
   );
 };
 

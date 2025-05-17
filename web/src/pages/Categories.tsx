@@ -5,13 +5,10 @@ import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { categories } from "../mockup_data/categories";
-import { Category } from "../types/common.types";
 
 const Categories = () => {
   const navigate = useNavigate();
@@ -28,7 +25,7 @@ const Categories = () => {
     document.title = getPageTitle("Categories");
   }, []);
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
@@ -42,44 +39,43 @@ const Categories = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
-          <Button
-            icon={mdiPlus}
-            label="New category"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/manage_category")}
+
+      <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
+        <Button
+          icon={mdiPlus}
+          label="New category"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/manage_category")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <Table
+            data={categories.map(category => ({
+              Identifier: category.index,
+              Name: category.name,
+              Source: category.source,
+              Languages: Object.keys(category.generic_description || {})
+                .join(" | ")
+                .toUpperCase(),
+              buttons: (
+                <Buttons noWrap>
+                  <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
+                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={50}
           />
-        </SectionTitleLineWithButton>
-        <CardBox hasTable>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error: {error}</p>
-          ) : (
-            <Table
-              data={categories.map(category => ({
-                Identifier: category.index,
-                Name: category.name,
-                Source: category.source,
-                Languages: Object.keys(category.generic_description || {})
-                  .join(" | ")
-                  .toUpperCase(),
-                buttons: (
-                  <Buttons noWrap>
-                    <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={50}
-            />
-          )}
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </div>
   );
 };
 

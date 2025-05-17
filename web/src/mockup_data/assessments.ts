@@ -1,4 +1,6 @@
-export const assessments = [
+import { Assessment } from "../types/common.types";
+
+export const assessments: Partial<Assessment>[] = [
   {
     id: "67ae841a596db351cbcd0966",
     created_at: "2025-02-13T23:45:30.845Z",

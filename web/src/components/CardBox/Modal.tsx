@@ -1,11 +1,10 @@
 import { mdiClose } from "@mdi/js";
 import { ReactNode } from "react";
+import CardBox from ".";
 import type { ColorButtonKey } from "../../interfaces";
 import Button from "../Button";
 import Buttons from "../Buttons";
-import CardBox from ".";
 import CardBoxComponentTitle from "./Component/Title";
-import OverlayLayer from "../OverlayLayer";
 
 type Props = {
   title: string;
@@ -40,10 +39,9 @@ const CardBoxModal = ({
   );
 
   return (
-    <OverlayLayer onClick={onCancel} className={onCancel ? "cursor-pointer" : ""}>
+    <div className="fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-gradient-to-tr dark:from-gray-700/85 dark:via-gray-900/85 dark:to-gray-700/85">
       <CardBox
-        className={`z-50 max-h-modal shadow-lg transition-transform ${className || "w-11/12 md:w-3/5 lg:w-2/5 xl:w-4/12"}`}
-        isModal
+        className={`max-h-modal shadow-lg transition-transform ${className || "w-11/12 md:w-3/5 lg:w-2/5 xl:w-4/12"}`}
         footer={footer}
       >
         <CardBoxComponentTitle title={title}>
@@ -52,7 +50,7 @@ const CardBoxModal = ({
 
         <div className="space-y-3">{children}</div>
       </CardBox>
-    </OverlayLayer>
+    </div>
   );
 };
 

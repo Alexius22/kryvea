@@ -34,33 +34,31 @@ const Login = () => {
   }, []);
 
   return (
-    <>
-      <SectionFullScreen bg="pinkRed">
-        <CardBox className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12">
-          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-            <Form>
-              <FormField label="Login">
-                <Field name="login" />
-              </FormField>
+    <SectionFullScreen bg="purplePink">
+      <CardBox className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12">
+        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+          <Form>
+            <FormField label="Login">
+              <Field name="login" />
+            </FormField>
 
-              <FormField label="Password">
-                <Field name="password" type="password" />
-              </FormField>
+            <FormField label="Password">
+              <Field name="password" type="password" />
+            </FormField>
 
-              <FormCheckRadio type="checkbox" label="Remember">
-                <Field type="checkbox" name="remember" />
-              </FormCheckRadio>
+            <FormCheckRadio type="checkbox" label="Remember">
+              <Field type="checkbox" name="remember" />
+            </FormCheckRadio>
 
-              <Divider />
+            <Divider />
 
-              <Buttons>
-                <Button type="submit" label="Login" color="info" />
-              </Buttons>
-            </Form>
-          </Formik>
-        </CardBox>
-      </SectionFullScreen>
-    </>
+            <Buttons>
+              <Button type="submit" label="Login" color="info" />
+            </Buttons>
+          </Form>
+        </Formik>
+      </CardBox>
+    </SectionFullScreen>
   );
 };
 

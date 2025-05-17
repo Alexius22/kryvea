@@ -40,6 +40,7 @@ export default function PocText({
         icon: mdiPencil,
         onPositionChange,
         onRemovePoc,
+        title: "Text",
       }}
     >
       <div className="col-span-8 grid">

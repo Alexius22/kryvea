@@ -66,6 +66,7 @@ export default function PocImage({
         icon: mdiImage,
         onPositionChange,
         onRemovePoc,
+        title: "Image",
       }}
     >
       <div className="col-span-8 grid">
