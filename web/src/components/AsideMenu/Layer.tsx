@@ -32,7 +32,7 @@ export default function AsideMenuLayer({ className = "", ...props }: Props) {
           </button>
         </div>
         <div
-          className={`navbar-fixed-width flex-1 overflow-y-auto overflow-x-hidden ${
+          className={`flex-1 overflow-y-auto overflow-x-hidden ${
             darkTheme ? "aside-scrollbars-[slate]" : "aside-scrollbars"
           }`}
         >

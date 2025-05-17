@@ -11,14 +11,14 @@ export default function LayoutAuthenticated() {
     <div
       className={`max-w-screen flex h-screen bg-gray-50 transition-position dark:bg-slate-800 dark:text-slate-100 lg:w-auto`}
     >
-      <AsideMenuLayer className="hidden h-full w-full max-w-[264px] p-4 transition-position xl:flex" />
+      <AsideMenuLayer className="hidden h-full w-full max-w-[300px] p-4 transition-position xl:flex" />
       <div className="flex w-full flex-col overflow-auto pb-4 pr-4">
         <NavBar menu={menuNavBar} className="sticky top-0">
           <NavBarItemPlain useMargin>
             <Breadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
           </NavBarItemPlain>
         </NavBar>
-        <main className="flex h-full w-full flex-col justify-between overflow-auto bg-slate-800">
+        <main className="no-scrollbar flex h-full w-full flex-col justify-between overflow-auto bg-slate-800">
           <Outlet />
           <FooterBar className="bg-slate-800">
             <a target="_blank" rel="noreferrer" className="text-blue-600"></a>

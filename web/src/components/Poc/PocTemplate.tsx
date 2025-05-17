@@ -38,8 +38,8 @@ export default function PocTemplate({
   return (
     <div className="rounded-3xl bg-slate-900/70">
       <div className="relative flex flex-col p-6">
-        <div className="mb-4 flex h-min w-min items-center gap-4">
-          <h1 className="flex w-min items-center gap-2 rounded px-2 font-mono text-2xl uppercase">
+        <div className="mb-4 flex items-center gap-4">
+          <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
             <Icon path={icon} size={25} />
             {title}
           </h1>
