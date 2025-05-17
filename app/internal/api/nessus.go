@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
@@ -83,8 +84,6 @@ func (d *Driver) UploadNessus(c *fiber.Ctx) error {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse Nessus",
-			// TODO: remove
-			"err": err.Error(),
 		})
 	}
 
@@ -94,15 +93,40 @@ func (d *Driver) UploadNessus(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.Assessment, userID bson.ObjectID) error {
+func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.Assessment, userID bson.ObjectID) (err error) {
 	nessusData, err := nessus.Parse(data)
 	if err != nil {
 		return err
 	}
 
-	// TODO: clean up if an upload fails
+	var vulnerabilities []bson.ObjectID
+	var categories []bson.ObjectID
+	var targets []bson.ObjectID
+
+	defer func() {
+		if err != nil {
+			for _, vulnerabilityID := range vulnerabilities {
+				cErr := d.mongo.Vulnerability().Delete(vulnerabilityID)
+				if cErr != nil {
+					err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
+				}
+			}
+			for _, categoryID := range categories {
+				cErr := d.mongo.Category().Delete(categoryID)
+				if cErr != nil {
+					err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
+				}
+			}
+			for _, targetID := range targets {
+				cErr := d.mongo.Target().Delete(targetID)
+				if cErr != nil {
+					err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
+				}
+			}
+		}
+	}()
+
 	for _, host := range nessusData.Report.ReportHosts {
-		// target
 		var hostIP, hostFQDN, hostRDNS string
 		for _, property := range host.HostProperties.Tag {
 			switch property.Name {
@@ -127,9 +151,12 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 			},
 		}
 
-		targetID, err := d.mongo.Target().FirstOrInsert(target)
+		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target)
 		if err != nil {
 			return err
+		}
+		if isNew {
+			targets = append(targets, targetID)
 		}
 
 		for _, item := range host.ReportItems {
@@ -144,9 +171,12 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 				},
 			}
 
-			categoryID, err := d.mongo.Category().FirstOrInsert(category)
+			categoryID, isNew, err := d.mongo.Category().FirstOrInsert(category)
 			if err != nil {
 				return err
+			}
+			if isNew {
+				categories = append(categories, categoryID)
 			}
 
 			vulnerability := &mongo.Vulnerability{
@@ -203,6 +233,8 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 			if err != nil {
 				return err
 			}
+
+			vulnerabilities = append(vulnerabilities, vulnerabilityID)
 
 			poc := &mongo.Poc{
 				Index:           0,

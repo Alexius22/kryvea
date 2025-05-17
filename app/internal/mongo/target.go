@@ -88,17 +88,18 @@ func (ti *TargetIndex) Insert(target *Target) (bson.ObjectID, error) {
 	return target.ID, err
 }
 
-func (ti *TargetIndex) FirstOrInsert(target *Target) (bson.ObjectID, error) {
+func (ti *TargetIndex) FirstOrInsert(target *Target) (bson.ObjectID, bool, error) {
 	var existingTarget Assessment
 	err := ti.collection.FindOne(context.Background(), bson.M{"ip": target.IP, "hostname": target.Hostname, "name": target.Name}).Decode(&existingTarget)
 	if err == nil {
-		return existingTarget.ID, nil
+		return existingTarget.ID, false, nil
 	}
 	if err != mongo.ErrNoDocuments {
-		return bson.NilObjectID, err
+		return bson.NilObjectID, false, err
 	}
 
-	return ti.Insert(target)
+	id, err := ti.Insert(target)
+	return id, true, err
 }
 
 func (ti *TargetIndex) Update(targetID bson.ObjectID, target *Target) error {
