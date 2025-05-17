@@ -1,4 +1,4 @@
-import { mdiDownload, mdiFileEye, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -132,6 +132,7 @@ const Assessment = () => {
               "CVSS Score": vulnerability.cvss_score,
               buttons: (
                 <Buttons noWrap>
+                  <Button color="info" icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),

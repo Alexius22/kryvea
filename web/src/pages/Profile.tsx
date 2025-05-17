@@ -5,7 +5,6 @@ import { GlobalContext } from "../../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
-import CardBoxComponentFooter from "../components/CardBox/Component/Footer";
 import CardBoxUser from "../components/CardBox/User";
 import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
@@ -47,11 +46,11 @@ const Profile = () => {
                     <Field name="email" id="email" placeholder="E-mail" />
                   </FormField>
                 </CardBox>
-                <CardBoxComponentFooter>
+                <div className="p-6">
                   <Buttons>
                     <Button color="info" type="submit" label="Submit" />
                   </Buttons>
-                </CardBoxComponentFooter>
+                </div>
               </Form>
             </Formik>
           </CardBox>
@@ -93,11 +92,11 @@ const Profile = () => {
                 </FormField>
               </CardBox>
 
-              <CardBoxComponentFooter>
+              <div className="p-6">
                 <Buttons>
                   <Button color="info" type="submit" label="Submit" />
                 </Buttons>
-              </CardBoxComponentFooter>
+              </div>
             </Form>
           </Formik>
         </CardBox>
