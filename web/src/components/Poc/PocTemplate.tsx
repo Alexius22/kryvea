@@ -36,7 +36,7 @@ export default function PocTemplate({
   };
 
   return (
-    <div className="rounded-3xl bg-slate-900/70">
+    <div className="rounded-3xl bg-slate-50 dark:bg-slate-900/70">
       <div className="relative flex flex-col p-6">
         <div className="mb-4 flex items-center gap-4">
           <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
@@ -91,7 +91,6 @@ export default function PocTemplate({
           {children}
         </div>
       </div>
-      <Divider noMargin />
     </div>
   );
 }

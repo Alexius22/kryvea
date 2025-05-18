@@ -68,6 +68,7 @@ export default function SelectWrapper({
       styles={{
         control: (base, state) => ({
           ...base,
+          transition: "all 0.025s ease",
           backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
           borderColor: state.isFocused ? "#3F4E65" : "#374151",
           borderRadius: "4px",
