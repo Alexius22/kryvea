@@ -12,7 +12,7 @@ export default function LayoutAuthenticated() {
       className={`max-w-screen flex h-screen bg-slate-300 transition-position dark:bg-slate-800 dark:text-slate-100 lg:w-auto`}
     >
       <AsideMenuLayer className="hidden h-full w-full max-w-[300px] p-4 transition-position xl:flex" />
-      <div className="flex w-full flex-col overflow-auto px-4 lg:p-0 lg:pb-4 lg:pr-4">
+      <div className="flex w-full flex-col overflow-auto px-4 xl:p-0 xl:pb-4 xl:pr-4">
         <NavBar menu={menuNavBar} className="sticky top-0">
           <NavBarItemPlain useMargin>
             <Breadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
