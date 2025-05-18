@@ -31,7 +31,7 @@ export default function NavBar({ menu, className = "", children }: Props) {
         <div
           className={`${
             isMenuNavBarActive ? "block" : "hidden"
-          } absolute left-0 top-14 max-h-screen-menu w-screen overflow-y-auto bg-gray-50 shadow-lg dark:bg-slate-800 lg:static lg:flex lg:w-auto lg:overflow-visible lg:shadow-none`}
+          } absolute left-0 top-14 max-h-screen-menu w-screen overflow-y-auto shadow-lg dark:bg-slate-800 lg:static lg:flex lg:w-auto lg:overflow-visible lg:shadow-none`}
         >
           <NavBarMenuList menu={menu} />
         </div>
