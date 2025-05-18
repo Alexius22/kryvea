@@ -202,81 +202,83 @@ const LiveEditor = () => {
       </CardBoxModal>
 
       <div className="grid grid-cols-2 gap-4">
-        <CardBox>
+        <CardBox className="">
           <Formik initialValues={{}} onSubmit={undefined}>
-            {sections.map(({ title, subSections }) => (
-              <Accordion key={title} title={title}>
-                <div className="px-4">
-                  {subSections
-                    ? subSections.map(sub => (
-                        <div key={sub}>
-                          <label className="font-bold">{sub}</label>
-                          <Field
-                            as="textarea"
-                            className="mt-2 h-32 w-full max-w-full rounded border border-gray-700 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring focus:ring-blue-600 dark:bg-slate-800 dark:placeholder-gray-400"
-                            value={content[title]?.[sub] || ""}
-                            onChange={e => handleChange(title, sub, e.target.value)}
-                          />
-                        </div>
-                      ))
-                    : title === "Vulnerabilities Details"
-                      ? vulnerabilities.map((vulnerability, index) => (
-                          <Accordion key={index} title={vulnerability.detailed_title}>
-                            <div className="p-4">
-                              <FormField label="Description" hasTextareaHeight>
-                                <Field
-                                  name={`vulnerabilities[${index}].description`}
-                                  id={`description-${index}`}
-                                  as="textarea"
-                                  defaultValue={vulnerability.description}
-                                />
-                              </FormField>
-                              <div className="grid grid-cols-[1fr_auto] gap-4">
-                                <FormField label="CVSS Vector">
+            <div className="flex flex-col gap-4">
+              {sections.map(({ title, subSections }) => (
+                <Accordion key={title} title={title}>
+                  <div className="px-4">
+                    {subSections
+                      ? subSections.map(sub => (
+                          <div key={sub}>
+                            <label className="font-bold">{sub}</label>
+                            <Field
+                              as="textarea"
+                              className="mt-2 h-32 w-full max-w-full rounded border border-gray-700 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring focus:ring-blue-600 dark:bg-slate-800 dark:placeholder-gray-400"
+                              value={content[title]?.[sub] || ""}
+                              onChange={e => handleChange(title, sub, e.target.value)}
+                            />
+                          </div>
+                        ))
+                      : title === "Vulnerabilities Details"
+                        ? vulnerabilities.map((vulnerability, index) => (
+                            <Accordion key={index} title={vulnerability.detailed_title}>
+                              <div className="p-4">
+                                <FormField label="Description" hasTextareaHeight>
                                   <Field
-                                    name={`vulnerabilities[${index}].cvss_vector`}
-                                    id={`cvss_vector-${index}`}
-                                    component="input"
-                                    type="text"
-                                    defaultValue={vulnerability.cvss_vector}
+                                    name={`vulnerabilities[${index}].description`}
+                                    id={`description-${index}`}
+                                    as="textarea"
+                                    defaultValue={vulnerability.description}
                                   />
                                 </FormField>
-                                <div className="mt-[2rem]">
-                                  <Button
-                                    className="h-12"
-                                    color="info"
-                                    icon={mdiCalculator}
-                                    label="Recalculate CVSS"
-                                    onClick={() => setIsModalInfoActive(true)}
-                                  />
+                                <div className="grid grid-cols-[1fr_auto] gap-4">
+                                  <FormField label="CVSS Vector">
+                                    <Field
+                                      name={`vulnerabilities[${index}].cvss_vector`}
+                                      id={`cvss_vector-${index}`}
+                                      component="input"
+                                      type="text"
+                                      defaultValue={vulnerability.cvss_vector}
+                                    />
+                                  </FormField>
+                                  <div className="mt-[2rem]">
+                                    <Button
+                                      className="h-12"
+                                      color="info"
+                                      icon={mdiCalculator}
+                                      label="Recalculate CVSS"
+                                      onClick={() => setIsModalInfoActive(true)}
+                                    />
+                                  </div>
                                 </div>
+                                <div className="mb-[2rem]">
+                                  <ScoreBar score={vulnerability.cvss_score} />
+                                </div>
+                                <FormField label="Remediation" hasTextareaHeight>
+                                  <Field
+                                    name={`vulnerabilities[${index}].remediation`}
+                                    id={`remediation-${index}`}
+                                    as="textarea"
+                                    defaultValue={vulnerability.remediation}
+                                  />
+                                </FormField>
+                                <FormField label="References" hasTextareaHeight>
+                                  <Field
+                                    name={"references"}
+                                    id={`references-${index}`}
+                                    as="textarea"
+                                    defaultValue={vulnerability.references.join("\n")}
+                                  />
+                                </FormField>
                               </div>
-                              <div className="mb-[2rem]">
-                                <ScoreBar score={vulnerability.cvss_score} />
-                              </div>
-                              <FormField label="Remediation" hasTextareaHeight>
-                                <Field
-                                  name={`vulnerabilities[${index}].remediation`}
-                                  id={`remediation-${index}`}
-                                  as="textarea"
-                                  defaultValue={vulnerability.remediation}
-                                />
-                              </FormField>
-                              <FormField label="References" hasTextareaHeight>
-                                <Field
-                                  name={"references"}
-                                  id={`references-${index}`}
-                                  as="textarea"
-                                  defaultValue={vulnerability.references.join("\n")}
-                                />
-                              </FormField>
-                            </div>
-                          </Accordion>
-                        ))
-                      : null}
-                </div>
-              </Accordion>
-            ))}
+                            </Accordion>
+                          ))
+                        : null}
+                  </div>
+                </Accordion>
+              ))}
+            </div>
           </Formik>
         </CardBox>
         <CardBox>
