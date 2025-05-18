@@ -180,7 +180,7 @@ const EditPoc = () => {
       <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-300 dark:bg-slate-800">
         <CardBox
           noPadding
-          className="rounded-3xl border-[1px] border-slate-400/55 p-6 dark:border-slate-600/90 dark:!bg-slate-700"
+          className="rounded-3xl border-[1px] border-slate-400/55 p-2 px-6 dark:border-slate-600/90 dark:!bg-slate-700"
         >
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
