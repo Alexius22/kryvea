@@ -178,7 +178,7 @@ const EditPoc = () => {
   return (
     <div>
       <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-800">
-        <CardBox noPadding className="rounded-3xl p-6 dark:!bg-slate-700">
+        <CardBox noPadding className="rounded-3xl border-[1px] border-white p-6 dark:!bg-slate-700">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button
@@ -195,7 +195,7 @@ const EditPoc = () => {
         </CardBox>
       </div>
       <Divider noMargin />
-      <div className="relative flex w-full flex-col">{pocList.map(switchPocType)}</div>
+      <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
     </div>
   );
 };

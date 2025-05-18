@@ -62,7 +62,7 @@ export default function SelectWrapper({
         onChange,
         defaultValue,
         closeMenuOnSelect,
-        id,
+        inputId: id,
       }}
       components={animatedComponents}
       styles={{
