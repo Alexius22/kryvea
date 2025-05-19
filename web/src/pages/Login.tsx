@@ -35,7 +35,7 @@ const Login = () => {
 
   return (
     <SectionFullScreen bg="purplePink">
-      <CardBox className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12">
+      <CardBox className="w-[500px]">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
             <FormField label="Login">
