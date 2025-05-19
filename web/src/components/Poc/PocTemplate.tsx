@@ -52,7 +52,7 @@ export default function PocTemplate({
             <div className="col-span-1 col-start-12 grid">
               <label htmlFor={positionInputId}>Position</label>
               <input
-                className="w-20 rounded dark:bg-slate-800"
+                className="no-spinner w-[55px] rounded focus:border-gray-700 focus:ring-slate-600/50 dark:bg-slate-800"
                 id={positionInputId}
                 type="number"
                 value={tmpPosition}

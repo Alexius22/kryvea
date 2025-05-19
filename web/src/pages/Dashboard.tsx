@@ -37,7 +37,7 @@ export default function Dashboard() {
             data={data.map(assessment => ({
               Customer: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => setCustomerName(assessment.customer.name)}
                 >
                   {assessment.customer.name}
@@ -45,7 +45,7 @@ export default function Dashboard() {
               ),
               "Assessment Name": (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
                   {assessment.name}

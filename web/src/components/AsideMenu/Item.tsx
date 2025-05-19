@@ -49,7 +49,7 @@ export default function Item({ item, isDropdownList = false }) {
       {item.menu && (
         <AsideMenuContent
           nestedMenu={item.menu}
-          className={`aside-menu-dropdown ${isDropdownActive ? "flex flex-col gap-4 p-4 px-8 dark:bg-slate-800/50" : "hidden"}`}
+          className={`aside-menu-dropdown ${isDropdownActive ? "flex flex-col gap-4 bg-slate-300/50 p-4 px-8 dark:bg-slate-800/50" : "hidden"}`}
           isDropdownList
         />
       )}

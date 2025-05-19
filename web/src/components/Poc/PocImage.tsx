@@ -72,7 +72,7 @@ export default function PocImage({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="rounded dark:bg-slate-800"
+          className="input-focus rounded dark:bg-slate-800"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
@@ -84,7 +84,7 @@ export default function PocImage({
         <div className="flex gap-4">
           <input
             ref={imageInput}
-            className="max-w-96 rounded dark:bg-slate-800"
+            className="input-focus max-w-96 rounded dark:bg-slate-800"
             type="file"
             name="myImage"
             accept="image/png, image/jpeg"
@@ -114,7 +114,7 @@ export default function PocImage({
       <div className="col-span-8 grid">
         <label htmlFor={captionTextareaId}>Caption</label>
         <input
-          className="rounded dark:bg-slate-800"
+          className="input-focus rounded dark:bg-slate-800"
           value={pocDoc.caption}
           id={captionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "caption")}
