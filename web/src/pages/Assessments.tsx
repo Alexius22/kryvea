@@ -139,7 +139,7 @@ const Assessments = () => {
             data={assessmentsData.map(assessment => ({
               Title: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
                   {assessment.name}

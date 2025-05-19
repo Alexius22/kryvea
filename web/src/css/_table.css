@@ -1,6 +1,6 @@
 @layer base {
   table {
-    @apply w-full border-collapse border-spacing-0;
+    @apply w-full border-collapse border-spacing-0 bg-slate-200 dark:bg-slate-900;
   }
 
   thead {
@@ -37,11 +37,21 @@
   }
 
   tbody tr:nth-child(odd) {
-    @apply lg:bg-gray-100/50 lg:dark:bg-slate-800/50;
+    @apply lg:bg-slate-300/50 dark:lg:bg-slate-800/50;
   }
 
   td:before {
     content: attr(data-label);
     @apply pr-3 text-left font-semibold lg:hidden;
+  }
+
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+  
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
   }
 }

@@ -47,14 +47,13 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
             .map((child, index) => {
               const isError = child.props.isError;
               const controlClassName = [
-                "px-3 py-2 max-w-full rounded w-full dark:placeholder-gray-400",
-                "focus:ring focus:outline-none",
+                "px-3 py-2 max-w-full rounded w-full dark:placeholder-gray-400 no-spinner",
                 isError
                   ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                  : "border-gray-700 focus:ring-blue-600 focus:border-blue-600",
+                  : "border-gray-700 focus:ring-slate-600/50 focus:border-gray-700",
                 props.hasTextareaHeight ? "h-48" : "h-12",
                 props.isBorderless ? "border-0" : "border",
-                props.isTransparent ? "bg-transparent" : "bg-white dark:bg-slate-800",
+                props.isTransparent ? "bg-transparent" : "bg-gray-200 dark:bg-slate-800",
               ].join(" ");
 
               const tmpKey = v4();

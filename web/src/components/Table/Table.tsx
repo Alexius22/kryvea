@@ -92,7 +92,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   return (
     <div>
       <input
-        className="mb-2 h-10 w-1/4 rounded-lg border-0 bg-gray-200 dark:bg-slate-900 dark:text-white"
+        className="mb-2 h-10 w-1/4 rounded-lg border-0 bg-slate-200 dark:bg-slate-900 dark:text-white"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -164,6 +164,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
               {pagesList.map(page => (
                 <Button
                   key={page}
+                  className="border-hidden"
                   active={page === currentPage}
                   label={page + 1}
                   color={page === currentPage ? "lightDark" : "whiteDark"}
@@ -173,7 +174,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
               ))}
             </Buttons>
             <Formik initialValues={undefined} onSubmit={undefined}>
-              <Form className="ml-auto mr-2 w-20">
+              <Form className="ml-auto mr-2 w-[55px]">
                 <FormField noHeight>
                   <Field type="number" value={perPage} onChange={val => setPerPage(+val.target.value)} />
                 </FormField>

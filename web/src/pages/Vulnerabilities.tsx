@@ -31,7 +31,7 @@ const Vulnerabilities = () => {
             data={vulnerabilities?.map(vulnerability => ({
               Vulnerability: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
                 >
                   {vulnerability.category.name + " - " + vulnerability.detailed_title}
@@ -41,7 +41,7 @@ const Vulnerabilities = () => {
               "CVSS Vector": vulnerability.cvss_vector,
               Assessment: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
                   {vulnerability.assessment.name}

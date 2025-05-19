@@ -121,7 +121,7 @@ const Assessment = () => {
             data={vulnerabilities.map(vulnerability => ({
               Vulnerability: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/vulnerability`)}
                 >
                   {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
