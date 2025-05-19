@@ -1,4 +1,4 @@
-import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -18,10 +18,12 @@ const Assessment = () => {
   const loading = false;
   const error = false;
 
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
+  const [isModalUploadActive, setIsModalUploadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalDownloadActive(false);
+    setIsModalUploadActive(false);
     setIsModalTrashActive(false);
   };
 
@@ -35,7 +37,7 @@ const Assessment = () => {
         title="Download report"
         buttonColor="info"
         buttonLabel="Confirm"
-        isActive={isModalInfoActive}
+        isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
@@ -57,6 +59,27 @@ const Assessment = () => {
             </FormField>
             <FormField label="Options">
               <Field name="options" placeholder="TODO" />
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
+      <CardBoxModal
+        title="Upload file"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalUploadActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik initialValues={{}} onSubmit={undefined}>
+          <Form>
+            <FormField label="Choose Nessus file" icons={[]}>
+              <input
+                className="input-focus max-w-96 rounded dark:bg-slate-800"
+                type="file"
+                name="nessus"
+                accept=".nessus"
+              />
             </FormField>
           </Form>
         </Formik>
@@ -91,7 +114,7 @@ const Assessment = () => {
             roundedFull
             small
             color="success"
-            onClick={() => setIsModalInfoActive(true)}
+            onClick={() => setIsModalDownloadActive(true)}
           />
           <Button
             icon={mdiPlus}
@@ -108,6 +131,14 @@ const Assessment = () => {
             small
             color="contrast"
             onClick={() => navigate("/add_vulnerability")}
+          />
+          <Button
+            icon={mdiUpload}
+            label="Upload"
+            roundedFull
+            small
+            color="contrast"
+            onClick={() => setIsModalUploadActive(true)}
           />
         </Buttons>
       </SectionTitleLineWithButton>
