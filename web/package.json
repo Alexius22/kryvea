@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@mdi/js": "^7.0.96",
+    "axios": "^1.9.0",
     "chart.js": "^4.4.7",
     "formik": "^2.4.2",
     "jspdf": "^2.5.2",

@@ -1,5 +1,5 @@
 import { ReactNode, useContext } from "react";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { BgKey } from "../../interfaces";
 
 type Props = {

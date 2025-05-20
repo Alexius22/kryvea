@@ -1,7 +1,7 @@
 import { mdiAccount, mdiAsterisk, mdiFormTextboxPassword, mdiMail } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";

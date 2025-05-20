@@ -1,7 +1,7 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 import CardBox from "../components/CardBox";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";

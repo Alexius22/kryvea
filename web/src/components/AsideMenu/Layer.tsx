@@ -2,7 +2,7 @@ import { mdiClose } from "@mdi/js";
 import React, { useContext } from "react";
 import Icon from "../Icon/Icon";
 import AsideMenuContent from "./AsideMenuContent";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { Link } from "react-router";
 
 type Props = {
