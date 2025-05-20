@@ -237,6 +237,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
 	}
 
+	// update assessment in database
 	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
 		Name:           data.Name,
 		StartDateTime:  data.StartDateTime,
@@ -290,7 +291,7 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// delete assessment
+	// delete assessment from database
 	err := d.mongo.Assessment().Delete(assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -487,7 +488,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment, string) {
 	if assessmentParam == "" {
-		return nil, "assessment ID is required"
+		return nil, "Assessment ID is required"
 	}
 
 	assessmentID, err := util.ParseMongoID(assessmentParam)
