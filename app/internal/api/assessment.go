@@ -170,6 +170,21 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
+	// retrieve target data
+	for i := range assessments {
+		for j := range assessments[i].Targets {
+			target, err := d.mongo.Target().GetByID(assessments[i].Targets[j].ID)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Cannot get target",
+				})
+			}
+			assessments[i].Targets[j].IP = target.IP
+			assessments[i].Targets[j].Hostname = target.Hostname
+		}
+	}
+
 	if len(assessments) == 0 {
 		assessments = []mongo.Assessment{}
 	}
