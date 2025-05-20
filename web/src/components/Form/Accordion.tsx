@@ -1,6 +1,6 @@
 import { mdiChevronDown } from "@mdi/js";
 import { useContext, useRef, useState } from "react";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import Icon from "../Icon/Icon";
 import "./Accordion.css";
 

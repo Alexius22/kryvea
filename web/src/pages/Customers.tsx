@@ -1,7 +1,7 @@
 import { mdiEye, mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";

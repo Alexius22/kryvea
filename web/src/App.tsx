@@ -1,7 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
-import RouteWatcher from "./src/layouts/RouteWatcher";
+import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
+import RouteWatcher from "./layouts/RouteWatcher";
 import {
   AddAssessment,
   AddCustomer,
@@ -20,11 +20,11 @@ import {
   Users,
   Vulnerabilities,
   Vulnerability,
-} from "./src/pages";
-import Categories from "./src/pages/Categories";
-import Hosts from "./src/pages/Hosts";
-import LiveEditor from "./src/pages/LiveEditor";
-import ManageCategory from "./src/pages/ManageCategory";
+} from "./pages";
+import Categories from "./pages/Categories";
+import Hosts from "./pages/Hosts";
+import LiveEditor from "./pages/LiveEditor";
+import ManageCategory from "./pages/ManageCategory";
 
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];

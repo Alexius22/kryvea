@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {

@@ -1,6 +1,6 @@
 import { mdiListBox, mdiMagnify, mdiMonitor, mdiPocket, mdiResponsive, mdiViewList } from "@mdi/js";
 import { useContext } from "react";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { MenuAsideItem } from "../../interfaces";
 import Item from "./Item";
 
