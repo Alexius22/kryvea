@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 pem_file="/etc/nginx/ssl/kryvea.local.pem"
 key_file="/etc/nginx/ssl/kryvea.local.key"
