@@ -1,4 +1,4 @@
-FROM node:latest AS node-deps
+FROM node:latest AS node-builder
 WORKDIR /web
 COPY package*.json .
 RUN npm install
@@ -20,5 +20,5 @@ ENV APP_HOME=/var/www/kryvea/html
 RUN mkdir -p $APP_HOME
 RUN mkdir -p $APP_HOME/static
 WORKDIR $APP_HOME
-COPY --from=node-deps /web/dist .
+COPY --from=node-builder /web/dist .
 RUN chown -R nginx:nginx /var/www/kryvea
