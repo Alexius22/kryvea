@@ -25,7 +25,6 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // kryvea:kryveapassword
   const handleSubmit = _ => {
     axios
       .post("/api/login", {
