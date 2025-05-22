@@ -63,11 +63,6 @@ export default function AsideMenuContent({ nestedMenu, isDropdownList = false, c
         },
       ],
     },
-    {
-      href: "/edit_poc",
-      label: "Edit POC",
-      icon: mdiPocket,
-    },
   ];
 
   return (
