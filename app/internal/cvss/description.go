@@ -129,19 +129,22 @@ var cvssMap = map[string]map[string]map[string]string{
 }
 
 var descriptions = map[string]map[string]string{
-	"3.1": {
+	CVSS31: {
 		"it": "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
 		"en": "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
 	},
-	"4.0": {
+	CVSS4: {
 		"it": "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s %s. Gli attacchi %s. L'impatto risultante è %s sulla confidenzialità, %s sull'integrità, %s sulla disponibilità. Impatto successivo: %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità.",
 		"en": "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks with %s requirements. The attacks %s. The resulting impact is %s on confidentiality, %s on integrity, %s on availability. Subsequent impact: %s on confidentiality, %s on integrity, and %s on availability.",
 	},
 }
 
 func GenerateDescription(vector, version, language string) string {
-	vector = vector[len("CVSS:4.0"):]
-	fields := strings.Split(vector, "/")
+	if version == CVSS3 {
+		version = CVSS31
+	}
+
+	fields := strings.Split(vector, "/")[1:]
 	vector_map := make(map[string]string)
 
 	if _, exists := cvssMap[version][language]; !exists {
@@ -156,12 +159,12 @@ func GenerateDescription(vector, version, language string) string {
 	}
 
 	switch version {
-	case "3.1":
+	case CVSS31:
 		return fmt.Sprintf(
 			descriptions[version][language],
 			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["C"], vector_map["I"], vector_map["A"], vector_map["UI"], vector_map["S"],
 		)
-	case "4.0":
+	case CVSS4:
 		return fmt.Sprintf(
 			descriptions[version][language],
 			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["AT"], vector_map["UI"], vector_map["VC"], vector_map["VI"], vector_map["VA"], vector_map["SC"], vector_map["SI"], vector_map["SA"],
