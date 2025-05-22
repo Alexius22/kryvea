@@ -6,9 +6,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type categoryRequestData struct {
+	ID                 string            `json:"id"`
+	Index              string            `json:"index"`
+	Name               string            `json:"name"`
+	GenericDescription map[string]string `json:"generic_description"`
+	GenericRemediation map[string]string `json:"generic_remediation"`
+}
+
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -16,34 +25,30 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	type reqData struct {
-		ID                 string            `json:"id"`
-		Index              string            `json:"index"`
-		Name               string            `json:"name"`
-		GenericDescription map[string]string `json:"generic_description"`
-		GenericRemediation map[string]string `json:"generic_remediation"`
-	}
-
-	category := &reqData{}
-	if err := c.BodyParser(category); err != nil {
+	// parse request body
+	data := &categoryRequestData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if category.Index == "" || category.Name == "" {
+	// validate data
+	errStr := d.validateCategoryData(data)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Index and Name are required",
+			"error": errStr,
 		})
 	}
 
+	// insert category into database
 	categoryID, err := d.mongo.Category().Insert(&mongo.Category{
-		Index:              category.Index,
-		Name:               category.Name,
-		GenericDescription: category.GenericDescription,
-		GenericRemediation: category.GenericRemediation,
+		Index:              data.Index,
+		Name:               data.Name,
+		GenericDescription: data.GenericDescription,
+		GenericRemediation: data.GenericRemediation,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -62,6 +67,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -69,57 +75,39 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	type reqData struct {
-		Index              string            `json:"index"`
-		Name               string            `json:"name"`
-		GenericDescription map[string]string `json:"generic_description"`
-		GenericRemediation map[string]string `json:"generic_remediation"`
+	// parse category param
+	category, errStr := d.categoryFromParam(c.Params("category"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
 	}
 
-	category := &reqData{}
-	if err := c.BodyParser(category); err != nil {
+	// parse request body
+	data := &categoryRequestData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	categoryParam := c.Params("category")
-	if categoryParam == "" {
+	// validate data
+	errStr = d.validateCategoryData(data)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Category ID is required",
+			"error": errStr,
 		})
 	}
 
-	categoryID, err := util.ParseMongoID(categoryParam)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid category ID",
-		})
-	}
-
-	_, err = d.mongo.Category().GetByID(categoryID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid category ID",
-		})
-	}
-
-	if category.Index == "" || category.Name == "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Index and Name are required",
-		})
-	}
-
-	err = d.mongo.Category().Update(categoryID, &mongo.Category{
-		Index:              category.Index,
-		Name:               category.Name,
-		GenericDescription: category.GenericDescription,
-		GenericRemediation: category.GenericRemediation,
+	// update category in database
+	err := d.mongo.Category().Update(category.ID, &mongo.Category{
+		Index:              data.Index,
+		Name:               data.Name,
+		GenericDescription: data.GenericDescription,
+		GenericRemediation: data.GenericRemediation,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -137,6 +125,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -144,23 +133,17 @@ func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	categoryParam := c.Params("category")
-	if categoryParam == "" {
+	// parse category param
+	category, errStr := d.categoryFromParam(c.Params("category"))
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Category ID is required",
+			"error": errStr,
 		})
 	}
 
-	categoryID, err := util.ParseMongoID(categoryParam)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid category ID",
-		})
-	}
-
-	err = d.mongo.Category().Delete(categoryID)
+	// delete category from database
+	err := d.mongo.Category().Delete(category.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -214,4 +197,34 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
+}
+
+func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, string) {
+	if categoryParam == "" {
+		return nil, "category ID is required"
+	}
+
+	categoryID, err := util.ParseMongoID(categoryParam)
+	if err != nil {
+		return nil, "Invalid category ID"
+	}
+
+	category, err := d.mongo.Category().GetByID(categoryID)
+	if err != nil {
+		return nil, "Invalid category ID"
+	}
+
+	return category, ""
+}
+
+func (d *Driver) validateCategoryData(category *categoryRequestData) string {
+	if category.Index == "" {
+		return "Index is required"
+	}
+
+	if category.Name == "" {
+		return "Name is required"
+	}
+
+	return ""
 }

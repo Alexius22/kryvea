@@ -58,6 +58,20 @@ func (ci *CategoryIndex) Insert(category *Category) (bson.ObjectID, error) {
 	return category.ID, err
 }
 
+func (ci *CategoryIndex) FirstOrInsert(category *Category) (bson.ObjectID, bool, error) {
+	var existingCategory Assessment
+	err := ci.collection.FindOne(context.Background(), bson.M{"index": category.Index, "name": category.Name}).Decode(&existingCategory)
+	if err == nil {
+		return existingCategory.ID, false, nil
+	}
+	if err != mongo.ErrNoDocuments {
+		return bson.NilObjectID, false, err
+	}
+
+	id, err := ci.Insert(category)
+	return id, true, err
+}
+
 func (ci *CategoryIndex) Update(ID bson.ObjectID, category *Category) error {
 	filter := bson.M{"_id": ID}
 

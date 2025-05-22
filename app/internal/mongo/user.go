@@ -265,7 +265,7 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 
 	var users []User
 	err = cursor.All(context.Background(), &users)
-	return users, nil
+	return users, err
 }
 
 func (ui *UserIndex) GetByToken(token string) (*User, error) {

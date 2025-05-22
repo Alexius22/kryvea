@@ -21,58 +21,6 @@ var AssessmentPipeline = mongo.Pipeline{
 		{Key: "foreignField", Value: "_id"},
 		{Key: "as", Value: "targetData"},
 	}}},
-	bson.D{{Key: "$set", Value: bson.D{
-		{Key: "targets", Value: bson.D{
-			{Key: "$map", Value: bson.D{
-				{Key: "input", Value: "$targets"},
-				{Key: "as", Value: "target"},
-				{Key: "in", Value: bson.D{
-					// TODO: there must be a way to improve this
-					{Key: "_id", Value: "$$target._id"},
-					{Key: "ip", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$targetData"},
-											{Key: "as", Value: "tar"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$tar._id", "$$target._id"}},
-											}},
-										}}},
-										0,
-									}},
-								}},
-							}},
-							{Key: "in", Value: "$$matched.ip"},
-						}},
-					}},
-					{Key: "hostname", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$targetData"},
-											{Key: "as", Value: "tar"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$tar._id", "$$target._id"}},
-											}},
-										}}},
-										0,
-									}},
-								}},
-							}},
-							{Key: "in", Value: "$$matched.hostname"},
-						}},
-					}},
-				}},
-			}},
-		}},
-	}}},
-	bson.D{{Key: "$unset", Value: "targetData"}},
-
 	bson.D{
 		{Key: "$lookup", Value: bson.D{
 			{Key: "from", Value: "vulnerability"},
