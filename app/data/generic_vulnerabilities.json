@@ -319,6 +319,23 @@
     ]
   },
   {
+    "index": "A04:2021",
+    "name": "User enumeration",
+    "generic_description": {
+      "en": "User enumeration is a security flaw in web applications or systems that allows an attacker to identify valid usernames or user accounts by analyzing differences in system responses during authentication attempts. This vulnerability typically manifests when the application reveals distinct error messages, response times, or other indicators that differentiate between valid and invalid usernames during login or password recovery processes.",
+      "it": "L'enumerazione degli utenti è una problematica di sicurezza nelle applicazioni web o nei sistemi che consente ad un attaccante di identificare nomi utente o account utente validi analizzando le differenze nelle risposte del sistema durante i tentativi di autenticazione. Questa vulnerabilità si manifesta tipicamente quando l'applicazione rivela messaggi di errore, tempi di risposta o altri indicatori distinti che differenziano i nomi utente validi da quelli non validi durante i processi di login o di recupero della password."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to standardize error messages and responses for both valid and invalid usernames, ensuring that the application does not disclose whether a username exists or not.",
+      "it": "Si consiglia di standardizzare i messaggi di errore e le risposte sia per i nomi utente validi che per quelli non validi, garantendo che l'applicazione non riveli se un nome utente esiste o meno."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/204.html",
+      "https://owasp.org/Top10/A04_2021-Insecure_Design/",
+      "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account"
+    ]
+  },
+  {
     "index": "A05:2021",
     "name": "Directory Listing",
     "generic_description": {
@@ -527,6 +544,96 @@
     },
     "references": [
       "https://owasp.org/www-project-mobile-top-10/2023-risks/m3-insecure-authentication-authorization.html"
+    ]
+  },
+  {
+    "index": "M4:2024",
+    "name": "Insufficient Input/Output Validation",
+    "generic_description": {
+      "en": "Insufficient validation and sanitization of data from external sources, such as user inputs or network data, in a mobile application can introduce severe security vulnerabilities. Without proper safeguards, mobile apps are susceptible to attacks like SQL injection, command injection, and cross-site scripting (XSS), which can result in unauthorized access to sensitive information, manipulation of app functionality, and potential full system compromise. Moreover, inadequate output validation may cause data corruption or presentation flaws, enabling attackers to inject malicious code or alter sensitive information displayed to users.",
+      "it": "Un'insufficiente validazione e sanitizzazione dei dati provenienti da fonti esterne, come gli input dell'utente o i dati di rete, in un'applicazione mobile può introdurre severe vulnerabilità di sicurezza. Senza le dovute protezioni, le applicazioni mobili sono suscettibili ad attacchi come SQL injection, command injection e cross-site scripting (XSS), che possono provocare l'accesso non autorizzato a informazioni sensibili, la manipolazione delle funzionalità dell'applicazione e la potenziale compromissione dell'intero sistema. Inoltre, una validazione inadeguata dell'output può causare il danneggiamento dei dati o difetti di presentazione, consentendo agli aggressori di iniettare codice dannoso o alterare le informazioni sensibili mostrate agli utenti."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to validate and sanitize all external inputs and outputs.",
+      "it": "Si consiglia di validare e sanitizzare tutti gli input ed output esterni."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m4-insufficient-input-output-validation.html"
+    ]
+  },
+  {
+    "index": "M5:2024",
+    "name": "Insecure Communication",
+    "generic_description": {
+      "en": "Insecure communication is a vulnerability in which data transmitted between a mobile application and backend servers, or between mobile devices, is exposed to interception or tampering due to weak or misconfigured security controls. It often results from using outdated encryption protocols, improper SSL/TLS implementations, or incorrect certificate validation, which enables attackers to perform man-in-the-middle (MITM) attacks and access sensitive information, such as credentials, financial data, and personal details.",
+      "it": "La comunicazione insicura è una vulnerabilità in cui i dati trasmessi tra un'applicazione mobile e i server backend, o tra i dispositivi mobili, sono esposti a intercettazione o manipolazione a causa di controlli di sicurezza deboli o mal configurati. Spesso deriva dall'utilizzo di protocolli di crittografia obsoleti, da implementazioni SSL/TLS non corrette o da una non corretta convalida dei certificati, che consentono agli attaccanti di eseguire attacchi man-in-the-middle (MITM) e di accedere a informazioni sensibili, come credenziali, dati finanziari e dettagli personali."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to ensure all data in transit is protected using strong encryption protocols like TLS 1.2 or higher, implement proper certificate validation and pinning, and avoid using deprecated or insecure communication channels.",
+      "it": "Si consiglia di garantire che tutti i dati in transito siano protetti utilizzando protocolli di crittografia forti come TLS 1.2 o superiore, di implementare la convalida dei certificati e il pinning adeguati e di evitare l'uso di canali di comunicazione deprecati o non sicuri."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m5-insecure-communication.html"
+    ]
+  },
+  {
+    "index": "M7:2024",
+    "name": "Insufficient Binary Protection",
+    "generic_description": {
+      "en": "Insufficient binary protection is a vulnerability in which a mobile application's compiled binary lacks robust defenses against reverse engineering, tampering, and unauthorized modification. This vulnerability exposes sensitive assets, such as hardcoded secrets, proprietary algorithms, and critical business logic, to attackers, who can then analyze, alter, or repurpose the app's code. Beyond gathering information, attackers can manipulate binaries to unlock paid features without authorization or bypass security controls. In severe cases, attackers can modify popular apps to include malicious code and redistribute them through third-party app stores or under counterfeit identities to exploit unsuspecting users.",
+      "it": "La protezione binaria insufficiente è una vulnerabilità in cui il binario compilato di un'applicazione mobile manca di difese solide contro il reverse engineering, la manomissione e la modifica non autorizzata. Questa vulnerabilità espone risorse sensibili, come segreti hardcoded, algoritmi proprietari e logica aziendale critica, agli attaccanti, che possono analizzare, alterare o riutilizzare il codice dell'applicazione. Oltre a raccogliere informazioni, gli attaccanti possono manipolare i binari per sbloccare funzioni a pagamento senza autorizzazione o aggirare i controlli di sicurezza. Nei casi più gravi, gli attaccanti possono modificare le app più diffuse per includere codice dannoso e ridistribuirle attraverso app store di terze parti o sotto identità contraffatte per sfruttare utenti inconsapevoli."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement code obfuscation, app signing, jailbreak/root detection, integrity checks at runtime, and debugger detection.",
+      "it": "Si consiglia di implementare l'offuscamento del codice, la firma delle applicazioni, il rilevamento di jailbreak/root, i controlli di integrità in fase di esecuzione e il rilevamento di debugger."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m7-insufficient-binary-protection.html"
+    ]
+  },
+  {
+    "index": "M8:2024",
+    "name": "Security Misconfiguration",
+    "generic_description": {
+      "en": "Security misconfiguration in mobile applications refers to the improper setup or management of security settings, permissions, and controls, which exposes the application to vulnerabilities and unauthorized access. Examples include insecure default configurations, overly permissive file or storage permissions, exposed sensitive information, weak encryption, and failure to disable debugging or development features in production.",
+      "it": "L'errata configurazione della sicurezza nelle applicazioni mobili si riferisce all'impostazione o alla gestione impropria delle impostazioni, dei permessi e dei controlli di sicurezza, che espone l'applicazione a vulnerabilità e accessi non autorizzati. Tra gli esempi si possono citare le configurazioni predefinite non sicure, le autorizzazioni troppo permissive per i file o lo storage, le informazioni sensibili esposte, la crittografia debole e la mancata disabilitazione delle funzioni di debug o di sviluppo in produzione."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to enforce secure default settings, eliminate the use of default credentials, apply the principle of least privilege for permissions, disable debugging and backup features in production, and restrict exposed app components to only those essential for functionality.",
+      "it": "Si consiglia di applicare impostazioni predefinite sicure, di eliminare l'uso di credenziali di default, di applicare il principio del minimo privilegio per le autorizzazioni, di disabilitare le funzioni di debug e di backup in produzione e di limitare i componenti dell'applicazione esposti solo a quelli essenziali per la funzionalità."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m8-security-misconfiguration.html"
+    ]
+  },
+  {
+    "index": "M9:2024",
+    "name": "Insecure Data Storage",
+    "generic_description": {
+      "en": "Insecure data storage is a vulnerability in which mobile applications fail to adequately protect sensitive data stored locally on the device or in the cloud, thereby exposing it to unauthorized access, tampering, or leakage. This vulnerability is often caused by insufficient encryption, a lack of proper access controls, misconfigured cloud storage, insecure caching, or vulnerable third-party libraries.",
+      "it": "L'archiviazione insicura dei dati è una vulnerabilità in cui le applicazioni mobili non riescono a proteggere adeguatamente i dati sensibili archiviati localmente sul dispositivo o nel cloud, esponendoli così ad accessi non autorizzati, manipolazioni o perdite. Questa vulnerabilità è spesso causata da una crittografia insufficiente, dalla mancanza di controlli di accesso adeguati, da un cloud storage mal configurato, da una cache non sicura o da librerie di terze parti vulnerabili."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement strong encryption for data stored, use platform-specific secure storage mechanisms like iOS Keychain or Android Keystore and enforce strict access controls.",
+      "it": "Si consiglia di implementare una robusta crittografia per i dati memorizzati, di utilizzare meccanismi di archiviazione sicura specifici per la piattaforma, come iOS Keychain o Android Keystore, e di applicare controlli di accesso rigorosi."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m9-insecure-data-storage.html"
+    ]
+  },
+  {
+    "index": "M10:2024",
+    "name": "Insufficient Cryptography",
+    "generic_description": {
+      "en": "Insufficient cryptography occurs when mobile applications use weak, outdated, or improperly implemented cryptographic algorithms and protocols. This compromises the confidentiality, integrity, and authenticity of sensitive data. Examples of this vulnerability include obsolete encryption methods, flawed key management, hardcoded keys, inadequate key lengths, and insecure random number generation. Attackers can exploit these issues to decrypt data, forge signatures, bypass security controls, or manipulate information.",
+      "it": "Una crittografia insufficiente si verifica quando le applicazioni mobili utilizzano algoritmi e protocolli crittografici deboli, obsoleti o non correttamente implementati. Ciò compromette la riservatezza, l'integrità e l'autenticità dei dati sensibili. Esempi di questa vulnerabilità sono i metodi di crittografia obsoleti, la gestione errata delle chiavi, le chiavi hardcoded, la lunghezza inadeguata delle chiavi e la generazione insicura di numeri casuali. Gli attaccanti possono sfruttare questi problemi per decifrare i dati, falsificare le signature, aggirare i controlli di sicurezza o manipolare le informazioni."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to use up-to-date encryption algorithms with adequate key lengths, implement secure key management practices, avoid hardcoding keys, and rely on well-vetted cryptographic libraries and protocols.",
+      "it": "Si consiglia di utilizzare algoritmi di crittografia aggiornati con chiavi di lunghezza adeguata, di implementare pratiche di gestione delle chiavi sicure, di evitare hardcoding delle chiavi e di affidarsi a librerie e protocolli crittografici ben collaudati."
+    },
+    "references": [
+      "https://owasp.org/www-project-mobile-top-10/2023-risks/m10-insufficient-cryptography.html"
     ]
   }
 ]
