@@ -1,9 +1,8 @@
+import { mdiMinus, mdiPlus } from "@mdi/js";
 import { useEffect, useState } from "react";
-import { getButtonColor } from "../../colors";
+import { Link, useLocation } from "react-router";
 import Icon from "../Icon/Icon";
 import AsideMenuContent from "./AsideMenuContent";
-import { mdiMinus, mdiPlus } from "@mdi/js";
-import { Link, useLocation } from "react-router";
 
 export default function Item({ item, isDropdownList = false }) {
   const [isLinkActive, setIsLinkActive] = useState(false);
@@ -32,7 +31,7 @@ export default function Item({ item, isDropdownList = false }) {
   const componentClass = [
     "flex cursor-pointer",
     isDropdownList ? "text-sm" : "",
-    item.color ? getButtonColor(item.color, false, true) : `aside-menu-item dark:text-slate-300 dark:hover:text-white`,
+    `aside-menu-item dark:text-slate-300 dark:hover:text-white`,
   ].join(" ");
 
   return (
