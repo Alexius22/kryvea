@@ -1,5 +1,4 @@
 import React from "react";
-import { getButtonColor } from "../colors";
 import type { ColorButtonKey } from "../interfaces";
 import { Link } from "react-router";
 import Icon from "./Icon/Icon";
@@ -51,7 +50,6 @@ export default function Button({
     "border",
     disabled ? "cursor-not-allowed" : "cursor-pointer",
     roundedFull ? "rounded-full" : "rounded",
-    getButtonColor(color, outline, !disabled, active),
     className,
   ];
 
