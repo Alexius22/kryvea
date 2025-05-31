@@ -27,15 +27,13 @@ import LiveEditor from "./pages/LiveEditor";
 import ManageCategory from "./pages/ManageCategory";
 
 export const GlobalContext = createContext<{
-  useUserEmail: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
   useCustomerName: [string, Dispatch<SetStateAction<string>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
 }>(null);
 
 export default function App() {
-  const useUserEmail = useState<string>("test@email.com");
-  const useUsername = useState<string>("TestUser");
+  const useUsername = useState<string>("kryveaUser");
   const useCustomerName = useState<string>("");
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme, _] = useDarkTheme;
@@ -49,7 +47,6 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useUserEmail,
         useUsername,
         useCustomerName,
         useDarkTheme,
