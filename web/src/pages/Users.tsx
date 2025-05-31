@@ -91,13 +91,11 @@ const Users = () => {
                     closeMenuOnSelect={false}
                   />
                 </FormField>
-                <FormField label="User enabled">
                   <FormCheckRadioGroup>
-                    <FormCheckRadio type="checkbox" label="Active">
-                      <Field type="checkbox" name="active_user" />
+                    <FormCheckRadio type="checkbox" label="Disable user">
+                      <Field type="checkbox" name="disable_user" />
                     </FormCheckRadio>
                   </FormCheckRadioGroup>
-                </FormField>
               </Form>
             );
           }}
