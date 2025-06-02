@@ -6,7 +6,7 @@ import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { targets } from "../mockup_data/targets";
 
@@ -57,7 +57,12 @@ const Hosts = () => {
               Hostname: target.hostname,
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

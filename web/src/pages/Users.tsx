@@ -11,7 +11,7 @@ import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 import FormField from "../components/Form/Field";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { users } from "../mockup_data/users";
 
@@ -131,7 +131,12 @@ const Users = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

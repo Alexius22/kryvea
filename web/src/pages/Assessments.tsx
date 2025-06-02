@@ -11,7 +11,7 @@ import FormField from "../components/Form/Field";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
@@ -110,9 +110,8 @@ const Assessments = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>Are you sure to delete this assessment?</p>
         <p>
-          <b>Action irreversible</b>
+          <b>Action irreversible</b>: Are you sure to delete this assessment?
         </p>
       </CardBoxModal>
 
@@ -143,7 +142,7 @@ const Assessments = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button
-                    className={assessment.is_owned ? "yellow" : "blue"}
+                    color={assessment.is_owned ? "bg-yellow-500 dark:bg-yellow-500" : ""}
                     icon={mdiStar}
                     onClick={handleFavoriteToggle(assessment.id)}
                     small
@@ -151,7 +150,12 @@ const Assessments = () => {
                   <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
                   <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
                   <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

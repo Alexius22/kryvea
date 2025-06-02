@@ -1,7 +1,7 @@
 import { mdiAccount, mdiLogout, mdiThemeLightDark } from "@mdi/js";
 import { ReactNode, useContext } from "react";
 import { GlobalContext } from "../App";
-import Icon from "./Icon/Icon";
+import Icon from "./Icon";
 
 type Props = {
   children?: ReactNode;

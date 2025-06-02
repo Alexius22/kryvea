@@ -5,7 +5,7 @@ import { GlobalContext } from "../App";
 import CardBox from "../components/CardBox/CardBox";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";

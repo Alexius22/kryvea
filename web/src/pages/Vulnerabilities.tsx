@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import CardBox from "../components/CardBox/CardBox";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 

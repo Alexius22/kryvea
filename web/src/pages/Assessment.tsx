@@ -8,7 +8,7 @@ import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import FormField from "../components/Form/Field";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
@@ -97,7 +97,14 @@ const Assessment = () => {
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
         <Buttons>
-          <Button icon={mdiFileEye} label="Live editor" roundedFull small onClick={() => navigate("/live_editor")} />
+          <Button
+            icon={mdiFileEye}
+            label="Live editor"
+            roundedFull
+            small
+            disabled
+            onClick={() => navigate("/live_editor")}
+          />
           <Button
             icon={mdiDownload}
             label="Download report"
@@ -135,7 +142,12 @@ const Assessment = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

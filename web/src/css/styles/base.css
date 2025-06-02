@@ -11,17 +11,37 @@ span {
 }
 
 button {
-  @apply rounded bg-yellow-200 px-4 py-2 text-black dark:bg-sky-700 dark:text-white;
+  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black dark:bg-sky-700 dark:text-white;
 }
 
 .input {
-  @apply bg-yellow-200 focus:outline-none dark:bg-sky-700;
+  @apply bg-yellow-200 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+}
+
+.field {
+  @apply bg-yellow-200 focus:outline-none focus:ring-0 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+}
+
+.text-area {
+  @apply rounded border-gray-400 bg-yellow-200 dark:bg-sky-700;
 }
 
 .navbar {
   @apply fixed right-0 top-0 flex h-14 items-center justify-between px-4 text-white;
   left: 300px;
   width: calc(100% - 300px);
+}
+
+.cardbox {
+  @apply flex flex-col rounded-2xl bg-amber-600 dark:bg-sky-950;
+}
+
+.divider {
+  @apply -mx-6 my-6 hidden border-t border-yellow-100 dark:border-slate-900 lg:block;
+}
+
+.trash-button {
+  @apply bg-red-500 dark:bg-red-500;
 }
 
 .layout-root {
@@ -43,8 +63,4 @@ button {
 
 .layout-main {
   @apply no-scrollbar flex h-full w-full flex-col justify-between overflow-auto p-6;
-}
-
-.cardbox {
-  @apply flex flex-col rounded-2xl bg-amber-600 dark:bg-sky-950;
 }

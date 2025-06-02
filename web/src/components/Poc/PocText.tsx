@@ -1,6 +1,6 @@
 import { mdiPencil } from "@mdi/js";
 import React, { useState } from "react";
-import Icon from "../Icon/Icon";
+import Icon from "../Icon";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 import SelectWrapper from "../Form/SelectWrapper";
@@ -46,7 +46,7 @@ export default function PocText({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
@@ -69,7 +69,7 @@ export default function PocText({
         <label htmlFor={textInputId}>Text</label>
         <textarea
           id={textInputId}
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.text}
           onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
         />
