@@ -1,5 +1,4 @@
 import React from "react";
-import type { ColorButtonKey } from "../interfaces";
 import { Link } from "react-router";
 import Icon from "./Icon/Icon";
 
@@ -10,7 +9,7 @@ type Props = {
   href?: string;
   target?: string;
   type?: string;
-  color?: ColorButtonKey;
+  color?: string;
   className?: string;
   asAnchor?: boolean;
   small?: boolean;

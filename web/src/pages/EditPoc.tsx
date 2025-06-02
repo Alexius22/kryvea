@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import Divider from "../components/Divider";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
@@ -184,16 +184,10 @@ const EditPoc = () => {
         >
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
-            <Button
-              label="Request/Response"
-              color="contrast"
-              icon={mdiPlus}
-              onClick={addPoc("request/response")}
-              small
-            />
-            <Button label="Image" color="contrast" icon={mdiPlus} onClick={addPoc("image")} small />
-            <Button label="Text" color="contrast" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" label="Submit" color="info" icon={mdiSend} />
+            <Button label="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
+            <Button label="Image" icon={mdiPlus} onClick={addPoc("image")} small />
+            <Button label="Text" icon={mdiPlus} onClick={addPoc("text")} small />
+            <Button className="ml-auto" label="Submit" icon={mdiSend} />
           </Buttons>
         </CardBox>
       </div>

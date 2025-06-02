@@ -3,7 +3,7 @@ import { Field, Form, Formik } from "formik";
 import { isValidElement, useEffect, useState } from "react";
 import Button from "../Button";
 import Buttons from "../Buttons";
-import CardBox from "../CardBox";
+import CardBox from "../CardBox/CardBox";
 import FormField from "../Form/Field";
 import Icon from "../Icon/Icon";
 
@@ -92,7 +92,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   return (
     <div>
       <input
-        className="mb-2 h-10 w-1/4 rounded-lg border-0 bg-slate-200 focus:ring-0 dark:bg-slate-900 dark:text-white"
+        className="mb-2 h-10 w-1/4 rounded-lg bg-transparent pl-4 placeholder:text-gray-600 focus:outline-none"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -102,7 +102,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
         }}
       />
       <CardBox noPadding>
-        <table className="w-full table-auto border-collapse">
+        <table className="table">
           {filteredData.length > 0 && (
             <thead>
               <tr>
@@ -158,7 +158,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
             )}
           </tbody>
         </table>
-        <div className="border-t border-gray-100 p-3 dark:border-slate-800 lg:px-6">
+        <div className="p-3 lg:px-6">
           <div className="flex flex-col items-center justify-between py-3 md:flex-row md:py-0">
             <Buttons>
               {pagesList.map(page => (
@@ -167,19 +167,17 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
                   className="border-hidden"
                   active={page === currentPage}
                   label={page + 1}
-                  color={page === currentPage ? "lightDark" : "whiteDark"}
                   small
                   onClick={() => setCurrentPage(page)}
                 />
               ))}
             </Buttons>
-            <Formik initialValues={undefined} onSubmit={undefined}>
-              <Form className="ml-auto mr-2 w-[55px]">
-                <FormField noHeight>
-                  <Field type="number" value={perPage} onChange={val => setPerPage(+val.target.value)} />
-                </FormField>
-              </Form>
-            </Formik>
+            <input
+              type="number"
+              className="input no-spinner ml-auto mr-2 w-[35px] rounded-md py-0.5 text-center"
+              value={perPage}
+              onChange={e => setPerPage(+e.target.value)}
+            />
             <small className="mt-6 md:mt-0">
               Page {currentPage + 1} of {numPages}
             </small>

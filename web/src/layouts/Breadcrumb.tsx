@@ -14,9 +14,9 @@ const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProp
     .filter(path => path);
 
   return (
-    <div className="pl-4">
+    <div className="pl-4 align-middle">
       <ul className="flex gap-2">
-        <li className={"hover:text-slate-500 hover:underline"}>
+        <li className={"hover:text-slate-600 hover:underline"}>
           <Link to={"/"}>{homeElement}</Link>
         </li>
         {pathNames.length > 0 && separator}
@@ -33,7 +33,7 @@ const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProp
           return (
             <React.Fragment key={index}>
               <li className={`${!isLast && "hover:text-slate-600 hover:underline"}`}>
-                {isLast ? <span>{itemLink}</span> : <Link to={href}>{itemLink}</Link>}
+                {isLast ? <span className="hover:no-underline">{itemLink}</span> : <Link to={href}>{itemLink}</Link>}
               </li>
               {pathNames.length !== index + 1 && separator}
             </React.Fragment>

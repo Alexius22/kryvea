@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
@@ -29,7 +29,6 @@ const Hosts = () => {
     <div>
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -43,14 +42,7 @@ const Hosts = () => {
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
         <Buttons>
-          <Button
-            icon={mdiPlus}
-            label="New host"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_host")}
-          />
+          <Button icon={mdiPlus} label="New host" roundedFull small onClick={() => navigate("/add_host")} />
         </Buttons>
       </SectionTitleLineWithButton>
       <CardBox noPadding>
@@ -65,7 +57,7 @@ const Hosts = () => {
               Hostname: target.hostname,
               buttons: (
                 <Buttons noWrap>
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

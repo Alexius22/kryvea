@@ -1,0 +1,26 @@
+/* Table base styles */
+.table {
+  @apply min-w-full bg-yellow-400/60 dark:bg-sky-900/30;
+}
+
+/* Table head */
+.table thead {
+  @apply bg-yellow-400/60 dark:bg-sky-800;
+}
+
+.table th {
+  @apply px-4 py-2 text-left font-semibold;
+}
+
+/* Table body */
+.table tbody tr {
+  @apply hover:bg-amber-500 dark:hover:bg-sky-900;
+}
+
+.table tbody tr:nth-child(even) {
+  @apply bg-yellow-400/70 hover:bg-amber-500 dark:bg-sky-800 dark:hover:bg-sky-900;
+}
+
+.table td {
+  @apply px-4 py-2;
+}

@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import Icon from "../Icon/Icon";
-import IconRounded from "../Icon/Rounded";
 
 type Props = {
   icon: string;
@@ -13,7 +12,7 @@ export default function SectionTitleLineWithButton({ icon, title, main = false, 
   return (
     <section className={`${main ? "" : "py-2"} mb-2 flex items-center justify-between`}>
       <div className="flex items-center justify-start">
-        {icon && main && <IconRounded icon={icon} color="light" className="mr-3" bg />}
+        {icon && main && <Icon path={icon} className="mr-3" />}
         {icon && !main && <Icon path={icon} className="mr-2" size="20" />}
         <h1 className={`leading-tight ${main ? "text-3xl" : "text-2xl"}`}>{title}</h1>
       </div>

@@ -2,7 +2,7 @@ import { Field, Form, Formik } from "formik";
 import { useEffect } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import { getPageTitle } from "../config";
@@ -39,8 +39,8 @@ const AddCustomer = () => {
             <Divider />
 
             <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
+              <Button type="submit" label="Submit" />
+              <Button type="cancel" outline label="Cancel" />
             </Buttons>
           </Form>
         </Formik>

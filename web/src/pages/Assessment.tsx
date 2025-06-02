@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import FormField from "../components/Form/Field";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -35,7 +35,6 @@ const Assessment = () => {
     <div>
       <CardBoxModal
         title="Download report"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
@@ -65,7 +64,6 @@ const Assessment = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Upload file"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalUploadActive}
         onConfirm={handleModalAction}
@@ -86,7 +84,6 @@ const Assessment = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -100,46 +97,23 @@ const Assessment = () => {
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
         <Buttons>
-          <Button
-            icon={mdiFileEye}
-            label="Live editor"
-            roundedFull
-            small
-            color="danger"
-            onClick={() => navigate("/live_editor")}
-          />
+          <Button icon={mdiFileEye} label="Live editor" roundedFull small onClick={() => navigate("/live_editor")} />
           <Button
             icon={mdiDownload}
             label="Download report"
             roundedFull
             small
-            color="success"
             onClick={() => setIsModalDownloadActive(true)}
           />
-          <Button
-            icon={mdiPlus}
-            label="New host"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_host")}
-          />
+          <Button icon={mdiPlus} label="New host" roundedFull small onClick={() => navigate("/add_host")} />
           <Button
             icon={mdiPlus}
             label="New vulnerability"
             roundedFull
             small
-            color="contrast"
             onClick={() => navigate("/add_vulnerability")}
           />
-          <Button
-            icon={mdiUpload}
-            label="Upload"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => setIsModalUploadActive(true)}
-          />
+          <Button icon={mdiUpload} label="Upload" roundedFull small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
       <CardBox noPadding>
@@ -151,10 +125,7 @@ const Assessment = () => {
           <Table
             data={vulnerabilities.map(vulnerability => ({
               Vulnerability: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/vulnerability`)}
-                >
+                <span onClick={() => navigate(`/vulnerability`)}>
                   {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
                 </span>
               ),
@@ -163,8 +134,8 @@ const Assessment = () => {
               "CVSS Score": vulnerability.cvss_score,
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}
