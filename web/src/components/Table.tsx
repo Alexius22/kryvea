@@ -1,11 +1,11 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { isValidElement, useEffect, useState } from "react";
-import Button from "../Button";
-import Buttons from "../Buttons";
-import CardBox from "../CardBox/CardBox";
-import FormField from "../Form/Field";
-import Icon from "../Icon/Icon";
+import Button from "./Button";
+import Buttons from "./Buttons";
+import CardBox from "./CardBox/CardBox";
+import FormField from "./Form/Field";
+import Icon from "./Icon";
 
 const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   const [perPage, setPerPage] = useState(perPageCustom);

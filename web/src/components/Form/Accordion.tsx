@@ -1,7 +1,7 @@
 import { mdiChevronDown } from "@mdi/js";
 import { useContext, useRef, useState } from "react";
 import { GlobalContext } from "../../App";
-import Icon from "../Icon/Icon";
+import Icon from "../Icon";
 
 //  accordionitem component
 const AccordionItem = ({ title, isOpen, onClick, children }) => {

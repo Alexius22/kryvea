@@ -37,7 +37,7 @@ const AddHost = () => {
 
             <Buttons>
               <Button type="submit" label="Submit" />
-              <Button type="cancel" outline label="Cancel" />
+              <Button type="reset" outline label="Cancel" />
             </Buttons>
           </Form>
         </Formik>

@@ -1,6 +1,5 @@
 import { mdiImage } from "@mdi/js";
 import React, { useEffect, useRef, useState } from "react";
-import Icon from "../Icon/Icon";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -72,7 +71,7 @@ export default function PocImage({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
@@ -84,7 +83,7 @@ export default function PocImage({
         <div className="flex gap-4">
           <input
             ref={imageInput}
-            className="input-focus max-w-96 rounded dark:bg-slate-800"
+            className="text-area max-w-96"
             type="file"
             name="myImage"
             accept="image/png, image/jpeg"
@@ -92,7 +91,7 @@ export default function PocImage({
             onChange={onImageChangeWrapper}
           />
           <button
-            className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
+            className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600 dark:bg-red-500"
             onClick={clearImage}
             type="button"
           >
@@ -105,16 +104,16 @@ export default function PocImage({
             <img
               src={imageUrl}
               alt="Selected image preview"
-              className="max-h-[400px] w-full rounded-2xl object-contain"
+              className="max-h-[550px] w-full rounded-2xl object-contain"
             />
           </div>
         )}
       </div>
 
-      <div className="col-span-8 grid">
+      <div className="grid">
         <label htmlFor={captionTextareaId}>Caption</label>
         <input
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.caption}
           id={captionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "caption")}

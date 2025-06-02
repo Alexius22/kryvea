@@ -7,7 +7,7 @@ import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
 import FormField from "../components/Form/Field";
@@ -112,7 +112,12 @@ const Customers = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

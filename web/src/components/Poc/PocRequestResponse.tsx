@@ -1,6 +1,6 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
-import Icon from "../Icon/Icon";
+import Icon from "../Icon";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -41,7 +41,7 @@ export default function PocRequestResponse({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
@@ -52,30 +52,32 @@ export default function PocRequestResponse({
         <label htmlFor={urlInputId}>URL</label>
         <input
           id={urlInputId}
-          className="input-focus rounded dark:bg-slate-800"
+          className="text-area"
           value={pocDoc.url}
           onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "url")}
         />
       </div>
 
-      <div className="col-span-8 grid">
-        <label htmlFor={requestTextareaId}>Request</label>
-        <textarea
-          className="input-focus h-96 rounded dark:bg-slate-800"
-          value={pocDoc.request}
-          id={requestTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
-        />
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid">
+          <label htmlFor={requestTextareaId}>Request</label>
+          <textarea
+            className="text-area h-96"
+            value={pocDoc.request}
+            id={requestTextareaId}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
+          />
+        </div>
 
-      <div className="col-span-8 grid">
-        <label htmlFor={responseTextareaId}>Response</label>
-        <textarea
-          className="input-focus h-96 rounded dark:bg-slate-800"
-          value={pocDoc.response}
-          id={responseTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}
-        />
+        <div className="grid">
+          <label htmlFor={responseTextareaId}>Response</label>
+          <textarea
+            className="text-area h-96"
+            value={pocDoc.response}
+            id={responseTextareaId}
+            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}
+          />
+        </div>
       </div>
     </PocTemplate>
   );

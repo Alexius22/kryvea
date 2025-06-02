@@ -1,6 +1,6 @@
 import { useState, useEffect, KeyboardEvent } from "react";
 import { Link, useLocation } from "react-router";
-import Icon from "../Icon/Icon";
+import Icon from "../Icon";
 import SidebarContent from "./SidebarContent";
 import { mdiMinus, mdiPlus } from "@mdi/js";
 

@@ -11,7 +11,7 @@ import FormCheckRadio from "../components/Form/CheckRadio";
 import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 import FormField from "../components/Form/Field";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { categories } from "../mockup_data/categories";
 
@@ -63,6 +63,7 @@ const Categories = () => {
               <Button icon={mdiDownload} label="Export categories" roundedFull small onClick={() => navigate("")} />
               <Button
                 icon={mdiDeleteAlert}
+                className="trash-button"
                 label="Delete all categories"
                 roundedFull
                 small
@@ -124,7 +125,12 @@ const Categories = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
-                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button
+                    className="trash-button"
+                    icon={mdiTrashCan}
+                    onClick={() => setIsModalTrashActive(true)}
+                    small
+                  />
                 </Buttons>
               ),
             }))}

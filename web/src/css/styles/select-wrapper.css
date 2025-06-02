@@ -1,0 +1,62 @@
+.custom-select__control {
+  @apply flex h-12 items-center overflow-x-auto rounded-md border border-gray-600 p-0 text-black transition-all duration-75 ease-in-out;
+  @apply dark:border-slate-700 dark:bg-sky-700 dark:text-white;
+}
+.custom-select__control:hover {
+  @apply border-blue-700 dark:border-blue-700;
+}
+.custom-select__control--is-focused {
+  @apply border-blue-700 shadow-none dark:border-blue-700 dark:shadow-none;
+}
+
+.custom-select__menu {
+  @apply z-10 mt-0 overflow-hidden rounded-lg border border-slate-700 text-black;
+  @apply dark:bg-sky-700 dark:text-white;
+}
+
+.custom-select__menu-list {
+  @apply p-0;
+}
+
+.custom-select__option {
+  @apply cursor-pointer px-3 py-2 text-black;
+  @apply dark:bg-slate-800 dark:text-white;
+}
+.custom-select__option--is-focused {
+  @apply bg-blue-600 text-white;
+}
+.custom-select__option:active {
+  @apply bg-slate-700;
+}
+
+.custom-select__single-value {
+  @apply text-black dark:text-white;
+}
+
+.custom-select__multi-value {
+  @apply mr-1 rounded bg-gray-300 px-2 py-1 text-black;
+  @apply dark:bg-slate-700 dark:text-white;
+}
+
+.custom-select__multi-value__label {
+  @apply text-black dark:text-white;
+}
+
+.custom-select__placeholder {
+  @apply text-gray-500;
+}
+
+.custom-select__dropdown-indicator {
+  @apply text-gray-500 transition-colors duration-200;
+}
+.custom-select__dropdown-indicator:hover {
+  @apply text-black dark:text-white;
+}
+
+.custom-select__indicator-separator {
+  @apply hidden;
+}
+
+.custom-select__input input {
+  @apply text-black shadow-none dark:text-white;
+}

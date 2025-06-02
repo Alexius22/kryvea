@@ -1,6 +1,6 @@
-import React, { Children, cloneElement, createElement, ReactElement, ReactNode } from "react";
-import Icon from "../Icon/Icon";
+import React, { Children, cloneElement, ReactElement, ReactNode } from "react";
 import { v4 } from "uuid";
+import Icon from "../Icon";
 
 type Props = {
   label?: string | string[];
@@ -47,13 +47,13 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
             .map((child, index) => {
               const isError = child.props.isError;
               const controlClassName = [
-                "px-3 py-2 max-w-full rounded w-full dark:placeholder-gray-400 no-spinner",
+                "px-3 py-2 max-w-full rounded w-full dark:placeholder-gray-300",
                 isError
                   ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                  : "border-gray-700 focus:ring-slate-600/50 focus:border-gray-700",
+                  : "border-sky-950 focus:border-sky-300",
                 props.hasTextareaHeight ? "h-48" : "h-12",
                 props.isBorderless ? "border-0" : "border",
-                props.isTransparent ? "bg-transparent" : "bg-gray-200 dark:bg-slate-800",
+                props.isTransparent ? "bg-transparent" : "field",
               ].join(" ");
 
               const tmpKey = v4();
@@ -78,7 +78,7 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
                       path={icons[index]}
                       w="w-10"
                       h={props.hasTextareaHeight ? "h-full" : "h-12"}
-                      className="pointer-events-none absolute left-0 top-8 z-10 text-gray-500 dark:text-slate-400"
+                      className="pointer-events-none absolute left-0 top-8 z-10"
                     />
                   )}
                 </div>
@@ -86,11 +86,7 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
             })
         )}
       </div>
-      {props.help && (
-        <div className={`mt-1 text-xs ${isError ? "text-red-500" : "text-gray-500 dark:text-slate-400"}`}>
-          {props.help}
-        </div>
-      )}
+      {props.help && <div className={`mt-1 text-xs ${isError ? "text-red-500" : ""}`}>{props.help}</div>}
     </div>
   );
 };
