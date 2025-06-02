@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import Divider from "../components/Divider";
 import FormCheckRadio from "../components/Form/CheckRadio";
@@ -40,7 +40,6 @@ const Categories = () => {
     <div>
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -53,7 +52,6 @@ const Categories = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Categories management"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalManageActive}
         onConfirm={handleModalAction}
@@ -62,20 +60,12 @@ const Categories = () => {
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
             <Buttons>
-              <Button
-                icon={mdiDownload}
-                label="Export categories"
-                roundedFull
-                small
-                color="contrast"
-                onClick={() => navigate("")}
-              />
+              <Button icon={mdiDownload} label="Export categories" roundedFull small onClick={() => navigate("")} />
               <Button
                 icon={mdiDeleteAlert}
                 label="Delete all categories"
                 roundedFull
                 small
-                color="danger"
                 onClick={() => setIsModalTrashAllActive(true)}
               />
             </Buttons>
@@ -98,7 +88,6 @@ const Categories = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Please confirm: action irreversible"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashAllActive}
         onConfirm={handleModalAction}
@@ -108,20 +97,12 @@ const Categories = () => {
       </CardBoxModal>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
         <Buttons>
-          <Button
-            icon={mdiPlus}
-            label="New category"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/manage_category")}
-          />
+          <Button icon={mdiPlus} label="New category" roundedFull small onClick={() => navigate("/manage_category")} />
           <Button
             icon={mdiCogs}
             label="Categories management"
             roundedFull
             small
-            color="contrast"
             onClick={() => setIsModalManageActive(true)}
           />
         </Buttons>
@@ -142,8 +123,8 @@ const Categories = () => {
                 .toUpperCase(),
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

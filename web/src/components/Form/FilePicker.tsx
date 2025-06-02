@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { ColorButtonKey } from "../../interfaces";
 import Button from "../Button";
 
 type Props = {
   label?: string;
   icon?: string;
   accept?: string;
-  color: ColorButtonKey;
+  color: string;
   isRoundIcon?: boolean;
 };
 
@@ -27,13 +26,13 @@ const FormFilePicker = ({ label, icon, accept, color, isRoundIcon }: Props) => {
           iconSize={isRoundIcon ? 24 : undefined}
           label={isRoundIcon ? null : label}
           icon={icon}
-          color={color}
+          color="red"
           roundedFull={isRoundIcon}
           asAnchor
         />
         <input
           type="file"
-          className="absolute left-0 top-0 -z-1 h-full w-full cursor-pointer opacity-0 outline-none"
+          className="-z-1 absolute left-0 top-0 h-full w-full cursor-pointer opacity-0 outline-none"
           onChange={handleFileChange}
           accept={accept}
         />

@@ -3,7 +3,7 @@ import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
@@ -46,7 +46,6 @@ const ManageCategory = () => {
     <div>
       <CardBoxModal
         title="Add language"
-        buttonColor="info"
         buttonLabel="Add"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
@@ -67,14 +66,7 @@ const ManageCategory = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
-        <Button
-          icon={mdiPlus}
-          label="New language"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => setIsModalInfoActive(true)}
-        />
+        <Button icon={mdiPlus} label="New language" roundedFull small onClick={() => setIsModalInfoActive(true)} />
       </SectionTitleLineWithButton>
       <CardBox>
         <Formik initialValues={undefined} onSubmit={undefined}>
@@ -117,8 +109,8 @@ const ManageCategory = () => {
             </FormField>
             <Divider />
             <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
+              <Button type="submit" label="Submit" />
+              <Button type="cancel" outline label="Cancel" />
             </Buttons>
           </Form>
         </Formik>

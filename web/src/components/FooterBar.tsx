@@ -7,17 +7,16 @@ type Props = {
 };
 
 export default function FooterBar({ className, children }: Props) {
-  const year = new Date().getFullYear();
-
   return (
-    <footer className={className}>
+    <footer className={`${className} font-thin text-gray-500 dark:text-slate-600`}>
       <div className="flex justify-between">
         <div>
           <b>
-            &copy;{year},&nbsp;
             <Link to="https://github.com/Alexius22/kryvea" rel="noreferrer" target="_blank">
-              Kryvea.
-            </Link>
+              Kryvea
+            </Link>{" "}
+            made with <span className="text-red-500 dark:text-red-500">♥</span> by
+            {" Alexius, CharminDoge and JJJJJJack"}
           </b>
           {children}
         </div>

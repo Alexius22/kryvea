@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
@@ -47,7 +47,6 @@ const Customers = () => {
     <div>
       <CardBoxModal
         title="Edit customer"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalCustomerActive}
         onConfirm={handleModalAction}
@@ -85,7 +84,6 @@ const Customers = () => {
 
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -98,14 +96,7 @@ const Customers = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-        <Button
-          icon={mdiPlus}
-          label="New customer"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => navigate("/add_customer")}
-        />
+        <Button icon={mdiPlus} label="New customer" roundedFull small onClick={() => navigate("/add_customer")} />
       </SectionTitleLineWithButton>
       <CardBox noPadding>
         {loading ? (
@@ -115,20 +106,13 @@ const Customers = () => {
         ) : (
           <Table
             data={customers.map(customer => ({
-              Name: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => setCustomerName(customer.name)}
-                >
-                  {customer.name}
-                </span>
-              ),
+              Name: <span onClick={() => setCustomerName(customer.name)}>{customer.name}</span>,
               "CVSS Version": customer.default_cvss_version,
               "Default language": languageMapping[customer.language] || customer.language,
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

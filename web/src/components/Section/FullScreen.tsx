@@ -1,13 +1,11 @@
 import { ReactNode, useContext } from "react";
 import { GlobalContext } from "../../App";
-import { BgKey } from "../../interfaces";
 
 type Props = {
-  bg: BgKey;
   children: ReactNode;
 };
 
-export default function SectionFullScreen({ bg, children }: Props) {
+export default function SectionFullScreen({ children }: Props) {
   const {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);

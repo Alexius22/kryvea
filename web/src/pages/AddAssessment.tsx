@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import { getPageTitle } from "../config";
@@ -45,13 +45,7 @@ const AddAssessment = () => {
                 <Field name="targets" id="targets" placeholder="Insert a target" />
               </FormField>
               <div className="mt-[2rem]">
-                <Button
-                  className="h-12"
-                  color="info"
-                  icon={mdiPlus}
-                  label="Add Host"
-                  onClick={() => navigate("/add_host")}
-                />
+                <Button className="h-12" icon={mdiPlus} label="Add Host" onClick={() => navigate("/add_host")} />
               </div>
             </div>
 
@@ -89,8 +83,8 @@ const AddAssessment = () => {
             <Divider />
 
             <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
+              <Button type="submit" label="Submit" />
+              <Button type="cancel" outline label="Cancel" />
             </Buttons>
           </Form>
         </Formik>

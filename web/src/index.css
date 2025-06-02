@@ -1,7 +1,4 @@
-@import "css/tailwind/tailwind-setup.css";
-@import "css/_checkbox-radio-switch.css";
-@import "css/_scrollbars.css";
-@import "css/_table.css";
-@import "css/_navbar.css";
-@import "css/styles/_basic.css";
-@import "css/styles/_white.css";
+@import "css/styles/tailwind-setup.css";
+@import "css/styles/accordion.css";
+@import "css/styles/base.css";
+@import "css/styles/table.css";

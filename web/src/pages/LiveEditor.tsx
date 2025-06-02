@@ -4,7 +4,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Button from "../components/Button";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
 import CVSS40Wrapper from "../components/CVSS/CVSS40Wrapper/CVSS40Wrapper";
@@ -189,7 +189,6 @@ const LiveEditor = () => {
     <div>
       <CardBoxModal
         title="Recalculate CVSS"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
@@ -245,7 +244,6 @@ const LiveEditor = () => {
                                   <div className="mt-[2rem]">
                                     <Button
                                       className="h-12"
-                                      color="info"
                                       icon={mdiCalculator}
                                       label="Recalculate CVSS"
                                       onClick={() => setIsModalInfoActive(true)}

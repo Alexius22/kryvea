@@ -1,6 +1,6 @@
 import { Field, Form, Formik } from "formik";
 import { useEffect } from "react";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import FormField from "../components/Form/Field";
 import { getPageTitle } from "../config";
 

@@ -4,7 +4,7 @@ import { useContext, useEffect } from "react";
 import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import FormField from "../components/Form/Field";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
@@ -54,7 +54,7 @@ const Profile = () => {
               </FormField>
             </div>
             <Buttons>
-              <Button color="info" type="submit" label="Submit" />
+              <Button type="submit" label="Submit" />
             </Buttons>
           </Form>
         </Formik>

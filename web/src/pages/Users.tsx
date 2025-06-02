@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import FormCheckRadio from "../components/Form/CheckRadio";
 import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
@@ -45,7 +45,6 @@ const Users = () => {
     <div>
       <CardBoxModal
         title="Edit user"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
@@ -91,11 +90,11 @@ const Users = () => {
                     closeMenuOnSelect={false}
                   />
                 </FormField>
-                  <FormCheckRadioGroup>
-                    <FormCheckRadio type="checkbox" label="Disable user">
-                      <Field type="checkbox" name="disable_user" />
-                    </FormCheckRadio>
-                  </FormCheckRadioGroup>
+                <FormCheckRadioGroup>
+                  <FormCheckRadio type="checkbox" label="Disable user">
+                    <Field type="checkbox" name="disable_user" />
+                  </FormCheckRadio>
+                </FormCheckRadioGroup>
               </Form>
             );
           }}
@@ -103,7 +102,6 @@ const Users = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -116,14 +114,7 @@ const Users = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-        <Button
-          icon={mdiPlus}
-          label="New user"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => navigate("/add_user")}
-        />
+        <Button icon={mdiPlus} label="New user" roundedFull small onClick={() => navigate("/add_user")} />
       </SectionTitleLineWithButton>
       <CardBox noPadding>
         {loading ? (
@@ -139,8 +130,8 @@ const Users = () => {
               Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

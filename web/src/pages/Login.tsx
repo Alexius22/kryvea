@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import Divider from "../components/Divider";
 import FormCheckRadio from "../components/Form/CheckRadio";
 import FormField from "../components/Form/Field";
@@ -50,14 +50,14 @@ const Login = () => {
   }, []);
 
   return (
-    <SectionFullScreen bg="purplePink">
+    <SectionFullScreen>
       <CardBox className="w-[500px]">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form className="flex flex-col gap-2">
             <div className="grid">
               <label htmlFor="username">Username</label>
               <Field
-                className="no-spinner w-full max-w-full rounded px-3 py-2 dark:placeholder-gray-400"
+                className="w-full max-w-full rounded px-3 py-2 dark:placeholder-gray-400"
                 name="login"
                 id="username"
                 onChange={e => setUsername(e.target.value)}
@@ -77,7 +77,7 @@ const Login = () => {
             <Divider />
 
             <Buttons>
-              <Button type="submit" label="Login" color="info" onClick={() => {}} />
+              <Button type="submit" label="Login" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
 import { formatDate } from "../components/DateUtils";
 import FormField from "../components/Form/Field";
@@ -61,7 +61,6 @@ const Assessments = () => {
     <div>
       <CardBoxModal
         title="Clone assessment"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalCloneActive}
         onConfirm={handleModalAction}
@@ -77,7 +76,6 @@ const Assessments = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Download report"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
@@ -107,7 +105,6 @@ const Assessments = () => {
       </CardBoxModal>
       <CardBoxModal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -120,14 +117,7 @@ const Assessments = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-        <Button
-          icon={mdiPlus}
-          label="New assessment"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => navigate("/add_assessment")}
-        />
+        <Button icon={mdiPlus} label="New assessment" roundedFull small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
       <CardBox noPadding>
         {loading ? (
@@ -137,14 +127,7 @@ const Assessments = () => {
         ) : (
           <Table
             data={assessmentsData.map(assessment => ({
-              Title: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {assessment.name}
-                </span>
-              ),
+              Title: <span onClick={() => navigate(`/assessment`)}>{assessment.name}</span>,
               Type: assessment.assessment_type,
               "CVSS Version": assessment.cvss_version,
               "Vuln count": assessment.vulnerability_count,
@@ -160,20 +143,15 @@ const Assessments = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button
-                    color={assessment.is_owned ? "warning" : "info"}
+                    className={assessment.is_owned ? "yellow" : "blue"}
                     icon={mdiStar}
                     onClick={handleFavoriteToggle(assessment.id)}
                     small
                   />
-                  <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                  <Button
-                    color="lightDark"
-                    icon={mdiContentDuplicate}
-                    onClick={() => openCloneModal(assessment)}
-                    small
-                  />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                  <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
+                  <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                  <Button icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

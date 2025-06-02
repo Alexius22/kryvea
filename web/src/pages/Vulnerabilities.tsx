@@ -1,7 +1,7 @@
 import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
@@ -31,7 +31,6 @@ const Vulnerabilities = () => {
             data={vulnerabilities?.map(vulnerability => ({
               Vulnerability: (
                 <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
                 >
                   {vulnerability.category.name + " - " + vulnerability.detailed_title}
@@ -39,14 +38,7 @@ const Vulnerabilities = () => {
               ),
               "CVSS Score": vulnerability.cvss_score,
               "CVSS Vector": vulnerability.cvss_vector,
-              Assessment: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {vulnerability.assessment.name}
-                </span>
-              ),
+              Assessment: <span onClick={() => navigate(`/assessment`)}>{vulnerability.assessment.name}</span>,
               Date: formatDate(vulnerability.updated_at),
               User: vulnerability.user.username,
             }))}

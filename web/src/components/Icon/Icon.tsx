@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function Icon({ path, w = "w-6", h = "h-6", size = null, className = "", children }: Props) {
-  const iconSize = size ?? 16;
+  const iconSize = size ?? 18;
 
   return (
     <span className={`inline-flex items-center justify-center ${w} ${h} ${className}`}>

@@ -2,7 +2,7 @@ import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import CardBox from "../components/CardBox";
+import CardBox from "../components/CardBox/CardBox";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
@@ -36,21 +36,9 @@ export default function Dashboard() {
           <Table
             data={data.map(assessment => ({
               Customer: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => setCustomerName(assessment.customer.name)}
-                >
-                  {assessment.customer.name}
-                </span>
+                <span onClick={() => setCustomerName(assessment.customer.name)}>{assessment.customer.name}</span>
               ),
-              "Assessment Name": (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {assessment.name}
-                </span>
-              ),
+              "Assessment Name": <span onClick={() => navigate(`/assessment`)}>{assessment.name}</span>,
               "Assessment Type": assessment.assessment_type,
               Start: formatDate(assessment.start_date_time),
               End: formatDate(assessment.end_date_time),
