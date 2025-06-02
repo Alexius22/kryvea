@@ -1,0 +1,11 @@
+.req-res-text {
+  @apply flex-1 overflow-x-auto rounded-md bg-yellow-400/70 p-4 font-mono dark:bg-gray-900;
+}
+
+.req-res {
+  @apply mb-3 border-b border-gray-700 pb-1 text-lg font-semibold;
+}
+
+.poc-img {
+  @apply max-h-[550px] max-w-[1/2] rounded-lg;
+}
