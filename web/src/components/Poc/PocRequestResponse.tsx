@@ -41,7 +41,7 @@ export default function PocRequestResponse({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="text-area"
+          className=""
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
@@ -52,7 +52,7 @@ export default function PocRequestResponse({
         <label htmlFor={urlInputId}>URL</label>
         <input
           id={urlInputId}
-          className="text-area"
+          className=""
           value={pocDoc.url}
           onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "url")}
         />
@@ -62,7 +62,7 @@ export default function PocRequestResponse({
         <div className="grid">
           <label htmlFor={requestTextareaId}>Request</label>
           <textarea
-            className="text-area h-96"
+            className="h-96"
             value={pocDoc.request}
             id={requestTextareaId}
             onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
@@ -72,7 +72,7 @@ export default function PocRequestResponse({
         <div className="grid">
           <label htmlFor={responseTextareaId}>Response</label>
           <textarea
-            className="text-area h-96"
+            className="h-96"
             value={pocDoc.response}
             id={responseTextareaId}
             onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}

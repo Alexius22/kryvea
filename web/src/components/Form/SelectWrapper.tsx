@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { GlobalContext } from "../../App";
 import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
@@ -38,9 +37,6 @@ export default function SelectWrapper({
   closeMenuOnSelect,
   id,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
-  const {
-    useDarkTheme: [darkTheme],
-  } = useContext(GlobalContext);
   const [inputValue, setInputValue] = useState("");
 
   const handleOnInputChange = (input: string, actionMeta: InputActionMeta) => {
@@ -56,7 +52,7 @@ export default function SelectWrapper({
     <Select
       {...{
         className,
-        classNamePrefix: "custom-select",
+        classNamePrefix: "select-wrapper",
         isMulti,
         value,
         onInputChange: handleOnInputChange,
@@ -67,8 +63,8 @@ export default function SelectWrapper({
         closeMenuOnSelect,
         inputId: id,
       }}
+      unstyled
       components={animatedComponents}
-      data-dark-theme={darkTheme ? "true" : "false"}
     />
   );
 }

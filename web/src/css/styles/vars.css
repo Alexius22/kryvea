@@ -1,0 +1,10 @@
+:root {
+  --field-bg-color: #fef08a;
+  --border-normal: #fbbf24;
+  --border-error: #ef4444;
+}
+
+html.dark {
+  --field-bg-color: #0369a1;
+  --border-normal: #4b5563;
+}
