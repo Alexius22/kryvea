@@ -40,7 +40,6 @@ export default function App() {
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
-    document.body.classList[darkTheme ? "add" : "remove"]("dark");
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
   }, [darkTheme]);
 
