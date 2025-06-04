@@ -11,19 +11,15 @@ span {
 }
 
 button {
-  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black dark:bg-sky-700 dark:text-white;
+  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-60 dark:bg-sky-700 dark:text-white;
 }
 
-.input {
-  @apply bg-yellow-200 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+textarea {
+  @apply rounded-md bg-yellow-200 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
 }
 
 .field {
   @apply bg-yellow-200 focus:outline-none focus:ring-0 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
-}
-
-.text-area {
-  @apply rounded border-gray-400 bg-yellow-200 dark:bg-sky-700;
 }
 
 .navbar {

@@ -14,6 +14,7 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { users } from "../mockup_data/users";
+import Select from "react-select/base";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -75,11 +76,20 @@ const Users = () => {
                   <Field name="username" placeholder="username" id="username" />
                 </FormField>
 
-                <FormField label="Role">
-                  <Field id="role" name="role" as="select">
-                    <option value="administrator">Administrator</option>
-                    <option value="user">User</option>
-                  </Field>
+                <FormField label="Role" singleChild>
+                  <SelectWrapper
+                    id="role-selection"
+                    options={[
+                      { value: "administrator", label: "Administrator" },
+                      { value: "user", label: "User" },
+                    ]}
+                    onChange={option => setFieldValue("role", option.value)}
+                    value={
+                      values.role
+                        ? { value: values.role, label: values.role.charAt(0).toUpperCase() + values.role.slice(1) }
+                        : null
+                    }
+                  />
                 </FormField>
                 <FormField label="Customers" singleChild>
                   <SelectWrapper

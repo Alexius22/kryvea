@@ -92,7 +92,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   return (
     <div>
       <input
-        className="mb-2 h-10 w-1/4 rounded-lg bg-transparent pl-4 placeholder:text-gray-600 focus:outline-none"
+        className="mb-2 h-10 w-1/4 rounded-lg !bg-transparent pl-4 !ring-0 placeholder:text-gray-600"
         placeholder="Search"
         type="text"
         value={filterText}

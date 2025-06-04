@@ -72,12 +72,7 @@ const Categories = () => {
             </Buttons>
             <Divider />
             <FormField label="Import categories" icons={[]}>
-              <input
-                className="input-focus max-w-96 rounded dark:bg-slate-800"
-                type="file"
-                name="json"
-                accept=".json"
-              />
+              <input className="max-w-96 rounded" type="file" name="json" accept=".json" />
             </FormField>
             <FormCheckRadioGroup>
               <FormCheckRadio type="checkbox" label="Override existing categories">

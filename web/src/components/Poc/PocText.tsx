@@ -46,7 +46,7 @@ export default function PocText({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="text-area"
+          className=""
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
@@ -69,7 +69,7 @@ export default function PocText({
         <label htmlFor={textInputId}>Text</label>
         <textarea
           id={textInputId}
-          className="text-area"
+          className=""
           value={pocDoc.text}
           onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
         />

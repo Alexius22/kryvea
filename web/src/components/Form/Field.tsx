@@ -36,9 +36,7 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
       <div className={elementWrapperClass}>
         {props.singleChild ? (
           <>
-            <label className="block font-bold" htmlFor="customer-selection">
-              {props.label}
-            </label>
+            <label className="block font-bold">{props.label}</label>
             {props.children}
           </>
         ) : (
@@ -46,15 +44,14 @@ const FormField = ({ icons = [], noHeight, gridTemplateColumns, isError = false,
             .filter((child): child is ReactElement => React.isValidElement(child))
             .map((child, index) => {
               const isError = child.props.isError;
-              const controlClassName = [
-                "px-3 py-2 max-w-full rounded w-full dark:placeholder-gray-300",
-                isError
-                  ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                  : "border-sky-950 focus:border-sky-300",
-                props.hasTextareaHeight ? "h-48" : "h-12",
-                props.isBorderless ? "border-0" : "border",
-                props.isTransparent ? "bg-transparent" : "field",
-              ].join(" ");
+              const controlClassName = `
+                control-base
+                ${isError ? "control-error" : "control-normal"}
+                ${props.hasTextareaHeight ? "control-height-48" : "control-height-12"}
+                ${props.isBorderless ? "control-borderless" : "control-bordered"}
+                ${props.isTransparent ? "control-transparent" : "control-field-bg"}
+                ${icons[index] ? "pl-10" : ""}
+              `;
 
               const tmpKey = v4();
 

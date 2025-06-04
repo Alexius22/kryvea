@@ -71,7 +71,6 @@ export default function PocImage({
       <div className="col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="text-area"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
@@ -83,7 +82,7 @@ export default function PocImage({
         <div className="flex gap-4">
           <input
             ref={imageInput}
-            className="text-area max-w-96"
+            className="max-w-96"
             type="file"
             name="myImage"
             accept="image/png, image/jpeg"
@@ -113,7 +112,6 @@ export default function PocImage({
       <div className="grid">
         <label htmlFor={captionTextareaId}>Caption</label>
         <input
-          className="text-area"
           value={pocDoc.caption}
           id={captionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "caption")}

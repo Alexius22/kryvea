@@ -8,6 +8,7 @@ import CardBox from "../components/CardBox/CardBox";
 import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import { getPageTitle } from "../config";
+import SelectWrapper from "../components/Form/SelectWrapper";
 
 const AddAssessment = () => {
   const navigate = useNavigate();
@@ -21,14 +22,19 @@ const AddAssessment = () => {
       <CardBox>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Assessment Type">
-              <Field name="assessment_type" id="assessment_type" component="select">
-                <option value="vapt">Vulnerability Assessment Penetration Test</option>
-                <option value="wapt">Web Application Penetration Test</option>
-                <option value="mapt">Mobile Application Penetration Test</option>
-                <option value="npt">Network Penetration Test</option>
-                <option value="rt">Red Team</option>
-              </Field>
+            <FormField label="Assessment Type" singleChild>
+              <SelectWrapper
+                id="assessment_type"
+                options={[
+                  { value: "vapt", label: "Vulnerability Assessment Penetration Test" },
+                  { value: "wapt", label: "Web Application Penetration Test" },
+                  { value: "mapt", label: "Mobile Application Penetration Test" },
+                  { value: "npt", label: "Network Penetration Test" },
+                  { value: "rt", label: "Red Team" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected assessment type:", option.value)}
+              />
             </FormField>
 
             <FormField label="Name">
@@ -49,35 +55,55 @@ const AddAssessment = () => {
               </div>
             </div>
 
-            <FormField label="CVSS Version">
-              <Field name="cvss_version" id="cvss_version" component="select">
-                <option value="4">4</option>
-                <option value="3.1">3.1</option>
-                <option value="2">2</option>
-              </Field>
+            <FormField label="CVSS Version" singleChild>
+              <SelectWrapper
+                id="cvss_version"
+                options={[
+                  { value: "4", label: "4" },
+                  { value: "3.1", label: "3.1" },
+                  { value: "2", label: "2" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected CVSS version:", option.value)}
+              />
             </FormField>
 
-            <FormField label="Environment">
-              <Field name="environment" id="environment" component="select">
-                <option value="pre">Pre-Production</option>
-                <option value="prod">Production</option>
-              </Field>
+            <FormField label="Environment" singleChild>
+              <SelectWrapper
+                id="environment"
+                options={[
+                  { value: "pre", label: "Pre-Production" },
+                  { value: "prod", label: "Production" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected environment:", option.value)}
+              />
             </FormField>
 
-            <FormField label="Testing type">
-              <Field name="testing_type" id="testing_type" component="select">
-                <option value="white">White Box</option>
-                <option value="gray">Gray Box</option>
-                <option value="black">Black Box</option>
-              </Field>
+            <FormField label="Testing type" singleChild>
+              <SelectWrapper
+                id="testing_type"
+                options={[
+                  { value: "white", label: "White Box" },
+                  { value: "gray", label: "Gray Box" },
+                  { value: "black", label: "Black Box" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected testing type:", option.value)}
+              />
             </FormField>
 
-            <FormField label="OSSTMM Vector">
-              <Field name="osstmm_vector" id="osstmm_vector" component="select">
-                <option value="i2i">Inside to inside</option>
-                <option value="o2o">Outside to outside</option>
-                <option value="o2i">Outside to inside</option>
-              </Field>
+            <FormField label="OSSTMM Vector" singleChild>
+              <SelectWrapper
+                id="osstmm_vector"
+                options={[
+                  { value: "i2i", label: "Inside to inside" },
+                  { value: "o2o", label: "Outside to outside" },
+                  { value: "o2i", label: "Outside to inside" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected OSSTMM vector:", option.value)}
+              />
             </FormField>
 
             <Divider />

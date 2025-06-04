@@ -11,6 +11,7 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
+import SelectWrapper from "../components/Form/SelectWrapper";
 
 const Assessment = () => {
   const navigate = useNavigate();
@@ -43,17 +44,25 @@ const Assessment = () => {
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
             <FormField label="Type" icons={[]}>
-              <Field name="type" component="select">
-                <option value="word">Word (.docx)</option>
-                <option value="excel">Excel (.xlsx)</option>
-                <option value="zip">Archive (.zip)</option>
-              </Field>
+              <SelectWrapper
+                id="type"
+                options={[
+                  { value: "word", label: "Word (.docx)" },
+                  { value: "excel", label: "Excel (.xlsx)" },
+                  { value: "zip", label: "Archive (.zip)" },
+                ]}
+                onChange={option => console.log("Selected type:", option.value)}
+              />
             </FormField>
             <FormField label="Encryption">
-              <Field name="encryption" component="select">
-                <option value="none">None</option>
-                <option value="password">Password</option>
-              </Field>
+              <SelectWrapper
+                id="encryption"
+                options={[
+                  { value: "none", label: "None" },
+                  { value: "password", label: "Password" },
+                ]}
+                onChange={option => console.log("Selected encryption:", option.value)}
+              />
               <Field name="password" placeholder="Insert password" />
             </FormField>
             <FormField label="Options">
