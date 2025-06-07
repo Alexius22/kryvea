@@ -9,7 +9,11 @@ interface InputProps {
   helperSubtitle?: string;
   placeholder?: string;
   value?;
+  accept?;
+  as?;
   onChange?;
+  multiline?: boolean;
+  rows?: number;
 }
 
 export default function Input({
@@ -20,7 +24,10 @@ export default function Input({
   helperSubtitle,
   placeholder,
   value,
+  accept,
   onChange,
+  multiline = false,
+  rows = 6,
 }: InputProps) {
   return (
     <Grid className={className}>
@@ -29,8 +36,19 @@ export default function Input({
           {label}
         </label>
       )}
-      <div className="grid gap-1">
-        <input type={type} placeholder={placeholder} id={id} value={value} onChange={onChange} />
+      <div className="grid">
+        {multiline ? (
+          <textarea
+            id={id}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            rows={rows}
+            className="resize-y p-2"
+          />
+        ) : (
+          <input type={type} id={id} placeholder={placeholder} value={value} onChange={onChange} accept={accept} />
+        )}
         {helperSubtitle && <span className="text-xs font-light">{helperSubtitle}</span>}
       </div>
     </Grid>

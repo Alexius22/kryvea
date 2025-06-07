@@ -62,7 +62,7 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
   return (
     <div className="ml-8">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem" }}>
         {/* Base Score Metrics */}
         <div>
           <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Base Score Metrics</h3>

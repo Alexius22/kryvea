@@ -1,15 +1,14 @@
 import { mdiCogs, mdiDeleteAlert, mdiDownload, mdiPencil, mdiPlus, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
-import FormField from "../components/Form/Field";
+import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -59,26 +58,27 @@ const Categories = () => {
       >
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <Buttons>
-              <Button icon={mdiDownload} label="Export categories" roundedFull small onClick={() => navigate("")} />
-              <Button
-                icon={mdiDeleteAlert}
-                className="trash-button"
-                label="Delete all categories"
-                roundedFull
-                small
-                onClick={() => setIsModalTrashAllActive(true)}
-              />
-            </Buttons>
-            <Divider />
-            <FormField label="Import categories" icons={[]}>
-              <input className="max-w-96 rounded" type="file" name="json" accept=".json" />
-            </FormField>
-            <FormCheckRadioGroup>
-              <FormCheckRadio type="checkbox" label="Override existing categories">
-                <Field type="checkbox" name="override" />
-              </FormCheckRadio>
-            </FormCheckRadioGroup>
+            <Grid className="gap-4">
+              <Buttons>
+                <Button icon={mdiDownload} label="Export categories" roundedFull small onClick={() => navigate("")} />
+                <Button
+                  icon={mdiDeleteAlert}
+                  className="trash-button"
+                  label="Delete all categories"
+                  roundedFull
+                  small
+                  onClick={() => setIsModalTrashAllActive(true)}
+                />
+              </Buttons>
+              <Divider />
+              <Input label="Import categories" type="file" id="imported_categories" accept=".json" />
+              <div className="inline-flex items-center">
+                <input type="checkbox" className="h-5 w-5 cursor-pointer" id="override_categories" />
+                <label className="ml-2 cursor-pointer text-sm" htmlFor="override_categories">
+                  Override existing categories
+                </label>
+              </div>
+            </Grid>
           </Form>
         </Formik>
       </CardBoxModal>

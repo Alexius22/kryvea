@@ -1,7 +1,7 @@
-import { Field } from "formik";
 import { useState } from "react";
+import Grid from "../../Composition/Grid";
 import Accordion from "../../Form/Accordion";
-import FormField from "../../Form/Field";
+import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
 import calculateCVSSFromMetrics, { calculateCVSSFromVector } from "./CVSS31";
 import CVSS31Render from "./CVSS31Render";
@@ -94,16 +94,11 @@ export default function CVSS31Wrapper() {
   };
 
   return (
-    <div>
-      <FormField
-        label={["CVSS vector", "Score"]}
-        gridTemplateColumns="grid-cols-[63%_36%]"
-        help={error || ""}
-        isError={!!error}
-      >
-        <Field name="cvss" id="cvss" value={cvssValue} onChange={handleInputChange} isError={!!error} />
+    <>
+      <Grid className="grid-cols-[63%_36%]">
+        <Input type="text" label="CVSS vector" id="cvss" value={cvssValue} onChange={handleInputChange} />
         <ScoreBar score={handleScoreBar()} />
-      </FormField>
+      </Grid>
       <Accordion title={"CVSS Calculator"}>
         <CVSS31Render
           {...{
@@ -113,6 +108,6 @@ export default function CVSS31Wrapper() {
           }}
         />
       </Accordion>
-    </div>
+    </>
   );
 }

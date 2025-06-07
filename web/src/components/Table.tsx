@@ -1,10 +1,8 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
 import { isValidElement, useEffect, useState } from "react";
 import Button from "./Button";
 import Buttons from "./Buttons";
 import CardBox from "./CardBox/CardBox";
-import FormField from "./Form/Field";
 import Icon from "./Icon";
 
 const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
@@ -92,7 +90,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   return (
     <div>
       <input
-        className="mb-2 h-10 w-1/4 rounded-lg !bg-transparent pl-4 !ring-0 placeholder:text-gray-600"
+        className="mb-2 h-10 w-1/4 rounded-lg border-none !bg-transparent pl-4 placeholder:text-gray-600"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -174,7 +172,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
             </Buttons>
             <input
               type="number"
-              className="input no-spinner ml-auto mr-2 w-[35px] rounded-md py-0.5 text-center"
+              className="ml-auto mr-2 h-8 w-[50px] rounded-md text-center"
               value={perPage}
               onChange={e => setPerPage(+e.target.value)}
             />

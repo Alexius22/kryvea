@@ -11,7 +11,7 @@
 }
 
 .dark {
-  --select-border: #475569;
+  --select-border: #0c4a6ebf;
   --select-bg: #0369a1;
   --select-text: #ffffff;
   --select-border-hover: #10b9f1;
@@ -25,8 +25,6 @@
 /* Control (input box) */
 .select-wrapper__control {
   display: flex;
-  align-items: center;
-  height: 3rem;
   border: 1px solid var(--select-border);
   border-radius: 0.375rem;
   padding-left: 0.5rem;
@@ -34,14 +32,11 @@
   color: var(--select-text);
   overflow-x: auto;
   transition: border-color 0.15s ease-in-out;
-  cursor: pointer;
-  width: max-content;
 }
 
 .select-wrapper__control:hover,
 .select-wrapper__control--is-focused {
   border-color: var(--select-border-hover);
-  box-shadow: none;
 }
 
 /* Menu (dropdown) */

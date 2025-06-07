@@ -1,5 +1,5 @@
 import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../App";
@@ -7,7 +7,8 @@ import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
@@ -60,23 +61,30 @@ const Customers = () => {
           onSubmit={undefined}
         >
           <Form>
-            <FormField label="Company Name" help="Required">
-              <Field name="companyName" placeholder="CompanyName" id="companyName" />
-            </FormField>
+            <Grid className="gap-4">
+              <Input
+                type="text"
+                label="Company Name"
+                helperSubtitle="Required"
+                placeholder="CompanyName"
+                id="companyName"
+              />
 
-            <FormField label="Language" labelFor="language" singleChild>
               <SelectWrapper
+                label="Language"
                 id="language"
                 options={[
                   { value: "italian", label: "Italian" },
                   { value: "english", label: "English" },
+                  { value: "spanish", label: "Spanish" },
+                  { value: "french", label: "French" },
+                  { value: "german", label: "German" },
                 ]}
                 onChange={option => console.log("Selected language:", option.value)}
               />
-            </FormField>
 
-            <FormField label="Default CVSS Version" labelFor="cvss" singleChild>
               <SelectWrapper
+                label="Default CVSS Version"
                 id="cvss"
                 options={[
                   { value: "4", label: "4" },
@@ -85,7 +93,7 @@ const Customers = () => {
                 ]}
                 onChange={option => console.log("Selected CVSS version:", option.value)}
               />
-            </FormField>
+            </Grid>
           </Form>
         </Formik>
       </CardBoxModal>

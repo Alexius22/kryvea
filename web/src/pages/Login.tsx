@@ -53,7 +53,7 @@ const Login = () => {
     <SectionFullScreen>
       <CardBox className="w-[500px]">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-          <Form className="flex flex-col gap-2">
+          <Form>
             <div className="grid">
               <label htmlFor="username">Username</label>
               <Field

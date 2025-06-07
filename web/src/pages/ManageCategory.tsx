@@ -1,12 +1,13 @@
 import { mdiDatabaseEdit, mdiPlus } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -54,13 +55,12 @@ const ManageCategory = () => {
         <p>The English language option is not available, as it is the default language.</p>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Select language" singleChild>
-              <SelectWrapper
-                options={LanguageSelectOptions}
-                onChange={selectedOptions => setSelectedLanguageOptions(selectedOptions)}
-                value={selectedLanguageOptions}
-              />
-            </FormField>
+            <SelectWrapper
+              label="Select language"
+              options={LanguageSelectOptions}
+              onChange={selectedOptions => setSelectedLanguageOptions(selectedOptions)}
+              value={selectedLanguageOptions}
+            />
           </Form>
         </Formik>
       </CardBoxModal>
@@ -71,42 +71,46 @@ const ManageCategory = () => {
       <CardBox>
         <Formik initialValues={undefined} onSubmit={undefined}>
           <Form>
-            <FormField label={["Identifier", "Name"]}>
-              <Field name="identifier" id="identifier" placeholder="A01:2021" />
-              <Field name="Name" id="Name" placeholder="Name" />
-            </FormField>
+            <Grid className="grid-cols-2">
+              <Input type="text" label="Identifier" id="identifier" placeholder="A01:2021" />
+              <Input type="text" label="Name" id="name" placeholder="Vulnerability name" />
+            </Grid>
             <Divider />
-            <p className="mb-2">
-              <b>English</b>
-            </p>
-            <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
-              <Field name="gen_desc_en" as="textarea" placeholder="Description here" />
-              <Field name="gen_rem_en" as="textarea" placeholder="Description here" />
-            </FormField>
+            <p className="mb-2 font-bold">English</p>
+            <Grid className="grid-cols-2">
+              <Input
+                type="text"
+                multiline
+                label="Generic description"
+                id="gen_desc_en"
+                placeholder="Description here"
+              />
+              <Input type="text" multiline label="Generic remediation" id="gen_rem_en" placeholder="Description here" />
+            </Grid>
             {additionalFields.map((language, index) => (
               <div key={index}>
                 <Divider />
-                <p className="mb-2">
-                  <b>{language.label}</b>
-                </p>
-                <FormField label={["Generic description", "Generic remediation"]} hasTextareaHeight>
-                  <Field
-                    name={`gen_desc_${language.value.toLowerCase()}`}
-                    as="textarea"
-                    placeholder={"Description here"}
+                <p className="mb-2 font-bold">{language.label}</p>
+                <Grid className="grid-cols-2">
+                  <Input
+                    type="text"
+                    multiline
+                    label="Generic remediation"
+                    id={`gen_desc_${language.value.toLowerCase()}`}
+                    placeholder="Description here"
                   />
-                  <Field
-                    name={`gen_rem_${language.value.toLowerCase()}`}
-                    as="textarea"
-                    placeholder={"Description here"}
+                  <Input
+                    type="text"
+                    multiline
+                    label="Generic remediation"
+                    id={`gen_rem_${language.value.toLowerCase()}`}
+                    placeholder="Description here"
                   />
-                </FormField>
+                </Grid>
               </div>
             ))}
             <Divider />
-            <FormField label="References" hasTextareaHeight>
-              <Field name="ref" as="textarea" placeholder="References here" />
-            </FormField>
+            <Input type="text" multiline label="References" id="references" placeholder="References here" />
             <Divider />
             <Buttons>
               <Button type="submit" label="Submit" />

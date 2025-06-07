@@ -1,15 +1,15 @@
-import { mdiCalendar, mdiPlus } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { mdiPlus } from "@mdi/js";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
-import { getPageTitle } from "../config";
-import SelectWrapper from "../components/Form/SelectWrapper";
 import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
+import { getPageTitle } from "../config";
 
 const AddAssessment = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const AddAssessment = () => {
       <CardBox>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <div className="grid gap-2">
+            <Grid>
               <SelectWrapper
                 label="Assessment Type"
                 id="assessment_type"
@@ -96,7 +96,7 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected OSSTMM vector:", option.value)}
               />
-            </div>
+            </Grid>
 
             <Divider />
 

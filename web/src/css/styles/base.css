@@ -11,11 +11,11 @@ span {
 }
 
 button {
-  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-60 dark:bg-sky-700 dark:text-white;
+  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-60 dark:bg-sky-900 dark:text-white;
 }
 
 input {
-  @apply no-spinner h-12 rounded-lg border-2 border-yellow-400/75 bg-yellow-200 p-2 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
+  @apply no-spinner h-12 rounded-md border bg-yellow-200 p-2 ring-0 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
 }
 
 textarea {

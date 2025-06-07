@@ -5,6 +5,8 @@ import FormField from "../../Form/Field";
 import ScoreBar from "../ScoreBar";
 import Vector, { CVSS40 } from "./CVSS40";
 import CVSS40Render from "./CVSS40Render";
+import Grid from "../../Composition/Grid";
+import Input from "../../Form/Input";
 
 type NALP = "N" | "A" | "L" | "P";
 type LH = "L" | "H";
@@ -224,16 +226,11 @@ export default function CVSS40Wrapper() {
   };
 
   return (
-    <div>
-      <FormField
-        label={["CVSS vector", "Score"]}
-        gridTemplateColumns="grid-cols-[63%_36%]"
-        help={error || ""}
-        isError={!!error}
-      >
-        <Field name="cvss" id="cvss" value={displayCvssVector} onChange={handleInputChange} isError={!!error} />
+    <>
+      <Grid className="grid-cols-[63%_36%]">
+        <Input type="text" label="CVSS vector" id="cvss" value={displayCvssVector} onChange={handleInputChange} />
         <ScoreBar score={cvss4Score} />
-      </FormField>
+      </Grid>
       <Accordion title={"CVSS Calculator"}>
         <CVSS40Render
           {...{
@@ -244,6 +241,6 @@ export default function CVSS40Wrapper() {
           }}
         />
       </Accordion>
-    </div>
+    </>
   );
 }
