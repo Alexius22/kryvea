@@ -50,7 +50,7 @@ export default function PocTemplate({
             <div className="col-span-1 col-start-12 grid">
               <label htmlFor={positionInputId}>Position</label>
               <input
-                className="no-spinner input w-[55px] rounded text-center"
+                className="input h-8 w-[55px] rounded text-center"
                 id={positionInputId}
                 type="number"
                 value={tmpPosition}
@@ -69,6 +69,7 @@ export default function PocTemplate({
                   <Button
                     label="Move Up"
                     small
+                    className="h-8"
                     disabled={currentIndex === 0}
                     onClick={() =>
                       onPositionChange(currentIndex)({ target: { value: currentIndex <= 0 ? 0 : currentIndex - 1 } })

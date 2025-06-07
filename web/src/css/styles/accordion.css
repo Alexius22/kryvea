@@ -1,9 +1,10 @@
 .Accordion-container {
   width: 100%;
   overflow: hidden;
-  border-radius: 4px;
-  border-color: #374151;
+  border-radius: 0.375rem;
+  border-color: var(--border-normal);
   border-width: 1px;
+  background-color: var(--field-bg-color);
 }
 .wrapper {
   overflow: hidden;
@@ -11,7 +12,7 @@
 .wrapper .question-container {
   width: 100%;
   text-align: left;
-  padding: 8px 12px;
+  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

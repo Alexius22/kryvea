@@ -1,20 +1,18 @@
 import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { users } from "../mockup_data/users";
-import Select from "react-select/base";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -72,12 +70,10 @@ const Users = () => {
 
             return (
               <Form>
-                <FormField label="Username" help="Required">
-                  <Field name="username" placeholder="username" id="username" />
-                </FormField>
-
-                <FormField label="Role" singleChild>
+                <Grid className="gap-4">
+                  <Input type="text" label="Username" placeholder="username" id="username" />
                   <SelectWrapper
+                    label="Role"
                     id="role-selection"
                     options={[
                       { value: "administrator", label: "Administrator" },
@@ -90,21 +86,21 @@ const Users = () => {
                         : null
                     }
                   />
-                </FormField>
-                <FormField label="Customers" singleChild>
                   <SelectWrapper
+                    label="Customers"
                     options={[selectAllOption, ...customerOptions]}
                     isMulti
                     value={customerOptions.filter(option => values.customers.includes(option.value))}
                     onChange={handleSelectChange}
                     closeMenuOnSelect={false}
                   />
-                </FormField>
-                <FormCheckRadioGroup>
-                  <FormCheckRadio type="checkbox" label="Disable user">
-                    <Field type="checkbox" name="disable_user" />
-                  </FormCheckRadio>
-                </FormCheckRadioGroup>
+                  <div className="inline-flex items-center">
+                    <input type="checkbox" className="h-5 w-5 cursor-pointer" id="disable_user" />
+                    <label className="ml-2 cursor-pointer text-sm" htmlFor="disable_user">
+                      Disable user
+                    </label>
+                  </div>
+                </Grid>
               </Form>
             );
           }}

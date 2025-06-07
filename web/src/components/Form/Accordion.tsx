@@ -34,10 +34,10 @@ const Accordion = ({ title, children }) => {
   const handleItemClick = index => {
     setActiveIndex(prevIndex => (prevIndex === index ? null : index));
   };
-  const index = "accordion1";
+  const index = "accordion";
 
   return (
-    <div className="Accordion-container" style={{ backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF" }}>
+    <div className="Accordion-container">
       <AccordionItem key={index} title={title} isOpen={isOpen} onClick={() => setIsOpen(prev => !prev)}>
         {children}
       </AccordionItem>
