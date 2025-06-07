@@ -40,7 +40,7 @@ const AddAssessment = () => {
               <Input type="text" label="Name" id="name" placeholder="Insert a name" />
               <div className="grid grid-cols-2 items-end gap-4">
                 <Input type="date" label="Activity period" id="start" />
-                <Input type="date" label="ASdasdASD" id="end" />
+                <Input type="date" id="end" />
               </div>
 
               <div className="grid grid-cols-[1fr_auto] gap-4">
