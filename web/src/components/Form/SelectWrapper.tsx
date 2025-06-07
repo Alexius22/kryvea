@@ -54,9 +54,11 @@ export default function SelectWrapper({
 
   return (
     <Grid>
-      <label className="font-bold" htmlFor={id}>
-        {label}
-      </label>
+      {label && (
+        <label className="font-bold" htmlFor={id}>
+          {label}
+        </label>
+      )}
       <Select
         {...{
           className,
