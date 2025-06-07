@@ -24,12 +24,14 @@ export default function Input({
 }: InputProps) {
   return (
     <Grid className={className}>
-      <label className="font-bold" htmlFor={id}>
-        {label}
-      </label>
+      {label && (
+        <label className="font-bold" htmlFor={id}>
+          {label}
+        </label>
+      )}
       <div className="grid gap-1">
         <input type={type} placeholder={placeholder} id={id} value={value} onChange={onChange} />
-        <span className="text-xs font-light">{helperSubtitle}</span>
+        {helperSubtitle && <span className="text-xs font-light">{helperSubtitle}</span>}
       </div>
     </Grid>
   );
