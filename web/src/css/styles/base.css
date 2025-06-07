@@ -15,7 +15,7 @@ button {
 }
 
 input {
-  @apply bg-yellow-200 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+  @apply no-spinner h-12 rounded-lg border-2 border-yellow-400/75 bg-yellow-200 p-2 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
 }
 
 textarea {

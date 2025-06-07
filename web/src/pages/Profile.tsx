@@ -8,6 +8,7 @@ import CardBox from "../components/CardBox/CardBox";
 import FormField from "../components/Form/Field";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
+import Input from "../components/Form/Input";
 
 const Profile = () => {
   const {
@@ -30,28 +31,11 @@ const Profile = () => {
           }}
           onSubmit={values => alert(JSON.stringify(values, null, 2))}
         >
-          <Form className="flex flex-1 flex-col gap-6">
-            <div>
-              <FormField label="Current password" help="Required" labelFor="currentPassword" icons={[mdiAsterisk]}>
-                <Field name="currentPassword" id="currentPassword" type="password" autoComplete="current-password" />
-              </FormField>
-              <FormField label="New password" help="Required" labelFor="newPassword" icons={[mdiFormTextboxPassword]}>
-                <Field name="newPassword" id="newPassword" type="password" autoComplete="new-password" />
-              </FormField>
-
-              <FormField
-                label="Confirm password"
-                help="Required"
-                labelFor="newPasswordConfirmation"
-                icons={[mdiFormTextboxPassword]}
-              >
-                <Field
-                  name="newPasswordConfirmation"
-                  id="newPasswordConfirmation"
-                  type="password"
-                  autoComplete="new-password"
-                />
-              </FormField>
+          <Form className="flex flex-1 flex-col gap-4">
+            <div className="grid gap-4">
+              <Input type="password" id="current_password" label="Current password" helperSubtitle="Required" />
+              <Input type="password" id="new_password" label="New password" helperSubtitle="Required" />
+              <Input type="password" id="confirm_password" label="Confirm password" helperSubtitle="Required" />
             </div>
             <Buttons>
               <Button type="submit" label="Submit" />
