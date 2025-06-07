@@ -93,6 +93,7 @@
   color: var(--select-text);
   display: flex;
   align-items: center;
+  gap: 0.25rem;
 }
 
 .select-wrapper__multi-value__label {
@@ -120,7 +121,6 @@
 }
 
 /* Input */
-.select-wrapper__input input {
-  color: var(--select-text);
+input.select-wrapper__input {
   box-shadow: none;
 }

@@ -2,8 +2,10 @@ import { useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
 import { SelectOption } from "./SelectWrapper.types";
+import Grid from "../Composition/Grid";
 
 type SelectWrapperProps = {
+  label?: string;
   className?: string;
   options: SelectOption[];
   onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
@@ -15,6 +17,7 @@ type SelectWrapperProps = {
   id?: string;
 };
 type SelectWrapperMultiProps = {
+  label?: string;
   className?: string;
   options: SelectOption[];
   onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
@@ -36,6 +39,7 @@ export default function SelectWrapper({
   onInputChange,
   closeMenuOnSelect,
   id,
+  label,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
 
@@ -49,22 +53,27 @@ export default function SelectWrapper({
   const animatedComponents = makeAnimated();
 
   return (
-    <Select
-      {...{
-        className,
-        classNamePrefix: "select-wrapper",
-        isMulti,
-        value,
-        onInputChange: handleOnInputChange,
-        inputValue,
-        options,
-        onChange,
-        defaultValue,
-        closeMenuOnSelect,
-        inputId: id,
-      }}
-      unstyled
-      components={animatedComponents}
-    />
+    <Grid>
+      <label className="font-bold" htmlFor={id}>
+        {label}
+      </label>
+      <Select
+        {...{
+          className,
+          classNamePrefix: "select-wrapper",
+          isMulti,
+          value,
+          onInputChange: handleOnInputChange,
+          inputValue,
+          options,
+          onChange,
+          defaultValue,
+          closeMenuOnSelect,
+          inputId: id,
+        }}
+        unstyled
+        components={animatedComponents}
+      />
+    </Grid>
   );
 }

@@ -9,6 +9,7 @@ import Divider from "../components/Divider";
 import FormField from "../components/Form/Field";
 import { getPageTitle } from "../config";
 import SelectWrapper from "../components/Form/SelectWrapper";
+import Input from "../components/Form/Input";
 
 const AddAssessment = () => {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ const AddAssessment = () => {
       <CardBox>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Assessment Type" singleChild>
+            <div className="grid gap-2">
               <SelectWrapper
+                label="Assessment Type"
                 id="assessment_type"
                 options={[
                   { value: "vapt", label: "Vulnerability Assessment Penetration Test" },
@@ -35,28 +37,21 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected assessment type:", option.value)}
               />
-            </FormField>
-
-            <FormField label="Name">
-              <Field name="name" id="name" placeholder="Insert a name"></Field>
-            </FormField>
-
-            <FormField label="Activity period" icons={[mdiCalendar, mdiCalendar]}>
-              <Field type="date" name="start" />
-              <Field type="date" name="end" />
-            </FormField>
-
-            <div className="grid grid-cols-[1fr_auto] gap-4">
-              <FormField label="Session targets">
-                <Field name="targets" id="targets" placeholder="Insert a target" />
-              </FormField>
-              <div className="mt-[2rem]">
-                <Button className="h-12" icon={mdiPlus} label="Add Host" onClick={() => navigate("/add_host")} />
+              <Input type="text" label="Name" id="name" placeholder="Insert a name" />
+              <div className="grid grid-cols-2 items-end gap-4">
+                <Input type="date" label="Activity period" id="start" />
+                <Input type="date" label="ASdasdASD" id="end" />
               </div>
-            </div>
 
-            <FormField label="CVSS Version" singleChild>
+              <div className="grid grid-cols-[1fr_auto] gap-4">
+                <Input type="text" label="Session targets" id="targets" placeholder="Insert a target" />
+                <div className="mt-[2rem]">
+                  <Button className="h-12" icon={mdiPlus} label="Add Host" onClick={() => navigate("/add_host")} />
+                </div>
+              </div>
+
               <SelectWrapper
+                label="CVSS Version"
                 id="cvss_version"
                 options={[
                   { value: "4", label: "4" },
@@ -66,10 +61,9 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected CVSS version:", option.value)}
               />
-            </FormField>
 
-            <FormField label="Environment" singleChild>
               <SelectWrapper
+                label="Environment"
                 id="environment"
                 options={[
                   { value: "pre", label: "Pre-Production" },
@@ -78,10 +72,9 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected environment:", option.value)}
               />
-            </FormField>
 
-            <FormField label="Testing type" singleChild>
               <SelectWrapper
+                label="Testing type"
                 id="testing_type"
                 options={[
                   { value: "white", label: "White Box" },
@@ -91,10 +84,9 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected testing type:", option.value)}
               />
-            </FormField>
 
-            <FormField label="OSSTMM Vector" singleChild>
               <SelectWrapper
+                label="OSSTMM Vector"
                 id="osstmm_vector"
                 options={[
                   { value: "i2i", label: "Inside to inside" },
@@ -104,13 +96,13 @@ const AddAssessment = () => {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected OSSTMM vector:", option.value)}
               />
-            </FormField>
+            </div>
 
             <Divider />
 
             <Buttons>
               <Button type="submit" label="Submit" />
-              <Button type="reset" outline label="Cancel" />
+              <Button type="reset" label="Cancel" />
             </Buttons>
           </Form>
         </Formik>
