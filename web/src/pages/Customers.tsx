@@ -114,7 +114,7 @@ const Customers = () => {
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} label="New customer" roundedFull small onClick={() => navigate("/add_customer")} />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

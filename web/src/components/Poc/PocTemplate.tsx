@@ -1,7 +1,6 @@
 import { mdiDelete } from "@mdi/js";
 import { useEffect, useState } from "react";
 import Button from "../Button";
-import Divider from "../Divider";
 import Icon from "../Icon";
 
 export default function PocTemplate({

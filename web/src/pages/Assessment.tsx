@@ -1,17 +1,18 @@
 import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
-import SelectWrapper from "../components/Form/SelectWrapper";
 
 const Assessment = () => {
   const navigate = useNavigate();
@@ -43,8 +44,9 @@ const Assessment = () => {
       >
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Type" icons={[]}>
+            <Grid>
               <SelectWrapper
+                label="Type"
                 id="type"
                 options={[
                   { value: "word", label: "Word (.docx)" },
@@ -53,21 +55,19 @@ const Assessment = () => {
                 ]}
                 onChange={option => console.log("Selected type:", option.value)}
               />
-            </FormField>
-            <FormField label="Encryption">
-              <SelectWrapper
-                id="encryption"
-                options={[
-                  { value: "none", label: "None" },
-                  { value: "password", label: "Password" },
-                ]}
-                onChange={option => console.log("Selected encryption:", option.value)}
-              />
-              <Field name="password" placeholder="Insert password" />
-            </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
-            </FormField>
+              <Grid className="grid-cols-2">
+                <SelectWrapper
+                  label="Encryption"
+                  id="encryption"
+                  options={[
+                    { value: "none", label: "None" },
+                    { value: "password", label: "Password" },
+                  ]}
+                  onChange={option => console.log("Selected encryption:", option.value)}
+                />
+                <Input type="password" id="password" placeholder="Insert password" />
+              </Grid>
+            </Grid>
           </Form>
         </Formik>
       </CardBoxModal>
@@ -78,18 +78,13 @@ const Assessment = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <FormField label="Choose Nessus file" icons={[]}>
-              <input
-                className="input-focus max-w-96 rounded dark:bg-slate-800"
-                type="file"
-                name="nessus"
-                accept=".nessus"
-              />
-            </FormField>
-          </Form>
-        </Formik>
+        <Input
+          type="file"
+          id="nessus_file"
+          placeholder="Drop here also"
+          label="Choose Nessus file"
+          accept={".nessus"}
+        />
       </CardBoxModal>
       <CardBoxModal
         title="Please confirm"
@@ -132,7 +127,7 @@ const Assessment = () => {
           <Button icon={mdiUpload} label="Upload" roundedFull small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

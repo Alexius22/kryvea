@@ -45,7 +45,7 @@ const Hosts = () => {
           <Button icon={mdiPlus} label="New host" roundedFull small onClick={() => navigate("/add_host")} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

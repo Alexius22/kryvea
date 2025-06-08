@@ -99,7 +99,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
           setFilterText(e.target.value);
         }}
       />
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         <table className="table">
           {filteredData.length > 0 && (
             <thead>
