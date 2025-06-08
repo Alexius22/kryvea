@@ -6,7 +6,15 @@ import Card from "./CardBox/Card";
 import Icon from "./Icon";
 import Input from "./Form/Input";
 
-const Table = ({ data, perPageCustom, w = "w-max" }: { data: any[]; perPageCustom; w?: "w-fit" | "w-max" }) => {
+const Table = ({
+  data,
+  perPageCustom,
+  minW = "min-w-max",
+}: {
+  data: any[];
+  perPageCustom;
+  minW?: "min-w-fit" | "min-w-max";
+}) => {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
@@ -90,7 +98,7 @@ const Table = ({ data, perPageCustom, w = "w-max" }: { data: any[]; perPageCusto
   };
 
   return (
-    <Card className={`!p-0 ${w}`}>
+    <Card className={`!w-full !p-0 ${minW}`}>
       <Input
         className="rounded-b-none rounded-t-2xl border-none focus:!ring-0 dark:bg-sky-950"
         placeholder="Search"
