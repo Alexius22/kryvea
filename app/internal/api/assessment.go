@@ -495,10 +495,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
-	return c.JSON(fiber.Map{
-		"message": "Report generated",
-		"file":    fileName,
-	})
+	return c.SendFile(fileName)
 }
 
 func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment, string) {
