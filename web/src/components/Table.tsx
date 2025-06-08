@@ -9,10 +9,12 @@ import Input from "./Form/Input";
 const Table = ({
   data,
   perPageCustom,
+  wMin,
   minW = "min-w-max",
 }: {
   data: any[];
   perPageCustom;
+  wMin?: true;
   minW?: "min-w-fit" | "min-w-max";
 }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
@@ -98,7 +100,7 @@ const Table = ({
   };
 
   return (
-    <Card className={`!w-full !p-0 ${minW}`}>
+    <Card className={`!p-0 ${minW} ${wMin ? "w-min" : ""}`}>
       <Input
         className="rounded-b-none rounded-t-2xl border-none focus:!ring-0 dark:bg-sky-950"
         placeholder="Search"
