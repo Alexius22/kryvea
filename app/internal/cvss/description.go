@@ -35,6 +35,15 @@ const (
 	A_L  = "A:L"
 	A_N  = "A:N"
 
+	PR = "PR"
+	AV = "AV"
+	AC = "AC"
+	C  = "C"
+	I  = "I"
+	A  = "A"
+	UI = "UI"
+	S  = "S"
+
 	// CVSS 4.0
 	// AV_N = "AV:N"
 	// AV_A = "AV:A"
@@ -68,6 +77,18 @@ const (
 	SA_H = "SA:H"
 	SA_L = "SA:L"
 	SA_N = "SA:N"
+
+	// PR = "PR"
+	// AV = "AV"
+	// AC = "AC"
+	AT = "AT"
+	// UI = "UI"
+	VC = "VC"
+	VI = "VI"
+	VA = "VA"
+	SC = "SC"
+	SI = "SI"
+	SA = "SA"
 )
 
 var cvssMap = map[string]map[string]map[string]string{
@@ -209,13 +230,12 @@ func GenerateDescription(vector, version, lang string) string {
 		version = CVSS31
 	}
 
-	fields := strings.Split(vector, "/")[1:]
-	vector_map := make(map[string]string)
-
 	if _, exists := cvssMap[version][lang]; !exists {
 		lang = language.English.String()
 	}
 
+	fields := strings.Split(vector, "/")[1:]
+	vector_map := make(map[string]string)
 	for _, field := range fields {
 		if desc, exists := cvssMap[version][lang][field]; exists {
 			metric := strings.Split(field, ":")[0]
@@ -227,12 +247,12 @@ func GenerateDescription(vector, version, lang string) string {
 	case CVSS31:
 		return fmt.Sprintf(
 			descriptions[version][lang],
-			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["C"], vector_map["I"], vector_map["A"], vector_map["UI"], vector_map["S"],
+			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[C], vector_map[I], vector_map[A], vector_map[UI], vector_map[S],
 		)
 	case CVSS4:
 		return fmt.Sprintf(
 			descriptions[version][lang],
-			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["AT"], vector_map["UI"], vector_map["VC"], vector_map["VI"], vector_map["VA"], vector_map["SC"], vector_map["SI"], vector_map["SA"],
+			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[AT], vector_map[UI], vector_map[VC], vector_map[VI], vector_map[VA], vector_map[SC], vector_map[SI], vector_map[SA],
 		)
 	default:
 		return ""
