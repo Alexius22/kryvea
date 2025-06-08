@@ -32,10 +32,18 @@ export default function Input({
   onChange,
 }: InputProps | FileInputProps) {
   return (
-    <Grid className={className}>
+    <Grid>
       {label && <Label text={label} htmlFor={id} />}
       <div className="grid">
-        <input type={type} id={id} placeholder={placeholder} value={value} onChange={onChange} accept={accept} />
+        <input
+          className={className}
+          type={type}
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          accept={accept}
+        />
         {helperSubtitle && <span className="text-xs font-light">{helperSubtitle}</span>}
       </div>
     </Grid>

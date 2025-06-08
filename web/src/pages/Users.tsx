@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
@@ -122,7 +122,7 @@ const Users = () => {
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
       </SectionTitleLineWithButton>
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -144,7 +144,7 @@ const Users = () => {
             perPageCustom={50}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

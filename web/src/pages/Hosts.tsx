@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
@@ -43,7 +43,7 @@ const Hosts = () => {
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
         <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
       </SectionTitleLineWithButton>
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -62,7 +62,7 @@ const Hosts = () => {
             perPageCustom={10}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { mdiCalculator } from "@mdi/js";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import Button from "../components/Form/Button";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
@@ -81,7 +81,7 @@ const LiveEditor = () => {
       </CardBoxModal>
 
       <Grid className="grid-cols-2">
-        <CardBox>
+        <Card>
           <Formik initialValues={{}} onSubmit={undefined}>
             <div className="flex flex-col gap-4">
               {sections.map(({ title, subSections }) => (
@@ -138,10 +138,10 @@ const LiveEditor = () => {
               ))}
             </div>
           </Formik>
-        </CardBox>
-        <CardBox className="h-[80vh]">
+        </Card>
+        <Card className="h-[80vh]">
           <iframe ref={pdfRef} />
-        </CardBox>
+        </Card>
       </Grid>
     </div>
   );

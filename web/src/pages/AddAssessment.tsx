@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Input from "../components/Form/Input";
@@ -20,7 +20,7 @@ const AddAssessment = () => {
 
   return (
     <div>
-      <CardBox>
+      <Card>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
             <Grid>
@@ -104,7 +104,7 @@ const AddAssessment = () => {
             </Buttons>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
 };

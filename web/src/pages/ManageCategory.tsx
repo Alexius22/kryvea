@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
@@ -69,7 +69,7 @@ const ManageCategory = () => {
       <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
         <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
       </SectionTitleLineWithButton>
-      <CardBox>
+      <Card>
         <Formik initialValues={undefined} onSubmit={undefined}>
           <Form>
             <Grid className="grid-cols-2">
@@ -109,7 +109,7 @@ const ManageCategory = () => {
             </Buttons>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
 };

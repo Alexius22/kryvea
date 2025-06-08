@@ -1,7 +1,7 @@
 import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
@@ -21,7 +21,7 @@ const Vulnerabilities = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -45,7 +45,7 @@ const Vulnerabilities = () => {
             perPageCustom={10}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

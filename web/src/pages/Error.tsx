@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Button from "../components/Form/Button";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
 
@@ -11,7 +11,7 @@ const Error = () => {
 
   return (
     <SectionFullScreen>
-      <CardBox
+      <Card
         className="w-11/12 shadow-2xl md:w-7/12 lg:w-6/12 xl:w-4/12"
         footer={<Button text="Done" type="primary" onClick={() => {}} />}
       >
@@ -19,7 +19,7 @@ const Error = () => {
           <h1 className="text-2xl">Unhandled exception</h1>
           <p>An error occurred</p>
         </div>
-      </CardBox>
+      </Card>
     </SectionFullScreen>
   );
 };

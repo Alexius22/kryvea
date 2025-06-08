@@ -1,6 +1,6 @@
 import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
@@ -11,7 +11,7 @@ const EditReport = () => {
   }, []);
 
   return (
-    <CardBox>
+    <Card>
       <Formik initialValues={{}} onSubmit={undefined}>
         <Form>
           <Grid className="grid-cols-2">
@@ -20,7 +20,7 @@ const EditReport = () => {
           </Grid>
         </Form>
       </Formik>
-    </CardBox>
+    </Card>
   );
 };
 

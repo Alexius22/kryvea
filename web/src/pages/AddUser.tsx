@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Input from "../components/Form/Input";
@@ -22,7 +22,7 @@ const AddUser = () => {
   const selectAllOption = { value: "all", label: "Select All" };
 
   return (
-    <CardBox>
+    <Card>
       <Formik
         initialValues={{ username: "", role: "", customers: [], active_user: true }}
         onSubmit={values => console.log("Submitted values:", values)}
@@ -80,7 +80,7 @@ const AddUser = () => {
           );
         }}
       </Formik>
-    </CardBox>
+    </Card>
   );
 };
 

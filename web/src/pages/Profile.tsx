@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../App";
 import Button from "../components/Form/Button";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -21,7 +21,7 @@ const Profile = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main></SectionTitleLineWithButton>
-      <CardBox className="w-[530px] max-w-full">
+      <Card className="w-[530px] max-w-full">
         <Formik
           initialValues={{
             currentPassword: "",
@@ -39,7 +39,7 @@ const Profile = () => {
             </Grid>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
 };
