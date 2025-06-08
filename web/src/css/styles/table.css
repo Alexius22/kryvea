@@ -1,33 +1,33 @@
 /* Table base styles */
-.table {
-  @apply min-w-full bg-yellow-400/60 dark:bg-sky-900/30;
+table {
+  @apply bg-yellow-400/60 dark:bg-sky-900/30;
 }
 
 /* Table head */
-.table thead {
-  @apply bg-yellow-400/60 dark:bg-sky-800;
+table thead {
+  @apply bg-yellow-400/60 dark:bg-sky-700;
 }
 
-.table th {
-  @apply px-4 py-2 text-left font-semibold;
+table th {
+  @apply text-nowrap px-4 py-2 text-left font-semibold;
 }
 
 /* Table body */
-.table tbody tr {
+table tbody tr {
   @apply border-yellow-400/50 dark:border-sky-600;
 }
 
-.table tbody tr:hover {
+table tbody tr:hover {
   @apply brightness-[1.115];
 }
 
-.table tbody tr:nth-child(even) {
+table tbody tr:nth-child(even) {
   @apply bg-yellow-400/70 dark:bg-sky-900/50;
 }
-.table tbody tr:nth-child(odd) {
+table tbody tr:nth-child(odd) {
   @apply bg-yellow-400/70 dark:bg-sky-800/50;
 }
 
-.table td {
+table td {
   @apply px-4 py-2;
 }
