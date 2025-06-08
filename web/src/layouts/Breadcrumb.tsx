@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link, useResolvedPath } from "react-router";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
@@ -8,8 +8,10 @@ type TBreadCrumbProps = {
   capitalizeLinks?: boolean;
 };
 
-const NextBreadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) => {
-  const pathNames = window.location.pathname.split("/").filter(path => path);
+const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) => {
+  const pathNames = useResolvedPath(undefined)
+    .pathname.split("/")
+    .filter(path => path);
 
   return (
     <div className="pl-4">
@@ -42,4 +44,4 @@ const NextBreadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumb
   );
 };
 
-export default NextBreadcrumb;
+export default Breadcrumb;

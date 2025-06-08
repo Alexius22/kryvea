@@ -1,48 +1,29 @@
-import { mdiBackburger, mdiForwardburger, mdiMenu } from "@mdi/js";
-import { useState } from "react";
 import { Outlet } from "react-router";
-import AsideMenu from "../components/AsideMenu";
+import AsideMenuLayer from "../components/AsideMenu/Layer";
 import FooterBar from "../components/FooterBar";
-import Icon from "../components/Icon";
 import NavBar from "../components/NavBar";
 import NavBarItemPlain from "../components/NavBar/Item/Plain";
 import menuNavBar from "../menuNavBar";
-import NextBreadcrumb from "./NextBreadcrumb";
+import Breadcrumb from "./Breadcrumb";
 
 export default function LayoutAuthenticated() {
-  const [isAsideMobileExpanded, setIsAsideMobileExpanded] = useState(false);
-  const [isAsideLgActive, setIsAsideLgActive] = useState(false);
-
-  const layoutAsidePadding = "xl:pl-60";
-
   return (
-    <div className={`overflow-hidden lg:overflow-visible`}>
-      <div
-        className={`${layoutAsidePadding} ${
-          isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""
-        } min-h-screen w-screen bg-gray-50 pt-14 transition-position dark:bg-slate-800 dark:text-slate-100 lg:w-auto`}
-      >
-        <span className="absolute flex h-0 w-0 animate-none cursor-auto flex-col overflow-auto bg-black bg-opacity-15 text-red-300 text-opacity-15"></span>
-        <NavBar menu={menuNavBar} className={`${layoutAsidePadding} ${isAsideMobileExpanded ? "ml-60 lg:ml-0" : ""}`}>
-          <NavBarItemPlain display="flex lg:hidden" onClick={() => setIsAsideMobileExpanded(!isAsideMobileExpanded)}>
-            <Icon path={isAsideMobileExpanded ? mdiBackburger : mdiForwardburger} size="24" />
-          </NavBarItemPlain>
-          <NavBarItemPlain display="hidden lg:flex xl:hidden" onClick={() => setIsAsideLgActive(true)}>
-            <Icon path={mdiMenu} size="24" />
-          </NavBarItemPlain>
+    <div
+      className={`max-w-screen flex h-screen bg-slate-300 transition-position dark:bg-slate-800 dark:text-slate-100 lg:w-auto`}
+    >
+      <AsideMenuLayer className="hidden h-full w-full max-w-[300px] p-4 transition-position xl:flex" />
+      <div className="flex w-full flex-col overflow-auto px-4 xl:p-0 xl:pb-4 xl:pr-4">
+        <NavBar menu={menuNavBar} className="sticky top-0">
           <NavBarItemPlain useMargin>
-            <NextBreadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
+            <Breadcrumb homeElement={"Home"} separator={<span> {">"} </span>} capitalizeLinks />
           </NavBarItemPlain>
         </NavBar>
-        <AsideMenu
-          isAsideMobileExpanded={isAsideMobileExpanded}
-          isAsideLgActive={isAsideLgActive}
-          onAsideLgClose={() => setIsAsideLgActive(false)}
-        />
-        <Outlet />
-        <FooterBar>
-          <a target="_blank" rel="noreferrer" className="text-blue-600"></a>
-        </FooterBar>
+        <main className="no-scrollbar flex h-full w-full flex-col justify-between overflow-auto dark:bg-slate-800">
+          <Outlet />
+          <FooterBar className="font-thin text-slate-100 dark:text-slate-600">
+            <a target="_blank" rel="noreferrer" className="text-blue-600"></a>
+          </FooterBar>
+        </main>
       </div>
     </div>
   );

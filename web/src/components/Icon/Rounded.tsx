@@ -1,7 +1,7 @@
 import React from "react";
 import { ColorKey } from "../../interfaces";
 import { colorsBgLight, colorsText } from "../../colors";
-import Icon from ".";
+import Icon from "./Icon";
 
 type Props = {
   icon: string;

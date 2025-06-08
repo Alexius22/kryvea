@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from "react";
 import { useLocation } from "react-router";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 
 export default function RouteWatcher() {
   const {
@@ -18,6 +18,7 @@ export default function RouteWatcher() {
     switch (currentPathname) {
       case "/customers":
       case "/assessments":
+      case "/hosts":
         break;
       default:
         setCustomerName("");

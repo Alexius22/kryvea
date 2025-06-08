@@ -1,9 +1,9 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { useContext, useState } from "react";
 import { MenuNavBarItem } from "../../../interfaces";
-import { GlobalContext } from "../../../../App";
+import { GlobalContext } from "../../../App";
 import Divider from "../../Divider";
-import Icon from "../../Icon";
+import Icon from "../../Icon/Icon";
 import NavBarMenuList from "../MenuList";
 import { Link } from "react-router";
 

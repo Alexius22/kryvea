@@ -1,6 +1,7 @@
 import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
@@ -8,15 +9,20 @@ import CardBoxModal from "../components/CardBox/Modal";
 import FormCheckRadio from "../components/Form/CheckRadio";
 import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
 import FormField from "../components/Form/Field";
-import SectionMain from "../components/Section/Main";
+import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
+import { users } from "../mockup_data/users";
 
 const Users = () => {
+  const navigate = useNavigate();
+  //const { data: users, loading, error } = useFetch<User[]>("/users");
+  const loading = false;
+  const error = false;
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
   const handleModalAction = () => {
     setIsModalInfoActive(false);
     setIsModalTrashActive(false);
@@ -26,8 +32,17 @@ const Users = () => {
     document.title = getPageTitle("Users");
   }, []);
 
+  const customerOptions = users.flatMap(user =>
+    user.customers.map((customer, index) => ({
+      value: customer.name,
+      label: customer.name,
+    }))
+  );
+
+  const selectAllOption = { value: "all", label: "Select All" };
+
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Edit user"
         buttonColor="info"
@@ -37,37 +52,55 @@ const Users = () => {
         onCancel={handleModalAction}
       >
         <Formik
-          initialValues={{
-            username: "TestUser",
-            role: "Administrator",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
+          initialValues={{ username: "", role: "", customers: [], active_user: true }}
+          onSubmit={values => console.log("Submitted values:", values)}
         >
-          <Form>
-            <FormField label="Username" help="Required">
-              <Field name="username" placeholder="username" id="username" />
-            </FormField>
+          {({ setFieldValue, values }) => {
+            const handleSelectChange = selectedOptions => {
+              if (selectedOptions.some(option => option.value === "all")) {
+                setFieldValue(
+                  "customers",
+                  customerOptions.map(option => option.value)
+                );
+              } else {
+                setFieldValue(
+                  "customers",
+                  selectedOptions.map(option => option.value)
+                );
+              }
+            };
 
-            <FormField label="Role">
-              <Field id="role" component="select">
-                <option value="administrator">Administrator</option>
-                <option value="user">User</option>
-              </Field>
-            </FormField>
-            <FormField label="Customers">
-              <Field id="customers" component="select">
-                <option value="customer1">customer1</option>
-                <option value="customer2">customer2</option>
-              </Field>
-            </FormField>
-            <FormField label="User enabled">
-              <FormCheckRadioGroup>
-                <FormCheckRadio type="checkbox" label="Active">
-                  <Field checked type="checkbox" name="active_user" value="active" />
-                </FormCheckRadio>
-              </FormCheckRadioGroup>
-            </FormField>
-          </Form>
+            return (
+              <Form>
+                <FormField label="Username" help="Required">
+                  <Field name="username" placeholder="username" id="username" />
+                </FormField>
+
+                <FormField label="Role">
+                  <Field id="role" name="role" as="select">
+                    <option value="administrator">Administrator</option>
+                    <option value="user">User</option>
+                  </Field>
+                </FormField>
+                <FormField label="Customers" singleChild>
+                  <SelectWrapper
+                    options={[selectAllOption, ...customerOptions]}
+                    isMulti
+                    value={customerOptions.filter(option => values.customers.includes(option.value))}
+                    onChange={handleSelectChange}
+                    closeMenuOnSelect={false}
+                  />
+                </FormField>
+                <FormField label="User enabled">
+                  <FormCheckRadioGroup>
+                    <FormCheckRadio type="checkbox" label="Active">
+                      <Field type="checkbox" name="active_user" />
+                    </FormCheckRadio>
+                  </FormCheckRadioGroup>
+                </FormField>
+              </Form>
+            );
+          }}
         </Formik>
       </CardBoxModal>
       <CardBoxModal
@@ -83,45 +116,41 @@ const Users = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-          <Button icon={mdiPlus} label="New user" roundedFull small color="contrast" href="/add_user" />
-        </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless isTransparent>
-              <Field name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
-        <CardBox hasTable>
+
+      <SectionTitleLineWithButton icon={mdiListBox} title="Users">
+        <Button
+          icon={mdiPlus}
+          label="New user"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/add_user")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
           <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Username: i + 1,
-                Role: i + 1,
-                Customers: i + 1,
-                Active: i + 1,
-              }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
+            data={users.map(user => ({
+              Username: user.username,
+              Role: user.role,
+              Customers: user.customers.map(customer => customer.name).join(" | "),
+              Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
+              buttons: (
+                <Buttons noWrap>
                   <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
-              </td>
-            }
-            perPageCustom={100}
+              ),
+            }))}
+            perPageCustom={50}
           />
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </div>
   );
 };
 

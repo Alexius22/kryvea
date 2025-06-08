@@ -1,16 +1,16 @@
-import { mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiViewList } from "@mdi/js";
+import { mdiListBox, mdiMagnify, mdiMonitor, mdiPocket, mdiResponsive, mdiViewList } from "@mdi/js";
 import { useContext } from "react";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { MenuAsideItem } from "../../interfaces";
 import Item from "./Item";
 
 type Props = {
+  className?: string;
   nestedMenu?: MenuAsideItem[];
   isDropdownList?: boolean;
-  className?: string;
 };
 
-export default function AsideMenu({ nestedMenu, isDropdownList = false, className = "" }: Props) {
+export default function AsideMenuContent({ nestedMenu, isDropdownList = false, className = "" }: Props) {
   const {
     useCustomerName: [customerName],
   } = useContext(GlobalContext);
@@ -36,6 +36,10 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
                 href: "/assessments",
                 label: "Assessments",
               },
+              {
+                href: "/hosts",
+                label: "Hosts",
+              },
             ],
           },
         ]
@@ -52,6 +56,10 @@ export default function AsideMenu({ nestedMenu, isDropdownList = false, classNam
         {
           href: "/users",
           label: "Users",
+        },
+        {
+          href: "/categories",
+          label: "Categories",
         },
       ],
     },
