@@ -3,10 +3,9 @@ import { Form, Formik } from "formik";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -14,6 +13,7 @@ import SectionTitleLineWithButton from "../components/Section/TitleLineWithButto
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
+import Button from "../components/Form/Button";
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -112,7 +112,7 @@ const Customers = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-        <Button icon={mdiPlus} label="New customer" roundedFull small onClick={() => navigate("/add_customer")} />
+        {/* <Button icon={mdiPlus} label="New customer" roundedFull small onClick={() => navigate("/add_customer")} /> */}
       </SectionTitleLineWithButton>
       <CardBox className="!p-0">
         {loading ? (
@@ -127,13 +127,8 @@ const Customers = () => {
               "Default language": languageMapping[customer.language] || customer.language,
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
+                  <Button type="danger" small onClick={() => setIsModalTrashActive(true)} icon={mdiTrashCan} />
                 </Buttons>
               ),
             }))}

@@ -1,15 +1,16 @@
 import { mdiDatabaseEdit, mdiPlus } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
+import Textarea from "../components/Form/Textarea";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
 
@@ -66,7 +67,7 @@ const ManageCategory = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
-        <Button icon={mdiPlus} label="New language" roundedFull small onClick={() => setIsModalInfoActive(true)} />
+        <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
       </SectionTitleLineWithButton>
       <CardBox>
         <Formik initialValues={undefined} onSubmit={undefined}>
@@ -78,30 +79,20 @@ const ManageCategory = () => {
             <Divider />
             <p className="mb-2 font-bold">English</p>
             <Grid className="grid-cols-2">
-              <Input
-                type="text"
-                multiline
-                label="Generic description"
-                id="gen_desc_en"
-                placeholder="Description here"
-              />
-              <Input type="text" multiline label="Generic remediation" id="gen_rem_en" placeholder="Description here" />
+              <Input type="text" label="Generic description" id="gen_desc_en" placeholder="Description here" />
+              <Textarea label="Generic remediation" id="gen_rem_en" placeholder="Description here" />
             </Grid>
             {additionalFields.map((language, index) => (
               <div key={index}>
                 <Divider />
                 <p className="mb-2 font-bold">{language.label}</p>
                 <Grid className="grid-cols-2">
-                  <Input
-                    type="text"
-                    multiline
+                  <Textarea
                     label="Generic remediation"
                     id={`gen_desc_${language.value.toLowerCase()}`}
                     placeholder="Description here"
                   />
-                  <Input
-                    type="text"
-                    multiline
+                  <Textarea
                     label="Generic remediation"
                     id={`gen_rem_${language.value.toLowerCase()}`}
                     placeholder="Description here"
@@ -110,11 +101,11 @@ const ManageCategory = () => {
               </div>
             ))}
             <Divider />
-            <Input type="text" multiline label="References" id="references" placeholder="References here" />
+            <Textarea label="References" id="references" placeholder="References here" />
             <Divider />
             <Buttons>
-              <Button type="submit" label="Submit" />
-              <Button type="reset" outline label="Cancel" />
+              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button type="secondary" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

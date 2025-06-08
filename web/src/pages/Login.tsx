@@ -2,7 +2,7 @@ import axios from "axios";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
+import Button from "../components/Form/Button";
 import CardBox from "../components/CardBox/CardBox";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
@@ -78,7 +78,7 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <Button type="submit" label="Login" onClick={() => {}} />
+              <Button type="primary" text="Login" onClick={() => {}} />
             </Grid>
           </Form>
         </Formik>

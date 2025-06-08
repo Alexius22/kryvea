@@ -1,6 +1,6 @@
 import { mdiDelete } from "@mdi/js";
 import { useEffect, useState } from "react";
-import Button from "../Button";
+import Button from "../Form/Button";
 import Icon from "../Icon";
 
 export default function PocTemplate({
@@ -42,7 +42,7 @@ export default function PocTemplate({
             <Icon path={icon} size={25} />
             {title}
           </h1>
-          <Button small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
+          <Button type="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex gap-6">
@@ -66,7 +66,7 @@ export default function PocTemplate({
                 <span>&nbsp;</span>
                 <div className="flex h-full gap-2">
                   <Button
-                    label="Move Up"
+                    text="Move Up"
                     small
                     className="h-8"
                     disabled={currentIndex === 0}
@@ -75,7 +75,7 @@ export default function PocTemplate({
                     }
                   />
                   <Button
-                    label="Move Down"
+                    text="Move Down"
                     small
                     disabled={currentIndex === pocList.length - 1}
                     onClick={() =>

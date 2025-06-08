@@ -1,10 +1,25 @@
 :root {
-  --field-bg-color: #fef08a;
+  --field-bg-color: hsl(53, 98%, 77%);
   --border-normal: #fbbf24;
-  --border-error: #ef4444;
+  --border-error: hsl(0, 85%, 60%);
+
+  --a-text-color: hsl(221, 71%, 52%);
+
+  --button-primary-bg: hsl(53, 90%, 70%);
+  --button-secondary-bg: hsl(53, 50%, 48%);
+  --button-warning-bg: hsl(30, 100%, 60%);
+  --button-danger-bg: hsl(0, 100%, 58%);
+  --button-border-color: hsl(0, 0%, 72%);
 }
 
 html.dark {
   --field-bg-color: #0369a1;
   --border-normal: #4b5563;
+
+  --a-text-color: hsl(198, 93%, 60%);
+
+  --button-primary-bg: hsl(210, 100%, 50%);
+  --button-secondary-bg: hsl(210, 75%, 30%);
+  --button-warning-bg: hsl(40, 84%, 60%);
+  --button-danger-bg: hsl(0, 84%, 60%);
 }

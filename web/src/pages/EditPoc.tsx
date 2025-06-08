@@ -1,8 +1,8 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
@@ -180,10 +180,10 @@ const EditPoc = () => {
         <CardBox>
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
-            <Button label="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
-            <Button label="Image" icon={mdiPlus} onClick={addPoc("image")} small />
-            <Button label="Text" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" label="Submit" icon={mdiSend} />
+            <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
+            <Button text="Image" icon={mdiPlus} onClick={addPoc("image")} small />
+            <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
+            <Button className="ml-auto" text="Submit" icon={mdiSend} onClick={() => {}} />
           </Buttons>
         </CardBox>
       </div>

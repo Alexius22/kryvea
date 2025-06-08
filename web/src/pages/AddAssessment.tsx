@@ -2,8 +2,8 @@ import { mdiPlus } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
@@ -38,17 +38,15 @@ const AddAssessment = () => {
                 onChange={option => console.log("Selected assessment type:", option.value)}
               />
               <Input type="text" label="Name" id="name" placeholder="Insert a name" />
-              <div className="grid grid-cols-2 items-end gap-4">
+              <Grid className="grid-cols-2 gap-4">
                 <Input type="date" label="Activity period" id="start" />
                 <Input type="date" id="end" />
-              </div>
+              </Grid>
 
-              <div className="grid grid-cols-[1fr_auto] gap-4">
+              <Grid className="grid-cols-[1fr_auto]">
                 <Input type="text" label="Session targets" id="targets" placeholder="Insert a target" />
-                <div className="mt-[2rem]">
-                  <Button className="h-12" icon={mdiPlus} label="Add Host" onClick={() => navigate("/add_host")} />
-                </div>
-              </div>
+                <Button className="h-12" icon={mdiPlus} text="Add Host" onClick={() => navigate("/add_host")} />
+              </Grid>
 
               <SelectWrapper
                 label="CVSS Version"
@@ -101,8 +99,8 @@ const AddAssessment = () => {
             <Divider />
 
             <Buttons>
-              <Button type="submit" label="Submit" />
-              <Button type="reset" label="Cancel" />
+              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button type="secondary" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

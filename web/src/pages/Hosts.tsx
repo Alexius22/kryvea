@@ -1,10 +1,10 @@
 import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -41,9 +41,7 @@ const Hosts = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
-        <Buttons>
-          <Button icon={mdiPlus} label="New host" roundedFull small onClick={() => navigate("/add_host")} />
-        </Buttons>
+        <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
       </SectionTitleLineWithButton>
       <CardBox className="!p-0">
         {loading ? (
@@ -57,12 +55,7 @@ const Hosts = () => {
               Hostname: target.hostname,
               buttons: (
                 <Buttons noWrap>
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

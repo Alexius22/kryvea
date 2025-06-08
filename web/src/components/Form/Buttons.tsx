@@ -1,0 +1,23 @@
+import Grid from "../Composition/Grid";
+import Label from "./Label";
+
+type Props = {
+  type?: string;
+  noWrap?: boolean;
+  className?: string;
+  label?: string;
+  children;
+};
+
+const Buttons = ({ type = "justify-start", noWrap = false, children, className, label }: Props) => {
+  return (
+    <Grid className="gap-3">
+      {label && <Label text={label} />}
+      <div className={`flex items-center gap-2 ${type} ${noWrap ? "flex-nowrap" : "flex-wrap"} ${className}`}>
+        {children}
+      </div>
+    </Grid>
+  );
+};
+
+export default Buttons;
