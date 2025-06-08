@@ -1,8 +1,7 @@
-import { HTMLInputTypeAttribute } from "react";
 import Grid from "../Composition/Grid";
 import Label from "./Label";
 
-interface BaseInputProps {
+interface TextareaProps {
   id?: string;
   className?: string;
   label?: string;
@@ -10,32 +9,31 @@ interface BaseInputProps {
   placeholder?: string;
   value?;
   onChange?;
-}
-interface InputProps extends BaseInputProps {
-  type: HTMLInputTypeAttribute;
-  accept?: undefined;
-}
-interface FileInputProps extends BaseInputProps {
-  type: "file";
-  accept?: string;
+  rows?: number;
 }
 
-export default function Input({
+export default function Textarea({
   className,
-  type,
   id,
   label,
   helperSubtitle,
   placeholder,
   value,
-  accept,
   onChange,
-}: InputProps | FileInputProps) {
+  rows = 6,
+}: TextareaProps) {
   return (
     <Grid className={className}>
       {label && <Label text={label} htmlFor={id} />}
       <div className="grid">
-        <input type={type} id={id} placeholder={placeholder} value={value} onChange={onChange} accept={accept} />
+        <textarea
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          rows={rows}
+          className="resize-y p-2"
+        />
         {helperSubtitle && <span className="text-xs font-light">{helperSubtitle}</span>}
       </div>
     </Grid>

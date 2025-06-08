@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { SelectOption } from "./SelectWrapper.types";
 import Grid from "../Composition/Grid";
+import Label from "./Label";
+import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
   label?: string;
@@ -54,11 +55,7 @@ export default function SelectWrapper({
 
   return (
     <Grid>
-      {label && (
-        <label className="font-bold" htmlFor={id}>
-          {label}
-        </label>
-      )}
+      {label && <Label text={label} htmlFor={id} />}
       <Select
         {...{
           className,
