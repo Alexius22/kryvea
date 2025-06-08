@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -221,7 +219,6 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	// parse request body
 	var data []categoryRequestData
 	if err := c.BodyParser(&data); err != nil {
-		fmt.Println(err)
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
