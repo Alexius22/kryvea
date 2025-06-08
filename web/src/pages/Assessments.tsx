@@ -1,36 +1,85 @@
-import { mdiDownload, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
+import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import { formatDate } from "../components/DateUtils";
 import FormField from "../components/Form/Field";
-import SectionMain from "../components/Section/Main";
+import SelectWrapper from "../components/Form/SelectWrapper";
+import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
+import { assessments } from "../mockup_data/assessments";
+import { Assessment } from "../types/common.types";
 
 const Assessments = () => {
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
-  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const navigate = useNavigate();
+  const loading = false;
+  const error = false;
 
+  const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [isModalCloneActive, setIsModalCloneActive] = useState(false);
+  const [assessmentToClone, setAssessmentToClone] = useState<Assessment>();
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalDownloadActive(false);
+    setIsModalCloneActive(false);
     setIsModalTrashActive(false);
   };
+  const openCloneModal = (assessment: Assessment) => {
+    setAssessmentToClone(assessment);
+    setIsModalCloneActive(true);
+  };
+  const [statusSelectOptions, setStatusSelectOptions] = useState<SelectOption[]>([
+    { label: "On Hold", value: "hold" },
+    { label: "In Progress", value: "progress" },
+    { label: "Completed", value: "completed" },
+  ]);
+  const [selectedStatus, setSelectedStatus] = useState<SelectOption | SelectOption[]>(null);
+  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>(assessments as Assessment[]);
 
   useEffect(() => {
     document.title = getPageTitle("Assessments");
   }, []);
 
+  const handleFavoriteToggle = id => () => {
+    setAssessmentsData(
+      assessmentsData.map(assessment => {
+        if (assessment.id === id) {
+          assessment.is_owned = !assessment.is_owned;
+        }
+        return assessment;
+      })
+    );
+  };
+
   return (
-    <>
+    <div>
+      <CardBoxModal
+        title="Clone assessment"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalCloneActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik initialValues={{ name: assessmentToClone?.name + " (Copy)" }} onSubmit={undefined}>
+          <Form>
+            <FormField label="Assessment Name">
+              <Field name="name" placeholder="Cloned assessment name" />
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
       <CardBoxModal
         title="Download report"
         buttonColor="info"
         buttonLabel="Confirm"
-        isActive={isModalInfoActive}
+        isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
@@ -40,6 +89,7 @@ const Assessments = () => {
               <Field name="type" component="select">
                 <option value="word">Word (.docx)</option>
                 <option value="excel">Excel (.xlsx)</option>
+                <option value="zip">Archive (.zip)</option>
               </Field>
             </FormField>
             <FormField label="Encryption">
@@ -63,55 +113,75 @@ const Assessments = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>Are you sure to delete this customer?</p>
+        <p>Are you sure to delete this assessment?</p>
         <p>
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-          <Button icon={mdiPlus} label="New assessment" roundedFull small color="contrast" href="/add_assessment" />
-        </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless isTransparent>
-              <Field name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
-        <CardBox hasTable>
+
+      <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
+        <Button
+          icon={mdiPlus}
+          label="New assessment"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/add_assessment")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
           <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Title: i + 1,
-                Type: i + 1,
-                "CVSS Type": i + 1,
-                "Vulnerabilties count": i + 1,
-                Start: i + 1,
-                End: i + 1,
-                Owners: i + 1,
-                Status: i + 1,
-              }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button color="info" icon={mdiStar} onClick={() => setIsModalInfoActive(true)} small href="" />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalInfoActive(true)} small />
+            data={assessmentsData.map(assessment => ({
+              Title: (
+                <span
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
+                  onClick={() => navigate(`/assessment`)}
+                >
+                  {assessment.name}
+                </span>
+              ),
+              Type: assessment.assessment_type,
+              "CVSS Version": assessment.cvss_version,
+              "Vuln count": assessment.vulnerability_count,
+              Start: formatDate(assessment.start_date_time),
+              End: formatDate(assessment.end_date_time),
+              Status: (
+                <SelectWrapper
+                  options={statusSelectOptions}
+                  onChange={selectedOptions => setSelectedStatus(selectedOptions)}
+                  defaultValue={{ label: "On Hold", value: "hold" }}
+                />
+              ),
+              buttons: (
+                <Buttons noWrap>
+                  <Button
+                    color={assessment.is_owned ? "warning" : "info"}
+                    icon={mdiStar}
+                    onClick={handleFavoriteToggle(assessment.id)}
+                    small
+                  />
+                  <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                  <Button
+                    color="lightDark"
+                    icon={mdiContentDuplicate}
+                    onClick={() => openCloneModal(assessment)}
+                    small
+                  />
+                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
-              </td>
-            }
+              ),
+            }))}
             perPageCustom={50}
           />
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </div>
   );
 };
 

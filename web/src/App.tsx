@@ -1,7 +1,7 @@
-import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
-import RouteWatcher from "./src/layouts/RouteWatcher";
+import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
+import RouteWatcher from "./layouts/RouteWatcher";
 import {
   AddAssessment,
   AddCustomer,
@@ -10,7 +10,6 @@ import {
   AddVulnerability,
   Assessment,
   Assessments,
-  Customer,
   Customers,
   Dashboard,
   EditPoc,
@@ -21,7 +20,12 @@ import {
   Users,
   Vulnerabilities,
   Vulnerability,
-} from "./src/pages";
+} from "./pages";
+import Categories from "./pages/Categories";
+import Hosts from "./pages/Hosts";
+import LiveEditor from "./pages/LiveEditor";
+import ManageCategory from "./pages/ManageCategory";
+
 export const GlobalContext = createContext<{
   useUserEmail: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
@@ -36,7 +40,7 @@ export default function App() {
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme, _] = useDarkTheme;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
     document.body.classList[darkTheme ? "add" : "remove"]("dark-scrollbars");
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark", "dark-scrollbars-compat");
@@ -58,14 +62,13 @@ export default function App() {
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/customer" element={<Customer />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/users" element={<Users />} />
             <Route path="/assessments" element={<Assessments />} />
+            <Route path="/hosts" element={<Hosts />} />
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/vulnerability" element={<Vulnerability />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/add_assessment" element={<AddAssessment />} />
             <Route path="/add_host" element={<AddHost />} />
@@ -74,7 +77,11 @@ export default function App() {
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
             <Route path="/error" element={<Error />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/manage_category" element={<ManageCategory />} />
+            <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
+          <Route path="/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </GlobalContext.Provider>

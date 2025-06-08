@@ -1,29 +1,27 @@
-import React, { ReactNode } from "react";
-import { containerMaxW } from "../config";
+import { ReactNode } from "react";
 import { Link } from "react-router";
 
 type Props = {
+  className?: string;
   children: ReactNode;
 };
 
-export default function FooterBar({ children }: Props) {
+export default function FooterBar({ className, children }: Props) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className={`px-6 py-2 ${containerMaxW}`}>
-      <div className="block items-center justify-between md:flex">
-        <div className="mb-6 text-center md:mb-0 md:text-left">
+    <footer className={className}>
+      <div className="flex justify-between">
+        <div>
           <b>
-            &copy;{year},{` `}
+            &copy;{year},&nbsp;
             <Link to="https://github.com/Alexius22/kryvea" rel="noreferrer" target="_blank">
-              Kryvea
+              Kryvea.
             </Link>
-            .
           </b>
-          {` `}
           {children}
         </div>
-        <div className="md:py-2">
+        <div>
           <b>Version</b>: development
         </div>
       </div>

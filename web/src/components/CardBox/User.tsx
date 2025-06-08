@@ -2,7 +2,7 @@ import { mdiCheckDecagram } from "@mdi/js";
 import { Formik } from "formik";
 import { useContext } from "react";
 import CardBox from ".";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import PillTag from "../PillTag";
 
 type Props = {

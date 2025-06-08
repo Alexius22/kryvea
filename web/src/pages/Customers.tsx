@@ -1,20 +1,33 @@
-import { mdiEye, mdiListBox, mdiPlus, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useState, type ReactElement } from "react";
+import { mdiEye, mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import LayoutAuthenticated from "../layouts/LayoutAuthenticated";
-import { Field, Form, Formik } from "formik";
+import { customers } from "../mockup_data/customers";
 import FormField from "../components/Form/Field";
-import { GlobalContext } from "../../App";
+import { Field, Form, Formik } from "formik";
+import Divider from "../components/Divider";
 
 const Customers = () => {
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const navigate = useNavigate();
+  // const { data: customers, loading, error } = useFetch<Customer>(`/api/customers`);
+  const loading = false;
+  const error = false;
+  const languageMapping: Record<string, string> = {
+    en: "English",
+    it: "Italian",
+    fr: "French",
+    de: "German",
+    es: "Spanish",
+  };
+
+  const [isModalCustomerActive, setIsModalCustomerActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
   const {
@@ -22,7 +35,7 @@ const Customers = () => {
   } = useContext(GlobalContext);
 
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalCustomerActive(false);
     setIsModalTrashActive(false);
   };
 
@@ -31,7 +44,45 @@ const Customers = () => {
   }, []);
 
   return (
-    <>
+    <div>
+      <CardBoxModal
+        title="Edit customer"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalCustomerActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik
+          initialValues={{
+            companyName: "Test",
+            language: "italian",
+          }}
+          onSubmit={undefined}
+        >
+          <Form>
+            <FormField label="Company Name" help="Required">
+              <Field name="companyName" placeholder="CompanyName" id="companyName" />
+            </FormField>
+
+            <FormField label="Language" labelFor="language">
+              <Field name="language" id="language" component="select">
+                <option value="italian">Italian</option>
+                <option value="english">English</option>
+              </Field>
+            </FormField>
+
+            <FormField label="Default CVSS Version" labelFor="cvss">
+              <Field name="cvss" id="cvss" component="select">
+                <option value="4">4</option>
+                <option value="3.1">3.1</option>
+                <option value="2">2</option>
+              </Field>
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
+
       <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
@@ -45,58 +96,47 @@ const Customers = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-          <Button icon={mdiPlus} label="New customer" roundedFull small color="contrast" href="/add_customer" />
-        </SectionTitleLineWithButton>
-        <Formik
-          initialValues={{
-            search: "",
-          }}
-          onSubmit={values => alert(JSON.stringify(values, null, 2))}
-        >
-          <Form className="mb-2">
-            <FormField isBorderless>
-              <Field className="input-style" name="search" placeholder="Search" />
-            </FormField>
-          </Form>
-        </Formik>
-        <CardBox hasTable>
+
+      <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
+        <Button
+          icon={mdiPlus}
+          label="New customer"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/add_customer")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
           <Table
-            data={Array(21)
-              .fill(0)
-              .map((el, i) => ({
-                Name: (
-                  <span
-                    className="cursor-pointer hover:text-blue-500 hover:underline"
-                    onClick={() => setCustomerName("customer" + i + 1)}
-                  >
-                    {i + 1}
-                  </span>
-                ),
-                Host: i + 2,
-                Assessments: i + 3,
-                Language: i + 4,
-              }))}
-            buttons={
-              <td className="whitespace-nowrap before:hidden lg:w-1">
-                <Buttons type="justify-start lg:justify-end" noWrap>
-                  <Button
-                    color="info"
-                    icon={mdiEye}
-                    onClick={() => setIsModalInfoActive(true)}
-                    small
-                    href="/customer"
-                  />
+            data={customers.map(customer => ({
+              Name: (
+                <span
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
+                  onClick={() => setCustomerName(customer.name)}
+                >
+                  {customer.name}
+                </span>
+              ),
+              "CVSS Version": customer.default_cvss_version,
+              "Default language": languageMapping[customer.language] || customer.language,
+              buttons: (
+                <Buttons noWrap>
+                  <Button color="info" icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
                   <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
-              </td>
-            }
+              ),
+            }))}
             perPageCustom={100}
           />
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </div>
   );
 };
 

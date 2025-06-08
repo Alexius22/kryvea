@@ -1,0 +1,96 @@
+import { mdiDelete } from "@mdi/js";
+import { useEffect, useState } from "react";
+import Button from "../Button";
+import Divider from "../Divider";
+import Icon from "../Icon/Icon";
+
+export default function PocTemplate({
+  icon,
+  title,
+  pocDoc,
+  currentIndex,
+  pocList,
+  onPositionChange,
+  onRemovePoc,
+  children,
+}: {
+  pocList: any[];
+  [key: string | number | symbol]: any;
+}) {
+  const [tmpPosition, setTmpPosition] = useState(currentIndex);
+
+  useEffect(() => {
+    setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
+  }, [currentIndex]);
+
+  const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
+
+  const handleKeyDown = e => {
+    if (e.key === "Enter") {
+      onPositionChange(currentIndex)({ target: { value: e.target.value } });
+    }
+  };
+
+  const handleBlur = () => {
+    onPositionChange(currentIndex)({ target: { value: tmpPosition } });
+  };
+
+  return (
+    <div className="rounded-3xl bg-slate-50 dark:bg-slate-900/70">
+      <div className="relative flex flex-col p-6">
+        <div className="mb-4 flex items-center gap-4">
+          <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
+            <Icon path={icon} size={25} />
+            {title}
+          </h1>
+          <button className="flex cursor-pointer text-red-600 hover:opacity-50" onClick={onRemovePoc(currentIndex)}>
+            <Icon path={mdiDelete} size={25} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-6">
+            <div className="col-span-1 col-start-12 grid">
+              <label htmlFor={positionInputId}>Position</label>
+              <input
+                className="no-spinner w-[55px] rounded focus:border-gray-700 focus:ring-slate-600/50 dark:bg-slate-800"
+                id={positionInputId}
+                type="number"
+                value={tmpPosition}
+                min={0}
+                max={pocList.length - 1}
+                onChange={e => setTmpPosition(+e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+              />
+            </div>
+
+            <div>
+              <div>
+                <span>&nbsp;</span>
+                <div className="flex h-full gap-2">
+                  <Button
+                    label="Move Up"
+                    disabled={currentIndex === 0}
+                    onClick={() =>
+                      onPositionChange(currentIndex)({ target: { value: currentIndex <= 0 ? 0 : currentIndex - 1 } })
+                    }
+                  />
+                  <Button
+                    label="Move Down"
+                    disabled={currentIndex === pocList.length - 1}
+                    onClick={() =>
+                      onPositionChange(currentIndex)({
+                        target: { value: currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1 },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}

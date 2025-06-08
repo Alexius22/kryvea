@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
 import { getButtonColor } from "../../colors";
-import Icon from "../Icon";
-import AsideMenu from "./AsideMenu";
+import Icon from "../Icon/Icon";
+import AsideMenuContent from "./AsideMenuContent";
 import { mdiMinus, mdiPlus } from "@mdi/js";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 export default function Item({ item, isDropdownList = false }) {
   const [isLinkActive, setIsLinkActive] = useState(false);
   const [isDropdownActive, setIsDropdownActive] = useState(false);
-  const activeClassAddon = !item.color && isLinkActive ? "aside-menu-item-active font-bold" : "";
+
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    // try
-    if (item.href) {
-      const linkPathName = new URL(item.href, window.location.href).pathname;
-      const activePathname = new URL(window.location.pathname, window.location.href).pathname;
-      setIsLinkActive(linkPathName === activePathname);
-    }
+    setIsLinkActive(pathname === item.href);
   }, [item.href, window.location.pathname]);
+
+  const activeClassAddon = !item.color && isLinkActive ? "aside-menu-item-active font-bold" : "";
 
   const asideMenuItemInnerContents = (
     <>
@@ -33,26 +31,25 @@ export default function Item({ item, isDropdownList = false }) {
 
   const componentClass = [
     "flex cursor-pointer",
-    isDropdownList ? "py-3 px-6 text-sm" : "py-3",
+    isDropdownList ? "text-sm" : "",
     item.color ? getButtonColor(item.color, false, true) : `aside-menu-item dark:text-slate-300 dark:hover:text-white`,
   ].join(" ");
 
   return (
     <li>
-      {item.href && (
+      {item.href ? (
         <Link to={item.href} target={item.target} className={componentClass}>
           {asideMenuItemInnerContents}
         </Link>
-      )}
-      {!item.href && (
+      ) : (
         <div className={componentClass} onClick={() => setIsDropdownActive(!isDropdownActive)}>
           {asideMenuItemInnerContents}
         </div>
       )}
       {item.menu && (
-        <AsideMenu
+        <AsideMenuContent
           nestedMenu={item.menu}
-          className={`aside-menu-dropdown ${isDropdownActive ? "block dark:bg-slate-800/50" : "hidden"}`}
+          className={`aside-menu-dropdown ${isDropdownActive ? "flex flex-col gap-4 bg-slate-300/50 p-4 px-8 dark:bg-slate-800/50" : "hidden"}`}
           isDropdownList
         />
       )}

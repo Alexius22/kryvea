@@ -1,10 +1,6 @@
-.container {
-  max-width: 650px;
+.Accordion-container {
   width: 100%;
-  top: 50%;
-  left: 50%;
   overflow: hidden;
-  background-color: #1e293b;
   border-radius: 4px;
   border-color: #374151;
   border-width: 1px;
@@ -33,11 +29,5 @@
   rotate: 180deg;
 }
 .wrapper .answer-container {
-  padding: 0 1rem;
   transition: height 0.4s ease-in-out;
-}
-.wrapper .answer-content {
-  padding: 1rem 0;
-  font-size: 20px;
-  font-style: italic;
 }
