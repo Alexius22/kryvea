@@ -161,7 +161,7 @@ func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchCategories(c *fiber.Ctx) error {
-	query := c.Query("q")
+	query := c.Query("query")
 	if query == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -266,7 +266,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 
 func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, string) {
 	if categoryParam == "" {
-		return nil, "category ID is required"
+		return nil, "Category ID is required"
 	}
 
 	categoryID, err := util.ParseMongoID(categoryParam)
