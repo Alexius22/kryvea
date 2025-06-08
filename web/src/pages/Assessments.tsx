@@ -1,7 +1,7 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
@@ -122,46 +122,46 @@ const Assessments = () => {
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
         <Button icon={mdiPlus} text="New assessment" small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
-      <Card>
-        {loading ? (
+      {loading ? (
+        <Card>
           <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : (
-          <Table
-            data={assessmentsData.map(assessment => ({
-              Title: <span onClick={() => navigate(`/assessment`)}>{assessment.name}</span>,
-              Type: assessment.assessment_type,
-              "CVSS Version": assessment.cvss_version,
-              "Vuln count": assessment.vulnerability_count,
-              Start: formatDate(assessment.start_date_time),
-              End: formatDate(assessment.end_date_time),
-              Status: (
-                <SelectWrapper
-                  options={statusSelectOptions}
-                  onChange={selectedOptions => setSelectedStatus(selectedOptions)}
-                  defaultValue={{ label: "On Hold", value: "hold" }}
+        </Card>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <Table
+          data={assessmentsData.map(assessment => ({
+            Title: <Link to={`/assessment`}>{assessment.name}</Link>,
+            Type: assessment.assessment_type,
+            "CVSS Version": assessment.cvss_version,
+            "Vuln count": assessment.vulnerability_count,
+            Start: formatDate(assessment.start_date_time),
+            End: formatDate(assessment.end_date_time),
+            Status: (
+              <SelectWrapper
+                options={statusSelectOptions}
+                onChange={selectedOptions => setSelectedStatus(selectedOptions)}
+                defaultValue={{ label: "On Hold", value: "hold" }}
+              />
+            ),
+            buttons: (
+              <Buttons noWrap>
+                <Button
+                  type={assessment.is_owned ? "warning" : ""}
+                  icon={mdiStar}
+                  onClick={handleFavoriteToggle(assessment.id)}
+                  small
                 />
-              ),
-              buttons: (
-                <Buttons noWrap>
-                  <Button
-                    type={assessment.is_owned ? "warning" : ""}
-                    icon={mdiStar}
-                    onClick={handleFavoriteToggle(assessment.id)}
-                    small
-                  />
-                  <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                  <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
-                  <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              ),
-            }))}
-            perPageCustom={50}
-          />
-        )}
-      </Card>
+                <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
+                <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+              </Buttons>
+            ),
+          }))}
+          perPageCustom={50}
+        />
+      )}
     </div>
   );
 };

@@ -122,7 +122,7 @@ const Customers = () => {
         ) : (
           <Table
             data={customers.map(customer => ({
-              Name: <span onClick={() => setCustomerName(customer.name)}>{customer.name}</span>,
+              Name: <Button type="secondary" text={customer.name} onClick={() => setCustomerName(customer.name)} />,
               "CVSS Version": customer.default_cvss_version,
               "Default language": languageMapping[customer.language] || customer.language,
               buttons: (
