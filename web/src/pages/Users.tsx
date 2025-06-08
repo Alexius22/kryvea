@@ -2,10 +2,10 @@ import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -120,7 +120,7 @@ const Users = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-        <Button icon={mdiPlus} label="New user" roundedFull small onClick={() => navigate("/add_user")} />
+        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
       </SectionTitleLineWithButton>
       <CardBox className="!p-0">
         {loading ? (
@@ -137,12 +137,7 @@ const Users = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

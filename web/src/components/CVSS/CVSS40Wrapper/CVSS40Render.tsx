@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import Button from "../../Button";
-import Buttons from "../../Buttons";
+import Buttons from "../../Form/Buttons";
+import Button from "../../Form/Button";
 
 const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
   const metricLabels = useMemo(
@@ -166,11 +166,11 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       <Buttons key={metricKey} label={metricLabel}>
         {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
           <Button
-            key={`${optionLabel}-optionKey`}
-            color={selectedValues[metricKey] === optionKey ? "success" : "contrast"}
-            label={`${metricValues[metricKey][optionKey]} (${optionKey})`}
-            onClick={() => handleChange(metricKey, optionKey)}
             small
+            type={selectedValues[metricKey] === optionKey ? "primary" : "secondary"}
+            text={`${optionLabel} (${optionKey})`}
+            onClick={() => handleChange(metricKey, optionKey)}
+            key={`${optionLabel}-optionKey`}
           />
         ))}
       </Buttons>

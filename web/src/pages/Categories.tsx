@@ -2,10 +2,10 @@ import { mdiCogs, mdiDeleteAlert, mdiDownload, mdiPencil, mdiPlus, mdiTabSearch,
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Input from "../components/Form/Input";
@@ -60,12 +60,11 @@ const Categories = () => {
           <Form>
             <Grid className="gap-4">
               <Buttons>
-                <Button icon={mdiDownload} label="Export categories" roundedFull small onClick={() => navigate("")} />
+                <Button icon={mdiDownload} text="Export categories" small onClick={() => navigate("")} />
                 <Button
                   icon={mdiDeleteAlert}
-                  className="trash-button"
-                  label="Delete all categories"
-                  roundedFull
+                  type="danger"
+                  text="Delete all categories"
                   small
                   onClick={() => setIsModalTrashAllActive(true)}
                 />
@@ -93,14 +92,8 @@ const Categories = () => {
       </CardBoxModal>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
         <Buttons>
-          <Button icon={mdiPlus} label="New category" roundedFull small onClick={() => navigate("/manage_category")} />
-          <Button
-            icon={mdiCogs}
-            label="Categories management"
-            roundedFull
-            small
-            onClick={() => setIsModalManageActive(true)}
-          />
+          <Button icon={mdiPlus} text="New category" small onClick={() => navigate("/manage_category")} />
+          <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
       <CardBox className="!p-0">
@@ -120,12 +113,7 @@ const Categories = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

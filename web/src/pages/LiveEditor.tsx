@@ -1,15 +1,16 @@
 import { mdiCalculator } from "@mdi/js";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
-import Button from "../components/Button";
+import Button from "../components/Form/Button";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
 import CVSS40Wrapper from "../components/CVSS/CVSS40Wrapper/CVSS40Wrapper";
 import ScoreBar from "../components/CVSS/ScoreBar";
 import Accordion from "../components/Form/Accordion";
 import Input from "../components/Form/Input";
+import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
@@ -80,7 +81,7 @@ const LiveEditor = () => {
       </CardBoxModal>
 
       <Grid className="grid-cols-2">
-        <CardBox className="">
+        <CardBox>
           <Formik initialValues={{}} onSubmit={undefined}>
             <div className="flex flex-col gap-4">
               {sections.map(({ title, subSections }) => (
@@ -89,9 +90,7 @@ const LiveEditor = () => {
                     ? subSections.map(sub => (
                         <div key={sub}>
                           <label className="font-bold">{sub}</label>
-                          <Input
-                            type="text"
-                            multiline
+                          <Textarea
                             value={content[title]?.[sub] || ""}
                             onChange={e => handleChange(title, sub, e.target.value)}
                           />
@@ -100,9 +99,7 @@ const LiveEditor = () => {
                     : title === "Vulnerabilities Details"
                       ? vulnerabilities.map((vulnerability, index) => (
                           <Accordion key={index} title={vulnerability.detailed_title}>
-                            <Input
-                              type="text"
-                              multiline
+                            <Textarea
                               label="Description"
                               id={`description-${index}`}
                               value={vulnerability.description}
@@ -117,24 +114,20 @@ const LiveEditor = () => {
                               <Button
                                 className="h-12"
                                 icon={mdiCalculator}
-                                label="Recalculate CVSS"
+                                text="Recalculate CVSS"
                                 onClick={() => setIsModalInfoActive(true)}
                               />
                               <ScoreBar score={vulnerability.cvss_score} />
                             </Grid>
                             <Grid>
-                              <Input
-                                type="text"
+                              <Textarea
                                 label="Remediation"
                                 id={`remediation-${index}`}
-                                multiline
                                 value={vulnerability.remediation}
                               />
-                              <Input
-                                type="text"
+                              <Textarea
                                 label="References"
                                 id={`references-${index}`}
-                                multiline
                                 value={vulnerability.references.join("\n")}
                               />
                             </Grid>

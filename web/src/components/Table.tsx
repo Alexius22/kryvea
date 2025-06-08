@@ -1,7 +1,7 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useEffect, useState } from "react";
-import Button from "./Button";
-import Buttons from "./Buttons";
+import Button from "./Form/Button";
+import Buttons from "./Form/Buttons";
 import CardBox from "./CardBox/CardBox";
 import Icon from "./Icon";
 
@@ -162,10 +162,10 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
               {pagesList.map(page => (
                 <Button
                   key={page}
-                  className="border-hidden"
-                  active={page === currentPage}
-                  label={page + 1}
                   small
+                  text={page + 1}
+                  className="border-hidden"
+                  disabled={page === currentPage}
                   onClick={() => setCurrentPage(page)}
                 />
               ))}

@@ -1,7 +1,7 @@
 import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
@@ -26,8 +26,8 @@ const AddHost = () => {
             </Grid>
             <Divider />
             <Buttons>
-              <Button type="submit" label="Submit" />
-              <Button type="reset" outline label="Cancel" />
+              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button type="secondary" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

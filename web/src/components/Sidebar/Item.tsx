@@ -51,9 +51,9 @@ export default function Item({ item, isDropdownList = false }: Props) {
   );
 
   return (
-    <li>
+    <li className={`rounded p-1 ${isLinkActive ? "bg-sky-400/10" : ""}`}>
       {item.href ? (
-        <Link to={item.href} className={baseClasses}>
+        <Link to={item.href} className="text-white">
           {content}
         </Link>
       ) : (

@@ -2,10 +2,10 @@ import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTab
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import { formatDate } from "../components/DateUtils";
 import Input from "../components/Form/Input";
@@ -120,7 +120,7 @@ const Assessments = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-        <Button icon={mdiPlus} label="New assessment" roundedFull small onClick={() => navigate("/add_assessment")} />
+        <Button icon={mdiPlus} text="New assessment" small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
       <CardBox>
         {loading ? (
@@ -146,7 +146,7 @@ const Assessments = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button
-                    color={assessment.is_owned ? "bg-yellow-500 dark:bg-yellow-500" : ""}
+                    type={assessment.is_owned ? "warning" : ""}
                     icon={mdiStar}
                     onClick={handleFavoriteToggle(assessment.id)}
                     small
@@ -154,12 +154,7 @@ const Assessments = () => {
                   <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
                   <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
                   <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

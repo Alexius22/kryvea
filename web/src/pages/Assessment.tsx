@@ -2,10 +2,10 @@ import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, m
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
+import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -101,30 +101,11 @@ const Assessment = () => {
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
         <Buttons>
-          <Button
-            icon={mdiFileEye}
-            label="Live editor"
-            roundedFull
-            small
-            disabled
-            onClick={() => navigate("/live_editor")}
-          />
-          <Button
-            icon={mdiDownload}
-            label="Download report"
-            roundedFull
-            small
-            onClick={() => setIsModalDownloadActive(true)}
-          />
-          <Button icon={mdiPlus} label="New host" roundedFull small onClick={() => navigate("/add_host")} />
-          <Button
-            icon={mdiPlus}
-            label="New vulnerability"
-            roundedFull
-            small
-            onClick={() => navigate("/add_vulnerability")}
-          />
-          <Button icon={mdiUpload} label="Upload" roundedFull small onClick={() => setIsModalUploadActive(true)} />
+          <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
+          <Button icon={mdiDownload} text="Download report" small onClick={() => setIsModalDownloadActive(true)} />
+          <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate("/add_vulnerability")} />
+          <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
       <CardBox className="!p-0">
@@ -146,12 +127,7 @@ const Assessment = () => {
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
-                  <Button
-                    className="trash-button"
-                    icon={mdiTrashCan}
-                    onClick={() => setIsModalTrashActive(true)}
-                    small
-                  />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}

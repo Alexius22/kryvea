@@ -1,5 +1,5 @@
-import Button from "../../Button";
-import Buttons from "../../Buttons";
+import Buttons from "../../Form/Buttons";
+import Button from "../../Form/Button";
 
 const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
   const metricLabels = {
@@ -112,13 +112,11 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
       <Buttons key={metricKey} label={metricLabel}>
         {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
           <Button
-            key={`${optionKey}-optionKey`}
-            color={(() => {
-              return selectedValues[metricKey] === optionKey ? "success" : "contrast";
-            })()}
-            label={`${optionObj} (${optionKey})`}
-            onClick={() => handleChange(metricKey, optionKey)}
             small
+            type={optionKey === selectedValues[metricKey] ? "primary" : "outline-only"}
+            onClick={() => handleChange(metricKey, optionKey)}
+            key={`${optionKey}-optionKey`}
+            text={`${optionObj} (${optionKey})`}
           />
         ))}
       </Buttons>

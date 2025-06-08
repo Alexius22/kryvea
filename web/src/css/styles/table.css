@@ -14,11 +14,18 @@
 
 /* Table body */
 .table tbody tr {
-  @apply hover:bg-amber-500 dark:hover:bg-sky-900;
+  @apply border-yellow-400/50 dark:border-sky-600;
+}
+
+.table tbody tr:hover {
+  @apply brightness-[1.115];
 }
 
 .table tbody tr:nth-child(even) {
-  @apply bg-yellow-400/70 hover:bg-amber-500 dark:bg-sky-800 dark:hover:bg-sky-900;
+  @apply bg-yellow-400/70 dark:bg-sky-900/50;
+}
+.table tbody tr:nth-child(odd) {
+  @apply bg-yellow-400/70 dark:bg-sky-800/50;
 }
 
 .table td {

@@ -1,21 +1,46 @@
+@import "vars.css";
+
 body {
   @apply bg-yellow-100 text-gray-900 dark:bg-slate-900 dark:text-gray-100;
 }
 
 a {
-  @apply text-gray-900 hover:text-red-800 dark:text-sky-400 dark:hover:text-sky-600;
-}
-
-span {
-  @apply cursor-pointer text-gray-900 hover:text-red-800 hover:underline dark:text-white dark:hover:text-sky-600;
+  @apply hover:text-red-800 dark:hover:text-sky-600;
+  color: var(--a-text-color);
 }
 
 button {
-  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-60 dark:bg-sky-900 dark:text-white;
+  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-50 dark:bg-sky-900 dark:text-white;
+}
+button.small {
+  @apply px-3 py-1 text-sm;
+}
+button.primary {
+  background-color: var(--button-primary-bg);
+}
+button.secondary {
+  background-color: var(--button-secondary-bg);
+}
+button.warning {
+  background-color: var(--button-warning-bg);
+}
+button.danger {
+  background-color: var(--button-danger-bg);
+}
+button.outline-only {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--button-border-color);
+  background-color: transparent;
 }
 
 input {
   @apply no-spinner h-12 rounded-md border bg-yellow-200 p-2 ring-0 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
+}
+input::placeholder {
+  color: hsla(0, 0%, 90%, 0.5);
+  font-weight: 300;
+  font-style: italic;
 }
 
 textarea {
@@ -38,10 +63,6 @@ textarea {
 
 .divider {
   @apply -mx-6 my-6 hidden border-t border-yellow-100 dark:border-slate-900 lg:block;
-}
-
-.trash-button {
-  @apply bg-red-500 dark:bg-red-500;
 }
 
 .layout-root {
