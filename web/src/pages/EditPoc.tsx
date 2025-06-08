@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
@@ -177,7 +177,7 @@ const EditPoc = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="sticky top-0 z-10">
-        <CardBox>
+        <Card>
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
@@ -185,7 +185,7 @@ const EditPoc = () => {
             <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
             <Button className="ml-auto" text="Submit" icon={mdiSend} onClick={() => {}} />
           </Buttons>
-        </CardBox>
+        </Card>
       </div>
       <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
     </div>

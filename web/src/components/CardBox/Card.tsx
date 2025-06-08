@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import Grid from "../Composition/Grid";
 
 type Props = {
   className?: string;
@@ -6,11 +7,11 @@ type Props = {
   footer?: ReactNode;
 };
 
-export default function CardBox({ className, children, footer }: Props) {
+export default function Card({ className, children, footer }: Props) {
   return (
-    <div className={`cardbox ${className}`}>
+    <Grid className={`cardbox ${className}`}>
       {children}
       {footer && <div className="p-6">{footer}</div>}
-    </div>
+    </Grid>
   );
 }

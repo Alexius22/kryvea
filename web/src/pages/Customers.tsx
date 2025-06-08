@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../App";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
@@ -112,9 +112,9 @@ const Customers = () => {
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-        {/* <Button icon={mdiPlus} label="New customer" roundedFull small onClick={() => navigate("/add_customer")} /> */}
+        <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/add_customer")} />
       </SectionTitleLineWithButton>
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -135,7 +135,7 @@ const Customers = () => {
             perPageCustom={100}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

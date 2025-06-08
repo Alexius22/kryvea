@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Form/Button";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
 import SectionFullScreen from "../components/Section/FullScreen";
@@ -49,7 +49,7 @@ const Login = () => {
 
   return (
     <SectionFullScreen>
-      <CardBox className="w-[500px]">
+      <Card className="w-[500px]">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
             <Grid>
@@ -82,7 +82,7 @@ const Login = () => {
             </Grid>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </SectionFullScreen>
   );
 };

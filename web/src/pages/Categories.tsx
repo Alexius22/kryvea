@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
@@ -96,7 +96,7 @@ const Categories = () => {
           <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -120,7 +120,7 @@ const Categories = () => {
             perPageCustom={50}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

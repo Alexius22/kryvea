@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import CardBox from "../components/CardBox/CardBox";
+import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import { formatDate } from "../components/DateUtils";
@@ -122,7 +122,7 @@ const Assessments = () => {
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
         <Button icon={mdiPlus} text="New assessment" small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
-      <CardBox>
+      <Card>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -161,7 +161,7 @@ const Assessments = () => {
             perPageCustom={50}
           />
         )}
-      </CardBox>
+      </Card>
     </div>
   );
 };

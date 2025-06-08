@@ -2,8 +2,9 @@ import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useEffect, useState } from "react";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
-import CardBox from "./CardBox/CardBox";
+import Card from "./CardBox/Card";
 import Icon from "./Icon";
+import Input from "./Form/Input";
 
 const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
@@ -89,8 +90,8 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
 
   return (
     <div>
-      <input
-        className="mb-2 h-10 w-1/4 rounded-lg border-none !bg-transparent pl-4 placeholder:text-gray-600"
+      <Input
+        className="rounded-2xl border-none !bg-transparent focus:!ring-0"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -99,7 +100,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
           setFilterText(e.target.value);
         }}
       />
-      <CardBox className="!p-0">
+      <Card className="!p-0">
         <table className="table">
           {filteredData.length > 0 && (
             <thead>
@@ -181,7 +182,7 @@ const Table = ({ data, perPageCustom }: { data: any[]; perPageCustom }) => {
             </small>
           </div>
         </div>
-      </CardBox>
+      </Card>
     </div>
   );
 };
