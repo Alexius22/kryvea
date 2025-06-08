@@ -1,12 +1,17 @@
 package api
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
+	if (c.Path() == "/api/login" || c.Path() == "/api/password/reset") && c.Method() == fiber.MethodPost {
+		return c.Next()
+	}
+
 	session := c.Cookies("kryvea")
 	if session == "" {
 		c.Status(fiber.StatusUnauthorized)
@@ -29,11 +34,23 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 }
 
 func (d *Driver) ContentTypeMiddleware(c *fiber.Ctx) error {
-	if (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch) && c.Request().Header.ContentLength() > 0 && c.Get("Content-Type") != "application/json" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Content-Type must be application/json",
-		})
+	if strings.Contains(c.Path(), "/upload/") && c.Method() == fiber.MethodPost {
+		if !strings.HasPrefix(c.Get("Content-Type"), "multipart/form-data") {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Content-Type must be multipart/form-data",
+			})
+		}
+		return c.Next()
+	}
+
+	if (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch) && c.Request().Header.ContentLength() > 0 {
+		if c.Get("Content-Type") != "application/json" {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Content-Type must be application/json",
+			})
+		}
 	}
 
 	return c.Next()

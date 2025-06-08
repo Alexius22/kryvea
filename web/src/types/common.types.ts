@@ -29,6 +29,8 @@ export type User = {
 
 export type Assessment = {
   id: string;
+  created_at: string;
+  updated_at: string;
   name: string;
   start_date_time: string;
   end_date_time: string;
@@ -41,6 +43,7 @@ export type Assessment = {
   osstmm_vector: string;
   vulnerability_count: number;
   customer: { id: string; name: string };
+  is_owned: boolean;
 };
 
 export type Host = {

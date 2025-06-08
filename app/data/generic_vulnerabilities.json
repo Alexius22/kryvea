@@ -1,0 +1,201 @@
+[
+  {
+    "index": "A01:2021",
+    "name": "Broken Access Control",
+    "generic_description": {
+      "en": "Broken Access Control is a security vulnerability that allows unauthorized users to access resources or perform actions beyond their intended permissions within a system or application. It arises from failures in authorization mechanisms, weak session management, or inadequate access control design, potentially leading to data breaches, account compromise, and other security incidents.",
+      "it": "Broken Access Control è una vulnerabilità di sicurezza che consente agli utenti non autorizzati di accedere alle risorse o di eseguire azioni al di là delle autorizzazioni previste all'interno di un sistema o di un'applicazione. Si verifica a causa di errori nei meccanismi di autorizzazione, di una gestione debole delle sessioni o di una progettazione inadeguata del controllo degli accessi, che può portare a violazioni di dati, compromissione di account e altri incidenti di sicurezza."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to enforce strict access control checks on the server side for every request, avoid relying on client-side enforcement, and ensure that users can only access the resources and actions for which they are authorized.",
+      "it": "Si consiglia di applicare verifiche rigorose del controllo degli accessi lato server per ogni richiesta, evitando di affidarsi all'applicazione lato client e garantendo che gli utenti possano accedere solo alle risorse e alle azioni per le quali sono autorizzati."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/284.html",
+      "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
+    ]
+  },
+  {
+    "index": "A01:2021",
+    "name": "CORS misconfiguration",
+    "generic_description": {
+      "en": "CORS misconfiguration refers to overly permissive settings that allow untrusted origins to access a web application's resources, potentially leading to data theft, session hijacking, or other security risks. This vulnerability arises from improper configuration of HTTP headers, such as “Access-Control-Allow-Origin”, that control which domains can make cross-origin requests.",
+      "it": "L'errata configurazione della CORS si riferisce a configurazioni troppo permissive che consentono a origini non attendibili di accedere alle risorse di un'applicazione Web, con il rischio di furto di dati, session hijacking o altri rischi per la sicurezza. Questa vulnerabilità deriva da una configurazione impropria degli header HTTP, come “Access-Control-Allow-Origin”, che controllano quali domini possono effettuare richieste cross-origin."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to set the “Access-Control-Allow-Origin” header to allow only specific, trusted domains instead of using wildcards (*), avoid dynamically reflecting the Origin header without thorough validation, and never include the null origin in the allow list.",
+      "it": "Si consiglia di impostare l'header “Access-Control-Allow-Origin” in modo da consentire solo domini specifici e affidabili, invece di utilizzare wildcard (*), di evitare di riflettere dinamicamente l'intestazione Origin senza un'accurata validazione e di non includere mai l'origine “null” nella lista."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/942.html",
+      "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
+    ]
+  },
+  {
+    "index": "A03:2021",
+    "name": "Cross-Site Scripting (XSS) Reflected",
+    "generic_description": {
+      "en": "Reflected cross-site scripting (Reflected XSS) is a type of web application vulnerability where an attacker injects malicious code, typically JavaScript, into a web application. This code is then reflected back to the victim's browser, often through a link, and executed within the victim's browser session. Unlike persistent XSS, reflected XSS attacks don't store the malicious script on the server; instead, the attack is triggered by a single request/response cycle.",
+      "it": "Il reflected cross-site scripting è un tipo di vulnerabilità delle applicazioni web in cui un attaccante inietta codice malevolo, solitamente JavaScript, in un'applicazione web. Questo codice viene poi riflesso nel browser della vittima, spesso tramite un link, ed eseguito all'interno della sessione del browser della vittima. A differenza dello XSS stored, gli attacchi reflected XSS non memorizzano lo script malevolo sul server; invece, l'attacco viene eseguito da un singolo flusso di richiesta/risposta."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement proper input validation and output encoding to ensure that all user-supplied data is sanitized before rendering in the browser. Use context-aware encoding (e.g., HTML entity encoding, JavaScript escaping) and employ security headers like Content Security Policy (CSP) to prevent execution of malicious scripts.",
+      "it": "Si consiglia di implementare una corretta validazione degli input e una codifica dell'output per garantire che tutti i dati forniti dall'utente siano sanificati prima della visualizzazione nel browser. Utilizzare una codifica contestuale (ad esempio, codifica delle entità HTML, escape di JavaScript) ed adottare header di sicurezza come la Content Security Policy (CSP) per prevenire l'esecuzione di script dannosi."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/79.html",
+      "https://owasp.org/Top10/A03_2021-Injection/",
+      "https://owasp.org/www-community/attacks/xss/"
+    ]
+  },
+  {
+    "index": "A03:2021",
+    "name": "Cross-Site Scripting (XSS) Stored",
+    "generic_description": {
+      "en": "Stored cross-site scripting (XSS), also known as persistent XSS, is a type of XSS attack where malicious scripts are injected into a web application and permanently stored on its server. This happens when a web application's input validation fails to properly sanitize or encode user-generated content, allowing an attacker to inject malicious JavaScript code.",
+      "it": "Lo stored cross-site scripting (XSS), noto anche come XSS persistente, è un tipo di attacco XSS in cui script dannosi vengono iniettati in un'applicazione web e memorizzati in modo permanente sul server. Ciò accade quando la validazione dell'input di un'applicazione web non riesce a sanificare o codificare correttamente il contenuto generato dall'utente, consentendo ad un attaccante di iniettare codice JavaScript dannoso."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement proper input validation and output encoding to ensure that all user-supplied data is sanitized before rendering in the browser. Use context-aware encoding (e.g., HTML entity encoding, JavaScript escaping) and employ security headers like Content Security Policy (CSP) to prevent execution of malicious scripts.",
+      "it": "Si consiglia di implementare una corretta validazione degli input e una codifica dell'output per garantire che tutti i dati forniti dall'utente siano sanificati prima della visualizzazione nel browser. Utilizzare una codifica contestuale (ad esempio, codifica delle entità HTML, escape di JavaScript) ed adottare header di sicurezza come la Content Security Policy (CSP) per prevenire l'esecuzione di script dannosi."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/79.html",
+      "https://owasp.org/Top10/A03_2021-Injection/",
+      "https://owasp.org/www-community/attacks/xss/"
+    ]
+  },
+  {
+    "index": "A03:2021",
+    "name": "Cross-Site Scripting (XSS) DOM Based",
+    "generic_description": {
+      "en": "DOM Based cross-site scripting is an XSS attack wherein the attack payload is executed as a result of modifying the DOM “environment” in the victim's browser used by the original client side script, so that the client side code runs in an “unexpected” manner. That is, the page itself (the HTTP response that is) does not change, but the client side code contained in the page executes differently due to the malicious modifications that have occurred in the DOM environment. This is in contrast to other XSS attacks (stored or reflected), wherein the attack payload is placed in the response page (due to a server side flaw).",
+      "it": "Il cross-site scripting basato sul DOM è un attacco XSS in cui il payload dell'attacco viene eseguito come risultato della modifica dell'“ambiente” DOM nel browser della vittima utilizzato dallo script client originale, in modo che il codice client venga eseguito in modo “inaspettato”. In altre parole, la pagina stessa (cioè la risposta HTTP) non cambia, ma il codice lato client contenuto nella pagina viene eseguito in modo diverso a causa delle modifiche malevole apportate all'ambiente DOM. Ciò è in contrasto con altri attacchi XSS (stored o reflected), in cui il payload dell'attacco viene inserito nella pagina di risposta (a causa di una falla sul lato server)."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement proper input validation and output encoding to ensure that all user-supplied data is sanitized before rendering in the browser. Use context-aware encoding (e.g., HTML entity encoding, JavaScript escaping) and employ security headers like Content Security Policy (CSP) to prevent execution of malicious scripts.",
+      "it": "Si consiglia di implementare una corretta validazione degli input e una codifica dell'output per garantire che tutti i dati forniti dall'utente siano sanificati prima della visualizzazione nel browser. Utilizzare una codifica contestuale (ad esempio, codifica delle entità HTML, escape di JavaScript) ed adottare header di sicurezza come la Content Security Policy (CSP) per prevenire l'esecuzione di script dannosi."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/79.html",
+      "https://owasp.org/Top10/A03_2021-Injection/",
+      "https://owasp.org/www-community/attacks/DOM_Based_XSS"
+    ]
+  },
+  {
+    "index": "A03:2021",
+    "name": "SQL Injection",
+    "generic_description": {
+      "en": "A SQL injection attack consists of insertion or “injection” of a SQL query via the input data from the client to the application. A successful SQL injection exploit can read sensitive data from the database, modify database data (Insert/Update/Delete), execute administration operations on the database (such as shutdown the DBMS), recover the content of a given file present on the DBMS file system and in some cases issue commands to the operating system. SQL injection attacks are a type of injection attack, in which SQL commands are injected into data-plane input in order to affect the execution of predefined SQL commands.",
+      "it": "Un attacco di tipo SQL injection consiste nell'inserimento o nell'“iniezione” di una query SQL attraverso i dati in ingresso dal client all'applicazione. Un attacco SQL injection riuscito può leggere dati sensibili dal database, modificare i dati del database (inserimento/aggiornamento/cancellazione), eseguire operazioni di amministrazione sul database (come l'arresto del DBMS), recuperare il contenuto di un determinato file presente nel file system del DBMS e in alcuni casi impartire comandi al sistema operativo. Gli attacchi di tipo SQL injection sono un tipo di attacco in cui i comandi SQL vengono iniettati nell'input del data-plane per influenzare l'esecuzione di comandi SQL predefiniti."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to always use parameterized queries or prepared statements to safely handle user inputs and also avoid dynamic SQL queries constructed with direct user input.",
+      "it": "Si consiglia di utilizzare sempre query parametrizzate o prepared statement per gestire in modo sicuro gli input degli utenti ed inoltre evitare query SQL dinamiche costruite con input utente diretto."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/89.html",
+      "https://owasp.org/Top10/A03_2021-Injection/",
+      "https://owasp.org/www-community/attacks/SQL_Injection"
+    ]
+  },
+  {
+    "index": "A05:2021",
+    "name": "Directory Listing",
+    "generic_description": {
+      "en": "A directory listing vulnerability occurs when a web server reveals the contents of a directory to users or attackers when no specific index file (like index.html or index.php) is present. This exposes potentially sensitive information about the site's structure and content, which can be used to identify and target other vulnerabilities.",
+      "it": "Una vulnerabilità di directory listing si verifica quando un server Web rivela il contenuto di una directory agli utenti o agli attaccanti quando non è presente un file di indice specifico (come index.html o index.php). Questo espone informazioni potenzialmente sensibili sulla struttura e sul contenuto del sito, che possono essere utilizzate per identificare e colpire altre vulnerabilità."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to disable directory listing on your web server configuration and ensure sensitive files are not accessible through it.",
+      "it": "Si consiglia di disabilitare l'elenco delle directory nella configurazione del server web e di assicurarsi che i file sensibili non siano accessibili attraverso di esso."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/548.html",
+      "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+    ]
+  },
+  {
+    "index": "A05:2021",
+    "name": "Missing HTTP Security Headers",
+    "generic_description": {
+      "en": "Missing HTTP security headers can expose websites and applications to various attacks by failing to enforce security measures that browsers would otherwise implement. These vulnerabilities can lead to unauthorized access, sensitive data exposure, and further exploitation by malicious actors. OWASP best practices recommend setting the following headers:\n• X-Content-Type-Options: usually set with the value “nosniff” specifies to the browser to use the defined mime type without overriding a potential Cross-Site Scripting attack; \n• X-Frame-Options: usually set with “DENY” or with congruous values if the application uses frames and iframes, it avoids the opening of frames containing arbitrary contents, mitigating Click Jacking attacks; \n• Strict-Transport-Security: specifies that it is possible to display contents only through the HTTPS protocol, avoiding Man-In-The-Middle attacks; \n• Content-Security-Policy: specifies from where and / or what type of resources it is allowed to load; \n• X-Permitted-Cross-Domain-Policies: is an XML document that grants a web client, such as Adobe Flash Player or Adobe Acrobat, permission to manage data between domains. \n• Referrer-Policy: regulates which referrer information, sent in the Referer header, is to be included in requests made; \n• Clear-Site-Data: clears navigation data (cookies, memory, cache) associated with the requesting website. It allows web developers to have more control over the data stored locally by a browser for their origins; \n• Cross-Origin-Embedder-Policy: prevents a document from loading any cross-origin resource that does not explicitly grant permission to the document; \n• Cross-Origin-Opener-Policy: ensures that a top-level document does not share a navigation context group with cross-origin documents; \n• Cross-Origin-Resource-Policy: allows a policy to be defined that allows web sites and applications to choose to be protected from certain requests from other origins to mitigate speculative side-channel attacks; \n• Cache-Control: contains instructions for caching in both requests and responses.",
+      "it": "La mancanza di HTTP security header può esporre siti web e applicazioni a vari attacchi, non applicando le misure di sicurezza che i browser implementerebbero altrimenti. Queste vulnerabilità possono portare ad accessi non autorizzati, all'esposizione di dati sensibili e all'ulteriore sfruttamento da parte di malintenzionati. Le best practice OWASP consigliano di impostare i seguenti header:\n• Strict-Transport-Security: aiuta a proteggere i siti web dagli attacchi di downgrade del protocollo e da cookie hijacking. Consente ai server web di dichiarare che i browser web devono interagire con essi solo tramite connessioni sicure HTTPS e mai tramite il protocollo insicuro HTTP;\n• X-Frame-Options: migliora la protezione delle applicazioni web contro clickjacking. Indica al browser se il contenuto può essere visualizzato all'interno di frame;\n• X-Content-Type-Options: impedirà al browser di interpretare i file con un tipo MIME diverso da quello specificato nell'intestazione HTTP Content-Type;\n• Content-Security-Policy: previene un'ampia gamma di attacchi, tra cui il Cross-Site Scripting e altre Cross-Site injections;\n• X-Permitted-Cross-Domain-Policies: concede a un client Web l'autorizzazione a gestire i dati tra i domini;\n• Referrer-Policy: regola quali informazioni sul referente, inviate nell'intestazione Referer, devono essere incluse nelle richieste effettuate;\n• Clear-Site-Data: cancella i dati di navigazione (cookie, memoria, cache) associati al sito web richiedente. Consente agli sviluppatori web di avere un maggiore controllo sui dati memorizzati localmente da un browser per le loro origini;\n• Cross-Origin-Embedder-Policy: impedisce a un documento di caricare qualsiasi risorsa di origine incrociata che non conceda esplicitamente l'autorizzazione al documento;\n• Cross-Origin-Opener-Policy: consente di garantire che un documento di primo livello non condivida un gruppo di contesto di navigazione con documenti cross-origin;\n• Cross-Origin-Resource-Policy: permette di definire un criterio che consente ai siti e alle applicazioni web di scegliere di essere protetti da determinate richieste provenienti da altre origini per mitigare gli attacchi speculativi side-channel;\n• Cache-Control: contiene istruzioni per la cache sia nelle richieste che nelle risposte."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to follow OWASP best practices regarding the use and configuration of HTTP security headers.",
+      "it": "Si consiglia di seguire le best practice OWASP riguardo l'utilizzo e la configurazione degli HTTP security header."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/693.html",
+      "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+      "https://owasp.org/www-project-secure-headers/#div-headers",
+      "https://owasp.org/www-project-secure-headers/#div-bestpractices"
+    ]
+  },
+  {
+    "index": "A05:2021",
+    "name": "Security Misconfiguration",
+    "generic_description": {
+      "en": "Security misconfiguration occurs when security options are set or configured improperly, leaving systems vulnerable to attacks. Examples include leaving default passwords or configurations, enabling unnecessary features, failing to patch software, and revealing sensitive information in error messages.",
+      "it": "Una security misconfiguration si verifica quando le opzioni di sicurezza vengono impostate o configurate in modo improprio, rendendo i sistemi vulnerabili agli attacchi. Ad esempio, si lasciano password o configurazioni predefinite, si abilitano funzioni non necessarie, non si applica alcuna patch al software e si rivelano informazioni sensibili nei messaggi di errore."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to disable unused services and default accounts, and enforcing the principle of least privilege for access controls.",
+      "it": "Si consiglia di disabilitare i servizi inutilizzati e gli account predefiniti e di applicare il principio del minimo privilegio per i controlli di accesso."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/16.html",
+      "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+    ]
+  },
+  {
+    "index": "A05:2021",
+    "name": "XXE Injection",
+    "generic_description": {
+      "en": "An XML External Entity attack is a type of attack against an application that parses XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. This attack may lead to the disclosure of confidential data, denial of service, server side request forgery, port scanning from the perspective of the machine where the parser is located, and other system impacts.",
+      "it": "L'attacco XML External Entity è un tipo di attacco contro un'applicazione che analizza l'input XML. Questo attacco si verifica quando l'input XML contenente un riferimento a un'entità esterna viene elaborato da un parser XML non correttamente configurato. Questo attacco può portare alla divulgazione di dati riservati, denial of service, server side request forgery, alla scansione delle porte dal punto di vista della macchina in cui si trova il parser e ad altri impatti sul sistema."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to disable Document Type Definitions (DTDs) and external entity processing in the XML parser. Also, configure the parser to disallow external entity resolution and avoid processing untrusted XML input.",
+      "it": "Si consiglia di disabilitare le Document Type Definitions (DTD) e l'elaborazione di entità esterne nel parser XML. Inoltre, configurare il parser per disabilitare la risoluzione di entità esterne ed evitare l'elaborazione di input XML non attendibili."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/611.html",
+      "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+      "https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing"
+    ]
+  },
+  {
+    "index": "A06:2021",
+    "name": "Vulnerable and Outdated Components",
+    "generic_description": {
+      "en": "Using components with known vulnerabilities refers to the practice of incorporating software libraries, frameworks, or modules that have publicly disclosed security flaws into an application. These vulnerabilities may stem from coding errors, design flaws, or outdated versions of the components. Since these components often run with the same privileges as the application, attackers can exploit their weaknesses to gain unauthorized access, steal sensitive data, introduce malware, or disrupt system operations. ",
+      "it": "L'utilizzo di componenti con vulnerabilità note si riferisce all'impiego di librerie software, framework o moduli che presentano falle di sicurezza pubblicamente divulgate all'interno di un'applicazione. Queste vulnerabilità possono derivare da errori di programmazione, difetti di progettazione o versioni obsolete dei componenti. Poiché tali componenti spesso operano con gli stessi privilegi dell'applicazione, un attaccante può sfruttarne le debolezze per ottenere accesso non autorizzato, rubare dati sensibili, introdurre malware o compromettere il funzionamento del sistema."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to update the vulnerable component to the latest version available.",
+      "it": "Si consiglia di aggiornare il componente vulnerabile all'ultima versione disponibile."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/1104.html",
+      "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
+    ]
+  },
+  {
+    "index": "A07:2021",
+    "name": "Broken Authentication",
+    "generic_description": {
+      "en": "Broken Authentication vulnerabilities occur when an application's authentication process is flawed, allowing unauthorized access to resources or functionalities. This can happen due to weak passwords, vulnerabilities in login pages, session hijacking, or insufficient encryption. Essentially, it's about the system failing to properly verify a user's identity.",
+      "it": "Le vulnerabilità di Broken Authentication si verificano quando il processo di autenticazione di un'applicazione è difettoso e consente l'accesso non autorizzato a risorse o funzionalità. Ciò può accadere a causa di password deboli, vulnerabilità nelle pagine di login, session hijacking o crittografia insufficiente. In sostanza, il sistema non riesce a verificare correttamente l'identità dell'utente."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement strong password policies, use multi-factor authentication, and ensure secure session management practices.",
+      "it": "Si consiglia di implementare policy di password forti, di utilizzare l'autenticazione a più fattori e di garantire pratiche di gestione delle sessioni sicure."
+    },
+    "references": [
+      "https://cwe.mitre.org/data/definitions/287.html",
+      "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+    ]
+  }
+]

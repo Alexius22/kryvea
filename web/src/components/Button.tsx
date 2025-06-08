@@ -46,7 +46,7 @@ export default function Button({
     "whitespace-nowrap",
     "focus:outline-none",
     "transition-colors",
-    "focus:ring",
+    "focus:outline-hidden",
     "duration-150",
     "border",
     disabled ? "cursor-not-allowed" : "cursor-pointer",

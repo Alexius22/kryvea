@@ -1,20 +1,34 @@
 import { useContext, useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { GlobalContext } from "../../../App";
+import { GlobalContext } from "../../App";
 import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
+  className?: string;
   options: SelectOption[];
-  onChange: (newValue: SelectOption | SelectOption[], actionMeta: ActionMeta<any>) => any;
+  onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
   value?: SelectOption | SelectOption[];
   defaultValue?;
-  isMulti?;
+  isMulti?: false;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
+  id?: string;
+};
+type SelectWrapperMultiProps = {
+  className?: string;
+  options: SelectOption[];
+  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
+  value?: SelectOption | SelectOption[];
+  defaultValue?;
+  isMulti?: true;
+  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  closeMenuOnSelect?: boolean;
+  id?: string;
 };
 
 export default function SelectWrapper({
+  className,
   options,
   defaultValue,
   value,
@@ -22,7 +36,8 @@ export default function SelectWrapper({
   isMulti,
   onInputChange,
   closeMenuOnSelect,
-}: SelectWrapperProps) {
+  id,
+}: SelectWrapperProps | SelectWrapperMultiProps) {
   const {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
@@ -38,6 +53,7 @@ export default function SelectWrapper({
   return (
     <Select
       {...{
+        className,
         isMulti,
         value,
         onInputChange: handleOnInputChange,
@@ -46,11 +62,13 @@ export default function SelectWrapper({
         onChange,
         defaultValue,
         closeMenuOnSelect,
+        inputId: id,
       }}
       components={animatedComponents}
       styles={{
         control: (base, state) => ({
           ...base,
+          transition: "all 0.025s ease",
           backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
           borderColor: state.isFocused ? "#3F4E65" : "#374151",
           borderRadius: "4px",

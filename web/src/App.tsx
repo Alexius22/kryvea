@@ -1,7 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import LayoutAuthenticated from "./src/layouts/LayoutAuthenticated";
-import RouteWatcher from "./src/layouts/RouteWatcher";
+import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
+import RouteWatcher from "./layouts/RouteWatcher";
 import {
   AddAssessment,
   AddCustomer,
@@ -10,7 +10,6 @@ import {
   AddVulnerability,
   Assessment,
   Assessments,
-  Customer,
   Customers,
   Dashboard,
   EditPoc,
@@ -21,22 +20,20 @@ import {
   Users,
   Vulnerabilities,
   Vulnerability,
-} from "./src/pages";
-import Categories from "./src/pages/Categories";
-import ManageCategory from "./src/pages/ManageCategory";
-import Hosts from "./src/pages/Hosts";
-import LiveEditor from "./src/pages/LiveEditor";
+} from "./pages";
+import Categories from "./pages/Categories";
+import Hosts from "./pages/Hosts";
+import LiveEditor from "./pages/LiveEditor";
+import ManageCategory from "./pages/ManageCategory";
 
 export const GlobalContext = createContext<{
-  useUserEmail: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
   useCustomerName: [string, Dispatch<SetStateAction<string>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
 }>(null);
 
 export default function App() {
-  const useUserEmail = useState<string>("test@email.com");
-  const useUsername = useState<string>("TestUser");
+  const useUsername = useState<string>("kryveaUser");
   const useCustomerName = useState<string>("");
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme, _] = useDarkTheme;
@@ -50,7 +47,6 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useUserEmail,
         useUsername,
         useCustomerName,
         useDarkTheme,
@@ -63,7 +59,6 @@ export default function App() {
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/customer" element={<Customer />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/users" element={<Users />} />
             <Route path="/assessments" element={<Assessments />} />
@@ -71,7 +66,6 @@ export default function App() {
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/vulnerability" element={<Vulnerability />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/add_assessment" element={<AddAssessment />} />
             <Route path="/add_host" element={<AddHost />} />
@@ -84,6 +78,7 @@ export default function App() {
             <Route path="/manage_category" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
+          <Route path="/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </GlobalContext.Provider>

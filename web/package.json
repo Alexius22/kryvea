@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@mdi/js": "^7.0.96",
+    "axios": "^1.9.0",
     "chart.js": "^4.4.7",
     "formik": "^2.4.2",
     "jspdf": "^2.5.2",
@@ -22,7 +24,8 @@
     "react-router": "^7.1.2",
     "react-router-dom": "^7.1.2",
     "react-select": "^5.10.0",
-    "swr": "^2.2.0"
+    "swr": "^2.2.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
@@ -30,6 +33,7 @@
     "@types/numeral": "^2.0.2",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",

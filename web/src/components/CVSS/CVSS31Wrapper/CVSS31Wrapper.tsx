@@ -94,7 +94,7 @@ export default function CVSS31Wrapper() {
   };
 
   return (
-    <>
+    <div>
       <FormField
         label={["CVSS vector", "Score"]}
         gridTemplateColumns="grid-cols-[63%_36%]"
@@ -113,6 +113,6 @@ export default function CVSS31Wrapper() {
           }}
         />
       </Accordion>
-    </>
+    </div>
   );
 }

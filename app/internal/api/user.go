@@ -8,9 +8,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type userRequestData struct {
+	DisabledAt     time.Time `json:"disabled_at"`
+	Username       string    `json:"username"`
+	Password       string    `json:"password"`
+	PasswordExpiry time.Time `json:"password_expiry"`
+	Role           string    `json:"role"`
+	Customers      []string  `json:"customers"`
+}
+
 func (d *Driver) AddUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -18,44 +28,26 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 		})
 	}
 
-	type reqData struct {
-		Username  string   `json:"username"`
-		Password  string   `json:"password"`
-		Role      string   `json:"role"`
-		Customers []string `json:"customers"`
-	}
-
-	req := &reqData{}
-	if err := c.BodyParser(req); err != nil {
+	data := &userRequestData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if req.Username == "" {
+	// validate data
+	errStr := d.validateUserData(data)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Username is required",
+			"error": errStr,
 		})
 	}
 
-	if !util.IsValidPassword(req.Password) {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Password does not meet policy requirements",
-		})
-	}
-
-	if !util.IsValidRole(req.Role) {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid role",
-		})
-	}
-
-	var customers []mongo.UserCustomer
-	for _, customerID := range req.Customers {
+	// parse customer IDs
+	customers := make([]mongo.UserCustomer, len(data.Customers))
+	for i, customerID := range data.Customers {
 		parsedCustomerID, err := util.ParseMongoID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
@@ -72,13 +64,14 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 			})
 		}
 
-		customers = append(customers, mongo.UserCustomer{ID: parsedCustomerID})
+		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
 	}
 
+	// insert user into database
 	userID, err := d.mongo.User().Insert(&mongo.User{
-		Username:  req.Username,
-		Password:  req.Password,
-		Role:      req.Role,
+		Username:  data.Username,
+		Password:  data.Password,
+		Role:      data.Role,
 		Customers: customers,
 	})
 	if err != nil {
@@ -95,38 +88,40 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) Login(c *fiber.Ctx) error {
-	type reqData struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+type loginRequestData struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
-	user := &reqData{}
-	if err := c.BodyParser(user); err != nil {
+func (d *Driver) Login(c *fiber.Ctx) error {
+	data := &loginRequestData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if user.Username == "" {
+	// validate data
+	if data.Username == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Username is required",
 		})
 	}
 
-	if user.Password == "" {
+	if data.Password == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Password is required",
 		})
 	}
 
-	token, expires, err := d.mongo.User().Login(user.Username, user.Password)
+	// get session token from database
+	token, expires, err := d.mongo.User().Login(data.Username, data.Password)
 	if err != nil {
 		if err == mongo.ErrPasswordExpired {
-			resetToken, err := d.mongo.User().ForgotPassword(user.Username)
+			resetToken, err := d.mongo.User().ForgotPassword(data.Username)
 			if err != nil {
 				c.Status(fiber.StatusInternalServerError)
 				return c.JSON(fiber.Map{
@@ -147,6 +142,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		})
 	}
 
+	// set cookie with session token
 	c.Cookie(&fiber.Cookie{
 		Name:     "kryvea",
 		Value:    token,
@@ -165,6 +161,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 func (d *Driver) GetUsers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -172,6 +169,7 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 		})
 	}
 
+	// get all users from database
 	users, err := d.mongo.User().GetAll()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -191,6 +189,7 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 func (d *Driver) GetUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -198,27 +197,12 @@ func (d *Driver) GetUser(c *fiber.Ctx) error {
 		})
 	}
 
-	userParam := c.Params("user")
-	if userParam == "" {
+	// parse user param
+	user, errStr := d.userFromParam(c.Params("user"))
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "User ID is required",
-		})
-	}
-
-	userID, err := util.ParseMongoID(userParam)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid user ID",
-		})
-	}
-
-	user, err = d.mongo.User().Get(userID)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error": "Cannot get user",
+			"error": errStr,
 		})
 	}
 
@@ -229,6 +213,7 @@ func (d *Driver) GetUser(c *fiber.Ctx) error {
 func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -236,47 +221,36 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	userParam := c.Params("user")
-	if userParam == "" {
+	// parse user param
+	oldUser, errStr := d.userFromParam(c.Params("user"))
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "User ID is required",
+			"error": errStr,
 		})
 	}
 
-	userID, err := util.ParseMongoID(userParam)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid user ID",
-		})
-	}
-
-	type reqData struct {
-		DisabledAt     time.Time `json:"disabled_at"`
-		Username       string    `json:"username"`
-		PasswordExpiry time.Time `json:"password_expiry"`
-		Role           string    `json:"role"`
-		Customers      []string  `json:"customers"`
-	}
-
-	req := &reqData{}
-	if err := c.BodyParser(req); err != nil {
+	// parse request body
+	data := &userRequestData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if util.IsValidRole(req.Role) {
+	// validate data
+	errStr = d.validateUserData(data)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Invalid role",
+			"error": errStr,
 		})
 	}
 
-	var customers []mongo.UserCustomer
-	for _, customerID := range req.Customers {
+	// parse customer IDs
+	customers := make([]mongo.UserCustomer, len(data.Customers))
+	for i, customerID := range data.Customers {
 		parsedCustomerID, err := util.ParseMongoID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
@@ -293,14 +267,15 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 			})
 		}
 
-		customers = append(customers, mongo.UserCustomer{ID: parsedCustomerID})
+		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
 	}
 
-	err = d.mongo.User().Update(userID, &mongo.User{
-		DisabledAt:     req.DisabledAt,
-		Username:       req.Username,
-		PasswordExpiry: req.PasswordExpiry,
-		Role:           req.Role,
+	// update user in database
+	err := d.mongo.User().Update(oldUser.ID, &mongo.User{
+		DisabledAt:     data.DisabledAt,
+		Username:       data.Username,
+		PasswordExpiry: data.PasswordExpiry,
+		Role:           data.Role,
 		Customers:      customers,
 	})
 	if err != nil {
@@ -319,29 +294,31 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// parse request body
 	type reqData struct {
 		Username    string   `json:"username"`
 		Password    string   `json:"password"`
 		Assessments []string `json:"assessments"`
 	}
-
-	req := &reqData{}
-	if err := c.BodyParser(req); err != nil {
+	data := &reqData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if req.Username == "" && req.Password == "" && len(req.Assessments) == 0 {
+	// validate data
+	if data.Username == "" && data.Password == "" && len(data.Assessments) == 0 {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "No data to update",
 		})
 	}
 
-	var assessments []mongo.UserAssessments
-	for _, assessmentID := range req.Assessments {
+	// parse assessment IDs
+	assessments := make([]mongo.UserAssessments, len(data.Assessments))
+	for i, assessmentID := range data.Assessments {
 		parsedAssessmentID, err := util.ParseMongoID(assessmentID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
@@ -365,12 +342,13 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
-		assessments = append(assessments, mongo.UserAssessments{ID: parsedAssessmentID})
+		assessments[i] = mongo.UserAssessments{ID: parsedAssessmentID}
 	}
 
+	// update user in database
 	err := d.mongo.User().Update(user.ID, &mongo.User{
-		Username:    req.Username,
-		Password:    req.Password,
+		Username:    data.Username,
+		Password:    data.Password,
 		Assessments: assessments,
 	})
 	if err != nil {
@@ -389,6 +367,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// check if user is admin
 	if user.Role != mongo.ROLE_ADMIN {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -396,6 +375,7 @@ func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// parse user param
 	userID, err := util.ParseMongoID(c.Params("user"))
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -404,6 +384,7 @@ func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// delete user from database
 	err = d.mongo.User().Delete(userID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -421,6 +402,7 @@ func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 func (d *Driver) Logout(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
+	// logout user from database
 	err := d.mongo.User().Logout(user.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -438,36 +420,38 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 }
 
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
+	// parse request body
 	type reqData struct {
 		ResetToken string `json:"reset_token"`
 		Password   string `json:"password"`
 	}
-
-	req := &reqData{}
-	if err := c.BodyParser(req); err != nil {
+	data := &reqData{}
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	if req.ResetToken == "" {
+	// validate data
+	if data.ResetToken == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Reset token is required",
 		})
 	}
 
-	if !util.IsValidPassword(req.Password) {
+	if !util.IsValidPassword(data.Password) {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Password does not meet policy requirements",
 		})
 	}
 
-	err := d.mongo.User().ResetPassword(req.ResetToken, req.Password)
+	// reset password in database
+	err := d.mongo.User().ResetPassword(data.ResetToken, data.Password)
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot reset password",
 		})
@@ -477,4 +461,40 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Password reset",
 	})
+}
+
+func (d *Driver) userFromParam(userParam string) (*mongo.User, string) {
+	if userParam == "" {
+		return nil, "User ID is required"
+	}
+
+	userID, err := util.ParseMongoID(userParam)
+	if err != nil {
+		return nil, "Invalid user ID"
+	}
+
+	user, err := d.mongo.User().Get(userID)
+	if err != nil {
+		return nil, "Invalid user ID"
+	}
+
+	return user, ""
+}
+
+func (d *Driver) validateUserData(data *userRequestData) string {
+	if data.Username == "" {
+		return "Username is required"
+	}
+
+	if !util.IsValidRole(data.Role) {
+		return "Invalid role"
+	}
+
+	if data.Password != "" {
+		if !util.IsValidPassword(data.Password) {
+			return "Password does not meet policy requirements"
+		}
+	}
+
+	return ""
 }

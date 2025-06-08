@@ -1,16 +1,14 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 import CardBox from "../components/CardBox";
-import SectionMain from "../components/Section/Main";
+import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
-import { formatDate } from "../components/DateUtils";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -26,10 +24,10 @@ export default function Dashboard() {
     useCustomerName: [_, setCustomerName],
   } = useContext(GlobalContext);
 
-  const renderTable = (title: string, icon: string, data: Assessment[]) => (
-    <SectionMain>
+  const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
+    <div>
       <SectionTitleLineWithButton icon={icon} title={title} />
-      <CardBox hasTable>
+      <CardBox noPadding>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -39,7 +37,7 @@ export default function Dashboard() {
             data={data.map(assessment => ({
               Customer: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => setCustomerName(assessment.customer.name)}
                 >
                   {assessment.customer.name}
@@ -47,7 +45,7 @@ export default function Dashboard() {
               ),
               "Assessment Name": (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
                   {assessment.name}
@@ -62,11 +60,11 @@ export default function Dashboard() {
           />
         )}
       </CardBox>
-    </SectionMain>
+    </div>
   );
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       {renderTable(
         "Ongoing Assessments",
         mdiDotsCircle,
@@ -77,6 +75,6 @@ export default function Dashboard() {
         mdiHistory,
         assessments.filter(a => a.status === "Completed")
       )}
-    </>
+    </div>
   );
 }

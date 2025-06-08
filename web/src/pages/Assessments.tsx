@@ -10,7 +10,6 @@ import { formatDate } from "../components/DateUtils";
 import FormField from "../components/Form/Field";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
@@ -41,7 +40,7 @@ const Assessments = () => {
     { label: "Completed", value: "completed" },
   ]);
   const [selectedStatus, setSelectedStatus] = useState<SelectOption | SelectOption[]>(null);
-  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>(assessments);
+  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>(assessments as Assessment[]);
 
   useEffect(() => {
     document.title = getPageTitle("Assessments");
@@ -59,7 +58,7 @@ const Assessments = () => {
   };
 
   return (
-    <>
+    <div>
       <CardBoxModal
         title="Clone assessment"
         buttonColor="info"
@@ -119,71 +118,70 @@ const Assessments = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-          <Button
-            icon={mdiPlus}
-            label="New assessment"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_assessment")}
-          />
-        </SectionTitleLineWithButton>
-        <CardBox hasTable>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error: {error}</p>
-          ) : (
-            <Table
-              data={assessmentsData.map(assessment => ({
-                Title: (
-                  <span
-                    className="cursor-pointer hover:text-blue-500 hover:underline"
-                    onClick={() => navigate(`/assessment`)}
-                  >
-                    {assessment.name}
-                  </span>
-                ),
-                Type: assessment.assessment_type,
-                "CVSS Version": assessment.cvss_version,
-                "Vuln count": assessment.vulnerability_count,
-                Start: formatDate(assessment.start_date_time),
-                End: formatDate(assessment.end_date_time),
-                Status: (
-                  <SelectWrapper
-                    options={statusSelectOptions}
-                    onChange={selectedOptions => setSelectedStatus(selectedOptions)}
-                    defaultValue={{ label: "On Hold", value: "hold" }}
+
+      <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
+        <Button
+          icon={mdiPlus}
+          label="New assessment"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/add_assessment")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <Table
+            data={assessmentsData.map(assessment => ({
+              Title: (
+                <span
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
+                  onClick={() => navigate(`/assessment`)}
+                >
+                  {assessment.name}
+                </span>
+              ),
+              Type: assessment.assessment_type,
+              "CVSS Version": assessment.cvss_version,
+              "Vuln count": assessment.vulnerability_count,
+              Start: formatDate(assessment.start_date_time),
+              End: formatDate(assessment.end_date_time),
+              Status: (
+                <SelectWrapper
+                  options={statusSelectOptions}
+                  onChange={selectedOptions => setSelectedStatus(selectedOptions)}
+                  defaultValue={{ label: "On Hold", value: "hold" }}
+                />
+              ),
+              buttons: (
+                <Buttons noWrap>
+                  <Button
+                    color={assessment.is_owned ? "warning" : "info"}
+                    icon={mdiStar}
+                    onClick={handleFavoriteToggle(assessment.id)}
+                    small
                   />
-                ),
-                buttons: (
-                  <Buttons noWrap>
-                    <Button
-                      color={assessment.is_owned ? "warning" : "info"}
-                      icon={mdiStar}
-                      onClick={handleFavoriteToggle(assessment.id)}
-                      small
-                    />
-                    <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                    <Button
-                      color="lightDark"
-                      icon={mdiContentDuplicate}
-                      onClick={() => openCloneModal(assessment)}
-                      small
-                    />
-                    <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={50}
-            />
-          )}
-        </CardBox>
-      </SectionMain>
-    </>
+                  <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                  <Button
+                    color="lightDark"
+                    icon={mdiContentDuplicate}
+                    onClick={() => openCloneModal(assessment)}
+                    small
+                  />
+                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={50}
+          />
+        )}
+      </CardBox>
+    </div>
   );
 };
 

@@ -6,7 +6,6 @@ import AddVulnerability from "./AddVulnerability";
 import Assessment from "./Assessment";
 import Assessments from "./Assessments";
 import Categories from "./Categories";
-import Customer from "./Customer";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
 import EditPoc from "./EditPoc";
@@ -20,5 +19,25 @@ import Users from "./Users";
 import Vulnerabilities from "./Vulnerabilities";
 import VulnerabilityDetail from "./VulnerabilityDetail";
 
-export { AddAssessment, AddCustomer, AddHost, AddUser, AddVulnerability, Assessment, Assessments, Categories, Customer, Customers, Dashboard, EditPoc, EditReport, Error, Hosts, Login, ManageCategory, Profile, Users, Vulnerabilities, VulnerabilityDetail as Vulnerability };
-
+export {
+  AddAssessment,
+  AddCustomer,
+  AddHost,
+  AddUser,
+  AddVulnerability,
+  Assessment,
+  Assessments,
+  Categories,
+  Customers,
+  Dashboard,
+  EditPoc,
+  EditReport,
+  Error,
+  Hosts,
+  Login,
+  ManageCategory,
+  Profile,
+  Users,
+  Vulnerabilities,
+  VulnerabilityDetail as Vulnerability,
+};

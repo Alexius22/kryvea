@@ -1,15 +1,14 @@
-import { mdiPlus } from "@mdi/js";
+import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useState } from "react";
+import { v4 } from "uuid";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
-import CardBoxComponentTitle from "../components/CardBox/Component/Title";
 import Divider from "../components/Divider";
-import { PocDoc, PocType } from "../components/Poc/Poc.types";
-import PocImage from "../components/Poc/PocImage";
+import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
+import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocText from "../components/Poc/PocText";
-import SectionMain from "../components/Section/Main";
 import { getPageTitle } from "../config";
 
 const EditPoc = () => {
@@ -20,24 +19,28 @@ const EditPoc = () => {
     document.title = getPageTitle("Edit PoC");
   }, []);
 
-  useEffect(() => {
-    setPocList(prev => prev.sort((a, b) => (a.position < b.position ? -1 : 1)));
-  }, [pocList]);
-
-  function onPocTextChange<T>(currentIndex, key: keyof T) {
+  function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
       setPocList(prev => {
         const newText = e.target.value;
         const newPocList = [...prev];
-        newPocList[currentIndex] = { ...newPocList[currentIndex], [key]: newText };
+        newPocList[currentIndex] = { ...newPocList[currentIndex], [property]: newText };
         return newPocList;
       });
     };
   }
+  function onImageChange(currentIndex, image: File) {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList[currentIndex] = { ...newPocList[currentIndex], choseImage: image } as PocImageDoc;
+      return newPocList;
+    });
+  }
 
   const onPositionChange = currentIndex => e => {
+    const num = e.target.value.toString().replace(/^0+(?!$)/, "");
+    const newIndex = +num;
     const shift = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
       if (newIndex < 0 || newIndex >= prev.length) {
         return prev;
       }
@@ -47,45 +50,53 @@ const EditPoc = () => {
 
       if (newIndex < currentIndex) {
         for (let i = currentIndex; i > newIndex; i--) {
-          arr[i] = { ...arr[i - 1], position: arr[i - 1].position + 1 };
+          arr[i] = { ...arr[i - 1] };
         }
-        arr[newIndex] = { ...copyCurrent, position: newIndex };
+        arr[newIndex] = { ...copyCurrent };
         return arr;
       }
 
       for (let i = currentIndex; i < newIndex; i++) {
-        arr[i] = { ...arr[i + 1], position: arr[i + 1].position - 1 };
+        arr[i] = { ...arr[i + 1] };
       }
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      arr[newIndex] = { ...copyCurrent };
 
       return arr;
     };
     const swap = (prev: PocDoc[]) => {
-      const newIndex = +e.target.value;
       if (newIndex < 0 || newIndex >= prev.length) {
         return prev;
       }
 
       const arr = [...prev];
       const copyCurrent = { ...arr[currentIndex] };
-      arr[currentIndex] = { ...arr[newIndex], position: currentIndex };
-      arr[newIndex] = { ...copyCurrent, position: newIndex };
+      arr[currentIndex] = { ...arr[newIndex] };
+      arr[newIndex] = { ...copyCurrent };
       return arr;
     };
     setPocList(onPositionChangeMode === "shift" ? shift : swap);
   };
+  const onRemovePoc = (currentIndex: number) => () => {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList.splice(currentIndex, 1);
+      return newPocList;
+    });
+  };
 
   const addPoc = (type: PocType) => () => {
+    const key = `poc-${type}-${v4()}`;
     switch (type) {
       case "text":
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            language: undefined,
-            text: undefined,
+            description: "",
+            language: "",
+            text: "",
           },
         ]);
         break;
@@ -93,12 +104,13 @@ const EditPoc = () => {
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            caption: undefined,
-            chooseFile: undefined,
-            title: undefined,
+            description: "",
+            caption: "",
+            choseImage: null,
+            title: "",
           },
         ]);
         break;
@@ -106,12 +118,13 @@ const EditPoc = () => {
         setPocList(prev => [
           ...prev,
           {
+            key,
             type,
             position: prev.length,
-            description: undefined,
-            request: undefined,
-            response: undefined,
-            url: undefined,
+            description: "",
+            request: "",
+            response: "",
+            url: "",
           },
         ]);
         break;
@@ -122,63 +135,54 @@ const EditPoc = () => {
     switch (pocDoc.type) {
       case "text":
         return (
-          <>
-            <PocText
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onPocTextChange,
-                key: `poc-text-${i}`,
-              }}
-            />
-            <Divider />
-          </>
+          <PocText
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+            }}
+            key={pocDoc.key}
+          />
         );
       case "image":
-        return (
-          <>
-            <PocImage
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onPocTextChange,
-                key: `poc-image-${i}`,
-              }}
-            />
-            <Divider />
-          </>
-        );
+        const pocImageProps: PocImageProps = {
+          currentIndex: i,
+          pocDoc,
+          pocList,
+          onPositionChange,
+          onTextChange,
+          onRemovePoc,
+          onImageChange,
+        };
+        return <PocImage {...pocImageProps} key={pocDoc.key} />;
       case "request/response":
         return (
-          <>
-            <PocRequestResponse
-              {...{
-                currentIndex: i,
-                pocDoc,
-                pocList,
-                setPocList,
-                onPositionChange,
-                onPocTextChange,
-                key: `poc-request-response-${i}`,
-              }}
-            />
-            <Divider />
-          </>
+          <PocRequestResponse
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+            }}
+            key={pocDoc.key}
+          />
         );
     }
   };
 
   return (
-    <>
-      <SectionMain>
-        <CardBox>
-          <CardBoxComponentTitle title="Edit PoC"></CardBoxComponentTitle>
+    <div className="flex flex-col gap-2">
+      <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-300 dark:bg-slate-800">
+        <CardBox
+          noPadding
+          className="rounded-3xl border-[1px] border-slate-400/55 p-4 px-6 dark:border-slate-600/90 dark:!bg-slate-900"
+        >
+          <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button
               label="Request/Response"
@@ -189,15 +193,12 @@ const EditPoc = () => {
             />
             <Button label="Image" color="contrast" icon={mdiPlus} onClick={addPoc("image")} small />
             <Button label="Text" color="contrast" icon={mdiPlus} onClick={addPoc("text")} small />
-          </Buttons>
-          <Divider />
-          <div className="flex flex-col">{pocList.map(switchPocType)}</div>
-          <Buttons>
-            <Button label="Submit" color="info" />
+            <Button className="ml-auto" label="Submit" color="info" icon={mdiSend} />
           </Buttons>
         </CardBox>
-      </SectionMain>
-    </>
+      </div>
+      <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
+    </div>
   );
 };
 

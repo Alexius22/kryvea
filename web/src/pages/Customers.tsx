@@ -1,18 +1,18 @@
-import { mdiEye, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiEye, mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { GlobalContext } from "../../App";
+import { GlobalContext } from "../App";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
-import SectionMain from "../components/Section/Main";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { customers } from "../mockup_data/customers";
-import { Customer } from "../types/common.types";
+import FormField from "../components/Form/Field";
+import { Field, Form, Formik } from "formik";
+import Divider from "../components/Divider";
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Customers = () => {
     es: "Spanish",
   };
 
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const [isModalCustomerActive, setIsModalCustomerActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
   const {
@@ -35,7 +35,7 @@ const Customers = () => {
   } = useContext(GlobalContext);
 
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalCustomerActive(false);
     setIsModalTrashActive(false);
   };
 
@@ -44,7 +44,45 @@ const Customers = () => {
   }, []);
 
   return (
-    <>
+    <div>
+      <CardBoxModal
+        title="Edit customer"
+        buttonColor="info"
+        buttonLabel="Confirm"
+        isActive={isModalCustomerActive}
+        onConfirm={handleModalAction}
+        onCancel={handleModalAction}
+      >
+        <Formik
+          initialValues={{
+            companyName: "Test",
+            language: "italian",
+          }}
+          onSubmit={undefined}
+        >
+          <Form>
+            <FormField label="Company Name" help="Required">
+              <Field name="companyName" placeholder="CompanyName" id="companyName" />
+            </FormField>
+
+            <FormField label="Language" labelFor="language">
+              <Field name="language" id="language" component="select">
+                <option value="italian">Italian</option>
+                <option value="english">English</option>
+              </Field>
+            </FormField>
+
+            <FormField label="Default CVSS Version" labelFor="cvss">
+              <Field name="cvss" id="cvss" component="select">
+                <option value="4">4</option>
+                <option value="3.1">3.1</option>
+                <option value="2">2</option>
+              </Field>
+            </FormField>
+          </Form>
+        </Formik>
+      </CardBoxModal>
+
       <CardBoxModal
         title="Please confirm"
         buttonColor="danger"
@@ -58,48 +96,47 @@ const Customers = () => {
           <b>Action irreversible</b>
         </p>
       </CardBoxModal>
-      <SectionMain>
-        <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
-          <Button
-            icon={mdiPlus}
-            label="New customer"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_customer")}
+
+      <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
+        <Button
+          icon={mdiPlus}
+          label="New customer"
+          roundedFull
+          small
+          color="contrast"
+          onClick={() => navigate("/add_customer")}
+        />
+      </SectionTitleLineWithButton>
+      <CardBox noPadding>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <Table
+            data={customers.map(customer => ({
+              Name: (
+                <span
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
+                  onClick={() => setCustomerName(customer.name)}
+                >
+                  {customer.name}
+                </span>
+              ),
+              "CVSS Version": customer.default_cvss_version,
+              "Default language": languageMapping[customer.language] || customer.language,
+              buttons: (
+                <Buttons noWrap>
+                  <Button color="info" icon={mdiNoteEdit} small onClick={() => setIsModalCustomerActive(true)} />
+                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={100}
           />
-        </SectionTitleLineWithButton>
-        <CardBox hasTable>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error: {error}</p>
-          ) : (
-            <Table
-              data={customers.map(customer => ({
-                Name: (
-                  <span
-                    className="cursor-pointer hover:text-blue-500 hover:underline"
-                    onClick={() => setCustomerName(customer.name)}
-                  >
-                    {customer.name}
-                  </span>
-                ),
-                "CVSS Version": customer.default_cvss_version,
-                "Default language": languageMapping[customer.language] || customer.language,
-                buttons: (
-                  <Buttons noWrap>
-                    <Button color="info" icon={mdiEye} small onClick={() => navigate("/customer")} />
-                    <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={100}
-            />
-          )}
-        </CardBox>
-      </SectionMain>
-    </>
+        )}
+      </CardBox>
+    </div>
   );
 };
 

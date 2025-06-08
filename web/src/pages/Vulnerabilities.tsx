@@ -2,14 +2,11 @@ import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import CardBox from "../components/CardBox";
-import SectionMain from "../components/Section/Main";
+import { formatDate } from "../components/DateUtils";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table/Table";
 import { getPageTitle } from "../config";
-import useFetch from "../hooks/useFetch";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
-import { Vulnerability } from "../types/common.types";
-import { formatDate } from "../components/DateUtils";
 
 const Vulnerabilities = () => {
   const navigate = useNavigate();
@@ -22,9 +19,9 @@ const Vulnerabilities = () => {
   }, []);
 
   return (
-    <SectionMain>
+    <div>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-      <CardBox hasTable>
+      <CardBox noPadding>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -34,7 +31,7 @@ const Vulnerabilities = () => {
             data={vulnerabilities?.map(vulnerability => ({
               Vulnerability: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
                 >
                   {vulnerability.category.name + " - " + vulnerability.detailed_title}
@@ -44,7 +41,7 @@ const Vulnerabilities = () => {
               "CVSS Vector": vulnerability.cvss_vector,
               Assessment: (
                 <span
-                  className="cursor-pointer hover:text-blue-500 hover:underline"
+                  className="cursor-pointer hover:text-slate-500 hover:underline"
                   onClick={() => navigate(`/assessment`)}
                 >
                   {vulnerability.assessment.name}
@@ -57,7 +54,7 @@ const Vulnerabilities = () => {
           />
         )}
       </CardBox>
-    </SectionMain>
+    </div>
   );
 };
 
