@@ -1,13 +1,14 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
 import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import CardBoxModal from "../components/CardBox/Modal";
+import Grid from "../components/Composition/Grid";
 import { formatDate } from "../components/DateUtils";
-import FormField from "../components/Form/Field";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -68,9 +69,7 @@ const Assessments = () => {
       >
         <Formik initialValues={{ name: assessmentToClone?.name + " (Copy)" }} onSubmit={undefined}>
           <Form>
-            <FormField label="Assessment Name">
-              <Field name="name" placeholder="Cloned assessment name" />
-            </FormField>
+            <Input type="text" label="Assessment Name" placeholder="Cloned assessment name" id="assessment_name" />
           </Form>
         </Formik>
       </CardBoxModal>
@@ -83,8 +82,9 @@ const Assessments = () => {
       >
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Type" icons={[]} singleChild>
+            <Grid>
               <SelectWrapper
+                label="Type"
                 id="type"
                 options={[
                   { value: "word", label: "Word (.docx)" },
@@ -93,40 +93,36 @@ const Assessments = () => {
                 ]}
                 onChange={option => console.log("Selected type:", option.value)}
               />
-            </FormField>
-            <FormField label="Encryption">
-              <SelectWrapper
-                id="encryption"
-                options={[
-                  { value: "none", label: "None" },
-                  { value: "password", label: "Password" },
-                ]}
-                onChange={option => console.log("Selected encryption:", option.value)}
-              />
-              <Field name="password" placeholder="Insert password" />
-            </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
-            </FormField>
+              <Grid className="grid-cols-2">
+                <SelectWrapper
+                  label="Encryption"
+                  id="encryption"
+                  options={[
+                    { value: "none", label: "None" },
+                    { value: "password", label: "Password" },
+                  ]}
+                  onChange={option => console.log("Selected encryption:", option.value)}
+                />
+                <Input type="password" id="password" placeholder="Insert password" />
+              </Grid>
+            </Grid>
           </Form>
         </Formik>
       </CardBoxModal>
       <CardBoxModal
-        title="Please confirm"
+        title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <p>
-          <b>Action irreversible</b>: Are you sure to delete this assessment?
-        </p>
+        <p>Are you sure to delete this assessment?</p>
       </CardBoxModal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
         <Button icon={mdiPlus} label="New assessment" roundedFull small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <CardBox>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

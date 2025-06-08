@@ -21,7 +21,7 @@ const Vulnerabilities = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

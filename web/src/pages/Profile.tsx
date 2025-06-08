@@ -3,7 +3,6 @@ import { Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../App";
 import Button from "../components/Button";
-import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
 import Grid from "../components/Composition/Grid";
 import Input from "../components/Form/Input";
@@ -36,10 +35,8 @@ const Profile = () => {
               <Input type="password" id="current_password" label="Current password" helperSubtitle="Required" />
               <Input type="password" id="new_password" label="New password" helperSubtitle="Required" />
               <Input type="password" id="confirm_password" label="Confirm password" helperSubtitle="Required" />
-            </Grid>
-            <Buttons>
               <Button type="submit" label="Submit" />
-            </Buttons>
+            </Grid>
           </Form>
         </Formik>
       </CardBox>

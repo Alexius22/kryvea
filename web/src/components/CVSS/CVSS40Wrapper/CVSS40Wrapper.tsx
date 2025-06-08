@@ -1,12 +1,10 @@
-import { Field } from "formik";
 import { useEffect, useMemo, useState } from "react";
+import Grid from "../../Composition/Grid";
 import Accordion from "../../Form/Accordion";
-import FormField from "../../Form/Field";
+import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
 import Vector, { CVSS40 } from "./CVSS40";
 import CVSS40Render from "./CVSS40Render";
-import Grid from "../../Composition/Grid";
-import Input from "../../Form/Input";
 
 type NALP = "N" | "A" | "L" | "P";
 type LH = "L" | "H";

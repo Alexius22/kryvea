@@ -1,15 +1,13 @@
-import { Field, Form, Formik } from "formik";
+import axios from "axios";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
-import Buttons from "../components/Buttons";
 import CardBox from "../components/CardBox/CardBox";
-import Divider from "../components/Divider";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Input from "../components/Form/Input";
 import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
-import axios from "axios";
 
 type LoginForm = {
   login: string;
@@ -54,31 +52,34 @@ const Login = () => {
       <CardBox className="w-[500px]">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
-            <div className="grid">
-              <label htmlFor="username">Username</label>
-              <Field
-                className="w-full max-w-full rounded px-3 py-2 dark:placeholder-gray-400"
-                name="login"
+            <Grid>
+              <Input
+                type="text"
                 id="username"
+                label="Username"
                 onChange={e => setUsername(e.target.value)}
                 value={username}
               />
-            </div>
-
-            <div className="grid">
-              <label htmlFor="password">Password</label>
-              <Field name="password" type="password" onChange={e => setPassword(e.target.value)} value={password} />
-            </div>
-
-            <FormCheckRadio type="checkbox" label="Remember">
-              <Field type="checkbox" name="remember" value={error} onChange={e => setError(e.target.checkbox)} />
-            </FormCheckRadio>
-
-            <Divider />
-
-            <Buttons>
+              <Input
+                type="password"
+                id="password"
+                label="Password"
+                onChange={e => setUsername(e.target.value)}
+                value={username}
+              />
+              <div className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 cursor-pointer"
+                  id="override_categories"
+                  onChange={e => setRemember}
+                />
+                <label className="ml-2 cursor-pointer text-sm" htmlFor="override_categories">
+                  Remember me
+                </label>
+              </div>
               <Button type="submit" label="Login" onClick={() => {}} />
-            </Buttons>
+            </Grid>
           </Form>
         </Formik>
       </CardBox>

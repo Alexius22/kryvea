@@ -27,7 +27,7 @@ export default function Dashboard() {
   const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
     <div>
       <SectionTitleLineWithButton icon={icon} title={title} />
-      <CardBox noPadding>
+      <CardBox className="!p-0">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (

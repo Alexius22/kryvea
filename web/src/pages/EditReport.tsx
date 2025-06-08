@@ -1,7 +1,8 @@
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import CardBox from "../components/CardBox/CardBox";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
 
 const EditReport = () => {
@@ -13,10 +14,10 @@ const EditReport = () => {
     <CardBox>
       <Formik initialValues={{}} onSubmit={undefined}>
         <Form>
-          <FormField hasTextareaHeight>
-            <Field name="textarea" as="textarea" placeholder="Layout here" />
-            <Field name="textarea" as="textarea" placeholder="Preview here" />
-          </FormField>
+          <Grid className="grid-cols-2">
+            <Input type="text" id="layout" multiline placeholder="Layout here" />
+            <Input type="text" id="preview" multiline placeholder="Preview here" />
+          </Grid>
         </Form>
       </Formik>
     </CardBox>
