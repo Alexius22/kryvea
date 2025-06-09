@@ -1,12 +1,12 @@
 import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
+import { Link, useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -82,8 +82,8 @@ const Assessment = () => {
           type="file"
           id="nessus_file"
           placeholder="Drop here also"
-          label="Choose Nessus file"
-          accept={".nessus"}
+          label="Choose bulk file"
+          accept={".nessus,text/xml"}
         />
       </CardBoxModal>
       <CardBoxModal
@@ -117,9 +117,9 @@ const Assessment = () => {
           <Table
             data={vulnerabilities.map(vulnerability => ({
               Vulnerability: (
-                <span onClick={() => navigate(`/vulnerability`)}>
-                  {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
-                </span>
+                <Link to={`/vulnerability`}>
+                  {vulnerability.category.index + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
+                </Link>
               ),
               Host:
                 vulnerability.target.ip + (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),

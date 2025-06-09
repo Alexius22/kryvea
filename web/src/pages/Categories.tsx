@@ -112,7 +112,7 @@ const Categories = () => {
                 .toUpperCase(),
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
+                  <Button type="primary" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
                   <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),

@@ -18,7 +18,7 @@
   --select-option-bg-hover: #092d47;
   --select-option-text-hover: #ffffff;
   --select-multi-bg: #082f49;
-  --select-placeholder: #9ca3af;
+  --select-placeholder: hsla(0, 0%, 90%, 0.5);
   --select-dropdown-indicator: #9ca3af;
 }
 
@@ -99,6 +99,8 @@
 /* Placeholder */
 .select-wrapper__placeholder {
   color: var(--select-placeholder);
+  font-weight: 300;
+  font-style: italic;
 }
 
 /* Dropdown indicator */

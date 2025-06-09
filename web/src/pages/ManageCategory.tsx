@@ -79,8 +79,8 @@ const ManageCategory = () => {
             <Divider />
             <p className="mb-2 font-bold">English</p>
             <Grid className="grid-cols-2">
-              <Input type="text" label="Generic description" id="gen_desc_en" placeholder="Description here" />
-              <Textarea label="Generic remediation" id="gen_rem_en" placeholder="Description here" />
+              <Textarea label="Generic description" id="gen_desc_en" placeholder="Description here" />
+              <Textarea label="Generic remediation" id="gen_rem_en" placeholder="Remediation here" />
             </Grid>
             {additionalFields.map((language, index) => (
               <div key={index}>
@@ -95,7 +95,7 @@ const ManageCategory = () => {
                   <Textarea
                     label="Generic remediation"
                     id={`gen_rem_${language.value.toLowerCase()}`}
-                    placeholder="Description here"
+                    placeholder="Remediation here"
                   />
                 </Grid>
               </div>
