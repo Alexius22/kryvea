@@ -1,10 +1,10 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useEffect, useState } from "react";
+import Card from "./CardBox/Card";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
-import Card from "./CardBox/Card";
-import Icon from "./Icon";
 import Input from "./Form/Input";
+import Icon from "./Icon";
 
 const Table = ({
   data,
