@@ -13,6 +13,8 @@ type PocTextProps = {
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
+  selectedPoc: number;
+  setSelectedPoc: (index: number) => void;
 };
 
 export default function PocText({
@@ -22,9 +24,11 @@ export default function PocText({
   onPositionChange,
   onTextChange,
   onRemovePoc,
+  selectedPoc,
+  setSelectedPoc,
 }: PocTextProps) {
   // prettier-ignore
-  const [languages] = useState(["Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"]);
+  const [languages] = useState(["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"]);
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
@@ -40,6 +44,8 @@ export default function PocText({
         icon: mdiPencil,
         onPositionChange,
         onRemovePoc,
+        selectedPoc,
+        setSelectedPoc,
         title: "Text",
       }}
     >

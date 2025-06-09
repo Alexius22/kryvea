@@ -13,6 +13,7 @@ import { getPageTitle } from "../config";
 const EditPoc = () => {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
+  const [selectedPoc, setSelectedPoc] = useState<number>(0);
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
@@ -142,6 +143,8 @@ const EditPoc = () => {
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              selectedPoc,
+              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
@@ -155,6 +158,8 @@ const EditPoc = () => {
           onTextChange,
           onRemovePoc,
           onImageChange,
+          selectedPoc,
+          setSelectedPoc,
         };
         return <PocImage {...pocImageProps} key={pocDoc.key} />;
       case "request/response":
@@ -167,6 +172,8 @@ const EditPoc = () => {
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              selectedPoc,
+              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
