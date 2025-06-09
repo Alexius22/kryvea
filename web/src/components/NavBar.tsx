@@ -15,7 +15,7 @@ export default function NavBar({ children }: Props) {
   return (
     <nav className="navbar">
       <div className="flex-1">{children}</div>
-      <div className="flex items-center gap-x-4 p-4">
+      <div className="flex items-center gap-x-4">
         <a href="/profile" className="flex items-center gap-x-2">
           <Icon path={mdiAccount} />
           Profile

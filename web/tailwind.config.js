@@ -1,8 +1,13 @@
 module.exports = {
-  darkMode: 'class',
+  darkMode: "class",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        position: "right, left, top, bottom, margin, padding",
+        textColor: "color",
+      },
+    },
   },
   plugins: [],
-}
+};

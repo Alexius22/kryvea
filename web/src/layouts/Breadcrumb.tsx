@@ -14,7 +14,7 @@ const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProp
     .filter(path => path);
 
   return (
-    <div className="pl-4 align-middle">
+    <div className="align-middle">
       <ul className="flex gap-2">
         <li className={"hover:text-slate-600 hover:underline"}>
           <Link to={"/"}>{homeElement}</Link>

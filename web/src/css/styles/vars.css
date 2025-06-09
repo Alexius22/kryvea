@@ -1,4 +1,6 @@
 :root {
+  --layout-sidebar-bg: hsl(53, 98%, 77%);
+
   --field-bg-color: hsl(53, 98%, 77%);
   --border-normal: #fbbf24;
   --border-error: hsl(0, 85%, 60%);
@@ -13,6 +15,8 @@
 }
 
 html.dark {
+  --layout-sidebar-bg: hsl(205, 90%, 12%);
+
   --field-bg-color: #0369a1;
   --border-normal: #4b5563;
 

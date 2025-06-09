@@ -52,37 +52,10 @@ textarea {
   @apply bg-yellow-200 focus:outline-none focus:ring-0 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
 }
 
-.navbar {
-  @apply fixed right-0 top-0 flex h-14 items-center justify-between px-4 text-white;
-  left: 300px;
-  width: calc(100% - 300px);
-}
-
 .cardbox {
   @apply rounded-2xl bg-amber-600 p-4 dark:bg-sky-950;
 }
 
 .divider {
   @apply -mx-6 my-6 hidden border-t border-yellow-100 dark:border-slate-900 lg:block;
-}
-
-.layout-root {
-  @apply flex h-screen max-w-full;
-}
-
-.layout-sidebar {
-  @apply fixed flex flex-col rounded-2xl bg-amber-600 text-white dark:bg-sky-950;
-  top: 1rem;
-  left: 0.5rem;
-  bottom: 1rem;
-  width: 300px;
-  height: calc(100vh - 2rem);
-}
-
-.layout-content {
-  @apply ml-[300px] flex w-[calc(100%-300px)] flex-col overflow-auto pt-10;
-}
-
-.layout-main {
-  @apply no-scrollbar flex h-full w-full flex-col justify-between overflow-auto p-6;
 }
