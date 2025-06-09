@@ -91,45 +91,48 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
   return (
     <>
       {/* Base Metrics */}
-      <h3 className="text-2xl font-bold">Base Metrics</h3>
-      <div className="grid grid-cols-3">
-        {/* Exploitability Metrics */}
-        <div>
-          <h4 className="text-xl font-bold">Exploitability Metrics</h4>
-          {Object.entries(metricLabels).slice(0, 5).map(renderMetricButtons)}
-        </div>
-        {/* Vulnerable System Impact Metrics */}
-        <div>
-          <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
-          {Object.entries(metricLabels).slice(5, 8).map(renderMetricButtons)}
-        </div>
-        {/* Subsequent System Impact Metrics */}
-        <div>
-          <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
-          {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
+      <div className="p-6 pt-0">
+        <h3 className="text-2xl font-bold">Base Metrics</h3>
+        <div className="grid grid-cols-3">
+          {/* Exploitability Metrics */}
+          <div>
+            <h4 className="text-xl font-bold">Exploitability Metrics</h4>
+            {Object.entries(metricLabels).slice(0, 5).map(renderMetricButtons)}
+          </div>
+          {/* Vulnerable System Impact Metrics */}
+          <div>
+            <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
+            {Object.entries(metricLabels).slice(5, 8).map(renderMetricButtons)}
+          </div>
+          {/* Subsequent System Impact Metrics */}
+          <div>
+            <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
+            {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
+          </div>
         </div>
       </div>
 
       {/* Supplemental Metrics */}
-      <div className="grid grid-cols-3">
-        <div className="col-span-2 grid grid-flow-col items-end">
-          <div>
-            <h3 className="text-2xl font-bold">Supplemental Metrics</h3>
+      <div className="grid grid-cols-[2fr,1fr] p-6 pt-0">
+        <div>
+          <h3 className="text-2xl font-bold">Supplemental Metrics</h3>
+          <div className="grid grid-cols-2">
             <div>{Object.entries(metricLabels).slice(26, 29).map(renderMetricButtons)}</div>
+            <div>{Object.entries(metricLabels).slice(29, 32).map(renderMetricButtons)}</div>
           </div>
-          <div>{Object.entries(metricLabels).slice(29, 32).map(renderMetricButtons)}</div>
         </div>
+
         {/* Threat Metrics */}
         <div>
           <h3 className="text-2xl font-bold">Threat Metrics</h3>
-          <div className="col-span-1 grid">{Object.entries(metricLabels).slice(11, 12).map(renderMetricButtons)}</div>
+          <div className="flex flex-col">{Object.entries(metricLabels).slice(11, 12).map(renderMetricButtons)}</div>
         </div>
       </div>
 
       {/* Environmental (Modified Base Metrics) */}
-      <div>
+      <div className="p-6 pt-0">
         <h3 className="text-2xl font-bold">Environmental (Modified Base Metrics)</h3>
-        <Grid className="grid-cols-3">
+        <div className="grid grid-cols-3">
           {/* Exploitability Metrics */}
           <div>
             <h4 className="text-xl font-bold">Exploitability Metrics</h4>
@@ -145,11 +148,11 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
             <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
             {Object.entries(metricLabels).slice(23, 26).map(renderMetricButtons)}
           </div>
-        </Grid>
+        </div>
       </div>
 
       {/* Environmental (Security Requirements) */}
-      <div>
+      <div className="p-6 pt-0">
         <h3 className="text-2xl font-bold">Environmental (Security Requirements)</h3>
         <Grid className="grid-cols-3">{Object.entries(metricLabels).slice(12, 15).map(renderMetricButtons)}</Grid>
       </div>
