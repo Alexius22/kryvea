@@ -11,6 +11,8 @@ export type PocImageProps = {
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onImageChange: (currentIndex, image: File) => void;
   onRemovePoc: (currentIndex: number) => void;
+  selectedPoc: number;
+  setSelectedPoc: (index: number) => void;
 };
 
 export default function PocImage({
@@ -21,9 +23,37 @@ export default function PocImage({
   onTextChange,
   onImageChange,
   onRemovePoc,
+  selectedPoc,
+  setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
   const imageInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selectedPoc !== currentIndex) return;
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          
+          if (!file || (file.type !== "image/png" && file.type !== "image/jpeg")) {
+            continue;
+          }
+
+          setImageUrl(URL.createObjectURL(file));
+          onImageChange(currentIndex, file);
+        }
+      }
+    };
+
+    document.addEventListener("paste", handlePaste);
+    return () => {
+      document.removeEventListener("paste", handlePaste);
+    };
+  }, [selectedPoc, currentIndex]);
 
   useEffect(() => {
     return () => {
@@ -65,6 +95,8 @@ export default function PocImage({
         icon: mdiImage,
         onPositionChange,
         onRemovePoc,
+        selectedPoc,
+        setSelectedPoc,
         title: "Image",
       }}
     >
@@ -78,7 +110,7 @@ export default function PocImage({
       </div>
 
       <div className="col-span-4 grid gap-4">
-        <label htmlFor={imageInputId}>Choose Image</label>
+        <label htmlFor={imageInputId} onClick={(e) => {e.preventDefault()}}>Choose Image</label>
         <div className="flex gap-4">
           <input
             ref={imageInput}

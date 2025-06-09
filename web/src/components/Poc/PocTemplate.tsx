@@ -11,6 +11,8 @@ export default function PocTemplate({
   pocList,
   onPositionChange,
   onRemovePoc,
+  selectedPoc,
+  setSelectedPoc,
   children,
 }: {
   pocList: any[];
@@ -35,7 +37,7 @@ export default function PocTemplate({
   };
 
   return (
-    <div className="relative flex flex-col rounded-3xl p-6">
+    <div className={`relative flex flex-col rounded-3xl p-6 border-2 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`} onClick={() => setSelectedPoc(currentIndex)}>
       <div className="mb-4 flex items-center gap-4">
         <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
           <Icon path={icon} size={25} />
