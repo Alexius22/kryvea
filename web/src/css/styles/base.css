@@ -37,7 +37,8 @@ button.outline-only {
 input {
   @apply no-spinner h-12 rounded-md border bg-yellow-200 p-2 ring-0 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
 }
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: hsla(0, 0%, 90%, 0.5);
   font-weight: 300;
   font-style: italic;
