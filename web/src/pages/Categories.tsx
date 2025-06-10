@@ -2,12 +2,12 @@ import { mdiCogs, mdiDeleteAlert, mdiDownload, mdiPencil, mdiPlus, mdiTabSearch,
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
@@ -38,16 +38,13 @@ const Categories = () => {
   return (
     <div>
       <CardBoxModal
-        title="Please confirm"
+        title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
         <p>Are you sure you want to proceed with the deletion?</p>
-        <p>
-          <b>Action irreversible</b>
-        </p>
       </CardBoxModal>
       <CardBoxModal
         title="Categories management"
@@ -60,7 +57,7 @@ const Categories = () => {
           <Form>
             <Grid className="gap-4">
               <Buttons>
-                <Button icon={mdiDownload} text="Export categories" small onClick={() => navigate("")} />
+                <Button type="primary" icon={mdiDownload} text="Export categories" small onClick={() => navigate("")} />
                 <Button
                   icon={mdiDeleteAlert}
                   type="danger"

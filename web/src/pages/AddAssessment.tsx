@@ -2,11 +2,11 @@ import { mdiPlus } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
@@ -95,12 +95,10 @@ const AddAssessment = () => {
                 onChange={option => console.log("Selected OSSTMM vector:", option.value)}
               />
             </Grid>
-
             <Divider />
-
             <Buttons>
               <Button type="primary" text="Submit" onClick={() => {}} />
-              <Button type="secondary" text="Cancel" onClick={() => {}} />
+              <Button type="outline-only" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

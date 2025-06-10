@@ -2,9 +2,9 @@ import { mdiAccount } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../App";
-import Button from "../components/Form/Button";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import { getPageTitle } from "../config";
@@ -21,7 +21,7 @@ const Profile = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main></SectionTitleLineWithButton>
-      <Card className="w-[530px] max-w-full">
+      <Card className="w-1/3 max-w-full">
         <Formik
           initialValues={{
             currentPassword: "",
@@ -35,8 +35,10 @@ const Profile = () => {
               <Input type="password" id="current_password" label="Current password" helperSubtitle="Required" />
               <Input type="password" id="new_password" label="New password" helperSubtitle="Required" />
               <Input type="password" id="confirm_password" label="Confirm password" helperSubtitle="Required" />
-              <Button type="primary" text="Submit" onClick={() => {}} />
             </Grid>
+            <div className="pt-4">
+              <Button type="primary" text="Submit" onClick={() => {}} />
+            </div>
           </Form>
         </Formik>
       </Card>

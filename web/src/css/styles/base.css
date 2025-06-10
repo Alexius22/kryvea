@@ -59,6 +59,10 @@ textarea {
   @apply rounded-2xl bg-amber-600 p-4 dark:bg-sky-950;
 }
 
+.card-modal {
+  @apply bg-gradient-to-tr from-gray-400/85 via-gray-600/85 to-gray-400/85 dark:from-gray-700/85 dark:via-gray-900/85 dark:to-gray-700/85;
+}
+
 .divider {
   @apply -mx-6 my-6 hidden border-t border-yellow-100 dark:border-slate-900 lg:block;
 }

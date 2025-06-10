@@ -1,6 +1,6 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
 import { formatDate } from "../components/DateUtils";
@@ -36,9 +36,11 @@ export default function Dashboard() {
           <Table
             data={data.map(assessment => ({
               Customer: (
-                <span onClick={() => setCustomerName(assessment.customer.name)}>{assessment.customer.name}</span>
+                <Link to="" onClick={() => setCustomerName(assessment.customer.name)}>
+                  {assessment.customer.name}
+                </Link>
               ),
-              "Assessment Name": <span onClick={() => navigate(`/assessment`)}>{assessment.name}</span>,
+              "Assessment Name": <Link to={`/assessment`}>{assessment.name}</Link>,
               "Assessment Type": assessment.assessment_type,
               Start: formatDate(assessment.start_date_time),
               End: formatDate(assessment.end_date_time),

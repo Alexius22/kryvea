@@ -1,12 +1,12 @@
 import { mdiDatabaseEdit, mdiPlus } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
@@ -105,7 +105,7 @@ const ManageCategory = () => {
             <Divider />
             <Buttons>
               <Button type="primary" text="Submit" onClick={() => {}} />
-              <Button type="secondary" text="Cancel" onClick={() => {}} />
+              <Button type="outline-only" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>

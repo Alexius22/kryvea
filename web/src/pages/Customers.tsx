@@ -1,19 +1,19 @@
 import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
-import Button from "../components/Form/Button";
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -122,12 +122,16 @@ const Customers = () => {
         ) : (
           <Table
             data={customers.map(customer => ({
-              Name: <Button type="secondary" text={customer.name} onClick={() => setCustomerName(customer.name)} />,
+              Name: (
+                <Link to="" onClick={() => setCustomerName(customer.name)}>
+                  {customer.name}
+                </Link>
+              ),
               "CVSS Version": customer.default_cvss_version,
               "Default language": languageMapping[customer.language] || customer.language,
               buttons: (
                 <Buttons noWrap>
-                  <Button small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
+                  <Button type="primary" small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
                   <Button type="danger" small onClick={() => setIsModalTrashActive(true)} icon={mdiTrashCan} />
                 </Buttons>
               ),

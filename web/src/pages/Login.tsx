@@ -2,9 +2,9 @@ import axios from "axios";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Form/Button";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
@@ -49,7 +49,7 @@ const Login = () => {
 
   return (
     <SectionFullScreen>
-      <Card className="w-[500px]">
+      <Card className="w-1/4 max-w-full">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
             <Grid>
@@ -78,8 +78,10 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <Button type="primary" text="Login" onClick={() => {}} />
             </Grid>
+            <div className="pt-4">
+              <Button type="primary" text="Login" onClick={() => {}} />
+            </div>
           </Form>
         </Formik>
       </Card>
