@@ -89,89 +89,98 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
   };
 
   return (
-    <>
+    <Grid className="p-4 pt-0">
       {/* Base Metrics */}
-      <div className="p-6 pt-0">
-        <h3 className="text-2xl font-bold">Base Metrics</h3>
-        <div className="grid grid-cols-3">
+      <Grid>
+        <div className="rounded-2xl border p-4">
+          <h3 className="text-2xl font-bold">Base Metrics</h3>
           {/* Exploitability Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Exploitability Metrics</h4>
-            {Object.entries(metricLabels).slice(0, 5).map(renderMetricButtons)}
-          </div>
-          {/* Vulnerable System Impact Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(5, 8).map(renderMetricButtons)}
-          </div>
-          {/* Subsequent System Impact Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
+          <div className="grid grid-cols-3">
+            <div>
+              <h4 className="text-xl font-bold">Exploitability Metrics</h4>
+              {Object.entries(metricLabels).slice(0, 5).map(renderMetricButtons)}
+            </div>
+            {/* Vulnerable System Impact Metrics */}
+            <div>
+              <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(5, 8).map(renderMetricButtons)}
+            </div>
+            {/* Subsequent System Impact Metrics */}
+            <div>
+              <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
+            </div>
           </div>
         </div>
-      </div>
+      </Grid>
 
       {/* Supplemental Metrics */}
-      <div className="grid grid-cols-[2fr,1fr] p-6 pt-0">
-        <div>
+      <Grid>
+        <div className="rounded-2xl border p-4">
           <h3 className="text-2xl font-bold">Supplemental Metrics</h3>
           <div className="grid grid-cols-2">
             <div>{Object.entries(metricLabels).slice(26, 29).map(renderMetricButtons)}</div>
             <div>{Object.entries(metricLabels).slice(29, 32).map(renderMetricButtons)}</div>
           </div>
         </div>
+      </Grid>
 
-        {/* Threat Metrics */}
-        <div>
+      {/* Environmental (Modified Base Metrics) */}
+      <Grid>
+        <div className="rounded-2xl border p-4">
+          <h3 className="text-2xl font-bold">Environmental (Modified Base Metrics)</h3>
+          <div className="grid grid-cols-3">
+            {/* Exploitability Metrics */}
+            <div>
+              <h4 className="text-xl font-bold">Exploitability Metrics</h4>
+              {Object.entries(metricLabels).slice(16, 20).map(renderMetricButtons)}
+            </div>
+            {/* Vulnerable System Impact Metrics */}
+            <div>
+              <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(20, 23).map(renderMetricButtons)}
+            </div>
+            {/* Subsequent System Impact Metrics */}
+            <div>
+              <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(23, 26).map(renderMetricButtons)}
+            </div>
+          </div>
+        </div>
+      </Grid>
+
+      {/* Environmental (Security Requirements) */}
+      <Grid>
+        <div className="rounded-2xl border p-4">
+          <h3 className="text-2xl font-bold">Environmental (Security Requirements)</h3>
+          <Grid className="grid-cols-3">{Object.entries(metricLabels).slice(12, 15).map(renderMetricButtons)}</Grid>
+        </div>
+      </Grid>
+      {/* Threat Metrics */}
+      <Grid>
+        <div className="rounded-2xl border p-4">
           <h3 className="text-2xl font-bold">Threat Metrics</h3>
           <div className="flex flex-col">{Object.entries(metricLabels).slice(11, 12).map(renderMetricButtons)}</div>
         </div>
-      </div>
-
-      {/* Environmental (Modified Base Metrics) */}
-      <div className="p-6 pt-0">
-        <h3 className="text-2xl font-bold">Environmental (Modified Base Metrics)</h3>
-        <div className="grid grid-cols-3">
-          {/* Exploitability Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Exploitability Metrics</h4>
-            {Object.entries(metricLabels).slice(16, 20).map(renderMetricButtons)}
-          </div>
-          {/* Vulnerable System Impact Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Vulnerable System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(20, 23).map(renderMetricButtons)}
-          </div>
-          {/* Subsequent System Impact Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Subsequent System Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(23, 26).map(renderMetricButtons)}
-          </div>
-        </div>
-      </div>
-
-      {/* Environmental (Security Requirements) */}
-      <div className="p-6 pt-0">
-        <h3 className="text-2xl font-bold">Environmental (Security Requirements)</h3>
-        <Grid className="grid-cols-3">{Object.entries(metricLabels).slice(12, 15).map(renderMetricButtons)}</Grid>
-      </div>
-    </>
+      </Grid>
+    </Grid>
   );
 
   function renderMetricButtons([metricKey, metricLabel]) {
     return (
-      <Buttons key={metricKey} label={metricLabel}>
-        {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
-          <Button
-            small
-            type={selectedValues[metricKey] === optionKey ? "primary" : "secondary"}
-            text={`${optionLabel} (${optionKey})`}
-            onClick={() => handleChange(metricKey, optionKey)}
-            key={`${optionLabel}-optionKey`}
-          />
-        ))}
-      </Buttons>
+      <div className="pt-2">
+        <Buttons key={metricKey} label={metricLabel}>
+          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
+            <Button
+              small
+              type={selectedValues[metricKey] === optionKey ? "primary" : "secondary"}
+              text={`${optionLabel} (${optionKey})`}
+              onClick={() => handleChange(metricKey, optionKey)}
+              key={`${optionLabel}-optionKey`}
+            />
+          ))}
+        </Buttons>
+      </div>
     );
   }
 };
