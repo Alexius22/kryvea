@@ -62,63 +62,72 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
   };
 
   return (
-    <>
-      <div className="grid grid-cols-[2fr,1fr] p-6 pt-0">
-        {/* Base Score Metrics */}
-        <div>
+    <Grid className="p-4 pt-0">
+      {/* Base Score Metrics */}
+      <Grid>
+        <div className="rounded-2xl border p-4">
           <h3 className="text-2xl font-bold">Base Score Metrics</h3>
-          <div className="grid grid-cols-2">
+          <Grid className="grid-cols-2">
             <div>{Object.entries(metricLabels).slice(0, 4).map(renderMetricButtons)}</div>
             <div>{Object.entries(metricLabels).slice(4, 8).map(renderMetricButtons)}</div>
-          </div>
+          </Grid>
         </div>
+      </Grid>
 
-        {/* Temporal Score Metrics */}
-        <div>
+      {/* Temporal Score Metrics */}
+      <Grid>
+        <div className="rounded-2xl border p-4">
           <h3 className="text-2xl font-bold">Temporal Score Metrics</h3>
-          <div className="flex flex-col">{Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}</div>
+          {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
         </div>
-      </div>
+      </Grid>
 
       {/* Environmental Score Metrics */}
-      <div className="p-6 pt-0">
-        <h3 className="text-2xl font-bold">Environmental Score Metrics</h3>
-        <div className="grid grid-cols-3">
-          {/* Exploitability Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Exploitability Metrics</h4>
-            {Object.entries(metricLabels).slice(11, 16).map(renderMetricButtons)}
-          </div>
+      <Grid>
+        <div className="rounded-2xl border p-4">
+          <h3 className="text-2xl font-bold">Environmental Score Metrics</h3>
+          <div className="grid grid-cols-[1fr_2.5rem_1fr_1fr]">
+            {/* Exploitability Metrics */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Exploitability Metrics</h4>
+              {Object.entries(metricLabels).slice(11, 16).map(renderMetricButtons)}
+            </div>
 
-          {/* Impact Metrics */}
-          <div>
-            <h4 className="text-xl font-bold">Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(16, 19).map(renderMetricButtons)}
-          </div>
+            {/* Spacer column */}
+            <div></div>
 
-          {/* Impact Subscore Modifiers */}
-          <div>
-            <h4 className="text-xl font-bold">Impact Subscore Modifiers</h4>
-            {Object.entries(metricLabels).slice(19).map(renderMetricButtons)}
+            {/* Impact Metrics */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(16, 19).map(renderMetricButtons)}
+            </div>
+
+            {/* Impact Subscore Modifiers */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Impact Subscore Modifiers</h4>
+              <div>{Object.entries(metricLabels).slice(19).map(renderMetricButtons)}</div>
+            </div>
           </div>
         </div>
-      </div>
-    </>
+      </Grid>
+    </Grid>
   );
 
   function renderMetricButtons([metricKey, metricLabel]) {
     return (
-      <Buttons key={metricKey} label={metricLabel} className="">
-        {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
-          <Button
-            small
-            type={optionKey === selectedValues[metricKey] ? "primary" : "secondary"}
-            onClick={() => handleChange(metricKey, optionKey)}
-            key={`${optionKey}-optionKey`}
-            text={`${optionObj} (${optionKey})`}
-          />
-        ))}
-      </Buttons>
+      <div className="pt-2">
+        <Buttons key={metricKey} label={metricLabel}>
+          {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
+            <Button
+              small
+              type={optionKey === selectedValues[metricKey] ? "primary" : "secondary"}
+              onClick={() => handleChange(metricKey, optionKey)}
+              key={`${optionKey}-optionKey`}
+              text={`${optionObj} (${optionKey})`}
+            />
+          ))}
+        </Buttons>
+      </div>
     );
   }
 };
