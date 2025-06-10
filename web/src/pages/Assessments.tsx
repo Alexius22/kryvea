@@ -2,12 +2,12 @@ import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTab
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import { formatDate } from "../components/DateUtils";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
@@ -147,14 +147,14 @@ const Assessments = () => {
             buttons: (
               <Buttons noWrap>
                 <Button
-                  type={assessment.is_owned ? "warning" : ""}
+                  type={assessment.is_owned ? "warning" : "primary"}
                   icon={mdiStar}
                   onClick={handleFavoriteToggle(assessment.id)}
                   small
                 />
-                <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
-                <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                <Button type="primary" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                <Button type="primary" icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
+                <Button type="primary" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
                 <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
               </Buttons>
             ),

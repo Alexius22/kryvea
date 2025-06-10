@@ -1,9 +1,9 @@
 import { mdiClose } from "@mdi/js";
 import { ReactNode } from "react";
-import Card from "./Card";
-import Buttons from "../Form/Buttons";
-import CardBoxComponentTitle from "./Title";
 import Button from "../Form/Button";
+import Buttons from "../Form/Buttons";
+import Card from "./Card";
+import CardBoxComponentTitle from "./Title";
 
 type Props = {
   title: string;
@@ -22,14 +22,14 @@ const CardBoxModal = ({ title, buttonLabel, isActive, children, className, onCon
 
   const footer = (
     <Buttons className="-ml-6">
-      <Button text={buttonLabel} onClick={onConfirm} />
+      <Button type="primary" text={buttonLabel} onClick={onConfirm} />
       {!!onCancel && <Button type="outline-only" text="Cancel" onClick={onCancel} />}
     </Buttons>
   );
 
   return (
-    <div className="fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-gradient-to-tr from-gray-400/85 via-gray-600/85 to-gray-400/85 dark:from-gray-700/85 dark:via-gray-900/85 dark:to-gray-700/85">
-      <div className={"max-h-modal w-11/12 shadow-lg transition-transform md:w-3/5 lg:w-2/5 xl:w-4/12"}>
+    <div className="card-modal fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center">
+      <div className={"max-h-modal w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
         <Card className={`${className}`} footer={footer}>
           <CardBoxComponentTitle title={title}>
             {!!onCancel && <Button icon={mdiClose} onClick={onCancel} small />}

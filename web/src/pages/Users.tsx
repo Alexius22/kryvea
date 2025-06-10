@@ -2,11 +2,11 @@ import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -136,7 +136,7 @@ const Users = () => {
               Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
+                  <Button type="primary" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
                   <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),

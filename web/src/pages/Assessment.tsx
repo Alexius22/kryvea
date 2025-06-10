@@ -126,7 +126,7 @@ const Assessment = () => {
               "CVSS Score": vulnerability.cvss_score,
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
+                  <Button type="primary" icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
                   <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
