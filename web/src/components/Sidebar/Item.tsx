@@ -73,7 +73,7 @@ export default function Item({ item, isDropdownList = false }: Props) {
       {item.menu && isDropdownActive && (
         <SidebarContent
           nestedMenu={item.menu}
-          className="aside-menu-dropdown flex flex-col gap-4 p-4 px-4"
+          className="aside-menu-dropdown flex flex-col gap-4 px-4 pt-4"
           isDropdownList
         />
       )}
