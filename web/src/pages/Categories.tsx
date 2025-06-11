@@ -57,7 +57,7 @@ const Categories = () => {
           <Form>
             <Grid className="gap-4">
               <Buttons>
-                <Button type="primary" icon={mdiDownload} text="Export categories" small onClick={() => navigate("")} />
+                <Button icon={mdiDownload} text="Export categories" small onClick={() => navigate("")} />
                 <Button
                   icon={mdiDeleteAlert}
                   type="danger"
@@ -109,7 +109,7 @@ const Categories = () => {
                 .toUpperCase(),
               buttons: (
                 <Buttons noWrap>
-                  <Button type="primary" icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
+                  <Button icon={mdiPencil} small onClick={() => navigate("/manage_category")} />
                   <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),

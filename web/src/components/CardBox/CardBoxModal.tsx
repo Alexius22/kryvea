@@ -22,7 +22,7 @@ const CardBoxModal = ({ title, buttonLabel, isActive, children, className, onCon
 
   const footer = (
     <Buttons className="-ml-6">
-      <Button type="primary" text={buttonLabel} onClick={onConfirm} />
+      <Button text={buttonLabel} onClick={onConfirm} />
       {!!onCancel && <Button type="outline-only" text="Cancel" onClick={onCancel} />}
     </Buttons>
   );

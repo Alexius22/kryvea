@@ -80,7 +80,7 @@ const Login = () => {
               </div>
             </Grid>
             <div className="pt-4">
-              <Button type="primary" text="Login" onClick={() => {}} />
+              <Button text="Login" onClick={() => {}} />
             </div>
           </Form>
         </Formik>

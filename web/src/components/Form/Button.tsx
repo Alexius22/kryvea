@@ -3,7 +3,7 @@ import Icon from "../Icon";
 interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
-  type?: "primary" | "secondary" | "warning" | "danger" | "outline-only" | "";
+  type?: "secondary" | "warning" | "danger" | "outline-only" | "";
   small?: true | "";
   text?: string;
   onClick: () => void;

@@ -102,7 +102,7 @@ const Table = ({
   return (
     <Card className={`!p-0 ${minW} ${wMin ? "w-min" : ""}`}>
       <Input
-        className="rounded-b-none rounded-t-2xl border-none focus:!ring-0 dark:bg-sky-950"
+        className="rounded-t-2xl bg-transparent focus:border-none focus:ring-0"
         placeholder="Search"
         type="text"
         value={filterText}

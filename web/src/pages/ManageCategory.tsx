@@ -104,7 +104,7 @@ const ManageCategory = () => {
             <Textarea label="References" id="references" placeholder="References here" />
             <Divider />
             <Buttons>
-              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button text="Submit" onClick={() => {}} />
               <Button type="outline-only" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>

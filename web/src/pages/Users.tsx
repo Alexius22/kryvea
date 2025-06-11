@@ -136,7 +136,7 @@ const Users = () => {
               Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
               buttons: (
                 <Buttons noWrap>
-                  <Button type="primary" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
+                  <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
                   <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),

@@ -26,7 +26,7 @@ const AddHost = () => {
             </Grid>
             <Divider />
             <Buttons>
-              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button text="Submit" onClick={() => {}} />
               <Button type="outline-only" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
