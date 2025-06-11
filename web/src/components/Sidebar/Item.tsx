@@ -1,8 +1,8 @@
-import { useState, useEffect, KeyboardEvent } from "react";
+import { mdiMinus, mdiPlus } from "@mdi/js";
+import { KeyboardEvent, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import Icon from "../Icon";
 import SidebarContent from "./SidebarContent";
-import { mdiMinus, mdiPlus } from "@mdi/js";
 
 type MenuAsideItem = {
   href?: string;
@@ -34,11 +34,7 @@ export default function Item({ item, isDropdownList = false }: Props) {
     }
   };
 
-  const baseClasses = [
-    "aside-menu-item",
-    isDropdownList ? "text-sm" : "",
-    !item.color && isLinkActive ? "aside-menu-item-active" : "",
-  ]
+  const baseClasses = [isDropdownList ? "text-sm" : "", !item.color && isLinkActive ? "aside-menu-item-active" : ""]
     .filter(Boolean)
     .join(" ");
 
@@ -51,11 +47,9 @@ export default function Item({ item, isDropdownList = false }: Props) {
   );
 
   return (
-    <li className={`rounded p-1 ${isLinkActive ? "bg-sky-400/10" : ""}`}>
+    <li className={`rounded p-1 ${isLinkActive ? "aside-menu-item-active" : ""}`}>
       {item.href ? (
-        <Link to={item.href} className="text-white">
-          {content}
-        </Link>
+        <Link to={item.href}>{content}</Link>
       ) : (
         <div
           className={baseClasses}
