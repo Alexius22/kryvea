@@ -1,62 +1,74 @@
 @import "vars.css";
 
-.body-bg-color {
-  background-color: var(--body-bg-color);
-}
 body {
-  @apply body-bg-color text-gray-900 dark:text-gray-100;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 a {
-  @apply hover:text-red-800 dark:hover:text-sky-600;
-  color: var(--a-text-color);
+  color: var(--link);
+}
+a:hover {
+  color: var(--link-hover);
 }
 
 button {
-  @apply rounded border-none bg-yellow-200 px-4 py-2 text-black hover:opacity-80 active:opacity-50 dark:bg-sky-900 dark:text-white;
+  @apply rounded border-none px-4 py-2 hover:opacity-80 active:opacity-50;
+  background-color: var(--button-bg);
 }
 button.small {
   @apply px-3 py-1 text-sm;
 }
-button.primary {
-  background-color: var(--button-primary-bg);
-}
 button.secondary {
-  background-color: var(--button-secondary-bg);
+  background-color: var(--bg-tertiary);
 }
 button.warning {
-  background-color: var(--button-warning-bg);
+  background-color: var(--warning);
 }
 button.danger {
-  background-color: var(--button-danger-bg);
+  background-color: var(--error);
 }
 button.outline-only {
   border-width: 1px;
   border-style: solid;
-  border-color: var(--button-border-color);
+  border-color: var(--border);
   background-color: transparent;
 }
 
 input {
-  @apply no-spinner h-12 rounded-md border bg-yellow-200 p-2 ring-0 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:border-sky-900/75 dark:bg-sky-700 dark:focus:ring-sky-500;
+  @apply no-spinner h-12 rounded-md border p-2 ring-0;
+  background-color: var(--bg-quaternary);
+  border: transparent;
 }
 input::placeholder,
 textarea::placeholder {
-  color: hsla(0, 0%, 90%, 0.5);
+  color: var(--text-secondary);
   font-weight: 300;
   font-style: italic;
 }
-
-textarea {
-  @apply rounded-md bg-yellow-200 p-1 px-2 focus:outline-none focus:ring-1 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--bg-accent);
+  border: 1px solid var(--border);
 }
 
-.field {
-  @apply bg-yellow-200 focus:outline-none focus:ring-0 focus:ring-yellow-100 dark:bg-sky-700 dark:focus:ring-sky-500;
+textarea {
+  @apply rounded-md p-1 px-2;
+  background-color: var(--bg-quaternary);
+}
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--border);
+  border-color: transparent;
+}
+
+.aside-menu-item-active {
+  background-color: var(--button-bg-hover);
 }
 
 .cardbox {
-  @apply rounded-2xl bg-amber-600 p-4 dark:bg-sky-950;
+  @apply rounded-2xl p-4;
+  background-color: var(--bg-secondary);
 }
 
 .card-modal {
@@ -64,5 +76,6 @@ textarea {
 }
 
 .divider {
-  @apply -mx-6 my-6 hidden border-t border-yellow-100 dark:border-slate-900 lg:block;
+  @apply -mx-6 my-6 hidden border-t lg:block;
+  border-color: var(--border);
 }

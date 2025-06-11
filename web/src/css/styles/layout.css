@@ -1,5 +1,6 @@
 .navbar {
-  @apply flex items-center justify-between px-2 py-4 text-white;
+  @apply flex items-center justify-between px-2 py-4;
+  color: var(--text-primary);
 }
 
 .layout-root {
@@ -8,7 +9,7 @@
 
 .layout-sidebar {
   @apply h-full w-full max-w-[300px] rounded-2xl transition-position;
-  background-color: var(--layout-sidebar-bg);
+  background-color: var(--bg-tertiary);
 }
 
 .layout-content {

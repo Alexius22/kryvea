@@ -9,22 +9,22 @@
 }
 
 .control__option--is-focused {
-  background-color: red;
-  color: #ffffff;
+  background-color: var(--error);
+  color: var(--text-primary);
 }
 
 .control-error {
-  border-color: var(--border-error);
-  outline-style: 1px solid var(--border-error);
+  border-color: var(--error);
+  outline-style: 1px solid var(--error);
 }
 
 .control-error:focus {
-  border-color: var(--border-error);
+  border-color: var(--error);
   outline: none;
 }
 
 .control-normal {
-  border-color: var(--border-normal);
+  border-color: var(--border);
   outline: none;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .control-bordered {
-  border: 1px solid var(--border-normal);
+  border: 1px solid var(--border);
 }
 
 .control-transparent {
@@ -49,5 +49,5 @@
 }
 
 .control-field-bg {
-  background-color: var(--field-bg-color);
+  background-color: var(--bg-secondary);
 }
