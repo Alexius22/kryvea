@@ -2,9 +2,8 @@
   width: 100%;
   overflow: hidden;
   border-radius: 0.375rem;
-  border-color: var(--border-normal);
-  border-width: 1px;
-  background-color: var(--field-bg-color);
+  border-color: transparent;
+  background-color: var(--bg-quaternary);
 }
 .wrapper {
   overflow: hidden;

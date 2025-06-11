@@ -1,11 +1,11 @@
 /* Table base styles */
 table {
-  @apply bg-yellow-400/60 dark:bg-sky-900/30;
+  background-color: var(---bg-tertiary);
 }
 
 /* Table head */
 table thead {
-  @apply bg-yellow-400/60 dark:bg-sky-700;
+  background-color: var(--bg-quaternary);
 }
 
 table th {
@@ -13,19 +13,15 @@ table th {
 }
 
 /* Table body */
-table tbody tr {
-  @apply border-yellow-400/50 dark:border-sky-600;
-}
-
 table tbody tr:hover {
   @apply brightness-[1.115];
 }
 
 table tbody tr:nth-child(even) {
-  @apply bg-yellow-400/70 dark:bg-sky-900/50;
+  background-color: var(--bg-quaternary);
 }
 table tbody tr:nth-child(odd) {
-  @apply bg-yellow-400/70 dark:bg-sky-800/50;
+  background-color: var(--bg-quinary);
 }
 
 table td {
