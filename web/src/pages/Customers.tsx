@@ -131,7 +131,7 @@ const Customers = () => {
               "Default language": languageMapping[customer.language] || customer.language,
               buttons: (
                 <Buttons noWrap>
-                  <Button type="primary" small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
+                  <Button small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
                   <Button type="danger" small onClick={() => setIsModalTrashActive(true)} icon={mdiTrashCan} />
                 </Buttons>
               ),

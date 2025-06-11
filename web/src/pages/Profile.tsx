@@ -37,7 +37,7 @@ const Profile = () => {
               <Input type="password" id="confirm_password" label="Confirm password" helperSubtitle="Required" />
             </Grid>
             <div className="pt-4">
-              <Button type="primary" text="Submit" onClick={() => {}} />
+              <Button text="Submit" onClick={() => {}} />
             </div>
           </Form>
         </Formik>

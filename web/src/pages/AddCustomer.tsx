@@ -55,7 +55,7 @@ const AddCustomer = () => {
               <Divider />
 
               <Buttons>
-                <Button type="primary" text="Submit" onClick={() => {}} />
+                <Button text="Submit" onClick={() => {}} />
                 <Button type="secondary" text="Cancel" onClick={() => {}} />
               </Buttons>
             </Grid>

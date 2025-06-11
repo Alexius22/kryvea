@@ -152,9 +152,9 @@ const Assessments = () => {
                   onClick={handleFavoriteToggle(assessment.id)}
                   small
                 />
-                <Button type="primary" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                <Button type="primary" icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
-                <Button type="primary" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
+                <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
                 <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
               </Buttons>
             ),

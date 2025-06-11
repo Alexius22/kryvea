@@ -120,7 +120,7 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
           {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
             <Button
               small
-              type={optionKey === selectedValues[metricKey] ? "primary" : "secondary"}
+              type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
               onClick={() => handleChange(metricKey, optionKey)}
               key={`${optionKey}-optionKey`}
               text={`${optionObj} (${optionKey})`}
