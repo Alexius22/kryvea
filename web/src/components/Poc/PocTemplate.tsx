@@ -42,7 +42,7 @@ export default function PocTemplate({
 
   return (
     <div
-      className={`relative flex flex-col rounded-3xl border-2 p-6 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`}
+      className={`poc-template relative flex flex-col rounded-3xl border-2 p-6 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`}
       onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
         // if ((e.target as HTMLElement).dataset.name !== "poc-template") {
         //   return;
@@ -50,7 +50,7 @@ export default function PocTemplate({
 
         // e.preventDefault();
         // e.stopPropagation();
-        dropRef.current?.classList.add("poc-template");
+        dropRef.current?.classList.add("dragged-over");
       }}
       onDragLeave={(e: React.DragEvent<HTMLDivElement>) => {
         if ((e.target as HTMLElement).dataset.name !== "poc-template") {
@@ -59,7 +59,7 @@ export default function PocTemplate({
 
         e.preventDefault();
         e.stopPropagation();
-        dropRef.current?.classList.remove("poc-template");
+        dropRef.current?.classList.remove("dragged-over");
       }}
       onDrop={handleDrop}
       onClick={() => setSelectedPoc(currentIndex)}
