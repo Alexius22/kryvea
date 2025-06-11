@@ -15,8 +15,18 @@ export default function FooterBar({ className, children }: Props) {
             <Link to="https://github.com/Alexius22/kryvea" rel="noreferrer" target="_blank">
               Kryvea
             </Link>{" "}
-            made with <span className="text-red-500 dark:text-red-500">♥</span> by
-            {" Alexius, CharminDoge and JJJJJJack"}
+            made with <span className="text-red-500 dark:text-red-500">♥</span> by{" "}
+            <Link to="https://github.com/Alexius22" rel="noreferrer" target="_blank">
+              Alexius
+            </Link>
+            {", "}
+            <Link to="https://github.com/CharminDoge" rel="noreferrer" target="_blank">
+              CharminDoge
+            </Link>
+            {" and "}
+            <Link to="https://github.com/JJJJJJack" rel="noreferrer" target="_blank">
+              Jack
+            </Link>{" "}
           </b>
           {children}
         </div>
