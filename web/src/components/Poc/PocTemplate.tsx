@@ -1,5 +1,5 @@
 import { mdiDelete } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../Form/Button";
 import Icon from "../Icon";
 
@@ -13,12 +13,16 @@ export default function PocTemplate({
   onRemovePoc,
   selectedPoc,
   setSelectedPoc,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
   children,
 }: {
   pocList: any[];
   [key: string | number | symbol]: any;
 }) {
   const [tmpPosition, setTmpPosition] = useState(currentIndex);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
@@ -37,7 +41,31 @@ export default function PocTemplate({
   };
 
   return (
-    <div className={`relative flex flex-col rounded-3xl p-6 border-2 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`} onClick={() => setSelectedPoc(currentIndex)}>
+    <div
+      className={`relative flex flex-col rounded-3xl border-2 p-6 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`}
+      onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
+        // if ((e.target as HTMLElement).dataset.name !== "poc-template") {
+        //   return;
+        // }
+
+        // e.preventDefault();
+        // e.stopPropagation();
+        dropRef.current?.classList.add("poc-template");
+      }}
+      onDragLeave={(e: React.DragEvent<HTMLDivElement>) => {
+        if ((e.target as HTMLElement).dataset.name !== "poc-template") {
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        dropRef.current?.classList.remove("poc-template");
+      }}
+      onDrop={handleDrop}
+      onClick={() => setSelectedPoc(currentIndex)}
+      ref={dropRef}
+      data-name="poc-template"
+    >
       <div className="mb-4 flex items-center gap-4">
         <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
           <Icon path={icon} size={25} />
@@ -46,7 +74,7 @@ export default function PocTemplate({
         <Button type="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex gap-6">
+        <div className="poc-template-children-sibling flex gap-6">
           <div className="col-span-1 col-start-12 grid">
             <label htmlFor={positionInputId}>Position</label>
             <input
