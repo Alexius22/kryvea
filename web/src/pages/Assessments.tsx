@@ -147,7 +147,7 @@ const Assessments = () => {
             buttons: (
               <Buttons noWrap>
                 <Button
-                  type={assessment.is_owned ? "warning" : "primary"}
+                  type={assessment.is_owned ? "warning" : ""}
                   icon={mdiStar}
                   onClick={handleFavoriteToggle(assessment.id)}
                   small
