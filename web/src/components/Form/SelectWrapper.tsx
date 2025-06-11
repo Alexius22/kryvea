@@ -72,6 +72,7 @@ export default function SelectWrapper({
         }}
         unstyled
         components={animatedComponents}
+        menuPortalTarget={document.body}
       />
     </Grid>
   );
