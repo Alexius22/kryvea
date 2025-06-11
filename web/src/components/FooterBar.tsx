@@ -8,7 +8,7 @@ type Props = {
 
 export default function FooterBar({ className, children }: Props) {
   return (
-    <footer className={`${className} font-thin text-gray-500 dark:text-slate-600`}>
+    <footer className={`${className} font-light italic`}>
       <div className="flex justify-between">
         <div>
           <b>
