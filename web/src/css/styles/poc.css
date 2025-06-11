@@ -11,3 +11,7 @@
 .poc-img {
   @apply max-h-[550px] max-w-[1/2] rounded-lg;
 }
+
+.poc-template:has(.poc-template-children-sibling ~ .poc-image) {
+  background-color: red;
+}

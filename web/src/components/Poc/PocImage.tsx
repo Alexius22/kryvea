@@ -29,6 +29,23 @@ export default function PocImage({
   const [imageUrl, setImageUrl] = useState<string>();
   const imageInput = useRef<HTMLInputElement>(null);
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type === "image/png" || file.type === "image/jpeg") {
+        const reader = new FileReader();
+        reader.onload = () => {
+          console.log("File dropped:", file);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
   useEffect(() => {
     if (selectedPoc !== currentIndex) return;
     const handlePaste = (e: ClipboardEvent) => {
@@ -38,7 +55,7 @@ export default function PocImage({
       for (const item of items) {
         if (item.kind === "file") {
           const file = item.getAsFile();
-          
+
           if (!file || (file.type !== "image/png" && file.type !== "image/jpeg")) {
             continue;
           }
@@ -100,7 +117,7 @@ export default function PocImage({
         title: "Image",
       }}
     >
-      <div className="col-span-8 grid">
+      <div className="col-span-8 grid poc-image">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
           value={pocDoc.description}
@@ -110,7 +127,14 @@ export default function PocImage({
       </div>
 
       <div className="col-span-4 grid gap-4">
-        <label htmlFor={imageInputId} onClick={(e) => {e.preventDefault()}}>Choose Image</label>
+        <label
+          htmlFor={imageInputId}
+          onClick={e => {
+            e.preventDefault();
+          }}
+        >
+          Choose Image
+        </label>
         <div className="flex gap-4">
           <input
             ref={imageInput}
