@@ -12,6 +12,9 @@
   @apply max-h-[550px] max-w-[1/2] rounded-lg;
 }
 
-.poc-template:has(.poc-template-children-sibling ~ .poc-image) {
+.poc-template {
+  background-color: var(--bg-tertiary);
+}
+.poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
   background-color: red;
 }

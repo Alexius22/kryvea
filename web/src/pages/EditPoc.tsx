@@ -183,7 +183,7 @@ const EditPoc = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="body-bg-color sticky top-0 z-10 rounded-b-3xl">
+      <div className="sticky top-0 z-10 rounded-b-3xl bg-[color:--bg-primary]">
         <Card className="border-2 border-sky-700/50">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
