@@ -75,7 +75,10 @@ export default function PocTemplate({
       ref={dropRef}
       data-name="poc-template"
     >
-      <div className="drop-image-over-hinter" />
+      <div className="drop-image-over-hinter">
+        <br />
+        Drop image here
+      </div>
       <div className="mb-4 flex items-center gap-4">
         <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
           <Icon path={icon} size={25} />

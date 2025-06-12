@@ -8,11 +8,13 @@
   border-color: var(--border);
 }
 
-.dragging .poc-template:not(.dragged-over):has(.poc-image) .drop-image-over-hinter {
-  @apply absolute left-0 top-0 inline h-full w-full animate-pulse bg-[color:--bg-secondary] opacity-30;
+.dragging .poc-template:has(.poc-image) .drop-image-over-hinter {
+  @apply absolute left-0 top-0 flex h-full w-full animate-pulse bg-[color:--bg-secondary] opacity-30;
 }
 .drop-image-over-hinter {
-  @apply hidden rounded-3xl border-2 border-dashed;
+  @apply hidden items-center justify-center rounded-3xl border-2 border-dashed;
+  font-size: 1.75rem;
+  color: var(--text-secondary);
 }
 
 .poc-img {
