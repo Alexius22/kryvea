@@ -64,7 +64,7 @@ export default function PocRequestResponse({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <div className="grid">
           <label htmlFor={requestTextareaId}>Request</label>
           <textarea
