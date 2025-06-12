@@ -83,3 +83,14 @@ textarea:focus {
   @apply -mx-6 my-6 hidden border-t lg:block;
   border-color: var(--border);
 }
+
+.heart {
+  @apply inline-block;
+  translate: 0 0%;
+  scale: 1;
+}
+.heart.heart-up {
+  @apply inline-block;
+  translate: 0 -100%;
+  scale: 3;
+}
