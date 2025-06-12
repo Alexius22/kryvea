@@ -1,21 +1,37 @@
-import { ReactNode } from "react";
+import { useRef } from "react";
 import { Link } from "react-router";
 
 type Props = {
   className?: string;
-  children: ReactNode;
 };
 
-export default function FooterBar({ className, children }: Props) {
+export default function FooterBar({ className }: Props) {
+  const heartRef = useRef(null);
+
   return (
-    <footer className={`${className} font-light italic`}>
+    <footer className={`${className} select-none font-light italic`}>
       <div className="flex justify-between">
-        <div>
+        <div
+          onMouseOver={() => {
+            if (heartRef.current) {
+              heartRef.current.classList.add("heart-up");
+            }
+          }}
+          onMouseOut={() => {
+            if (heartRef.current) {
+              heartRef.current.classList.remove("heart-up");
+            }
+          }}
+        >
           <b>
             <Link to="https://github.com/Alexius22/kryvea" rel="noreferrer" target="_blank">
               Kryvea
             </Link>{" "}
-            made with <span className="text-red-500 dark:text-red-500">♥</span> by{" "}
+            made with{" "}
+            <span ref={heartRef} className="heart text-red-500 transition-all dark:text-red-500">
+              ♥
+            </span>{" "}
+            by{" "}
             <Link to="https://github.com/Alexius22" rel="noreferrer" target="_blank">
               Alexius
             </Link>
@@ -28,7 +44,6 @@ export default function FooterBar({ className, children }: Props) {
               Jack
             </Link>{" "}
           </b>
-          {children}
         </div>
         <div>
           <b>Version</b>: development

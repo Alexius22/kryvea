@@ -14,9 +14,7 @@ export default function LayoutAuthenticated() {
         </NavBar>
         <main className="layout-main">
           <Outlet />
-          <FooterBar>
-            <a target="_blank" rel="noreferrer"></a>
-          </FooterBar>
+          <FooterBar />
         </main>
       </div>
     </div>
