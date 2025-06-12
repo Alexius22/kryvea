@@ -44,7 +44,7 @@ export default function PocRequestResponse({
         title: "Request/Response",
       }}
     >
-      <div className="col-span-8 grid">
+      <div className="poc-request-response col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
           className=""

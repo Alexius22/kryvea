@@ -49,7 +49,7 @@ export default function PocText({
         title: "Text",
       }}
     >
-      <div className="col-span-8 grid">
+      <div className="poc-text col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
           className=""
