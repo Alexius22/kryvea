@@ -1,10 +1,9 @@
 import { mdiPencil } from "@mdi/js";
 import React, { useState } from "react";
-import Icon from "../Icon";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+import SelectWrapper from "../Form/SelectWrapper";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
-import SelectWrapper from "../Form/SelectWrapper";
-import { SelectOption } from "../Form/SelectWrapper.types";
 
 type PocTextProps = {
   pocDoc: PocTextDoc;
@@ -73,12 +72,28 @@ export default function PocText({
 
       <div className="col-span-4 grid">
         <label htmlFor={textInputId}>Text</label>
-        <textarea
+        <CodeMirror
+          value="<p>Write your text here...</p>"
+          options={{
+            mode: "html",
+            theme: "material",
+            lineNumbers: true,
+          }}
+          onChange={(editor, data, value) => {
+            onTextChange<PocTextDoc>(
+              currentIndex,
+              "text"
+            )({
+              target: { value },
+            } as any);
+          }}
+        />
+        {/* <textarea
           id={textInputId}
           className=""
           value={pocDoc.text}
           onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
-        />
+        /> */}
       </div>
     </PocTemplate>
   );
