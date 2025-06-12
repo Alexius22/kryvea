@@ -201,7 +201,7 @@ const EditPoc = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="sticky top-0 z-10 rounded-b-3xl bg-[color:--bg-primary]">
-        <Card className="border-2 border-[color:--bg-quinary]">
+        <Card className="border-2 border-[color:--border]">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />

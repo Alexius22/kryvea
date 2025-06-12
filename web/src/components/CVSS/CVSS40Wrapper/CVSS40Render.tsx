@@ -92,7 +92,7 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
     <Grid className="p-4 pt-0">
       {/* Base Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Base Metrics</h3>
           {/* Exploitability Metrics */}
           <div className="grid grid-cols-3">
@@ -116,7 +116,7 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
       {/* Supplemental Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Supplemental Metrics</h3>
           <div className="grid grid-cols-2">
             <div>{Object.entries(metricLabels).slice(26, 29).map(renderMetricButtons)}</div>
@@ -127,7 +127,7 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
       {/* Environmental (Modified Base Metrics) */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Environmental (Modified Base Metrics)</h3>
           <div className="grid grid-cols-3">
             {/* Exploitability Metrics */}
@@ -151,14 +151,14 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
       {/* Environmental (Security Requirements) */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Environmental (Security Requirements)</h3>
           <Grid className="grid-cols-3">{Object.entries(metricLabels).slice(12, 15).map(renderMetricButtons)}</Grid>
         </div>
       </Grid>
       {/* Threat Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Threat Metrics</h3>
           <div className="flex flex-col">{Object.entries(metricLabels).slice(11, 12).map(renderMetricButtons)}</div>
         </div>

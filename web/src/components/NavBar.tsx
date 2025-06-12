@@ -22,7 +22,7 @@ export default function NavBar({ children }: Props) {
         </a>
 
         <button onClick={() => setDarkMode(!darkMode)} className="flex items-center gap-x-2 !bg-transparent">
-          <Icon path={mdiThemeLightDark} />
+          <Icon path={mdiThemeLightDark} className="text-[color:--link]" />
         </button>
 
         <a href="/login" className="flex items-center gap-x-2">
