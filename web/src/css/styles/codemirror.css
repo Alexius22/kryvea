@@ -1,2 +1,2 @@
 @import "codemirror/lib/codemirror.css";
-@import "codemirror/theme/material.css";
+@import "../../../node_modules/codemirror/theme/gruvbox-dark.css";
