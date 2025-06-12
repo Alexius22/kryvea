@@ -29,20 +29,24 @@ export default function PocImage({
   const [imageUrl, setImageUrl] = useState<string>();
   const imageInput = useRef<HTMLInputElement>(null);
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
+    document.dispatchEvent(new MouseEvent("dragend", { bubbles: true }));
+    pocTemplateRef.current?.classList.remove("dragged-over");
+
+    // onImageChangeWrapper(e as any);
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
       if (file.type === "image/png" || file.type === "image/jpeg") {
         const reader = new FileReader();
-        reader.onload = () => {
-          console.log("File dropped:", file);
-        };
         reader.readAsDataURL(file);
       }
+
+      setImageUrl(URL.createObjectURL(file));
+      onImageChange(currentIndex, file);
     }
   };
 
@@ -109,6 +113,7 @@ export default function PocImage({
         pocDoc,
         currentIndex,
         pocList,
+        handleDrop,
         icon: mdiImage,
         onPositionChange,
         onRemovePoc,
@@ -117,7 +122,7 @@ export default function PocImage({
         title: "Image",
       }}
     >
-      <div className="col-span-8 grid poc-image">
+      <div className="poc-image col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
           value={pocDoc.description}

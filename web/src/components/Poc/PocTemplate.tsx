@@ -15,7 +15,7 @@ export default function PocTemplate({
   setSelectedPoc,
   handleDragOver,
   handleDragLeave,
-  handleDrop,
+  handleDrop = () => () => {},
   children,
 }: {
   pocList: any[];
@@ -27,6 +27,15 @@ export default function PocTemplate({
   useEffect(() => {
     setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
   }, [currentIndex]);
+  useEffect(() => {
+    const handleDragEnd = () => {
+      dropRef.current?.classList.remove("dragged-over");
+    };
+    document.addEventListener("dragend", handleDragEnd);
+    return () => {
+      document.addEventListener("dragend", handleDragEnd);
+    };
+  }, []);
 
   const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
 
@@ -42,14 +51,14 @@ export default function PocTemplate({
 
   return (
     <div
-      className={`poc-template relative flex flex-col rounded-3xl border-2 p-6 ${selectedPoc === currentIndex ? "border-blue-500" : "border-transparent"}`}
+      className={`poc-template`}
       onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
         // if ((e.target as HTMLElement).dataset.name !== "poc-template") {
         //   return;
         // }
 
-        // e.preventDefault();
-        // e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         dropRef.current?.classList.add("dragged-over");
       }}
       onDragLeave={(e: React.DragEvent<HTMLDivElement>) => {
@@ -61,11 +70,12 @@ export default function PocTemplate({
         e.stopPropagation();
         dropRef.current?.classList.remove("dragged-over");
       }}
-      onDrop={handleDrop}
+      onDrop={handleDrop(dropRef)}
       onClick={() => setSelectedPoc(currentIndex)}
       ref={dropRef}
       data-name="poc-template"
     >
+      <div className="drop-image-over-hinter" />
       <div className="mb-4 flex items-center gap-4">
         <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
           <Icon path={icon} size={25} />

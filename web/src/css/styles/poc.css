@@ -8,13 +8,22 @@
   border-color: var(--border);
 }
 
+.dragging .poc-template:not(.dragged-over):has(.poc-image) .drop-image-over-hinter {
+  @apply absolute left-0 top-0 inline h-full w-full animate-pulse bg-[color:--bg-secondary] opacity-30;
+}
+.drop-image-over-hinter {
+  @apply hidden rounded-3xl border-2 border-dashed;
+}
+
 .poc-img {
   @apply max-h-[550px] max-w-[1/2] rounded-lg;
 }
 
 .poc-template {
+  @apply cardbox relative flex flex-col border-2 p-6;
+  border-color: var(--bg-quaternary);
   background-color: var(--bg-tertiary);
 }
 .poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
-  background-color: red;
+  background-color: var(--bg-quinary);
 }
