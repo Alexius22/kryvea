@@ -1,5 +1,5 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -15,8 +15,25 @@ const EditPoc = () => {
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
 
+  const pocListParent = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
+  }, []);
+  useEffect(() => {
+    const handleDragStart = () => {
+      pocListParent.current?.classList.add("dragging");
+    };
+    const handleDragEnd = () => {
+      pocListParent.current?.classList.remove("dragging");
+    };
+    document.addEventListener("dragover", handleDragStart);
+    document.addEventListener("dragend", handleDragEnd);
+    document.addEventListener("visibilitychange", handleDragEnd);
+    return () => {
+      document.removeEventListener("dragstart", handleDragStart);
+      document.removeEventListener("visibilitychange", handleDragEnd);
+    };
   }, []);
 
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
@@ -184,7 +201,7 @@ const EditPoc = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="sticky top-0 z-10 rounded-b-3xl bg-[color:--bg-primary]">
-        <Card className="border-2 border-sky-700/50">
+        <Card className="border-2 border-[color:--bg-quinary]">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
@@ -194,7 +211,9 @@ const EditPoc = () => {
           </Buttons>
         </Card>
       </div>
-      <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
+      <div ref={pocListParent} className="relative flex w-full flex-col gap-3">
+        {pocList.map(switchPocType)}
+      </div>
     </div>
   );
 };
