@@ -2,6 +2,8 @@ import { mdiImage } from "@mdi/js";
 import React, { useEffect, useRef, useState } from "react";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
+import Button from "../Form/Button";
+import Card from "../CardBox/Card";
 
 export type PocImageProps = {
   pocDoc: PocImageDoc;
@@ -27,6 +29,7 @@ export default function PocImage({
   setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
+  const [filename, setFilename] = useState("No file chosen");
   const imageInput = useRef<HTMLInputElement>(null);
 
   const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
@@ -45,6 +48,7 @@ export default function PocImage({
         reader.readAsDataURL(file);
       }
 
+      setFilename(file.name);
       setImageUrl(URL.createObjectURL(file));
       onImageChange(currentIndex, file);
     }
@@ -93,12 +97,14 @@ export default function PocImage({
 
     const image: File = files[0];
 
+    setFilename(image.name);
     setImageUrl(URL.createObjectURL(image));
     onImageChange(currentIndex, image);
   };
 
   const clearImage = () => {
     imageInput.current.value = "";
+    setFilename("No file chosen");
     setImageUrl(null);
     onImageChange(currentIndex, null);
   };
@@ -141,32 +147,35 @@ export default function PocImage({
           Choose Image
         </label>
         <div className="flex gap-4">
+          <label
+            className="flex h-12 w-1/2 min-w-40 items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2"
+            htmlFor={imageInputId}
+          >
+            <span className="shrink-0 text-nowrap rounded-sm border border-gray-500 bg-neutral-200 px-[6px] py-[1px] text-black">
+              Choose File
+            </span>
+            <span className="truncate">{filename}</span>
+          </label>
           <input
             ref={imageInput}
-            className="max-w-96"
+            className="hidden"
             type="file"
             name="myImage"
             accept="image/png, image/jpeg"
             id={imageInputId}
             onChange={onImageChangeWrapper}
           />
-          <button
-            className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600 dark:bg-red-500"
-            onClick={clearImage}
-            type="button"
-          >
-            Clear Image
-          </button>
+          <Button text="Clear Image" className="rounded-xl text-white" onClick={clearImage} type="danger" />
         </div>
 
         {imageUrl && (
-          <div className="flex w-fit flex-col gap-2 rounded-2xl bg-slate-100/75 p-3 dark:bg-slate-800/75">
+          <Card className="w-fit !bg-[color:--bg-secondary]">
             <img
               src={imageUrl}
               alt="Selected image preview"
-              className="max-h-[550px] w-full rounded-2xl object-contain"
+              className="max-h-[550px] w-full rounded-3xl object-contain"
             />
-          </div>
+          </Card>
         )}
       </div>
 

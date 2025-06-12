@@ -51,7 +51,7 @@ export default function PocTemplate({
 
   return (
     <div
-      className={`poc-template`}
+      className="poc-template"
       onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
         // if ((e.target as HTMLElement).dataset.name !== "poc-template") {
         //   return;
