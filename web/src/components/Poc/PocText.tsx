@@ -71,26 +71,27 @@ export default function PocText({
         />
       </div>
 
-      <div className="col-span-4 grid w-1/5">
+      <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
-        <CodeMirror
-          className="border-2 border-[color:--bg-quinary]"
-          value="<p>Write your text here...</p>"
-          options={{
-            mode: "htmlmixed",
-            theme: "gruvbox-dark",
-            lineNumbers: true,
-            lineWrapping: true,
-          }}
-          onChange={(editor, data, value) => {
-            onTextChange<PocTextDoc>(
-              currentIndex,
-              "text"
-            )({
-              target: { value },
-            } as any);
-          }}
-        />
+        <div className="w-full max-w-full overflow-auto border-2 border-[color:--bg-quinary]" style={{ width: "100%" }}>
+          <CodeMirror
+            value="<p>Write your text here...</p>"
+            options={{
+              mode: "htmlmixed",
+              theme: "gruvbox-dark",
+              lineNumbers: true,
+              // lineWrapping: true,
+            }}
+            onChange={(_, __, value) => {
+              onTextChange<PocTextDoc>(
+                currentIndex,
+                "text"
+              )({
+                target: { value },
+              } as any);
+            }}
+          />
+        </div>
         {/* <textarea
           id={textInputId}
           className=""
