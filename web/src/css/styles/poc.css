@@ -22,10 +22,10 @@
 }
 
 .poc-template {
-  @apply cardbox relative flex flex-col border-2 p-6;
-  border-color: var(--bg-quaternary);
+  @apply cardbox relative flex flex-col border p-6;
+  border-color: var(--border);
   background-color: var(--bg-tertiary);
 }
 .poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
-  background-color: var(--bg-quinary);
+  background-color: var(--bg-quaternary);
 }
