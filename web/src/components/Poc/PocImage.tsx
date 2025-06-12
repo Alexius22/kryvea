@@ -68,6 +68,7 @@ export default function PocImage({
             continue;
           }
 
+          setFilename(file.name);
           setImageUrl(URL.createObjectURL(file));
           onImageChange(currentIndex, file);
         }
