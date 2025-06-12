@@ -67,7 +67,7 @@ textarea:focus {
 }
 
 .cardbox {
-  @apply rounded-2xl p-4;
+  @apply rounded-3xl p-4;
   background-color: var(--bg-secondary);
 }
 
