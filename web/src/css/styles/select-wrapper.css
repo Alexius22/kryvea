@@ -45,8 +45,7 @@
 }
 
 .select-wrapper__option--is-focused {
-  background-color: var(--button-bg-hover);
-  color: var(--button-text);
+  background-color: var(--bg-active);
 }
 
 .select-wrapper__option:active {

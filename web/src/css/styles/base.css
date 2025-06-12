@@ -20,7 +20,7 @@ button.small {
   @apply px-3 py-1 text-sm;
 }
 button.secondary {
-  background-color: var(--bg-tertiary);
+  background-color: var(--button-bg-secondary);
 }
 button.warning {
   background-color: var(--warning);
@@ -48,7 +48,6 @@ textarea::placeholder {
 }
 input:focus {
   outline: none;
-  box-shadow: 0 0 0 1px var(--bg-accent);
   border: 1px solid var(--border);
 }
 
@@ -63,7 +62,7 @@ textarea:focus {
 }
 
 .aside-menu-item-active {
-  background-color: var(--button-bg-hover);
+  background-color: var(--bg-active);
 }
 
 .cardbox {
@@ -72,7 +71,12 @@ textarea:focus {
 }
 
 .card-modal {
-  @apply bg-gradient-to-tr from-gray-400/85 via-gray-600/85 to-gray-400/85 dark:from-gray-700/85 dark:via-gray-900/85 dark:to-gray-700/85;
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(var(--bg-primary), 0.85),
+    rgba(var(--bg-tertiary), 0.85),
+    rgba(var(--bg-quaternary), 0.85)
+  );
 }
 
 .divider {
