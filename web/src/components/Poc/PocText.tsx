@@ -4,6 +4,7 @@ import { UnControlled as CodeMirror } from "react-codemirror2";
 import SelectWrapper from "../Form/SelectWrapper";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
+import "codemirror/mode/htmlmixed/htmlmixed";
 
 type PocTextProps = {
   pocDoc: PocTextDoc;
@@ -70,14 +71,16 @@ export default function PocText({
         />
       </div>
 
-      <div className="col-span-4 grid">
+      <div className="col-span-4 grid w-1/5">
         <label htmlFor={textInputId}>Text</label>
         <CodeMirror
+          className="border-2 border-[color:--bg-quinary]"
           value="<p>Write your text here...</p>"
           options={{
-            mode: "html",
-            theme: "material",
+            mode: "htmlmixed",
+            theme: "gruvbox-dark",
             lineNumbers: true,
+            lineWrapping: true,
           }}
           onChange={(editor, data, value) => {
             onTextChange<PocTextDoc>(
