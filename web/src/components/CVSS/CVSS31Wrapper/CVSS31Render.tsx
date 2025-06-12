@@ -65,7 +65,7 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
     <Grid className="p-4 pt-0">
       {/* Base Score Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Base Score Metrics</h3>
           <Grid className="grid-cols-2">
             <div>{Object.entries(metricLabels).slice(0, 4).map(renderMetricButtons)}</div>
@@ -76,7 +76,7 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
       {/* Temporal Score Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Temporal Score Metrics</h3>
           {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
         </div>
@@ -84,7 +84,7 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
 
       {/* Environmental Score Metrics */}
       <Grid>
-        <div className="rounded-2xl border p-4">
+        <div className="rounded-2xl border border-[color:--border] p-4">
           <h3 className="text-2xl font-bold">Environmental Score Metrics</h3>
           <div className="grid grid-cols-[1fr_2.5rem_1fr_1fr]">
             {/* Exploitability Metrics */}

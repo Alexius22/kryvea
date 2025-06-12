@@ -73,7 +73,7 @@ export default function PocText({
 
       <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
-        <div className="w-full max-w-full overflow-auto border-2 border-[color:--bg-quinary]" style={{ width: "100%" }}>
+        <div className="w-full max-w-full overflow-auto border border-[color:--border]" style={{ width: "100%" }}>
           <CodeMirror
             value="<p>Write your text here...</p>"
             options={{

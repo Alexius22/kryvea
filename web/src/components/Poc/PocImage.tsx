@@ -151,7 +151,7 @@ export default function PocImage({
             className="flex h-12 w-1/2 min-w-40 items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2"
             htmlFor={imageInputId}
           >
-            <span className="shrink-0 text-nowrap rounded-sm border border-gray-500 bg-neutral-200 px-[6px] py-[1px] text-black">
+            <span className="shrink-0 text-nowrap rounded-md border border-[color:--border] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
               Choose File
             </span>
             <span className="truncate">{filename}</span>
@@ -165,7 +165,7 @@ export default function PocImage({
             id={imageInputId}
             onChange={onImageChangeWrapper}
           />
-          <Button text="Clear Image" className="rounded-xl text-white" onClick={clearImage} type="danger" />
+          <Button text="Clear Image" className="rounded-xl" onClick={clearImage} type="danger" />
         </div>
 
         {imageUrl && (
