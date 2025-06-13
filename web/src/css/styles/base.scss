@@ -1,5 +1,3 @@
-@use "vars.scss";
-
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -73,9 +71,9 @@ textarea:focus {
 .card-modal {
   background-image: linear-gradient(
     to bottom right,
-    rgba(var(--bg-primary), 0.85),
-    rgba(var(--bg-tertiary), 0.85),
-    rgba(var(--bg-quaternary), 0.85)
+    rgba(var(--bg-primary-rgb), 0.85),
+    rgba(var(--bg-tertiary-rgb), 0.85),
+    rgba(var(--bg-quaternary-rgb), 0.85)
   );
 }
 
