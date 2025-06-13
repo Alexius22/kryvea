@@ -23,19 +23,20 @@ export default function PocTemplate({
 }) {
   const [tmpPosition, setTmpPosition] = useState(currentIndex);
   const dropRef = useRef<HTMLDivElement>(null);
+  const dragCounter = useRef(0);
 
   useEffect(() => {
     setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
   }, [currentIndex]);
-  useEffect(() => {
-    const handleDragEnd = () => {
-      dropRef.current?.classList.remove("dragged-over");
-    };
-    document.addEventListener("dragend", handleDragEnd);
-    return () => {
-      document.addEventListener("dragend", handleDragEnd);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleDragEnd = () => {
+  //     dropRef.current?.classList.remove("dragged-over");
+  //   };
+  //   document.addEventListener("dragend", handleDragEnd);
+  //   return () => {
+  //     document.addEventListener("dragend", handleDragEnd);
+  //   };
+  // }, []);
 
   const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
 
@@ -51,26 +52,32 @@ export default function PocTemplate({
 
   return (
     <div
-      className="poc-template"
-      onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
-        // if ((e.target as HTMLElement).dataset.name !== "poc-template") {
-        //   return;
-        // }
-
+      className={`poc-template ${selectedPoc === currentIndex ? "!border-[color:--border-highlight]" : ""}`}
+      onDragEnter={e => {
         e.preventDefault();
         e.stopPropagation();
+        dragCounter.current++;
         dropRef.current?.classList.add("dragged-over");
       }}
-      onDragLeave={(e: React.DragEvent<HTMLDivElement>) => {
-        if ((e.target as HTMLElement).dataset.name !== "poc-template") {
-          return;
-        }
-
+      onDragLeave={e => {
         e.preventDefault();
         e.stopPropagation();
-        dropRef.current?.classList.remove("dragged-over");
+        dragCounter.current--;
+        if (dragCounter.current === 0) {
+          dropRef.current?.classList.remove("dragged-over");
+        }
       }}
-      onDrop={handleDrop(dropRef)}
+      onDrop={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter.current = 0;
+        dropRef.current?.classList.remove("dragged-over");
+        handleDrop(dropRef)(e); // Pass event down
+      }}
+      onDragOver={e => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       onClick={() => setSelectedPoc(currentIndex)}
       ref={dropRef}
       data-name="poc-template"

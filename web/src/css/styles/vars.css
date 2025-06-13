@@ -4,6 +4,7 @@
   --bg-secondary: #e0e0e0;
   --bg-tertiary: #cccccc;
   --bg-quaternary: #cacaca;
+  --bg-quinary: #b0b0b0;
   --bg-active: #b0b0b0;
 
   /* Text */
@@ -39,7 +40,8 @@ html.dark {
   --text-disabled: #555555;
 
   /* Borders and Dividers */
-  --border: #f3a5a5;
+  --border: #bdbdbd30;
+  --border-highlight: #bdbdbd77;
 
   /* Links and Interactive Elements */
   --link: #ebbebe;

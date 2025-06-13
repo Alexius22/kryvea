@@ -8,6 +8,10 @@
   border-color: var(--border);
 }
 
+.dragging,
+.dragging .poc-template {
+  cursor: not-allowed !important;
+}
 .dragging .poc-template:has(.poc-image) .drop-image-over-hinter {
   @apply absolute left-0 top-0 flex h-full w-full animate-pulse bg-[color:--bg-secondary] opacity-30;
 }
@@ -28,4 +32,12 @@
 }
 .poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
   background-color: var(--bg-quaternary);
+}
+
+.glasscard {
+  background: rgba(37, 37, 37, 0.21);
+  background-image: linear-gradient(to bottom, var(--bg-primary), rgba(62, 62, 62, 0));
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
 }
