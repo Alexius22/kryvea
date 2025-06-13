@@ -2,7 +2,6 @@ package xlsx
 
 import (
 	"archive/zip"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -168,6 +167,9 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	}
 
 	tmpDir, err := os.MkdirTemp(".", "prefix-")
+	if err != nil {
+		return "", err
+	}
 	pocRow := 2
 
 	// sort vulnerabilities by score. if score is equal, sort by name in ascending order
@@ -218,14 +220,15 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 				}
 				defer imageFile.Close()
 
-				// base64 decode image data
-				decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
-				if err != nil {
-					continue
-				}
+				// TODO: remove
+				// // base64 decode image data
+				// decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
+				// if err != nil {
+				// 	continue
+				// }
 
 				// copy imagedata to file
-				_, err = imageFile.Write(decodedImage)
+				_, err = imageFile.Write(poc.ImageData)
 				if err != nil {
 					continue
 				}

@@ -8,7 +8,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/report/xlsx"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type assessmentRequestData struct {
@@ -64,7 +64,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	// parse targets
 	var targets []mongo.AssessmentTarget
 	for _, target := range data.Targets {
-		targetID, err := util.ParseMongoID(target)
+		targetID, err := util.ParseUUID(target)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -100,7 +100,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":       "Assessment created",
-		"assessment_id": assessmentID.Hex(),
+		"assessment_id": assessmentID,
 	})
 }
 
@@ -117,7 +117,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	}
 
 	// retrieve user's customers
-	var customers []bson.ObjectID
+	var customers []uuid.UUID
 	for _, uc := range user.Customers {
 		customers = append(customers, uc.ID)
 	}
@@ -242,7 +242,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	// parse targets
 	var targets []mongo.AssessmentTarget
 	for _, target := range data.Targets {
-		targetID, err := util.ParseMongoID(target)
+		targetID, err := util.ParseUUID(target)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -387,7 +387,7 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"message":       "Assessment cloned",
-		"assessment_id": cloneAssessmentID.Hex(),
+		"assessment_id": cloneAssessmentID,
 	})
 }
 
@@ -503,7 +503,7 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 		return nil, "Assessment ID is required"
 	}
 
-	assessmentID, err := util.ParseMongoID(assessmentParam)
+	assessmentID, err := util.ParseUUID(assessmentParam)
 	if err != nil {
 		return nil, "Invalid assessment ID"
 	}

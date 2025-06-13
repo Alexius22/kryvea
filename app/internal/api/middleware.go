@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -13,14 +14,15 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	}
 
 	session := c.Cookies("kryvea")
-	if session == "" {
+	token, err := util.ParseUUID(session)
+	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
 		})
 	}
 
-	user, err := d.mongo.User().GetByToken(session)
+	user, err := d.mongo.User().GetByToken(token)
 	if err != nil || user.TokenExpiry.Before(time.Now()) || (!user.DisabledAt.IsZero() && user.DisabledAt.Before(time.Now())) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{

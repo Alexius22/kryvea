@@ -48,7 +48,7 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 	// parse customer IDs
 	customers := make([]mongo.UserCustomer, len(data.Customers))
 	for i, customerID := range data.Customers {
-		parsedCustomerID, err := util.ParseMongoID(customerID)
+		parsedCustomerID, err := util.ParseUUID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -84,7 +84,7 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "User added successfully",
-		"user_id": userID.Hex(),
+		"user_id": userID,
 	})
 }
 
@@ -145,7 +145,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	// set cookie with session token
 	c.Cookie(&fiber.Cookie{
 		Name:     "kryvea",
-		Value:    token,
+		Value:    token.String(),
 		Secure:   true,
 		HTTPOnly: true,
 		SameSite: "Strict",
@@ -251,7 +251,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	// parse customer IDs
 	customers := make([]mongo.UserCustomer, len(data.Customers))
 	for i, customerID := range data.Customers {
-		parsedCustomerID, err := util.ParseMongoID(customerID)
+		parsedCustomerID, err := util.ParseUUID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -319,7 +319,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	// parse assessment IDs
 	assessments := make([]mongo.UserAssessments, len(data.Assessments))
 	for i, assessmentID := range data.Assessments {
-		parsedAssessmentID, err := util.ParseMongoID(assessmentID)
+		parsedAssessmentID, err := util.ParseUUID(assessmentID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -376,7 +376,7 @@ func (d *Driver) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	// parse user param
-	userID, err := util.ParseMongoID(c.Params("user"))
+	userID, err := util.ParseUUID(c.Params("user"))
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -468,7 +468,7 @@ func (d *Driver) userFromParam(userParam string) (*mongo.User, string) {
 		return nil, "User ID is required"
 	}
 
-	userID, err := util.ParseMongoID(userParam)
+	userID, err := util.ParseUUID(userParam)
 	if err != nil {
 		return nil, "Invalid user ID"
 	}

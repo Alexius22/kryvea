@@ -10,7 +10,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/nessus"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 func (d *Driver) UploadNessus(c *fiber.Ctx) error {
@@ -32,7 +32,7 @@ func (d *Driver) UploadNessus(c *fiber.Ctx) error {
 		})
 	}
 
-	assessmentID, err := util.ParseMongoID(assessmentParam)
+	assessmentID, err := util.ParseUUID(assessmentParam)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -93,15 +93,15 @@ func (d *Driver) UploadNessus(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.Assessment, userID bson.ObjectID) (err error) {
+func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.Assessment, userID uuid.UUID) (err error) {
 	nessusData, err := nessus.Parse(data)
 	if err != nil {
 		return err
 	}
 
-	var vulnerabilities []bson.ObjectID
-	var categories []bson.ObjectID
-	var targets []bson.ObjectID
+	var vulnerabilities []uuid.UUID
+	var categories []uuid.UUID
+	var targets []uuid.UUID
 
 	defer func() {
 		if err != nil {

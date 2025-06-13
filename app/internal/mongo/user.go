@@ -133,13 +133,13 @@ type User struct {
 }
 
 type UserCustomer struct {
-	ID   bson.ObjectID `json:"id" bson:"_id"`
-	Name string        `json:"name" bson:"name"`
+	ID   uuid.UUID `json:"id" bson:"_id"`
+	Name string    `json:"name" bson:"name"`
 }
 
 type UserAssessments struct {
-	ID   bson.ObjectID `json:"id" bson:"_id"`
-	Name string        `json:"name" bson:"name"`
+	ID   uuid.UUID `json:"id" bson:"_id"`
+	Name string    `json:"name" bson:"name"`
 }
 
 type UserIndex struct {
@@ -167,9 +167,14 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
+func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
 	user.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -187,7 +192,7 @@ func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
 
 	hash, err := crypto.Encrypt(user.Password)
 	if err != nil {
-		return bson.NilObjectID, err
+		return uuid.UUID{}, err
 	}
 	user.Password = hash
 
@@ -195,22 +200,26 @@ func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
 	return user.ID, err
 }
 
-func (ui *UserIndex) Login(username, password string) (string, time.Time, error) {
+func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, error) {
 	var user User
 	err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
 	if err != nil {
-		return "", time.Time{}, err
+		return uuid.UUID{}, time.Time{}, err
 	}
 
 	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
-		return "", time.Time{}, ErrPasswordExpired
+		return uuid.UUID{}, time.Time{}, ErrPasswordExpired
 	}
 
 	if !crypto.Compare(password, user.Password) {
-		return "", time.Time{}, ErrInvalidCredentials
+		return uuid.UUID{}, time.Time{}, ErrInvalidCredentials
 	}
 
-	token := uuid.New().String()
+	token, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.UUID{}, time.Time{}, err
+	}
+
 	expires := time.Now().Add(9 * time.Hour)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
@@ -219,13 +228,13 @@ func (ui *UserIndex) Login(username, password string) (string, time.Time, error)
 			"token_expiry": expires,
 		}})
 	if err != nil {
-		return "", time.Time{}, err
+		return uuid.UUID{}, time.Time{}, err
 	}
 
 	return token, expires, nil
 }
 
-func (ui *UserIndex) Logout(ID bson.ObjectID) error {
+func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
 			"token":        "",
@@ -234,7 +243,7 @@ func (ui *UserIndex) Logout(ID bson.ObjectID) error {
 	return err
 }
 
-func (ui *UserIndex) Get(ID bson.ObjectID) (*User, error) {
+func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 	pipeline := append(
 		UserPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": ID}}},
@@ -268,7 +277,7 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 	return users, err
 }
 
-func (ui *UserIndex) GetByToken(token string) (*User, error) {
+func (ui *UserIndex) GetByToken(token uuid.UUID) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,
 	})
@@ -294,7 +303,7 @@ func (ui *UserIndex) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (ui *UserIndex) Update(ID bson.ObjectID, user *User) error {
+func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -340,18 +349,22 @@ func (ui *UserIndex) Update(ID bson.ObjectID, user *User) error {
 	return err
 }
 
-func (ui *UserIndex) Delete(ID bson.ObjectID) error {
+func (ui *UserIndex) Delete(ID uuid.UUID) error {
 	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	return err
 }
 
-func (ui *UserIndex) ForgotPassword(username string) (string, error) {
+func (ui *UserIndex) ForgotPassword(username string) (uuid.UUID, error) {
 	user, err := ui.GetByUsername(username)
 	if err != nil {
-		return "", err
+		return uuid.UUID{}, err
 	}
 
-	token := uuid.New().String()
+	token, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
 	expires := time.Now().Add(30 * time.Minute)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
@@ -360,7 +373,7 @@ func (ui *UserIndex) ForgotPassword(username string) (string, error) {
 			"reset_token_expiry": expires,
 		}})
 	if err != nil {
-		return "", err
+		return uuid.UUID{}, err
 	}
 
 	return token, nil

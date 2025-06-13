@@ -32,6 +32,8 @@ func NewDriver(uri, adminUser, adminPass string) (*Driver, error) {
 		d.Vulnerability(),
 		d.Poc(),
 		d.User(),
+		d.File(),
+		d.FileReference(),
 	}
 
 	for _, i := range indexes {
