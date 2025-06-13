@@ -64,7 +64,7 @@ html.dark {
 
   /* Borders and Dividers */
   --border: #{$border};
-  --border-highlight: #bdbdbd77;
+  --border-highlight: #{color.adjust($border, $alpha: 0.5)};
 
   /* Links */
   --link: #{$link};
