@@ -4,7 +4,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type categoryRequestData struct {
@@ -61,7 +61,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Category created",
-		"category_id": categoryID.Hex(),
+		"category_id": categoryID,
 	})
 }
 
@@ -237,7 +237,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	}
 
 	// insert each category into database
-	categories := make([]bson.ObjectID, 0, len(data))
+	categories := make([]uuid.UUID, 0, len(data))
 	for _, categoryData := range data {
 		categoryID, err := d.mongo.Category().Insert(&mongo.Category{
 			Index:              categoryData.Index,
@@ -266,7 +266,7 @@ func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, strin
 		return nil, "Category ID is required"
 	}
 
-	categoryID, err := util.ParseMongoID(categoryParam)
+	categoryID, err := util.ParseUUID(categoryParam)
 	if err != nil {
 		return nil, "Invalid category ID"
 	}

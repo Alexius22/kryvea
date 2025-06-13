@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -42,8 +43,8 @@ type Target struct {
 }
 
 type TargetCustomer struct {
-	ID   bson.ObjectID `json:"id" bson:"_id"`
-	Name string        `json:"name" bson:"name"`
+	ID   uuid.UUID `json:"id" bson:"_id"`
+	Name string    `json:"name" bson:"name"`
 }
 
 type TargetIndex struct {
@@ -73,14 +74,19 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target) (bson.ObjectID, error) {
+func (ti *TargetIndex) Insert(target *Target) (uuid.UUID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.Customer.ID}).Err()
 	if err != nil {
-		return bson.NilObjectID, err
+		return uuid.Nil, err
+	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
 	}
 
 	target.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
@@ -88,21 +94,21 @@ func (ti *TargetIndex) Insert(target *Target) (bson.ObjectID, error) {
 	return target.ID, err
 }
 
-func (ti *TargetIndex) FirstOrInsert(target *Target) (bson.ObjectID, bool, error) {
+func (ti *TargetIndex) FirstOrInsert(target *Target) (uuid.UUID, bool, error) {
 	var existingTarget Assessment
 	err := ti.collection.FindOne(context.Background(), bson.M{"ip": target.IP, "hostname": target.Hostname, "name": target.Name}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
 	if err != mongo.ErrNoDocuments {
-		return bson.NilObjectID, false, err
+		return uuid.Nil, false, err
 	}
 
 	id, err := ti.Insert(target)
 	return id, true, err
 }
 
-func (ti *TargetIndex) Update(targetID bson.ObjectID, target *Target) error {
+func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 	filter := bson.M{"_id": targetID}
 
 	update := bson.M{
@@ -119,7 +125,7 @@ func (ti *TargetIndex) Update(targetID bson.ObjectID, target *Target) error {
 	return err
 }
 
-func (ti *TargetIndex) Delete(targetID bson.ObjectID) error {
+func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
 	_, err := ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
 	if err != nil {
 		return err
@@ -128,7 +134,7 @@ func (ti *TargetIndex) Delete(targetID bson.ObjectID) error {
 	filter := bson.M{"target_id": targetID}
 	update := bson.M{
 		"$set": bson.M{
-			"target_id": bson.NilObjectID,
+			"target_id": uuid.Nil,
 		},
 	}
 	_, err = ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
@@ -146,7 +152,7 @@ func (ti *TargetIndex) Delete(targetID bson.ObjectID) error {
 	return err
 }
 
-func (ti *TargetIndex) GetByID(targetID bson.ObjectID) (*Target, error) {
+func (ti *TargetIndex) GetByID(targetID uuid.UUID) (*Target, error) {
 	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
@@ -169,7 +175,7 @@ func (ti *TargetIndex) GetByID(targetID bson.ObjectID) (*Target, error) {
 	return nil, mongo.ErrNoDocuments
 }
 
-func (ti *TargetIndex) GetByCustomerID(customerID bson.ObjectID) ([]Target, error) {
+func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
 	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
@@ -182,7 +188,7 @@ func (ti *TargetIndex) GetByCustomerID(customerID bson.ObjectID) ([]Target, erro
 	return targets, err
 }
 
-func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID bson.ObjectID) (*Target, error) {
+func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
 	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID, "_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
@@ -205,7 +211,7 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID bson.ObjectID) (*
 	return nil, mongo.ErrNoDocuments
 }
 
-func (ti *TargetIndex) Search(customerID bson.ObjectID, ip string) ([]Target, error) {
+func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
 	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
 		{"customer._id": customerID},
 		{"$or": []bson.M{

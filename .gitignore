@@ -7,3 +7,9 @@
 **/tsconfig.tsbuildinfo
 
 .data/
+
+app/internal/report/*/reports/
+app/internal/nessus/reports/
+
+scripts/images/
+*.burp*

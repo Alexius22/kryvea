@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -45,17 +46,27 @@ func (ci CustomerIndex) init() error {
 	return err
 }
 
-func (ci *CustomerIndex) Insert(customer *Customer) (bson.ObjectID, error) {
+func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	customer.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	_, err := ci.collection.InsertOne(context.Background(), customer)
+
+	_, err = ci.collection.InsertOne(context.Background(), customer)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	return customer.ID, err
 }
 
-func (ci *CustomerIndex) Update(customerID bson.ObjectID, customer *Customer) error {
+func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error {
 	filter := bson.M{"_id": customerID}
 
 	update := bson.M{
@@ -71,7 +82,7 @@ func (ci *CustomerIndex) Update(customerID bson.ObjectID, customer *Customer) er
 	return err
 }
 
-func (ci *CustomerIndex) Delete(customerID bson.ObjectID) error {
+func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
 	if err != nil {
 		return err
@@ -108,7 +119,7 @@ func (ci *CustomerIndex) Delete(customerID bson.ObjectID) error {
 	return err
 }
 
-func (ci *CustomerIndex) GetByID(customerID bson.ObjectID) (*Customer, error) {
+func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 	var customer Customer
 	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
 		return nil, err
@@ -116,7 +127,7 @@ func (ci *CustomerIndex) GetByID(customerID bson.ObjectID) (*Customer, error) {
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetAll(customerIDs []bson.ObjectID) ([]Customer, error) {
+func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
 	filter := bson.M{}
 
 	if customerIDs != nil {

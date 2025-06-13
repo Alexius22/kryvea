@@ -185,15 +185,16 @@ class bcolors:
 
 
 class User:
-    def __init__(self, username="kryvea", password="kryveapassword"):
+    def __init__(self, username="kryvea", password="kryveapassword", role="user"):
         self.username = username
         self.password = password
+        self.role = role
 
     def json(self) -> dict:
-        return {"username": self.username, "password": self.password}
+        return {"username": self.username, "password": self.password, "role": self.role}
 
     def register(self) -> bool:
-        response = session.post(base_url + "/register", json=self.json())
+        response = session.post(base_url + "/users", json=self.json())
         if response.status_code == 201:
             return True
         return False
@@ -480,22 +481,18 @@ def rand_poc_request() -> POC:
 
 if __name__ == "__main__":
     admin_user = User()
-    if not admin_user.register():
-        print("Registration failed")
-        # exit(1)
+    if not admin_user.login():
+        print("Login failed")
+        exit(1)
         
     users = []
     for i in range(5):
-        user = User(username=rand_string(8), password=rand_string(10))
+        user = User(username=rand_string(8), password=rand_string(10)+"1!")
         if not user.register():
             print("Registration failed")
             exit(1)
         users.append(user)
         print(f"{bcolors.OKGREEN}[*] Registered user {user.username}{bcolors.ENDC}")
-
-    if not admin_user.login():
-        print("Login failed")
-        exit(1)
 
     customer = Customer(name=rand_name(3), language=rand_language())
     # print(customer.json())

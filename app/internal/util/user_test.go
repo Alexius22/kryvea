@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 func TestCanAccessCustomer(t *testing.T) {
@@ -14,20 +14,20 @@ func TestCanAccessCustomer(t *testing.T) {
 	regularUser := &mongo.User{
 		Role: mongo.ROLE_USER,
 		Customers: []mongo.UserCustomer{
-			{ID: bson.NewObjectID()},
-			{ID: bson.NewObjectID()},
+			{ID: uuid.New()},
+			{ID: uuid.New()},
 		},
 	}
 	existingCustomer := regularUser.Customers[0].ID
-	nonExistingCustomer := bson.NewObjectID()
+	nonExistingCustomer := uuid.New()
 
 	tests := []struct {
 		name     string
 		user     *mongo.User
-		customer bson.ObjectID
+		customer uuid.UUID
 		want     bool
 	}{
-		{"Admin user", adminUser, bson.NewObjectID(), true},
+		{"Admin user", adminUser, uuid.New(), true},
 		{"Regular user with access", regularUser, existingCustomer, true},
 		{"Regular user without access", regularUser, nonExistingCustomer, false},
 	}
