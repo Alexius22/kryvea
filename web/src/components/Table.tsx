@@ -8,16 +8,17 @@ import Icon from "./Icon";
 
 const Table = ({
   data,
-  perPageCustom,
+  perPageCustom = 5,
   wMin,
   minW = "min-w-max",
 }: {
   data: any[];
-  perPageCustom;
+  perPageCustom?;
   wMin?: true;
   minW?: "min-w-fit" | "min-w-max";
 }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
+  const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
   const [filterText, setFilterText] = useState("");
@@ -184,8 +185,36 @@ const Table = ({
           <input
             type="number"
             className="ml-auto mr-2 h-8 w-[50px] rounded-md text-center"
-            value={perPage}
-            onChange={e => setPerPage(+e.target.value)}
+            value={perPagePreview}
+            onChange={e => {
+              let value = e.target.value;
+              console.log(e);
+              if (value !== "0") {
+                value = value.replace(/^0/, "");
+              }
+
+              setPerPagePreview(value);
+            }}
+            onKeyDown={e => {
+              if (e.key !== "Enter") {
+                return;
+              }
+
+              e.currentTarget.blur();
+            }}
+            onBlur={e => {
+              let value = +e.currentTarget.value;
+              if (value === 0) {
+                setPerPagePreview(1); // reset to 1 if perPagePreview is empty
+              }
+
+              if (value >= filteredData.length) {
+                value = filteredData.length; // limit to the number of items available
+                setPerPagePreview(value);
+              }
+
+              setPerPage(value > 0 ? value : 1);
+            }}
           />
           <small className="mt-6 md:mt-0">
             Page {currentPage + 1} of {numPages}
