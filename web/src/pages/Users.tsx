@@ -7,6 +7,7 @@ import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
@@ -94,12 +95,7 @@ const Users = () => {
                     onChange={handleSelectChange}
                     closeMenuOnSelect={false}
                   />
-                  <div className="inline-flex items-center">
-                    <input type="checkbox" className="h-5 w-5 cursor-pointer" id="disable_user" />
-                    <label className="ml-2 cursor-pointer text-sm" htmlFor="disable_user">
-                      Disable user
-                    </label>
-                  </div>
+                  <Checkbox id={"disable_user"} onChange={{}} htmlFor={"disable_user"} label={"Disable user"} />
                 </Grid>
               </Form>
             );
