@@ -73,6 +73,7 @@ export default function SelectWrapper({
         unstyled
         components={animatedComponents}
         menuPortalTarget={document.body}
+        styles={{ menuPortal: base => ({ ...base, zIndex: 10 }) }}
       />
     </Grid>
   );

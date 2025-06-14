@@ -1,20 +1,28 @@
 @use "vars.scss";
+@use "base.scss";
 
 /* Control (input box) */
 .select-wrapper__control {
   display: flex;
-  border: transparent;
+  border: 1px solid transparent;
   border-radius: 0.375rem;
   padding-left: 0.5rem;
   background-color: var(--bg-quaternary);
   color: var(--select-text);
-  overflow-x: auto;
   transition: border-color 0.15s ease-in-out;
 }
 
 .select-wrapper__control--is-focused {
-  border-color: transparent;
   border: 1px solid var(--border);
+}
+
+.select-wrapper__value-container {
+  padding: 0.5rem 0;
+  gap: 0.25rem;
+}
+
+.select-wrapper__input-container input {
+  height: min-content;
 }
 
 /* Menu (dropdown) */
@@ -25,11 +33,11 @@
   overflow: hidden;
   background-color: var(--bg-quaternary);
   color: var(--select-text);
-  z-index: 10;
 }
 
 /* Menu list */
 .select-wrapper__menu-list {
+  @apply no-scrollbar;
   padding: 0;
   max-height: 200px;
   overflow-y: auto;
@@ -37,6 +45,9 @@
 
 /* Option */
 .select-wrapper__option {
+  &:hover {
+    background-color: var(--bg-active);
+  }
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   background-color: var(--bg-quaternary);
@@ -44,12 +55,8 @@
   transition: background-color 0.2s ease;
 }
 
-.select-wrapper__option--is-focused {
-  background-color: var(--bg-active);
-}
-
 .select-wrapper__option:active {
-  background-color: var(--border);
+  background-color: var(--bg-border);
 }
 
 /* Single value */
@@ -59,8 +66,7 @@
 
 /* Multi value */
 .select-wrapper__multi-value {
-  margin-right: 0.25rem;
-  background-color: var(--select-multi-bg);
+  background-color: var(--button-bg);
   border-radius: 0.375rem;
   padding: 0.25rem;
   color: var(--select-text);
@@ -70,7 +76,13 @@
 }
 
 .select-wrapper__multi-value__label {
+  @apply text-xs;
   color: var(--select-text);
+}
+
+.select-wrapper__multi-value__remove {
+  @apply clickable rounded-sm;
+  background-color: var(--error);
 }
 
 /* Placeholder */
@@ -88,16 +100,15 @@
   transition: color 0.2s ease;
 }
 
-.select-wrapper__dropdown-indicator:hover {
-  color: var(--text-primary);
+.select-wrapper__indicator {
+  @apply clickable;
 }
 
-/* Indicator separator hidden */
 .select-wrapper__indicator-separator {
   display: none;
 }
 
 /* Input */
-input.select-wrapper__input {
+.select-wrapper__input {
   box-shadow: none;
 }
