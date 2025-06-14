@@ -60,7 +60,7 @@ textarea:focus {
 }
 
 .aside-menu-item-active {
-  background-color: var(--bg-active);
+  background-color: var(--bg-tertiary);
 }
 
 .cardbox {
@@ -91,4 +91,8 @@ textarea:focus {
   @apply inline-block;
   translate: 0 -100%;
   scale: 3;
+}
+
+.clickable {
+  @apply hover:opacity-80 active:opacity-50;
 }

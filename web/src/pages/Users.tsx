@@ -12,6 +12,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
+import { customers } from "../mockup_data/customers";
 import { users } from "../mockup_data/users";
 
 const Users = () => {
@@ -31,12 +32,10 @@ const Users = () => {
     document.title = getPageTitle("Users");
   }, []);
 
-  const customerOptions = users.flatMap(user =>
-    user.customers.map((customer, index) => ({
-      value: customer.name,
-      label: customer.name,
-    }))
-  );
+  const customerOptions = customers.map((customer, index) => ({
+    value: customer.name,
+    label: customer.name,
+  }));
 
   const selectAllOption = { value: "all", label: "Select All" };
 
@@ -88,6 +87,7 @@ const Users = () => {
                   />
                   <SelectWrapper
                     label="Customers"
+                    id="modal-select-customers"
                     options={[selectAllOption, ...customerOptions]}
                     isMulti
                     value={customerOptions.filter(option => values.customers.includes(option.value))}
