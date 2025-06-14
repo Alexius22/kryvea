@@ -88,7 +88,6 @@ const Table = ({
   }
 
   const onHeaderClick = key => () => {
-    console.log("onHeaderClick", keySort?.order);
     setKeySort(prev => {
       if (prev === undefined || prev.header !== key) {
         return { header: key, order: 1 };
@@ -188,7 +187,6 @@ const Table = ({
             value={perPagePreview}
             onChange={e => {
               let value = e.target.value;
-              console.log(e);
               if (value !== "0") {
                 value = value.replace(/^0/, "");
               }
