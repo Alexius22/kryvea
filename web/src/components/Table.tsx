@@ -172,10 +172,10 @@ const Table = ({
           <Buttons>
             {pagesList.map(page => (
               <Button
+                type={currentPage === page ? "" : "secondary"}
                 key={page}
                 small
                 text={page + 1}
-                className="border-hidden"
                 disabled={page === currentPage}
                 onClick={() => setCurrentPage(page)}
               />
