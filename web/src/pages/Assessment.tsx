@@ -141,7 +141,8 @@ const Assessment = () => {
               ),
               Host:
                 vulnerability.target.ip + (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),
-              "CVSS Score": vulnerability.cvss_score,
+              "CVSSv3.1 Score": vulnerability.cvss_score,
+              "CVSSv4.0 Score": vulnerability.cvss_score,
               buttons: (
                 <Buttons noWrap>
                   <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
