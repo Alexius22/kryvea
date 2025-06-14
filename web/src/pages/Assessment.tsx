@@ -8,7 +8,9 @@ import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
+import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
+import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -28,10 +30,24 @@ const Assessment = () => {
     setIsModalUploadActive(false);
     setIsModalTrashActive(false);
   };
+  const [fileObj, setFileObj] = useState<File>();
 
   useEffect(() => {
     document.title = getPageTitle("Assessment");
   }, []);
+
+  const changeFile = ({ target: { files } }) => {
+    if (!files || !files[0]) {
+      return;
+    }
+
+    const file: File = files[0];
+    setFileObj(file);
+  };
+
+  const clearFile = () => {
+    setFileObj(null);
+  };
 
   return (
     <div>
@@ -78,12 +94,14 @@ const Assessment = () => {
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Input
-          type="file"
-          id="nessus_file"
-          placeholder="Drop here also"
-          label="Choose bulk file"
+        <Label text={"Choose bulk file"} />
+        <UploadFile
+          inputId={"nessus_file"}
+          filename={fileObj?.name}
+          name={"imagePoc"}
           accept={".nessus,text/xml"}
+          onChange={changeFile}
+          onButtonClick={clearFile}
         />
       </CardBoxModal>
       <CardBoxModal

@@ -1,9 +1,9 @@
 import { mdiImage } from "@mdi/js";
 import React, { useEffect, useRef, useState } from "react";
+import Grid from "../Composition/Grid";
+import UploadFile from "../Form/UploadFile";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
-import Button from "../Form/Button";
-import Card from "../CardBox/Card";
 
 export type PocImageProps = {
   pocDoc: PocImageDoc;
@@ -29,7 +29,7 @@ export default function PocImage({
   setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
-  const [filename, setFilename] = useState("No file chosen");
+  const [filename, setFilename] = useState<string>();
   const imageInput = useRef<HTMLInputElement>(null);
 
   const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
@@ -138,7 +138,7 @@ export default function PocImage({
         />
       </div>
 
-      <div className="col-span-4 grid gap-4">
+      <Grid>
         <label
           htmlFor={imageInputId}
           onClick={e => {
@@ -147,38 +147,17 @@ export default function PocImage({
         >
           Choose Image
         </label>
-        <div className="flex gap-4">
-          <label
-            className="clickable flex h-12 w-1/2 min-w-40 cursor-pointer items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2"
-            htmlFor={imageInputId}
-          >
-            <span className="shrink-0 text-nowrap rounded-md border border-[color:--border] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
-              Choose File
-            </span>
-            <span className="truncate">{filename}</span>
-          </label>
-          <input
-            ref={imageInput}
-            className="hidden"
-            type="file"
-            name="myImage"
-            accept="image/png, image/jpeg"
-            id={imageInputId}
-            onChange={onImageChangeWrapper}
-          />
-          <Button text="Clear Image" className="rounded-xl" onClick={clearImage} type="danger" />
-        </div>
-
-        {imageUrl && (
-          <Card className="w-fit !bg-[color:--bg-secondary]">
-            <img
-              src={imageUrl}
-              alt="Selected image preview"
-              className="max-h-[550px] w-full rounded-3xl object-contain"
-            />
-          </Card>
-        )}
-      </div>
+        <UploadFile
+          inputId={imageInputId}
+          filename={filename}
+          inputRef={imageInput}
+          name={"imagePoc"}
+          accept={"image/png, image/jpeg"}
+          onChange={onImageChangeWrapper}
+          onButtonClick={clearImage}
+        />
+        {imageUrl && <img src={imageUrl} alt="Selected image preview" className="max-h-[550px] w-fit object-contain" />}
+      </Grid>
 
       <div className="grid">
         <label htmlFor={captionTextareaId}>Caption</label>
