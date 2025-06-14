@@ -3,7 +3,7 @@
 
 // Light Theme
 :root {
-  /* Base Variables */
+  /* Palette */
   $bg-primary: #c7c7c7;
   $text-primary: #121212;
   $border: #e45353;
@@ -17,7 +17,7 @@
     "tertiary": color.adjust($bg-primary, $lightness: 10%),
     "quaternary": color.adjust($bg-primary, $lightness: 15%),
     "quinary": color.adjust($bg-primary, $lightness: 18%),
-    "active": color.adjust($bg-primary, $lightness: 12%)
+    "active": color.adjust($bg-primary, $lightness: 12%),
   );
 
   /* Text */
@@ -44,13 +44,14 @@
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
-    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
+    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
+      #{color.channel($color, "blue")};
   }
 }
 
 // Dark Theme
 html.dark {
-  /* Base Variables */
+  /* Palette */
   $bg-primary: #121212;
   $text-primary: #e0e0e0;
   $border: #bdbdbd30;
@@ -64,7 +65,7 @@ html.dark {
     "tertiary": color.adjust($bg-primary, $lightness: 13%),
     "quaternary": color.adjust($bg-primary, $lightness: 25%),
     "quinary": color.adjust($bg-primary, $lightness: 35%),
-    "active": color.adjust($bg-primary, $lightness: 40%)
+    "active": color.adjust($bg-primary, $lightness: 40%),
   );
 
   /* Text */
@@ -91,7 +92,7 @@ html.dark {
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
-    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
+    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
+      #{color.channel($color, "blue")};
   }
 }
-
