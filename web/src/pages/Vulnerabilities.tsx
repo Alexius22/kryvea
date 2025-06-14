@@ -33,8 +33,8 @@ const Vulnerabilities = () => {
                 <Link to={`/vulnerability`}>{vulnerability.category.name + " - " + vulnerability.detailed_title}</Link>
               ),
               Description: vulnerability.description,
-              "CVSS Score": vulnerability.cvss_score,
-              "CVSS Vector": vulnerability.cvss_vector,
+              "CVSSv3.1 Score": vulnerability.cvss_score,
+              "CVSSv4.0 Score": vulnerability.cvss_score,
               Assessment: <Link to={`/assessment`}>{vulnerability.assessment.name}</Link>,
               Date: formatDate(vulnerability.updated_at),
               User: vulnerability.user.username,
