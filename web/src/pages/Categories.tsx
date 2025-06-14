@@ -8,6 +8,7 @@ import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
 import Table from "../components/Table";
@@ -68,12 +69,12 @@ const Categories = () => {
               </Buttons>
               <Divider />
               <Input label="Import categories" type="file" id="imported_categories" accept=".json" />
-              <div className="inline-flex items-center">
-                <input type="checkbox" className="h-5 w-5 cursor-pointer" id="override_categories" />
-                <label className="ml-2 cursor-pointer text-sm" htmlFor="override_categories">
-                  Override existing categories
-                </label>
-              </div>
+              <Checkbox
+                id={"override_categories"}
+                onChange={{}}
+                htmlFor={"override_categories"}
+                label={"Override existing categories"}
+              />
             </Grid>
           </Form>
         </Formik>

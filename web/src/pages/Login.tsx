@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
+import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import SectionFullScreen from "../components/Section/FullScreen";
 import { getPageTitle } from "../config";
@@ -67,17 +68,7 @@ const Login = () => {
                 onChange={e => setUsername(e.target.value)}
                 value={username}
               />
-              <div className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="h-5 w-5 cursor-pointer"
-                  id="override_categories"
-                  onChange={e => setRemember}
-                />
-                <label className="ml-2 cursor-pointer text-sm" htmlFor="override_categories">
-                  Remember me
-                </label>
-              </div>
+              <Checkbox id={"remember_me"} onChange={e => setRemember} htmlFor={"remember_me"} label={"Remember me"} />
             </Grid>
             <div className="pt-4">
               <Button text="Login" onClick={() => {}} />
