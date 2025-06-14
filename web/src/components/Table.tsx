@@ -11,11 +11,13 @@ const Table = ({
   perPageCustom = 5,
   wMin,
   minW = "min-w-max",
+  maxWidthColumns = {},
 }: {
   data: any[];
   perPageCustom?;
   wMin?: true;
   minW?: "min-w-fit" | "min-w-max";
+  maxWidthColumns?: Record<string, string>;
 }) => {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
@@ -102,7 +104,7 @@ const Table = ({
   return (
     <Card className={`!p-0 ${minW} ${wMin ? "w-min" : ""}`}>
       <Input
-        className="rounded-t-2xl bg-transparent focus:border-none focus:ring-0"
+        className="rounded-t-2xl bg-transparent p-4 focus:border-none focus:ring-0"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -115,7 +117,7 @@ const Table = ({
         {filteredData.length > 0 && (
           <thead>
             <tr>
-              {Object.keys(filteredData[0]).map((key, i, arr) =>
+              {Object.keys(filteredData[0]).map(key =>
                 key === "buttons" ? (
                   <th
                     style={{
@@ -153,15 +155,37 @@ const Table = ({
           ) : (
             itemPaginated(filteredData).map((obj, i) => (
               <tr key={`row-${i}`}>
-                {Object.entries<any>(obj).map(([key, value]) =>
-                  key == "buttons" ? (
-                    <td className="py-0" key={`${key}-value-${i}`}>
-                      {value}
-                    </td>
-                  ) : (
-                    <td key={`${key}-value-${i}`}>{value}</td>
-                  )
-                )}
+                {Object.entries<any>(obj).map(([key, value]) => {
+                  // If this column should have max-width and ellipsis
+                  if (maxWidthColumns[key]) {
+                    return (
+                      <td key={`${key}-value-${i}`}>
+                        <div
+                          style={{
+                            maxWidth: maxWidthColumns[key],
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                          title={typeof value === "string" ? value : undefined}
+                        >
+                          {value}
+                        </div>
+                      </td>
+                    );
+                  }
+
+                  // Default rendering
+                  if (key === "buttons") {
+                    return (
+                      <td className="py-0" key={`${key}-value-${i}`}>
+                        {value}
+                      </td>
+                    );
+                  }
+
+                  return <td key={`${key}-value-${i}`}>{value}</td>;
+                })}
               </tr>
             ))
           )}
