@@ -17,7 +17,7 @@ export default function Sidebar({ className = "" }: Props) {
           </div>
         </header>
         <div>
-          <SidebarContent className="flex flex-col gap-4 p-4" />
+          <SidebarContent className="flex flex-col gap-4 p-4 text-[color:--link]" />
         </div>
       </div>
     </aside>
