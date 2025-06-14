@@ -32,6 +32,7 @@ const Vulnerabilities = () => {
               Vulnerability: (
                 <Link to={`/vulnerability`}>{vulnerability.category.name + " - " + vulnerability.detailed_title}</Link>
               ),
+              Description: vulnerability.description,
               "CVSS Score": vulnerability.cvss_score,
               "CVSS Vector": vulnerability.cvss_vector,
               Assessment: <Link to={`/assessment`}>{vulnerability.assessment.name}</Link>,
@@ -39,6 +40,7 @@ const Vulnerabilities = () => {
               User: vulnerability.user.username,
             }))}
             perPageCustom={10}
+            maxWidthColumns={{ Description: "20rem" }}
           />
         )}
       </Card>
