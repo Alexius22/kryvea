@@ -48,6 +48,9 @@ input:focus {
   outline: none;
   border: 1px solid var(--border);
 }
+input.checkbox {
+  accent-color: var(--link);
+}
 
 textarea {
   @apply rounded-md p-1 px-2;
