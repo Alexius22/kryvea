@@ -1,7 +1,7 @@
 import { mdiClose } from "@mdi/js";
 import { ReactNode } from "react";
 import Card from "../CardBox/Card";
-import CardBoxComponentTitle from "../CardBox/CardBoxComponentTitle";
+import CardTitle from "../CardBox/CardTitle";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
 
@@ -31,9 +31,9 @@ export default function Modal({ title, buttonLabel, isActive, children, classNam
     <div className="card-modal fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center">
       <div className={"max-h-modal w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
         <Card className={`${className}`} footer={footer}>
-          <CardBoxComponentTitle title={title}>
+          <CardTitle title={title}>
             {!!onCancel && <Button type="transparent" icon={mdiClose} onClick={onCancel} small />}
-          </CardBoxComponentTitle>
+          </CardTitle>
           {children}
         </Card>
       </div>
