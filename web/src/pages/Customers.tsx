@@ -10,12 +10,12 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
 
-const Customers = () => {
+export default function Customers() {
   const navigate = useNavigate();
   // const { data: customers, loading, error } = useFetch<Customer>(`/api/customers`);
   const loading = false;
@@ -142,6 +142,4 @@ const Customers = () => {
       </Card>
     </div>
   );
-};
-
-export default Customers;
+}

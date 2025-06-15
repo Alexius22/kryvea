@@ -9,7 +9,7 @@ type Props = {
   children;
 };
 
-const Buttons = ({ type = "justify-start", noWrap = false, children, className, label }: Props) => {
+export default function Buttons({ type = "justify-start", noWrap = false, children, className, label }: Props) {
   return (
     <Grid>
       {label && <Label text={label} />}
@@ -18,6 +18,4 @@ const Buttons = ({ type = "justify-start", noWrap = false, children, className, 
       </div>
     </Grid>
   );
-};
-
-export default Buttons;
+}

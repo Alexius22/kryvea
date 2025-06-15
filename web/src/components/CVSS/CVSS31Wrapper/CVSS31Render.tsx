@@ -1,8 +1,8 @@
-import Buttons from "../../Form/Buttons";
-import Button from "../../Form/Button";
 import Grid from "../../Composition/Grid";
+import Button from "../../Form/Button";
+import Buttons from "../../Form/Buttons";
 
-const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
+export default function CVSS31Render({ updateVectorString, selectedValues, setSelectedValues }) {
   const metricLabels = {
     AttackVector: "Attack Vector (AV)",
     AttackComplexity: "Attack Complexity (AC)",
@@ -130,6 +130,4 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
       </div>
     );
   }
-};
-
-export default CVSS31Render;
+}

@@ -10,13 +10,13 @@ import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
 import { users } from "../mockup_data/users";
 
-const Users = () => {
+export default function Users() {
   const navigate = useNavigate();
   //const { data: users, loading, error } = useFetch<User[]>("/users");
   const loading = false;
@@ -143,6 +143,4 @@ const Users = () => {
       </Card>
     </div>
   );
-};
-
-export default Users;
+}

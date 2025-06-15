@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import Buttons from "../../Form/Buttons";
-import Button from "../../Form/Button";
 import Grid from "../../Composition/Grid";
+import Button from "../../Form/Button";
+import Buttons from "../../Form/Buttons";
 
-const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
+export default function CVSS40Render({ updateVectorString, selectedValues, setSelectedValues }) {
   const metricLabels = useMemo(
     () => ({
       AttackVector: "Attack Vector (AV)",
@@ -183,6 +183,4 @@ const CVSS40Render = ({ updateVectorString, selectedValues, setSelectedValues })
       </div>
     );
   }
-};
-
-export default CVSS40Render;
+}

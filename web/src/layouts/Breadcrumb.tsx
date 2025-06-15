@@ -8,7 +8,7 @@ type TBreadCrumbProps = {
   capitalizeLinks?: boolean;
 };
 
-const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) => {
+export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) {
   const pathNames = useResolvedPath(undefined)
     .pathname.split("/")
     .filter(path => path);
@@ -42,6 +42,4 @@ const Breadcrumb = ({ homeElement, separator, capitalizeLinks }: TBreadCrumbProp
       </ul>
     </div>
   );
-};
-
-export default Breadcrumb;
+}

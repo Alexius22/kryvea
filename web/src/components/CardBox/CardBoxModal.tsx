@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
 import Card from "./Card";
-import CardBoxComponentTitle from "./Title";
+import CardBoxComponentTitle from "./CardBoxComponentTitle";
 
 type Props = {
   title: string;
@@ -15,7 +15,15 @@ type Props = {
   onCancel?: () => void;
 };
 
-const CardBoxModal = ({ title, buttonLabel, isActive, children, className, onConfirm, onCancel }: Props) => {
+export default function CardBoxModal({
+  title,
+  buttonLabel,
+  isActive,
+  children,
+  className,
+  onConfirm,
+  onCancel,
+}: Props) {
   if (!isActive) {
     return null;
   }
@@ -39,6 +47,4 @@ const CardBoxModal = ({ title, buttonLabel, isActive, children, className, onCon
       </div>
     </div>
   );
-};
-
-export default CardBoxModal;
+}

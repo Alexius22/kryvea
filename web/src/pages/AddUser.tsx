@@ -10,7 +10,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
 import { customers } from "../mockup_data/customers";
 
-const AddUser = () => {
+export default function AddUser() {
   useEffect(() => {
     document.title = getPageTitle("User");
   }, []);
@@ -82,6 +82,4 @@ const AddUser = () => {
       </Formik>
     </Card>
   );
-};
-
-export default AddUser;
+}

@@ -11,12 +11,12 @@ import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
-const Assessment = () => {
+export default function Assessment() {
   const navigate = useNavigate();
   //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities");
   const loading = false;
@@ -156,6 +156,4 @@ const Assessment = () => {
       </Card>
     </div>
   );
-};
-
-export default Assessment;
+}

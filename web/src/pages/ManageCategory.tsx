@@ -11,10 +11,10 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import Textarea from "../components/Form/Textarea";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 
-const ManageCategory = () => {
+export default function ManageCategory() {
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [selectedLanguageOptions, setSelectedLanguageOptions] = useState<SelectOption | SelectOption[]>({
     label: "Italian",
@@ -112,6 +112,4 @@ const ManageCategory = () => {
       </Card>
     </div>
   );
-};
-
-export default ManageCategory;
+}

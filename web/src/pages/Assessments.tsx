@@ -5,19 +5,19 @@ import { Link, useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
-import { formatDate } from "../components/DateUtils";
+import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
 
-const Assessments = () => {
+export default function Assessments() {
   const navigate = useNavigate();
   const loading = false;
   const error = false;
@@ -164,6 +164,4 @@ const Assessments = () => {
       )}
     </div>
   );
-};
-
-export default Assessments;
+}
