@@ -200,7 +200,7 @@ export default function EditPoc() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="glasscard sticky top-0 z-10 rounded-b-3xl">
+      <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
         <Card className="border-2 border-white/60 !bg-red-400/0">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
