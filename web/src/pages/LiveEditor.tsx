@@ -2,8 +2,8 @@ import { mdiCalculator } from "@mdi/js";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
 import CVSS40Wrapper from "../components/CVSS/CVSS40Wrapper/CVSS40Wrapper";
 import ScoreBar from "../components/CVSS/ScoreBar";
@@ -67,7 +67,7 @@ export default function LiveEditor() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Recalculate CVSS"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
@@ -78,7 +78,7 @@ export default function LiveEditor() {
         <Formik initialValues={{}} onSubmit={undefined}>
           {isCvss4 ? <CVSS40Wrapper /> : <CVSS31Wrapper />}
         </Formik>
-      </CardBoxModal>
+      </Modal>
 
       <Grid className="grid-cols-2">
         <Card>

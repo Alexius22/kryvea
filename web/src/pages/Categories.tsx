@@ -3,8 +3,8 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -38,7 +38,7 @@ export default function Categories() {
   }, []);
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -46,8 +46,8 @@ export default function Categories() {
         onCancel={handleModalAction}
       >
         <p>Are you sure you want to proceed with the deletion?</p>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Categories management"
         buttonLabel="Confirm"
         isActive={isModalManageActive}
@@ -78,8 +78,8 @@ export default function Categories() {
             </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashAllActive}
@@ -87,7 +87,7 @@ export default function Categories() {
         onCancel={handleModalTrashAll}
       >
         <p>Are you sure you want to proceed with the deletion?</p>
-      </CardBoxModal>
+      </Modal>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
         <Buttons>
           <Button icon={mdiPlus} text="New category" small onClick={() => navigate("/manage_category")} />

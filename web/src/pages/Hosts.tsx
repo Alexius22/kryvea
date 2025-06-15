@@ -1,10 +1,10 @@
 import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import Card from "../components/CardBox/Card";
+import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -27,7 +27,7 @@ export default function Hosts() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Please confirm"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -38,7 +38,7 @@ export default function Hosts() {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
         <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
