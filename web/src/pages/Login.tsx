@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
+import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
@@ -52,7 +53,7 @@ export default function Login() {
       <Card className="glasscard">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
-            <Grid>
+            <Grid className="gap-4 p-1">
               <Input
                 type="text"
                 id="username"
@@ -68,10 +69,9 @@ export default function Login() {
                 value={password}
               />
               <Checkbox id={"remember_me"} onChange={e => setRemember} htmlFor={"remember_me"} label={"Remember me"} />
+              <Divider />
+              <Button text="Login" className="justify-center" onClick={() => {}} />
             </Grid>
-            <div className="pt-4">
-              <Button text="Login" onClick={() => {}} />
-            </div>
           </Form>
         </Formik>
       </Card>
