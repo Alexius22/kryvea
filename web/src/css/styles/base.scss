@@ -34,7 +34,7 @@ button.outline-only {
 }
 
 input {
-  @apply no-spinner h-12 rounded-md border p-2 ring-0;
+  @apply h-12 rounded-md border p-2 ring-0;
   background-color: var(--bg-quaternary);
   border: transparent;
 }
