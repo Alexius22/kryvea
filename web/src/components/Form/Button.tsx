@@ -3,7 +3,7 @@ import Icon from "../Icon";
 interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
-  type?: "secondary" | "warning" | "danger" | "outline-only" | "";
+  type?: "secondary" | "warning" | "danger" | "outline-only" | "transparent" | "";
   small?: true | "";
   text?: string;
   onClick: () => void;
@@ -32,6 +32,7 @@ export default function Button({
       className={`flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${type} ${className}`}
       disabled={disabled}
       onClick={onClick}
+      data-type={type}
     >
       {icon && <Icon path={icon} size={iconSize} />}
       {text}

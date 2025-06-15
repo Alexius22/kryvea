@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
 import Grid from "../Composition/Grid";
@@ -13,6 +13,7 @@ type SelectWrapperProps = {
   value?: SelectOption | SelectOption[];
   defaultValue?;
   isMulti?: false;
+  widthFixed?: boolean;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
@@ -25,6 +26,7 @@ type SelectWrapperMultiProps = {
   value?: SelectOption | SelectOption[];
   defaultValue?;
   isMulti?: true;
+  widthFixed?: boolean;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
@@ -37,12 +39,21 @@ export default function SelectWrapper({
   value,
   onChange,
   isMulti,
+  widthFixed,
   onInputChange,
   closeMenuOnSelect,
   id,
   label,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
+  const [width, setWidth] = useState<number>(0);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    if (measureRef.current) {
+      setWidth(measureRef.current.offsetWidth + 48); // extra space for arrow + padding
+    }
+  }, []);
 
   const handleOnInputChange = (input: string, actionMeta: InputActionMeta) => {
     setInputValue(input);
@@ -53,9 +64,45 @@ export default function SelectWrapper({
 
   const animatedComponents = makeAnimated();
 
+  const longestLabel = options.reduce((a, b) => (a.label.length > b.label.length ? a : b)).label;
+
+  const longestLabelFixedWidth = widthFixed
+    ? {
+        container: base => ({
+          ...base,
+          width,
+        }),
+        control: base => ({
+          ...base,
+          width: "100%",
+          minWidth: width,
+        }),
+        menu: base => ({
+          ...base,
+          width: "100%",
+          minWidth: width,
+        }),
+      }
+    : {};
+
   return (
     <Grid>
       {label && <Label text={label} htmlFor={id} />}
+      {widthFixed && (
+        <span
+          ref={measureRef}
+          style={{
+            position: "fixed",
+            visibility: "hidden",
+            whiteSpace: "nowrap",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            fontWeight: "inherit",
+          }}
+        >
+          {longestLabel}
+        </span>
+      )}
       <Select
         {...{
           className,
@@ -73,7 +120,10 @@ export default function SelectWrapper({
         unstyled
         components={animatedComponents}
         menuPortalTarget={document.body}
-        styles={{ menuPortal: base => ({ ...base, zIndex: 10 }) }}
+        styles={{
+          menuPortal: base => ({ ...base, zIndex: 10 }),
+          ...longestLabelFixedWidth,
+        }}
       />
     </Grid>
   );
