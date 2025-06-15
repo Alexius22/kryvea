@@ -94,12 +94,12 @@ export default function AddAssessment() {
                 closeMenuOnSelect
                 onChange={option => console.log("Selected OSSTMM vector:", option.value)}
               />
+              <Divider />
+              <Buttons>
+                <Button text="Submit" onClick={() => {}} />
+                <Button type="outline-only" text="Cancel" onClick={() => {}} />
+              </Buttons>
             </Grid>
-            <Divider />
-            <Buttons>
-              <Button text="Submit" onClick={() => {}} />
-              <Button type="outline-only" text="Cancel" onClick={() => {}} />
-            </Buttons>
           </Form>
         </Formik>
       </Card>
