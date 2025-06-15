@@ -2,7 +2,6 @@ import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
@@ -118,7 +117,7 @@ export default function Users() {
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
       </SectionTitleLineWithButton>
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -140,7 +139,7 @@ export default function Users() {
             perPageCustom={50}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }

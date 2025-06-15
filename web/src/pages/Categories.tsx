@@ -2,7 +2,6 @@ import { mdiCogs, mdiDeleteAlert, mdiDownload, mdiPencil, mdiPlus, mdiTabSearch,
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Divider from "../components/Divider";
@@ -94,7 +93,7 @@ export default function Categories() {
           <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -118,7 +117,7 @@ export default function Categories() {
             perPageCustom={50}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }
