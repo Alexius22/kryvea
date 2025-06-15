@@ -51,9 +51,7 @@ export default function AddCustomer() {
                 ]}
                 onChange={option => console.log("Selected CVSS version:", option.value)}
               />
-
               <Divider />
-
               <Buttons>
                 <Button text="Submit" onClick={() => {}} />
                 <Button type="secondary" text="Cancel" onClick={() => {}} />

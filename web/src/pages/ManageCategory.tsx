@@ -8,6 +8,7 @@ import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
+import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import Textarea from "../components/Form/Textarea";
@@ -77,15 +78,15 @@ export default function ManageCategory() {
               <Input type="text" label="Name" id="name" placeholder="Vulnerability name" />
             </Grid>
             <Divider />
-            <p className="mb-2 font-bold">English</p>
+            <Label text="English" />
             <Grid className="grid-cols-2">
               <Textarea label="Generic description" id="gen_desc_en" placeholder="Description here" />
               <Textarea label="Generic remediation" id="gen_rem_en" placeholder="Remediation here" />
             </Grid>
+            <Divider />
             {additionalFields.map((language, index) => (
               <div key={index}>
-                <Divider />
-                <p className="mb-2 font-bold">{language.label}</p>
+                <Label text={language.label} />
                 <Grid className="grid-cols-2">
                   <Textarea
                     label="Generic remediation"
@@ -101,12 +102,14 @@ export default function ManageCategory() {
               </div>
             ))}
             <Divider />
-            <Textarea label="References" id="references" placeholder="References here" />
-            <Divider />
-            <Buttons>
-              <Button text="Submit" onClick={() => {}} />
-              <Button type="outline-only" text="Cancel" onClick={() => {}} />
-            </Buttons>
+            <Grid>
+              <Textarea label="References" id="references" placeholder="References here" />
+              <Divider />
+              <Buttons>
+                <Button text="Submit" onClick={() => {}} />
+                <Button type="outline-only" text="Cancel" onClick={() => {}} />
+              </Buttons>
+            </Grid>
           </Form>
         </Formik>
       </Card>

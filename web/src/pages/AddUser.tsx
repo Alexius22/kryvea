@@ -70,12 +70,12 @@ export default function AddUser() {
                   closeMenuOnSelect={false}
                   id="customer-selection"
                 />
+                <Divider />
+                <Buttons>
+                  <Button text="Submit" onClick={() => {}} />
+                  <Button type="outline-only" text="Cancel" onClick={() => {}} />
+                </Buttons>
               </Grid>
-              <Divider />
-              <Buttons>
-                <Button text="Submit" onClick={() => {}} />
-                <Button type="outline-only" text="Cancel" onClick={() => {}} />
-              </Buttons>
             </Form>
           );
         }}
