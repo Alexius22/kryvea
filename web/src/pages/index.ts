@@ -10,7 +10,6 @@ import Customers from "./Customers";
 import Dashboard from "./Dashboard";
 import EditPoc from "./EditPoc";
 import EditReport from "./EditReport";
-import Error from "./Error";
 import Hosts from "./Hosts";
 import Login from "./Login";
 import ManageCategory from "./ManageCategory";
@@ -32,7 +31,6 @@ export {
   Dashboard,
   EditPoc,
   EditReport,
-  Error,
   Hosts,
   Login,
   ManageCategory,

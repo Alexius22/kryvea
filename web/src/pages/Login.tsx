@@ -7,7 +7,6 @@ import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import SectionFullScreen from "../components/Section/SectionFullScreen";
 import { getPageTitle } from "../config";
 
 type LoginForm = {
@@ -49,8 +48,8 @@ export default function Login() {
   }, []);
 
   return (
-    <SectionFullScreen>
-      <Card className="w-1/4 max-w-full">
+    <div className="card-modal fixed flex min-h-screen w-screen items-center justify-center">
+      <Card className="glasscard">
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           <Form>
             <Grid>
@@ -65,8 +64,8 @@ export default function Login() {
                 type="password"
                 id="password"
                 label="Password"
-                onChange={e => setUsername(e.target.value)}
-                value={username}
+                onChange={e => setPassword(e.target.value)}
+                value={password}
               />
               <Checkbox id={"remember_me"} onChange={e => setRemember} htmlFor={"remember_me"} label={"Remember me"} />
             </Grid>
@@ -76,6 +75,6 @@ export default function Login() {
           </Form>
         </Formik>
       </Card>
-    </SectionFullScreen>
+    </div>
   );
 }

@@ -15,7 +15,6 @@ import {
   Dashboard,
   EditPoc,
   EditReport,
-  Error,
   Hosts,
   Login,
   ManageCategory,
@@ -72,7 +71,6 @@ export default function App() {
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
-            <Route path="/error" element={<Error />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />
