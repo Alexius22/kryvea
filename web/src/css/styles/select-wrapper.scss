@@ -9,14 +9,14 @@
   padding: 0.5rem;
   background-color: var(--bg-quaternary);
   transition: border-color 0.15s ease-in-out;
-  
+
   &:hover .select-wrapper__indicator {
     filter: brightness(1.2);
   }
 }
 
 .select-wrapper__control--is-focused {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
 }
 
 .select-wrapper__value-container {
@@ -30,7 +30,7 @@
 /* Menu (dropdown) */
 .select-wrapper__menu {
   margin-top: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
   border-radius: 0.5rem;
   overflow: hidden;
   background-color: var(--bg-quaternary);

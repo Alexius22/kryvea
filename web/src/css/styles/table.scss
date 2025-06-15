@@ -9,7 +9,8 @@ table th {
 
 /* Table body */
 table tr {
-  @apply border-b border-[color:--border];
+  @apply border-b;
+  border-color: var(--border-primary);
 }
 
 table tbody tr:hover {

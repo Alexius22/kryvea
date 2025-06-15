@@ -52,7 +52,8 @@ export default function PocTemplate({
 
   return (
     <div
-      className={`poc-template ${selectedPoc === currentIndex ? "!border-[color:--border-highlight]" : ""}`}
+      className="poc-template"
+      data-focused={selectedPoc === currentIndex}
       onDragEnter={e => {
         e.preventDefault();
         e.stopPropagation();

@@ -5,7 +5,7 @@
 
 .req-res {
   @apply mb-3 border-b pb-1 text-lg font-semibold;
-  border-color: var(--border);
+  border-color: var(--border-primary);
 }
 
 .dragging,
@@ -27,9 +27,14 @@
 
 .poc-template {
   @apply cardbox relative flex flex-col border p-6;
-  border-color: var(--border);
+  border-color: var(--border-primary);
   background-color: var(--bg-tertiary);
+
+  &[data-focused="true"] {
+    border-color: var(--border-primary-highlight);
+  }
 }
+
 .poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
   background-color: var(--bg-quaternary);
 }

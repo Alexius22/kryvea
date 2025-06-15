@@ -28,8 +28,10 @@
   --text-disabled: #{color.adjust($text-primary, $lightness: -55%)};
 
   /* Borders and Dividers */
-  --border: #{$border};
-  --border-highlight: #{color.adjust($border, $lightness: -25%)};
+  --border-primary: #{color.adjust($border, $alpha: -0.8)};
+  --border-primary-highlight: #{color.adjust($border, $alpha: -0.6)};
+  --border-secondary: #{color.adjust($border, $alpha: -0.9)};
+  --border-secondary-highlight: #{color.adjust($border, $alpha: -0.8)};
 
   /* Links */
   --link: #{$link};
@@ -69,7 +71,7 @@ html.dark {
   /* Palette */
   $bg-primary: #121212;
   $text-primary: #e0e0e0;
-  $border: #bdbdbd30;
+  $border: #bdbdbdff;
   $link: #ebbebe;
   $button-bg: color.adjust($bg-primary, $lightness: 40%);
   $clickable-hover-backdrop-brightness: 0.8;
@@ -91,8 +93,10 @@ html.dark {
   --text-disabled: #{color.adjust($text-primary, $lightness: -55%)};
 
   /* Borders and Dividers */
-  --border: #{$border};
-  --border-highlight: #{color.adjust($border, $alpha: 0.5)};
+  --border-primary: #{color.adjust($border, $alpha: -0.8)};
+  --border-primary-highlight: #{color.adjust($border, $alpha: -0.6)};
+  --border-secondary: #{color.adjust($border, $alpha: -0.9)};
+  --border-secondary-highlight: #{color.adjust($border, $alpha: -0.8)};
 
   /* Links */
   --link: #{$link};
