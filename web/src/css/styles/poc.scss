@@ -34,10 +34,7 @@
   background-color: var(--bg-quaternary);
 }
 
-.glasscard {
-  background: rgba(37, 37, 37, 0.21);
-  background-image: linear-gradient(to bottom, var(--bg-primary), rgba(62, 62, 62, 0));
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+.edit-poc-header {
+  border: none;
+  background-image: linear-gradient(to bottom, var(--bg-primary), rgba(var(--bg-secondary-rgb), 0.5));
 }

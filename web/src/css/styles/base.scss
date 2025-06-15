@@ -71,6 +71,7 @@ textarea:focus {
 .cardbox {
   @apply rounded-3xl p-4;
   background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
 }
 
 .card-modal {
@@ -83,7 +84,7 @@ textarea:focus {
 }
 
 .divider {
-  @apply -mx-6 my-6 hidden border-t lg:block;
+  @apply my-2;
   border-color: var(--border);
 }
 
@@ -115,4 +116,11 @@ textarea:focus {
       backdrop-filter: brightness(var(--clickable-active-backdrop-brightness));
     }
   }
+}
+
+.glasscard {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
+  border: 1px solid var(--border);
 }
