@@ -2,17 +2,16 @@ import { ReactNode } from "react";
 
 type Props = {
   path: string;
-  w?: string;
-  h?: string;
   size?: string | number | null;
   className?: string;
   children?: ReactNode;
+  viewBox?: string;
 };
 
-export default function Icon({ path, w = "w-6", h = "h-6", size = 18, className = "", children }: Props) {
+export default function Icon({ path, size = 16, className = "", children, viewBox = "0 0 24 24" }: Props) {
   return (
-    <span className={`inline-flex items-center justify-center ${w} ${h} ${className}`}>
-      <svg viewBox="0 0 24 24" width={size} height={size} className="inline-block">
+    <span className={`inline-flex items-center justify-center ${className}`}>
+      <svg viewBox={viewBox} width={size} height={size} className="inline-block" aria-hidden="true" focusable="false">
         <path fill="currentColor" d={path} />
       </svg>
       {children}
