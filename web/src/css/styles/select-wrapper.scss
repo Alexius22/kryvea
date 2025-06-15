@@ -37,7 +37,6 @@
 
 /* Menu list */
 .select-wrapper__menu-list {
-  @apply no-scrollbar;
   padding: 0;
   max-height: 200px;
   overflow-y: auto;
