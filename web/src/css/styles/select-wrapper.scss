@@ -8,7 +8,6 @@
   border-radius: 0.375rem;
   padding-left: 0.5rem;
   background-color: var(--bg-quaternary);
-  color: var(--select-text);
   transition: border-color 0.15s ease-in-out;
 }
 
@@ -32,7 +31,6 @@
   border-radius: 0.5rem;
   overflow: hidden;
   background-color: var(--bg-quaternary);
-  color: var(--select-text);
 }
 
 /* Menu list */
@@ -50,7 +48,6 @@
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   background-color: var(--bg-quaternary);
-  color: var(--select-text);
   transition: background-color 0.2s ease;
 }
 
@@ -60,7 +57,6 @@
 
 /* Single value */
 .select-wrapper__single-value {
-  color: var(--select-text);
 }
 
 /* Multi value */
@@ -68,7 +64,6 @@
   background-color: var(--button-bg);
   border-radius: 0.375rem;
   padding: 0.25rem;
-  color: var(--select-text);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -76,7 +71,6 @@
 
 .select-wrapper__multi-value__label {
   @apply text-xs;
-  color: var(--select-text);
 }
 
 .select-wrapper__multi-value__remove {
@@ -86,7 +80,7 @@
 
 /* Placeholder */
 .select-wrapper__placeholder {
-  color: var(--select-placeholder);
+  color: var(--text-secondary);
   font-weight: 300;
   font-style: italic;
 }

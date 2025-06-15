@@ -11,7 +11,7 @@ a:hover {
 }
 
 button {
-  @apply rounded border-none px-4 py-2 hover:opacity-80 active:opacity-50;
+  @apply clickable rounded border-none px-4 py-2;
   background-color: var(--button-bg);
 }
 button.small {
@@ -27,16 +27,19 @@ button.danger {
   background-color: var(--error);
 }
 button.outline-only {
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--border);
+  border: 1px solid var(--border);
+  background-color: transparent;
+}
+button.transparent {
   background-color: transparent;
 }
 
 input {
-  @apply h-12 rounded-md border p-2 ring-0;
+  @apply rounded-md border p-2 ring-0;
+  outline: none;
+  border-color: transparent;
+  height: min-content;
   background-color: var(--bg-quaternary);
-  border: transparent;
 }
 input::placeholder,
 textarea::placeholder {
@@ -45,7 +48,6 @@ textarea::placeholder {
   font-style: italic;
 }
 input:focus {
-  outline: none;
   border: 1px solid var(--border);
 }
 input.checkbox {
@@ -97,5 +99,20 @@ textarea:focus {
 }
 
 .clickable {
-  @apply hover:opacity-80 active:opacity-50;
+  &:hover {
+    background-color: rgba(var(--button-bg-rgb), 0.8);
+  }
+  &:active {
+    background-color: rgba(var(--button-bg-rgb), 0.5);
+  }
+
+  &[data-type="outline-only"],
+  &[data-type="transparent"] {
+    &:hover {
+      backdrop-filter: brightness(var(--clickable-hover-backdrop-brightness));
+    }
+    &:active {
+      backdrop-filter: brightness(var(--clickable-active-backdrop-brightness));
+    }
+  }
 }

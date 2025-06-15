@@ -9,6 +9,8 @@
   $border: #e45353;
   $link: #c94c4c;
   $button-bg: color.adjust($bg-primary, $lightness: -20%);
+  $clickable-hover-backdrop-brightness: 0.8;
+  $clickable-active-backdrop-brightness: 0.5;
 
   /* Maps */
   $backgrounds: (
@@ -34,17 +36,30 @@
   --link-hover: #{color.adjust($link, $lightness: -15%)};
 
   /* Buttons */
-  --button-bg: #{$button-bg};
-  --button-bg-secondary: #{color.adjust($button-bg, $lightness: 10%)};
+  $buttons: (
+    "bg": $button-bg,
+    "bg-secondary": color.adjust($bg-primary, $lightness: 10%),
+  );
 
   /* Alerts */
   --error: #f44336;
   --warning: #daa520;
 
+  /* Clickable CSS class */
+  --clickable-hover-backdrop-brightness: #{$clickable-hover-backdrop-brightness};
+  --clickable-active-backdrop-brightness: #{$clickable-active-backdrop-brightness};
+
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
     --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
+      #{color.channel($color, "blue")};
+  }
+
+  /* Buttons: hex and RGB */
+  @each $name, $color in $buttons {
+    --button-#{$name}: #{$color};
+    --button-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
       #{color.channel($color, "blue")};
   }
 }
@@ -57,6 +72,8 @@ html.dark {
   $border: #bdbdbd30;
   $link: #ebbebe;
   $button-bg: color.adjust($bg-primary, $lightness: 40%);
+  $clickable-hover-backdrop-brightness: 0.8;
+  $clickable-active-backdrop-brightness: 0.5;
 
   /* Maps */
   $backgrounds: (
@@ -82,17 +99,30 @@ html.dark {
   --link-hover: #{color.adjust($link, $lightness: -10%)};
 
   /* Buttons */
-  --button-bg: #{$button-bg};
-  --button-bg-secondary: #{color.adjust($bg-primary, $lightness: 10%)};
+  $buttons: (
+    "bg": $button-bg,
+    "bg-secondary": color.adjust($bg-primary, $lightness: 10%),
+  );
 
   /* Alerts */
   --error: #f44336;
   --warning: #daa520;
 
+  /* Clickable CSS class */
+  --clickable-hover-backdrop-brightness: #{$clickable-hover-backdrop-brightness};
+  --clickable-active-backdrop-brightness: #{$clickable-active-backdrop-brightness};
+
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
     --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
+      #{color.channel($color, "blue")};
+  }
+
+  /* Buttons: hex and RGB */
+  @each $name, $color in $buttons {
+    --button-#{$name}: #{$color};
+    --button-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
       #{color.channel($color, "blue")};
   }
 }
