@@ -104,7 +104,7 @@ export default function Table({
   return (
     <Card className={`!p-0 ${minW} ${wMin ? "w-min" : ""}`}>
       <Input
-        className="rounded-t-2xl bg-transparent p-4 focus:border-none focus:ring-0"
+        className="rounded-t-2xl bg-transparent p-4 focus:border-transparent"
         placeholder="Search"
         type="text"
         value={filterText}
@@ -135,9 +135,8 @@ export default function Table({
                     {key}
                     <Icon
                       className={keySort === undefined ? "opacity-0" : keySort.header !== key ? "opacity-0" : ""}
-                      h="h-min"
-                      w="w-min"
                       path={keySort?.order === 1 ? mdiChevronDown : mdiChevronUp}
+                      viewBox={"0 0 18 18"}
                     />
                   </th>
                 )
