@@ -2,7 +2,6 @@ import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, m
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
@@ -126,7 +125,7 @@ export default function Assessment() {
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -153,7 +152,7 @@ export default function Assessment() {
             perPageCustom={10}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }

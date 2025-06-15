@@ -2,7 +2,6 @@ import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import Card from "../components/CardBox/Card";
 import { formatDate } from "../components/dateUtils";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
@@ -27,7 +26,7 @@ export default function Dashboard() {
   const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
     <div>
       <SectionTitleLineWithButton icon={icon} title={title} />
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -49,7 +48,7 @@ export default function Dashboard() {
             perPageCustom={10}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 

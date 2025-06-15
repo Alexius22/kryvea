@@ -3,7 +3,6 @@ import { Form, Formik } from "formik";
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
@@ -114,7 +113,7 @@ export default function Customers() {
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/add_customer")} />
       </SectionTitleLineWithButton>
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -139,7 +138,7 @@ export default function Customers() {
             perPageCustom={100}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }

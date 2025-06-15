@@ -1,7 +1,6 @@
 import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import Card from "../components/CardBox/Card";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -43,7 +42,7 @@ export default function Hosts() {
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
         <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
       </SectionTitleLineWithButton>
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -62,7 +61,7 @@ export default function Hosts() {
             perPageCustom={10}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }

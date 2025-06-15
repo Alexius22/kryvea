@@ -1,7 +1,6 @@
 import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import Card from "../components/CardBox/Card";
 import { formatDate } from "../components/dateUtils";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
@@ -21,7 +20,7 @@ export default function Vulnerabilities() {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-      <Card className="!p-0">
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -43,7 +42,7 @@ export default function Vulnerabilities() {
             maxWidthColumns={{ Description: "20rem" }}
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }
