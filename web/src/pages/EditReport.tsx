@@ -5,7 +5,7 @@ import Grid from "../components/Composition/Grid";
 import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
 
-const EditReport = () => {
+export default function EditReport() {
   useEffect(() => {
     document.title = getPageTitle("Edit Report");
   }, []);
@@ -22,6 +22,4 @@ const EditReport = () => {
       </Formik>
     </Card>
   );
-};
-
-export default EditReport;
+}

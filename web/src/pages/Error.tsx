@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import Button from "../components/Form/Button";
 import Card from "../components/CardBox/Card";
-import SectionFullScreen from "../components/Section/FullScreen";
+import Button from "../components/Form/Button";
+import SectionFullScreen from "../components/Section/SectionFullScreen";
 import { getPageTitle } from "../config";
 
-const Error = () => {
+export default function Error() {
   useEffect(() => {
     document.title = getPageTitle("Error");
   }, []);
@@ -22,6 +22,4 @@ const Error = () => {
       </Card>
     </SectionFullScreen>
   );
-};
-
-export default Error;
+}

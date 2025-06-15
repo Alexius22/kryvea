@@ -2,13 +2,13 @@ import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
-import { formatDate } from "../components/DateUtils";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import { formatDate } from "../components/dateUtils";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
-const Vulnerabilities = () => {
+export default function Vulnerabilities() {
   const navigate = useNavigate();
   //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities/search");
   const loading = false;
@@ -46,6 +46,4 @@ const Vulnerabilities = () => {
       </Card>
     </div>
   );
-};
-
-export default Vulnerabilities;
+}

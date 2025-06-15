@@ -3,7 +3,7 @@ import Grid from "../../Composition/Grid";
 import Accordion from "../../Form/Accordion";
 import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
-import calculateCVSSFromMetrics, { calculateCVSSFromVector } from "./CVSS31";
+import { calculateCVSSFromMetrics, calculateCVSSFromVector } from "./cvss31";
 import CVSS31Render from "./CVSS31Render";
 
 export default function CVSS31Wrapper() {

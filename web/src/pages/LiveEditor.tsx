@@ -1,7 +1,6 @@
 import { mdiCalculator } from "@mdi/js";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
-import Button from "../components/Form/Button";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
@@ -9,6 +8,7 @@ import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
 import CVSS40Wrapper from "../components/CVSS/CVSS40Wrapper/CVSS40Wrapper";
 import ScoreBar from "../components/CVSS/ScoreBar";
 import Accordion from "../components/Form/Accordion";
+import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
@@ -41,7 +41,7 @@ const sections = [
   },
 ];
 
-const LiveEditor = () => {
+export default function LiveEditor() {
   const [content, setContent] = useState({});
   const [isCvss4, setIsCvss4] = useState(false);
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
@@ -145,6 +145,4 @@ const LiveEditor = () => {
       </Grid>
     </div>
   );
-};
-
-export default LiveEditor;
+}

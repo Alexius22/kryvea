@@ -10,12 +10,12 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { categories } from "../mockup_data/categories";
 
-const Categories = () => {
+export default function Categories() {
   const navigate = useNavigate();
   // const { data: categories, loading, error } = useFetch<Category[]>("/api/categories");
   const loading = false;
@@ -121,6 +121,4 @@ const Categories = () => {
       </Card>
     </div>
   );
-};
-
-export default Categories;
+}

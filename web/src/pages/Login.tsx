@@ -7,7 +7,7 @@ import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import SectionFullScreen from "../components/Section/FullScreen";
+import SectionFullScreen from "../components/Section/SectionFullScreen";
 import { getPageTitle } from "../config";
 
 type LoginForm = {
@@ -16,7 +16,7 @@ type LoginForm = {
   remember: boolean;
 };
 
-const Login = () => {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
@@ -78,6 +78,4 @@ const Login = () => {
       </Card>
     </SectionFullScreen>
   );
-};
-
-export default Login;
+}

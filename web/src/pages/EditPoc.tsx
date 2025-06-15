@@ -1,16 +1,16 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
+import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Card from "../components/CardBox/Card";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocText from "../components/Poc/PocText";
 import { getPageTitle } from "../config";
 
-const EditPoc = () => {
+export default function EditPoc() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
@@ -216,6 +216,4 @@ const EditPoc = () => {
       </div>
     </div>
   );
-};
-
-export default EditPoc;
+}

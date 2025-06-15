@@ -29,7 +29,21 @@ const severityRatings = [
   { name: "Critical", bottom: 9.0, top: 10.0 },
 ];
 
-export default function calculateCVSSFromMetrics(metrics) {
+function roundUp1(input: number): number {
+  const intInput = Math.round(input * 100000);
+  return intInput % 10000 === 0 ? intInput / 100000 : Math.ceil(intInput / 10000) / 10;
+}
+
+function severityRating(score: number): string {
+  for (let i = 0; i < severityRatings.length; i++) {
+    if (score >= severityRatings[i].bottom && score <= severityRatings[i].top) {
+      return severityRatings[i].name;
+    }
+  }
+  return "Unknown";
+}
+
+export function calculateCVSSFromMetrics(metrics) {
   const {
     AttackVector,
     AttackComplexity,
@@ -378,18 +392,4 @@ export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
     ModifiedIntegrity: metricValues.MI,
     ModifiedAvailability: metricValues.MA,
   });
-}
-
-function roundUp1(input: number): number {
-  const intInput = Math.round(input * 100000);
-  return intInput % 10000 === 0 ? intInput / 100000 : Math.ceil(intInput / 10000) / 10;
-}
-
-function severityRating(score: number): string {
-  for (let i = 0; i < severityRatings.length; i++) {
-    if (score >= severityRatings[i].bottom && score <= severityRatings[i].top) {
-      return severityRatings[i].name;
-    }
-  }
-  return "Unknown";
 }

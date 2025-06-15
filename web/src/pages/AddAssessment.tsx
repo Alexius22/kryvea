@@ -11,7 +11,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
 
-const AddAssessment = () => {
+export default function AddAssessment() {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,6 +105,4 @@ const AddAssessment = () => {
       </Card>
     </div>
   );
-};
-
-export default AddAssessment;
+}

@@ -8,7 +8,7 @@ import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
 
-const AddHost = () => {
+export default function AddHost() {
   useEffect(() => {
     document.title = getPageTitle("Customer");
   }, []);
@@ -34,6 +34,4 @@ const AddHost = () => {
       </Card>
     </div>
   );
-};
-
-export default AddHost;
+}

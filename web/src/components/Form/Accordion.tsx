@@ -4,7 +4,7 @@ import { GlobalContext } from "../../App";
 import Icon from "../Icon";
 
 //  accordionitem component
-const AccordionItem = ({ title, isOpen, onClick, children }) => {
+function AccordionItem({ title, isOpen, onClick, children }) {
   const contentHeight = useRef<HTMLDivElement>();
   return (
     <div className="wrapper">
@@ -22,9 +22,9 @@ const AccordionItem = ({ title, isOpen, onClick, children }) => {
       </div>
     </div>
   );
-};
+}
 
-const Accordion = ({ title, children }) => {
+export default function Accordion({ title, children }) {
   const {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
@@ -43,6 +43,4 @@ const Accordion = ({ title, children }) => {
       </AccordionItem>
     </div>
   );
-};
-
-export default Accordion;
+}

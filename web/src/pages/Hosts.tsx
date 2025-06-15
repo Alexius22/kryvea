@@ -5,12 +5,12 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Card from "../components/CardBox/Card";
 import CardBoxModal from "../components/CardBox/CardBoxModal";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { targets } from "../mockup_data/targets";
 
-const Hosts = () => {
+export default function Hosts() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   //const { data: targets, loading, error } = useFetch<Host[]>(`/api/targets/${id}`);
@@ -65,6 +65,4 @@ const Hosts = () => {
       </Card>
     </div>
   );
-};
-
-export default Hosts;
+}

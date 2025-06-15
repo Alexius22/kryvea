@@ -6,7 +6,7 @@ import Buttons from "./Form/Buttons";
 import Input from "./Form/Input";
 import Icon from "./Icon";
 
-const Table = ({
+export default function Table({
   data,
   perPageCustom = 5,
   wMin,
@@ -18,7 +18,7 @@ const Table = ({
   wMin?: true;
   minW?: "min-w-fit" | "min-w-max";
   maxWidthColumns?: Record<string, string>;
-}) => {
+}) {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
@@ -245,6 +245,4 @@ const Table = ({
       </div>
     </Card>
   );
-};
-
-export default Table;
+}

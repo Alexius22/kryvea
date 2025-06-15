@@ -6,10 +6,10 @@ import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 
-const Profile = () => {
+export default function Profile() {
   const {
     useUsername: [username],
   } = useContext(GlobalContext);
@@ -44,6 +44,4 @@ const Profile = () => {
       </Card>
     </div>
   );
-};
-
-export default Profile;
+}
