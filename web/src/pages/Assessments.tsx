@@ -3,8 +3,8 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -60,7 +60,7 @@ export default function Assessments() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Clone assessment"
         buttonLabel="Confirm"
         isActive={isModalCloneActive}
@@ -72,8 +72,8 @@ export default function Assessments() {
             <Input type="text" label="Assessment Name" placeholder="Cloned assessment name" id="assessment_name" />
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Download report"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
@@ -108,8 +108,8 @@ export default function Assessments() {
             </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -117,7 +117,7 @@ export default function Assessments() {
         onCancel={handleModalAction}
       >
         <p>Are you sure to delete this assessment?</p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
         <Button icon={mdiPlus} text="New assessment" small onClick={() => navigate("/add_assessment")} />
@@ -139,6 +139,7 @@ export default function Assessments() {
             End: formatDate(assessment.end_date_time),
             Status: (
               <SelectWrapper
+                widthFixed
                 options={statusSelectOptions}
                 onChange={selectedOptions => setSelectedStatus(selectedOptions)}
                 defaultValue={{ label: "On Hold", value: "hold" }}

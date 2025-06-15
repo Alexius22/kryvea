@@ -2,8 +2,8 @@ import { mdiDatabaseEdit, mdiPlus } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -46,7 +46,7 @@ export default function ManageCategory() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Add language"
         buttonLabel="Add"
         isActive={isModalInfoActive}
@@ -64,7 +64,7 @@ export default function ManageCategory() {
             />
           </Form>
         </Formik>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
         <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />

@@ -3,8 +3,8 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -42,7 +42,7 @@ export default function Users() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Edit user"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
@@ -101,8 +101,8 @@ export default function Users() {
             );
           }}
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Please confirm"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -113,7 +113,7 @@ export default function Users() {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />

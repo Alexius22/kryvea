@@ -4,8 +4,8 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -46,7 +46,7 @@ export default function Customers() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Edit customer"
         buttonLabel="Confirm"
         isActive={isModalCustomerActive}
@@ -96,9 +96,9 @@ export default function Customers() {
             </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
+      </Modal>
 
-      <CardBoxModal
+      <Modal
         title="Please confirm"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -109,7 +109,7 @@ export default function Customers() {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/add_customer")} />

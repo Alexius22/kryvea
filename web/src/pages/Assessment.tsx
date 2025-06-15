@@ -3,8 +3,8 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Card from "../components/CardBox/Card";
-import CardBoxModal from "../components/CardBox/CardBoxModal";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -51,7 +51,7 @@ export default function Assessment() {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Download report"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
@@ -86,8 +86,8 @@ export default function Assessment() {
             </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Upload file"
         buttonLabel="Confirm"
         isActive={isModalUploadActive}
@@ -103,8 +103,8 @@ export default function Assessment() {
           onChange={changeFile}
           onButtonClick={clearFile}
         />
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Please confirm"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
@@ -115,7 +115,7 @@ export default function Assessment() {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
         <Buttons>

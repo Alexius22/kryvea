@@ -1,9 +1,9 @@
 import { mdiClose } from "@mdi/js";
 import { ReactNode } from "react";
+import Card from "../CardBox/Card";
+import CardBoxComponentTitle from "../CardBox/CardBoxComponentTitle";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
-import Card from "./Card";
-import CardBoxComponentTitle from "./CardBoxComponentTitle";
 
 type Props = {
   title: string;
@@ -15,15 +15,7 @@ type Props = {
   onCancel?: () => void;
 };
 
-export default function CardBoxModal({
-  title,
-  buttonLabel,
-  isActive,
-  children,
-  className,
-  onConfirm,
-  onCancel,
-}: Props) {
+export default function Modal({ title, buttonLabel, isActive, children, className, onConfirm, onCancel }: Props) {
   if (!isActive) {
     return null;
   }
@@ -40,7 +32,7 @@ export default function CardBoxModal({
       <div className={"max-h-modal w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
         <Card className={`${className}`} footer={footer}>
           <CardBoxComponentTitle title={title}>
-            {!!onCancel && <Button icon={mdiClose} onClick={onCancel} small />}
+            {!!onCancel && <Button type="transparent" icon={mdiClose} onClick={onCancel} small />}
           </CardBoxComponentTitle>
           {children}
         </Card>
