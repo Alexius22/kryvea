@@ -6,9 +6,13 @@
   display: flex;
   border: 1px solid transparent;
   border-radius: 0.375rem;
-  padding-left: 0.5rem;
+  padding: 0.5rem;
   background-color: var(--bg-quaternary);
   transition: border-color 0.15s ease-in-out;
+  
+  &:hover .select-wrapper__indicator {
+    filter: brightness(1.2);
+  }
 }
 
 .select-wrapper__control--is-focused {
@@ -16,7 +20,6 @@
 }
 
 .select-wrapper__value-container {
-  padding: 0.5rem 0;
   gap: 0.25rem;
 }
 
@@ -43,7 +46,7 @@
 /* Option */
 .select-wrapper__option {
   &:hover {
-    background-color: var(--bg-active);
+    background-color: rgba(var(--bg-tertiary-rgb), 0.4);
   }
   padding: 0.5rem 0.75rem;
   cursor: pointer;
@@ -53,10 +56,6 @@
 
 .select-wrapper__option:active {
   background-color: var(--bg-border);
-}
-
-/* Single value */
-.select-wrapper__single-value {
 }
 
 /* Multi value */
@@ -88,13 +87,7 @@
 /* Dropdown indicator */
 .select-wrapper__dropdown-indicator {
   color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 0 5px;
   transition: color 0.2s ease;
-}
-
-.select-wrapper__indicator {
-  @apply clickable;
 }
 
 .select-wrapper__indicator-separator {
