@@ -25,7 +25,7 @@ export default function UploadFile({
         className="clickable flex h-12 w-1/2 min-w-40 cursor-pointer items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2"
         htmlFor={inputId}
       >
-        <span className="shrink-0 text-nowrap rounded-md border border-[color:--border] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
+        <span className="shrink-0 text-nowrap rounded-md border border-[color:--border-primary] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
           Choose File
         </span>
         <span className="truncate before:empty:content-['No_file_chosen']">{filename}</span>

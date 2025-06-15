@@ -27,7 +27,7 @@ button.danger {
   background-color: var(--error);
 }
 button.outline-only {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
   background-color: transparent;
 }
 button.transparent {
@@ -48,7 +48,7 @@ textarea::placeholder {
   font-style: italic;
 }
 input:focus {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
 }
 input.checkbox {
   accent-color: var(--link);
@@ -60,7 +60,7 @@ textarea {
 }
 textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 1px var(--border);
+  box-shadow: 0 0 0 1px var(--border-primary);
   border-color: transparent;
 }
 
@@ -71,7 +71,7 @@ textarea:focus {
 .cardbox {
   @apply rounded-3xl p-4;
   background-color: var(--bg-tertiary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
 }
 
 .card-modal {
@@ -85,7 +85,7 @@ textarea:focus {
 
 .divider {
   @apply my-2;
-  border-color: var(--border);
+  border-color: var(--border-primary);
 }
 
 .heart {
@@ -122,5 +122,5 @@ textarea:focus {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
 }

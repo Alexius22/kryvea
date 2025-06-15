@@ -24,7 +24,7 @@
 }
 
 .control-normal {
-  border-color: var(--border);
+  border-color: var(--border-primary);
   outline: none;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .control-bordered {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-primary);
 }
 
 .control-transparent {
