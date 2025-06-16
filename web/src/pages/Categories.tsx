@@ -8,7 +8,7 @@ import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
-import Input from "../components/Form/Input";
+import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -30,6 +30,20 @@ export default function Categories() {
   };
   const handleModalTrashAll = () => {
     setIsModalTrashAllActive(false);
+  };
+  const [fileObj, setFileObj] = useState<File>();
+
+  const changeFile = ({ target: { files } }) => {
+    if (!files || !files[0]) {
+      return;
+    }
+
+    const file: File = files[0];
+    setFileObj(file);
+  };
+
+  const clearFile = () => {
+    setFileObj(null);
   };
 
   useEffect(() => {
@@ -67,7 +81,14 @@ export default function Categories() {
                 />
               </Buttons>
               <Divider />
-              <Input label="Import categories" type="file" id="imported_categories" accept=".json" />
+              <UploadFile
+                inputId={"imported_categories"}
+                filename={fileObj?.name}
+                name={"categories"}
+                accept={".json"}
+                onChange={changeFile}
+                onButtonClick={clearFile}
+              />
               <Checkbox
                 id={"override_categories"}
                 onChange={{}}
