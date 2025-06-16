@@ -1,6 +1,5 @@
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { v4 } from "uuid";
-import { GlobalContext } from "../../App";
 import Icon from "../Icon";
 import "./Accordion.css";
 
@@ -28,9 +27,6 @@ function AccordionItem({ title, isOpen, onClick, children }) {
 }
 
 export default function Accordion({ title, children }) {
-  const {
-    useDarkTheme: [darkTheme],
-  } = useContext(GlobalContext);
   const [isOpen, setIsOpen] = useState(false);
 
   const accordionKey = v4();
