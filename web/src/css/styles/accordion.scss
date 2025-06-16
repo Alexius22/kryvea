@@ -1,10 +1,10 @@
-.Accordion-container {
+.accordion-container {
   width: 100%;
   overflow: hidden;
   border-radius: 0.375rem;
   border-color: transparent;
   background-color: var(--bg-quaternary);
-  
+
   &:hover .arrow {
     filter: brightness(1.2);
   }
