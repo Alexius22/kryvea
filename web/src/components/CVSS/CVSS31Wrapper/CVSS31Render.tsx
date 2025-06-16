@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import Grid from "../../Composition/Grid";
 import Button from "../../Form/Button";
 import Buttons from "../../Form/Buttons";
@@ -114,16 +115,17 @@ export default function CVSS31Render({ updateVectorString, selectedValues, setSe
   );
 
   function renderMetricButtons([metricKey, metricLabel]) {
+    const cvss31KeyUuid = v4();
     return (
-      <div className="pt-2">
-        <Buttons key={metricKey} label={metricLabel}>
-          {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
+      <div className="pt-2" key={`container-${cvss31KeyUuid}`}>
+        <Buttons label={metricLabel}>
+          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
             <Button
               small
               type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
+              text={`${optionLabel} (${optionKey})`}
               onClick={() => handleChange(metricKey, optionKey)}
-              key={`${optionKey}-optionKey`}
-              text={`${optionObj} (${optionKey})`}
+              key={`${optionLabel}-${cvss31KeyUuid}`}
             />
           ))}
         </Buttons>
