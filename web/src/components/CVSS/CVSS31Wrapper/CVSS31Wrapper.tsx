@@ -96,7 +96,7 @@ export default function CVSS31Wrapper() {
   return (
     <>
       <Grid className="grid-cols-[63%_36%]">
-        <Input type="text" label="CVSS vector" id="cvss" value={cvssValue} onChange={handleInputChange} />
+        <Input type="text" label="CVSSv3.1 vector" id="cvssv3" value={cvssValue} onChange={handleInputChange} />
         <ScoreBar score={handleScoreBar()} />
       </Grid>
       <Accordion title={"CVSS Calculator"}>

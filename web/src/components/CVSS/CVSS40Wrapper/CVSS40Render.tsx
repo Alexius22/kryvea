@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { v4 } from "uuid";
 import Grid from "../../Composition/Grid";
 import Button from "../../Form/Button";
 import Buttons from "../../Form/Buttons";
@@ -167,16 +168,17 @@ export default function CVSS40Render({ updateVectorString, selectedValues, setSe
   );
 
   function renderMetricButtons([metricKey, metricLabel]) {
+    const cvss40KeyUuid = v4();
     return (
-      <div className="pt-2">
-        <Buttons key={metricKey} label={metricLabel}>
+      <div className="pt-2" key={`container-${cvss40KeyUuid}`}>
+        <Buttons label={metricLabel}>
           {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
             <Button
               small
-              type={selectedValues[metricKey] === optionKey ? "" : "secondary"}
+              type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
               text={`${optionLabel} (${optionKey})`}
               onClick={() => handleChange(metricKey, optionKey)}
-              key={`${optionLabel}-optionKey`}
+              key={`${optionLabel}-${cvss40KeyUuid}`}
             />
           ))}
         </Buttons>
