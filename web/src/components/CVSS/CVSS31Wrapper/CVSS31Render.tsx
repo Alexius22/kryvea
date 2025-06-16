@@ -63,7 +63,7 @@ export default function CVSS31Render({ updateVectorString, selectedValues, setSe
   };
 
   return (
-    <Grid className="p-4 pt-0">
+    <Grid className="pt-4">
       {/* Base Score Metrics */}
       <Grid>
         <div className="rounded-2xl border border-[color:--border-primary] p-4">
