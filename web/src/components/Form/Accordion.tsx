@@ -1,6 +1,8 @@
 import { useContext, useRef, useState } from "react";
+import { v4 } from "uuid";
 import { GlobalContext } from "../../App";
 import Icon from "../Icon";
+import "./Accordion.css";
 
 //  accordionitem component
 function AccordionItem({ title, isOpen, onClick, children }) {
@@ -29,17 +31,13 @@ export default function Accordion({ title, children }) {
   const {
     useDarkTheme: [darkTheme],
   } = useContext(GlobalContext);
-  const [activeIndex, setActiveIndex] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleItemClick = index => {
-    setActiveIndex(prevIndex => (prevIndex === index ? null : index));
-  };
-  const index = "accordion";
+  const accordionKey = v4();
 
   return (
-    <div className="Accordion-container">
-      <AccordionItem key={index} title={title} isOpen={isOpen} onClick={() => setIsOpen(prev => !prev)}>
+    <div className="accordion-container">
+      <AccordionItem title={title} isOpen={isOpen} onClick={() => setIsOpen(prev => !prev)} key={accordionKey}>
         {children}
       </AccordionItem>
     </div>
