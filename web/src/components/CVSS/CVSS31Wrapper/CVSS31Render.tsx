@@ -3,7 +3,7 @@ import Grid from "../../Composition/Grid";
 import Button from "../../Form/Button";
 import Buttons from "../../Form/Buttons";
 
-export default function CVSS31Render({ updateVectorString, selectedValues, setSelectedValues }) {
+export default function CVSS31Render({ selectedValues, handleButtonClick }) {
   const metricLabels = {
     AttackVector: "Attack Vector (AV)",
     AttackComplexity: "Attack Complexity (AC)",
@@ -52,14 +52,6 @@ export default function CVSS31Render({ updateVectorString, selectedValues, setSe
     ConfidentialityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
     IntegrityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
     AvailabilityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
-  };
-
-  const handleChange = (key: string, value: string) => {
-    setSelectedValues(prev => {
-      const updatedValues = { ...prev, [key]: value };
-      updateVectorString(updatedValues);
-      return updatedValues;
-    });
   };
 
   return (
@@ -124,7 +116,7 @@ export default function CVSS31Render({ updateVectorString, selectedValues, setSe
               small
               type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
               text={`${optionLabel} (${optionKey})`}
-              onClick={() => handleChange(metricKey, optionKey)}
+              onClick={() => handleButtonClick(metricKey, optionKey)}
               key={`${optionLabel}-${cvss31KeyUuid}`}
             />
           ))}

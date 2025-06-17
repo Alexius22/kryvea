@@ -43,7 +43,49 @@ function severityRating(score: number): string {
   return "Unknown";
 }
 
-export function calculateCVSSFromMetrics(metrics) {
+type Metrics = {
+  AttackVector: string;
+  AttackComplexity: string;
+  PrivilegesRequired: string;
+  UserInteraction: string;
+  Scope: string;
+  Confidentiality: string;
+  Integrity: string;
+  Availability: string;
+  ExploitCodeMaturity: string;
+  RemediationLevel: string;
+  ReportConfidence: string;
+  ConfidentialityRequirement: string;
+  IntegrityRequirement: string;
+  AvailabilityRequirement: string;
+  ModifiedAttackVector: string;
+  ModifiedAttackComplexity: string;
+  ModifiedPrivilegesRequired: string;
+  ModifiedUserInteraction: string;
+  ModifiedScope: string;
+  ModifiedConfidentiality: string;
+  ModifiedIntegrity: string;
+  ModifiedAvailability: string;
+};
+type CvssCalcFail = { success: false; errorType: string; errorMetrics?: string[] };
+type CvssCalcSuccess = {
+  success: true;
+  metrics: Metrics;
+  baseMetricScore: number;
+  baseSeverity: string;
+  baseISS: number;
+  baseImpact: number;
+  baseExploitability: number;
+  temporalMetricScore: number;
+  temporalSeverity: string;
+  environmentalMetricScore: number;
+  environmentalSeverity: string;
+  environmentalMISS: number;
+  environmentalModifiedImpact: number;
+  environmentalModifiedExploitability: number;
+  vectorString: string;
+};
+export function calculateCVSSFromMetrics(metrics): CvssCalcSuccess | CvssCalcFail {
   const {
     AttackVector,
     AttackComplexity,
@@ -81,7 +123,7 @@ export function calculateCVSSFromMetrics(metrics) {
   if (!Availability) badMetrics.push("A");
 
   if (badMetrics.length > 0) {
-    return { success: false, errorType: "MissingBaseMetric", errorMetrics: badMetrics };
+    return { success: false, errorType: "Missing Base Metric", errorMetrics: badMetrics };
   }
 
   const AV = AttackVector;
@@ -134,7 +176,7 @@ export function calculateCVSSFromMetrics(metrics) {
   if (MA !== "X" && !Weight.CIA.hasOwnProperty(MA)) badMetrics.push("MA");
 
   if (badMetrics.length > 0) {
-    return { success: false, errorType: "UnknownMetricValue", errorMetrics: badMetrics };
+    return { success: false, errorType: "Unknown Metric Value", errorMetrics: badMetrics };
   }
 
   const metricWeightAV = Weight.AV[AV];
@@ -223,7 +265,7 @@ export function calculateCVSSFromMetrics(metrics) {
     );
   }
 
-  var vectorString =
+  let vectorString =
     CVSSVersionIdentifier +
     "/AV:" +
     AV +
@@ -274,6 +316,7 @@ export function calculateCVSSFromMetrics(metrics) {
   }
   return {
     success: true,
+    metrics,
     baseMetricScore: parseFloat(baseScore.toFixed(1)),
     baseSeverity: severityRating(baseScore),
     baseISS: iss,
@@ -290,7 +333,7 @@ export function calculateCVSSFromMetrics(metrics) {
   };
 }
 
-export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
+export function calculateCVSSFromVector(vectorString: string): CvssCalcFail | CvssCalcSuccess {
   const metricValues: Record<string, string | undefined> = {
     AV: undefined,
     AC: undefined,
@@ -317,7 +360,7 @@ export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
   };
   const badMetrics: string[] = [];
   if (!vectorStringRegex_31.test(vectorString)) {
-    return { success: false, errorType: "MalformedVectorString" };
+    return { success: false, errorType: "Malformed Vector String" };
   }
   const metricNameValue = vectorString.substring(CVSSVersionIdentifier.length).split("/");
   for (const i in metricNameValue) {
@@ -338,37 +381,10 @@ export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
   }
 
   if (badMetrics.length > 0) {
-    return { success: false, errorType: "MultipleDefinitionsOfMetric", errorMetrics: badMetrics };
+    return { success: false, errorType: "Multiple Definitions Of Metrics", errorMetrics: badMetrics };
   }
 
-  if (flag) {
-    return {
-      AttackVector: metricValues.AV,
-      AttackComplexity: metricValues.AC,
-      PrivilegesRequired: metricValues.PR,
-      UserInteraction: metricValues.UI,
-      Scope: metricValues.S,
-      Confidentiality: metricValues.C,
-      Integrity: metricValues.I,
-      Availability: metricValues.A,
-      ExploitCodeMaturity: metricValues.E,
-      RemediationLevel: metricValues.RL,
-      ReportConfidence: metricValues.RC,
-      ConfidentialityRequirement: metricValues.CR,
-      IntegrityRequirement: metricValues.IR,
-      AvailabilityRequirement: metricValues.AR,
-      ModifiedAttackVector: metricValues.MAV,
-      ModifiedAttackComplexity: metricValues.MAC,
-      ModifiedPrivilegesRequired: metricValues.MPR,
-      ModifiedUserInteraction: metricValues.MUI,
-      ModifiedScope: metricValues.MS,
-      ModifiedConfidentiality: metricValues.MC,
-      ModifiedIntegrity: metricValues.MI,
-      ModifiedAvailability: metricValues.MA,
-    };
-  }
-
-  return calculateCVSSFromMetrics({
+  const metrics = {
     AttackVector: metricValues.AV,
     AttackComplexity: metricValues.AC,
     PrivilegesRequired: metricValues.PR,
@@ -391,5 +407,7 @@ export function calculateCVSSFromVector(vectorString: string, flag: boolean) {
     ModifiedConfidentiality: metricValues.MC,
     ModifiedIntegrity: metricValues.MI,
     ModifiedAvailability: metricValues.MA,
-  });
+  };
+
+  return calculateCVSSFromMetrics(metrics);
 }
