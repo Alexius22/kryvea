@@ -1,5 +1,6 @@
 import { HTMLInputTypeAttribute } from "react";
 import Grid from "../Composition/Grid";
+import Subtitle from "../Composition/Subtitle";
 import Label from "./Label";
 
 interface BaseInputProps {
@@ -44,7 +45,7 @@ export default function Input({
           onChange={onChange}
           accept={accept}
         />
-        {helperSubtitle && <span className="text-xs font-light">{helperSubtitle}</span>}
+        {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
       </div>
     </Grid>
   );

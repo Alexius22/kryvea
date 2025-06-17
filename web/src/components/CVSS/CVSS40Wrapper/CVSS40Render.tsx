@@ -4,7 +4,7 @@ import Grid from "../../Composition/Grid";
 import Button from "../../Form/Button";
 import Buttons from "../../Form/Buttons";
 
-export default function CVSS40Render({ updateVectorString, selectedValues, setSelectedValues }) {
+export default function CVSS40Render({ selectedValues, handleButtonClick }) {
   const metricLabels = useMemo(
     () => ({
       AttackVector: "Attack Vector (AV)",
@@ -80,14 +80,6 @@ export default function CVSS40Render({ updateVectorString, selectedValues, setSe
     }),
     []
   );
-
-  const handleChange = (key: string, value: string) => {
-    setSelectedValues(prev => {
-      const updatedValues = { ...prev, [key]: value };
-      updateVectorString(updatedValues);
-      return updatedValues;
-    });
-  };
 
   return (
     <Grid className="pt-4">
@@ -172,15 +164,18 @@ export default function CVSS40Render({ updateVectorString, selectedValues, setSe
     return (
       <div className="pt-2" key={`container-${cvss40KeyUuid}`}>
         <Buttons label={metricLabel}>
-          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
-            <Button
-              small
-              type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
-              text={`${optionLabel} (${optionKey})`}
-              onClick={() => handleChange(metricKey, optionKey)}
-              key={`${optionLabel}-${cvss40KeyUuid}`}
-            />
-          ))}
+          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => {
+            const isSelected = optionKey === selectedValues[metricKey];
+            return (
+              <Button
+                small
+                type={isSelected ? "" : "secondary"}
+                text={`${optionLabel} (${optionKey})`}
+                onClick={() => handleButtonClick(metricKey, optionKey)}
+                key={`${optionLabel}-${cvss40KeyUuid}`}
+              />
+            );
+          })}
         </Buttons>
       </div>
     );
