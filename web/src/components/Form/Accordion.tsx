@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
 
 //  accordionitem component
@@ -28,17 +28,18 @@ function AccordionItem({ title, isOpen, children }) {
   );
 }
 
-export default function Accordion({ title, getIsOpen = (isOpen: boolean) => {}, children }) {
+export default function Accordion({ title, getIsOpen = undefined, children }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    getIsOpen(isOpen);
+  }, [isOpen]);
 
   return (
     <div
       className="accordion-container cursor-pointer p-4"
       onClick={() => {
-        setIsOpen(prev => {
-          getIsOpen(!prev);
-          return !prev;
-        });
+        setIsOpen(prev => !prev);
       }}
     >
       <AccordionItem title={title} isOpen={isOpen}>
