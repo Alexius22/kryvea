@@ -39,12 +39,10 @@ export default function CVSS31Wrapper() {
   const cvssScore = useMemo(() => {
     const cvssInfo = calculateCVSSFromVector(cvssString);
     if (cvssInfo.success === false) {
-      console.log("CVSS calculation failed:", cvssInfo);
       setError(`${cvssInfo.errorType}: ${cvssInfo.errorMetrics ?? "no metrics provided"}`);
       return 0;
     }
 
-    console.log("CVSS calculation successful:", cvssInfo);
     setError("");
     return cvssInfo.environmentalMetricScore;
   }, [cvssString]);
