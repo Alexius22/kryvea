@@ -1,15 +1,17 @@
-import { mdiCalendar, mdiPlus } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { mdiPlus } from "@mdi/js";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
 
-const AddAssessment = () => {
+export default function AddAssessment() {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,85 +20,89 @@ const AddAssessment = () => {
 
   return (
     <div>
-      <CardBox>
+      <Card>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Assessment Type">
-              <Field name="assessment_type" id="assessment_type" component="select">
-                <option value="vapt">Vulnerability Assessment Penetration Test</option>
-                <option value="wapt">Web Application Penetration Test</option>
-                <option value="mapt">Mobile Application Penetration Test</option>
-                <option value="npt">Network Penetration Test</option>
-                <option value="rt">Red Team</option>
-              </Field>
-            </FormField>
+            <Grid>
+              <SelectWrapper
+                label="Assessment Type"
+                id="assessment_type"
+                options={[
+                  { value: "vapt", label: "Vulnerability Assessment Penetration Test" },
+                  { value: "wapt", label: "Web Application Penetration Test" },
+                  { value: "mapt", label: "Mobile Application Penetration Test" },
+                  { value: "npt", label: "Network Penetration Test" },
+                  { value: "rt", label: "Red Team" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected assessment type:", option.value)}
+              />
+              <Input type="text" label="Name" id="name" placeholder="Insert a name" />
+              <Grid className="grid-cols-2 gap-4">
+                <Input type="date" label="Activity period" id="start" />
+                <Input type="date" id="end" />
+              </Grid>
 
-            <FormField label="Name">
-              <Field name="name" id="name" placeholder="Insert a name"></Field>
-            </FormField>
+              <Grid className="grid-cols-[1fr_auto]">
+                <Input type="text" label="Session targets" id="targets" placeholder="Insert a target" />
+                <Button className="h-12" icon={mdiPlus} text="Add Host" onClick={() => navigate("/add_host")} />
+              </Grid>
 
-            <FormField label="Activity period" icons={[mdiCalendar, mdiCalendar]}>
-              <Field type="date" name="start" />
-              <Field type="date" name="end" />
-            </FormField>
+              <SelectWrapper
+                label="CVSS Version"
+                id="cvss_version"
+                options={[
+                  { value: "4", label: "4" },
+                  { value: "3.1", label: "3.1" },
+                  { value: "2", label: "2" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected CVSS version:", option.value)}
+              />
 
-            <div className="grid grid-cols-[1fr_auto] gap-4">
-              <FormField label="Session targets">
-                <Field name="targets" id="targets" placeholder="Insert a target" />
-              </FormField>
-              <div className="mt-[2rem]">
-                <Button
-                  className="h-12"
-                  color="info"
-                  icon={mdiPlus}
-                  label="Add Host"
-                  onClick={() => navigate("/add_host")}
-                />
-              </div>
-            </div>
+              <SelectWrapper
+                label="Environment"
+                id="environment"
+                options={[
+                  { value: "pre", label: "Pre-Production" },
+                  { value: "prod", label: "Production" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected environment:", option.value)}
+              />
 
-            <FormField label="CVSS Version">
-              <Field name="cvss_version" id="cvss_version" component="select">
-                <option value="4">4</option>
-                <option value="3.1">3.1</option>
-                <option value="2">2</option>
-              </Field>
-            </FormField>
+              <SelectWrapper
+                label="Testing type"
+                id="testing_type"
+                options={[
+                  { value: "white", label: "White Box" },
+                  { value: "gray", label: "Gray Box" },
+                  { value: "black", label: "Black Box" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected testing type:", option.value)}
+              />
 
-            <FormField label="Environment">
-              <Field name="environment" id="environment" component="select">
-                <option value="pre">Pre-Production</option>
-                <option value="prod">Production</option>
-              </Field>
-            </FormField>
-
-            <FormField label="Testing type">
-              <Field name="testing_type" id="testing_type" component="select">
-                <option value="white">White Box</option>
-                <option value="gray">Gray Box</option>
-                <option value="black">Black Box</option>
-              </Field>
-            </FormField>
-
-            <FormField label="OSSTMM Vector">
-              <Field name="osstmm_vector" id="osstmm_vector" component="select">
-                <option value="i2i">Inside to inside</option>
-                <option value="o2o">Outside to outside</option>
-                <option value="o2i">Outside to inside</option>
-              </Field>
-            </FormField>
-
-            <Divider />
-
-            <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
-            </Buttons>
+              <SelectWrapper
+                label="OSSTMM Vector"
+                id="osstmm_vector"
+                options={[
+                  { value: "i2i", label: "Inside to inside" },
+                  { value: "o2o", label: "Outside to outside" },
+                  { value: "o2i", label: "Outside to inside" },
+                ]}
+                closeMenuOnSelect
+                onChange={option => console.log("Selected OSSTMM vector:", option.value)}
+              />
+              <Divider />
+              <Buttons>
+                <Button text="Submit" onClick={() => {}} />
+                <Button type="outline-only" text="Cancel" onClick={() => {}} />
+              </Buttons>
+            </Grid>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
-};
-
-export default AddAssessment;
+}

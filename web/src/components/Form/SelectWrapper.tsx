@@ -1,27 +1,32 @@
-import { useContext, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { GlobalContext } from "../../App";
+import Grid from "../Composition/Grid";
+import Label from "./Label";
 import { SelectOption } from "./SelectWrapper.types";
 
 type SelectWrapperProps = {
+  label?: string;
   className?: string;
   options: SelectOption[];
   onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
   value?: SelectOption | SelectOption[];
   defaultValue?;
   isMulti?: false;
+  widthFixed?: boolean;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
 };
 type SelectWrapperMultiProps = {
+  label?: string;
   className?: string;
   options: SelectOption[];
   onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
   value?: SelectOption | SelectOption[];
   defaultValue?;
   isMulti?: true;
+  widthFixed?: boolean;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
@@ -34,14 +39,21 @@ export default function SelectWrapper({
   value,
   onChange,
   isMulti,
+  widthFixed,
   onInputChange,
   closeMenuOnSelect,
   id,
+  label,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
-  const {
-    useDarkTheme: [darkTheme],
-  } = useContext(GlobalContext);
   const [inputValue, setInputValue] = useState("");
+  const [width, setWidth] = useState<number>(0);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    if (measureRef.current) {
+      setWidth(measureRef.current.offsetWidth + 48); // extra space for arrow + padding
+    }
+  }, []);
 
   const handleOnInputChange = (input: string, actionMeta: InputActionMeta) => {
     setInputValue(input);
@@ -49,95 +61,70 @@ export default function SelectWrapper({
       onInputChange(input, actionMeta);
     }
   };
+
   const animatedComponents = makeAnimated();
-  return (
-    <Select
-      {...{
-        className,
-        isMulti,
-        value,
-        onInputChange: handleOnInputChange,
-        inputValue,
-        options,
-        onChange,
-        defaultValue,
-        closeMenuOnSelect,
-        inputId: id,
-      }}
-      components={animatedComponents}
-      styles={{
-        control: (base, state) => ({
+
+  const longestLabel = options.reduce((a, b) => (a.label.length > b.label.length ? a : b)).label;
+
+  const longestLabelFixedWidth = widthFixed
+    ? {
+        container: base => ({
           ...base,
-          transition: "all 0.025s ease",
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
-          borderColor: state.isFocused ? "#3F4E65" : "#374151",
-          borderRadius: "4px",
-          boxShadow: state.isFocused ? "none" : "none",
-          outline: "none",
-          color: "#FFFFFF",
-          padding: "2px",
-          "&:hover": {
-            borderColor: "#3F4E65",
-          },
-          height: "3rem",
-          overflowX: "auto",
+          width,
+        }),
+        control: base => ({
+          ...base,
+          width: "100%",
+          minWidth: width,
         }),
         menu: base => ({
           ...base,
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
-          borderRadius: "6px",
-          overflow: "hidden",
-          border: "1px solid #2E3B4E",
-          marginTop: 0,
-          color: darkTheme ? "whitesmoke" : "black",
+          width: "100%",
+          minWidth: width,
         }),
-        menuList: base => ({
-          ...base,
-          padding: 0,
-        }),
-        option: (base, state) => ({
-          ...base,
-          backgroundColor: state.isFocused ? "#2064d4" : darkTheme ? "#1E293B" : "#FFFFFF",
-          color: state.isFocused ? "white" : darkTheme ? "#FFFFFF" : "black",
-          cursor: "pointer",
-          "&:active": {
-            backgroundColor: "#3F4E65",
-          },
-        }),
-        singleValue: base => ({
-          ...base,
-          color: darkTheme ? "white" : "black",
-        }),
-        multiValue: base => ({
-          ...base,
-          backgroundColor: darkTheme ? "#3E495B" : "#cccccc",
-        }),
-        multiValueLabel: base => ({
-          ...base,
-          color: darkTheme ? "white" : "black",
-        }),
-        placeholder: base => ({
-          ...base,
-          color: "#6c757d",
-        }),
-        dropdownIndicator: base => ({
-          ...base,
-          color: "#6c757d",
-          "&:hover": {
-            color: darkTheme ? "white" : "black",
-          },
-        }),
-        indicatorSeparator: () => ({
-          display: "none",
-        }),
-        input: base => ({
-          ...base,
-          color: darkTheme ? "whitesmoke" : "black",
-          "input:focus": {
-            boxShadow: "none",
-          },
-        }),
-      }}
-    />
+      }
+    : {};
+
+  return (
+    <Grid>
+      {label && <Label text={label} htmlFor={id} />}
+      {widthFixed && (
+        <span
+          ref={measureRef}
+          style={{
+            position: "fixed",
+            visibility: "hidden",
+            whiteSpace: "nowrap",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            fontWeight: "inherit",
+          }}
+        >
+          {longestLabel}
+        </span>
+      )}
+      <Select
+        {...{
+          className,
+          classNamePrefix: "select-wrapper",
+          isMulti,
+          value,
+          onInputChange: handleOnInputChange,
+          inputValue,
+          options,
+          onChange,
+          defaultValue,
+          closeMenuOnSelect,
+          inputId: id,
+        }}
+        unstyled
+        components={animatedComponents}
+        menuPortalTarget={document.body}
+        styles={{
+          menuPortal: base => ({ ...base, zIndex: 10 }),
+          ...longestLabelFixedWidth,
+        }}
+      />
+    </Grid>
   );
 }

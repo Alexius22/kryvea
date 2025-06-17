@@ -7,7 +7,7 @@ export const assessments: Partial<Assessment>[] = [
     updated_at: "2025-02-13T23:45:30.845Z",
     name: "Storm Shadow Nyx",
     start_date_time: "2025-02-13T23:45:30.844Z",
-    end_date_time: "0001-01-01T00:00:00Z",
+    end_date_time: "2025-07-01T00:00:00Z",
     targets: [
       { id: "67ae841a596db351cbcd0960", ip: "223.129.31.203", hostname: "jzUUeYWY.es" },
       { id: "67ae8419596db351cbcd095e", ip: "170.255.140.195", hostname: "GrKKBOQF.us" },
@@ -28,7 +28,7 @@ export const assessments: Partial<Assessment>[] = [
     updated_at: "2025-02-13T23:45:30.953Z",
     name: "Atlas Indigo Hawk",
     start_date_time: "2025-02-13T23:45:30.952Z",
-    end_date_time: "0001-01-01T00:00:00Z",
+    end_date_time: "2025-07-01T00:00:00Z",
     targets: [
       { id: "67ae8419596db351cbcd095e", ip: "170.255.140.195", hostname: "GrKKBOQF.us" },
       { id: "67ae841a596db351cbcd095f", ip: "147.239.50.27", hostname: "vlDmPcdI.de" },
@@ -49,7 +49,7 @@ export const assessments: Partial<Assessment>[] = [
     updated_at: "2025-02-13T23:45:31.061Z",
     name: "Xander Rogue Xander",
     start_date_time: "2025-02-13T23:45:31.06Z",
-    end_date_time: "0001-01-01T00:00:00Z",
+    end_date_time: "2025-07-01T00:00:00Z",
     targets: [
       { id: "67ae841a596db351cbcd0961", ip: "48.46.250.52", hostname: "TOZTlSTW.gov" },
       { id: "67ae841a596db351cbcd0961", ip: "48.46.250.52", hostname: "TOZTlSTW.gov" },
@@ -73,7 +73,7 @@ export const assessments: Partial<Assessment>[] = [
     updated_at: "2025-02-13T23:45:31.169Z",
     name: "Lyric Blaze Juno",
     start_date_time: "2025-02-13T23:45:31.169Z",
-    end_date_time: "0001-01-01T00:00:00Z",
+    end_date_time: "2025-07-01T00:00:00Z",
     targets: [
       { id: "67ae841a596db351cbcd0965", ip: "24.121.143.99", hostname: "lqodpZpU.net" },
       { id: "67ae841a596db351cbcd0961", ip: "48.46.250.52", hostname: "TOZTlSTW.gov" },
@@ -97,7 +97,7 @@ export const assessments: Partial<Assessment>[] = [
     updated_at: "2025-02-13T23:45:31.277Z",
     name: "Nyx Rogue Dash",
     start_date_time: "2025-02-13T23:45:31.276Z",
-    end_date_time: "0001-01-01T00:00:00Z",
+    end_date_time: "2025-07-01T00:00:00Z",
     targets: [{ id: "67ae8419596db351cbcd095d", ip: "21.79.79.130", hostname: "vzHRPBvb.uk" }],
     status: "On Hold",
     assessment_type: "MAPT",

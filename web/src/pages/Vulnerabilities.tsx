@@ -1,14 +1,13 @@
 import { mdiTabSearch } from "@mdi/js";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import CardBox from "../components/CardBox";
-import { formatDate } from "../components/DateUtils";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import { Link, useNavigate } from "react-router";
+import { formatDate } from "../components/dateUtils";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
-const Vulnerabilities = () => {
+export default function Vulnerabilities() {
   const navigate = useNavigate();
   //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities/search");
   const loading = false;
@@ -21,7 +20,7 @@ const Vulnerabilities = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Vulnerabilities" />
-      <CardBox noPadding>
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -30,32 +29,20 @@ const Vulnerabilities = () => {
           <Table
             data={vulnerabilities?.map(vulnerability => ({
               Vulnerability: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/vulnerability`)} // /api/vulnerability/${id}
-                >
-                  {vulnerability.category.name + " - " + vulnerability.detailed_title}
-                </span>
+                <Link to={`/vulnerability`}>{vulnerability.category.name + " - " + vulnerability.detailed_title}</Link>
               ),
-              "CVSS Score": vulnerability.cvss_score,
-              "CVSS Vector": vulnerability.cvss_vector,
-              Assessment: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {vulnerability.assessment.name}
-                </span>
-              ),
+              Description: vulnerability.description,
+              "CVSSv3.1 Score": vulnerability.cvss_score,
+              "CVSSv4.0 Score": vulnerability.cvss_score,
+              Assessment: <Link to={`/assessment`}>{vulnerability.assessment.name}</Link>,
               Date: formatDate(vulnerability.updated_at),
               User: vulnerability.user.username,
             }))}
             perPageCustom={10}
+            maxWidthColumns={{ Description: "20rem" }}
           />
         )}
-      </CardBox>
+      </div>
     </div>
   );
-};
-
-export default Vulnerabilities;
+}

@@ -1,10 +1,10 @@
 import { mdiPencil } from "@mdi/js";
+import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useState } from "react";
-import Icon from "../Icon/Icon";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+import SelectWrapper from "../Form/SelectWrapper";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
-import SelectWrapper from "../Form/SelectWrapper";
-import { SelectOption } from "../Form/SelectWrapper.types";
 
 type PocTextProps = {
   pocDoc: PocTextDoc;
@@ -13,6 +13,8 @@ type PocTextProps = {
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
+  selectedPoc: number;
+  setSelectedPoc: (index: number) => void;
 };
 
 export default function PocText({
@@ -22,9 +24,11 @@ export default function PocText({
   onPositionChange,
   onTextChange,
   onRemovePoc,
+  selectedPoc,
+  setSelectedPoc,
 }: PocTextProps) {
   // prettier-ignore
-  const [languages] = useState(["Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"]);
+  const [languages] = useState(["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"]);
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
@@ -40,13 +44,15 @@ export default function PocText({
         icon: mdiPencil,
         onPositionChange,
         onRemovePoc,
+        selectedPoc,
+        setSelectedPoc,
         title: "Text",
       }}
     >
-      <div className="col-span-8 grid">
+      <div className="poc-text col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
         <textarea
-          className="input-focus rounded dark:bg-slate-800"
+          className=""
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
@@ -65,14 +71,36 @@ export default function PocText({
         />
       </div>
 
-      <div className="col-span-4 grid">
+      <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
-        <textarea
+        <div
+          className="w-full max-w-full overflow-auto border border-[color:--border-primary]"
+          style={{ width: "100%" }}
+        >
+          <CodeMirror
+            value="<p>Write your text here...</p>"
+            options={{
+              mode: "htmlmixed",
+              theme: "gruvbox-dark",
+              lineNumbers: true,
+              // lineWrapping: true,
+            }}
+            onChange={(_, __, value) => {
+              onTextChange<PocTextDoc>(
+                currentIndex,
+                "text"
+              )({
+                target: { value },
+              } as any);
+            }}
+          />
+        </div>
+        {/* <textarea
           id={textInputId}
-          className="input-focus rounded dark:bg-slate-800"
+          className=""
           value={pocDoc.text}
           onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
-        />
+        /> */}
       </div>
     </PocTemplate>
   );

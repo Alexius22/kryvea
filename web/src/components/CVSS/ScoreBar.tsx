@@ -27,7 +27,7 @@ export default function ScoreBar({ score }: ScoreBarProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="mb-2 w-full">
       <div className="mb-2 flex justify-between text-sm font-medium">
         <span>
           Overall Score: <b>{score}</b>

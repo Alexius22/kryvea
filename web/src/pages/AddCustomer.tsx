@@ -1,52 +1,65 @@
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
 
-const AddCustomer = () => {
+export default function AddCustomer() {
   useEffect(() => {
     document.title = getPageTitle("Add Customer");
   }, []);
 
   return (
     <div>
-      <CardBox>
+      <Card>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Company Name" help="Required">
-              <Field name="companyName" placeholder="Company name" id="companyName" />
-            </FormField>
+            <Grid className="gap-4">
+              <Input
+                type="text"
+                label="Company Name"
+                helperSubtitle="Required"
+                placeholder="CompanyName"
+                id="companyName"
+              />
 
-            <FormField label="Language" labelFor="language">
-              <Field name="language" id="language" component="select">
-                <option value="italian">Italian</option>
-                <option value="english">English</option>
-              </Field>
-            </FormField>
+              <SelectWrapper
+                label="Language"
+                id="language"
+                options={[
+                  { value: "italian", label: "Italian" },
+                  { value: "english", label: "English" },
+                  { value: "spanish", label: "Spanish" },
+                  { value: "french", label: "French" },
+                  { value: "german", label: "German" },
+                ]}
+                onChange={option => console.log("Selected language:", option.value)}
+              />
 
-            <FormField label="Default CVSS Version" labelFor="cvss">
-              <Field name="cvss" id="cvss" component="select">
-                <option value="4">4</option>
-                <option value="3.1">3.1</option>
-                <option value="2">2</option>
-              </Field>
-            </FormField>
-
-            <Divider />
-
-            <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
-            </Buttons>
+              <SelectWrapper
+                label="Default CVSS Version"
+                id="cvss"
+                options={[
+                  { value: "4", label: "4" },
+                  { value: "3.1", label: "3.1" },
+                  { value: "2", label: "2" },
+                ]}
+                onChange={option => console.log("Selected CVSS version:", option.value)}
+              />
+              <Divider />
+              <Buttons>
+                <Button text="Submit" onClick={() => {}} />
+                <Button type="secondary" text="Cancel" onClick={() => {}} />
+              </Buttons>
+            </Grid>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
-};
-
-export default AddCustomer;
+}
