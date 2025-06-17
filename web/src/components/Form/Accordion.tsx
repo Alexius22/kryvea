@@ -28,11 +28,19 @@ function AccordionItem({ title, isOpen, children }) {
   );
 }
 
-export default function Accordion({ title, children }) {
+export default function Accordion({ title, getIsOpen = (isOpen: boolean) => {}, children }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="accordion-container cursor-pointer p-2 px-4" onClick={() => setIsOpen(prev => !prev)}>
+    <div
+      className="accordion-container cursor-pointer p-4"
+      onClick={() => {
+        setIsOpen(prev => {
+          getIsOpen(!prev);
+          return !prev;
+        });
+      }}
+    >
       <AccordionItem title={title} isOpen={isOpen}>
         {children}
       </AccordionItem>

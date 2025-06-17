@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Grid from "../../Composition/Grid";
 import Subtitle from "../../Composition/Subtitle";
 import Accordion from "../../Form/Accordion";
@@ -8,6 +8,7 @@ import { calculateCVSSFromMetrics, calculateCVSSFromVector } from "./CVSS31";
 import CVSS31Render from "./CVSS31Render";
 
 export default function CVSS31Wrapper() {
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [selectedValues, setSelectedValues] = useState({
     AttackVector: "N",
     AttackComplexity: "L",
@@ -32,84 +33,74 @@ export default function CVSS31Wrapper() {
     ModifiedIntegrity: "X",
     ModifiedAvailability: "X",
   });
-  const [cvssValue, setCvssValue] = useState(calculateCVSSFromMetrics(selectedValues).vectorString);
+  const [cvssString, setCvssString] = useState("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N");
   const [error, setError] = useState("");
 
-  const handleScoreBar = () => {
-    const parsedCvss = cvssValue.startsWith("CVSS:3.1/") ? cvssValue : "CVSS:3.1/" + cvssValue;
-    const cvssInfo = calculateCVSSFromVector(parsedCvss, false);
-    if ("environmentalMetricScore" in cvssInfo) {
-      return cvssInfo.environmentalMetricScore;
+  const cvssScore = useMemo(() => {
+    const cvssInfo = calculateCVSSFromVector(cvssString);
+    if (cvssInfo.success === false) {
+      console.log("CVSS calculation failed:", cvssInfo);
+      setError(`${cvssInfo.errorType}: ${cvssInfo.errorMetrics ?? "no metrics provided"}`);
+      return 0;
     }
-    return 0;
-  };
+
+    console.log("CVSS calculation successful:", cvssInfo);
+    setError("");
+    return cvssInfo.environmentalMetricScore;
+  }, [cvssString]);
 
   const handleInputChange = e => {
-    setCvssValue(e.target.value);
-    handleFieldUpdateToSelectedValues(e.target.value);
-    setError("");
-  };
+    const cvssStringChange = e.target.value;
+    setCvssString(cvssStringChange);
 
-  const handleFieldUpdateToSelectedValues = onChangeCvssValue => {
-    const parsedCvss = onChangeCvssValue.startsWith("CVSS:3.1/") ? onChangeCvssValue : "CVSS:3.1/" + onChangeCvssValue;
-    const cvssInfo = calculateCVSSFromVector(parsedCvss, false);
-    if ("baseMetricScore" in cvssInfo) {
-      const cvssInfo = calculateCVSSFromVector(parsedCvss, true);
-      if ("AttackVector" in cvssInfo) {
-        const parsedValues = {
-          AttackVector: cvssInfo.AttackVector,
-          AttackComplexity: cvssInfo.AttackComplexity,
-          PrivilegesRequired: cvssInfo.PrivilegesRequired,
-          UserInteraction: cvssInfo.UserInteraction,
-          Scope: cvssInfo.Scope,
-          Confidentiality: cvssInfo.Confidentiality,
-          Integrity: cvssInfo.Integrity,
-          Availability: cvssInfo.Availability,
-          ExploitCodeMaturity: cvssInfo.ExploitCodeMaturity,
-          RemediationLevel: cvssInfo.RemediationLevel,
-          ReportConfidence: cvssInfo.ReportConfidence,
-          ConfidentialityRequirement: cvssInfo.ConfidentialityRequirement,
-          IntegrityRequirement: cvssInfo.IntegrityRequirement,
-          AvailabilityRequirement: cvssInfo.AvailabilityRequirement,
-          ModifiedAttackVector: cvssInfo.ModifiedAttackVector,
-          ModifiedAttackComplexity: cvssInfo.ModifiedAttackComplexity,
-          ModifiedPrivilegesRequired: cvssInfo.ModifiedPrivilegesRequired,
-          ModifiedUserInteraction: cvssInfo.ModifiedUserInteraction,
-          ModifiedScope: cvssInfo.ModifiedScope,
-          ModifiedConfidentiality: cvssInfo.ModifiedConfidentiality,
-          ModifiedIntegrity: cvssInfo.ModifiedIntegrity,
-          ModifiedAvailability: cvssInfo.ModifiedAvailability,
-        };
-        setSelectedValues(parsedValues);
-        setError("");
-      }
-    } else {
-      setError("Malformed CVSS Vector");
+    const parsedCvss = cvssStringChange.startsWith("CVSS:3.1/") ? cvssStringChange : "CVSS:3.1/" + cvssStringChange;
+    const cvssInfo = calculateCVSSFromVector(parsedCvss);
+    if (cvssInfo.success === false) {
+      setError(`${cvssInfo.errorType}: ${cvssInfo.errorMetrics}`);
+      return;
     }
+    setCvssString(cvssInfo.vectorString);
+    setSelectedValues(cvssInfo.metrics);
+    setError("");
   };
 
-  const updateVectorString = (updatedValues: typeof selectedValues) => {
-    const updatedVectorString = calculateCVSSFromMetrics(updatedValues).vectorString;
-    setCvssValue(updatedVectorString);
-    setError("");
+  const handleButtonClick = (key: string, value: string) => {
+    setSelectedValues(prev => {
+      const updatedValues = { ...prev, [key]: value };
+      const updatedVectorString = calculateCVSSFromMetrics(updatedValues);
+
+      if (updatedVectorString.success === false) {
+        setError(`${updatedVectorString.errorType}: ${updatedVectorString.errorMetrics}`);
+        return updatedValues;
+      }
+
+      setCvssString(updatedVectorString.vectorString);
+      return updatedValues;
+    });
   };
 
   return (
-    <>
-      <Grid className="grid-cols-[63%_36%]">
-        <Input type="text" label="CVSSv3.1 vector" id="cvssv3" value={cvssValue} onChange={handleInputChange} />
-        <ScoreBar score={handleScoreBar()} />
-        <Subtitle text={error} />
+    <div className="relative">
+      <Grid className={`top-0 grid-cols-[63%_36%] bg-[color:--bg-tertiary] ${isAccordionOpen ? "sticky z-10" : ""}`}>
+        <Input
+          className={error ? "border-[1px] border-[color:--error]" : ""}
+          type="text"
+          label="CVSSv3.1 vector"
+          id="cvssv3"
+          value={cvssString}
+          onChange={handleInputChange}
+        />
+        <ScoreBar score={cvssScore} />
+        <Subtitle className="text-[color:--error]" text={error} />
       </Grid>
-      <Accordion title={"CVSS Calculator"}>
+      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS31Render
           {...{
             selectedValues,
-            setSelectedValues,
-            updateVectorString,
+            handleButtonClick,
           }}
         />
       </Accordion>
-    </>
+    </div>
   );
 }

@@ -60,6 +60,7 @@ type Metrics = {
 };
 
 export default function CVSS40Wrapper() {
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [metrics, setMetrics] = useState({
     AttackVector: "N",
     AttackComplexity: "L",
@@ -216,8 +217,8 @@ export default function CVSS40Wrapper() {
   };
 
   return (
-    <>
-      <Grid className="grid-cols-[63%_36%]">
+    <div className="relative">
+      <Grid className={`top-0 grid-cols-[63%_36%] bg-[color:--bg-tertiary] ${isAccordionOpen ? "sticky z-10" : ""}`}>
         <Input
           className={error ? "border-[1px] border-[color:--error]" : ""}
           type="text"
@@ -229,7 +230,7 @@ export default function CVSS40Wrapper() {
         <ScoreBar score={cvss4Score} />
         <Subtitle className="text-[color:--error]" text={error} />
       </Grid>
-      <Accordion title={"CVSS Calculator"}>
+      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS40Render
           {...{
             selectedValues: metrics,
@@ -237,6 +238,6 @@ export default function CVSS40Wrapper() {
           }}
         />
       </Accordion>
-    </>
+    </div>
   );
 }
