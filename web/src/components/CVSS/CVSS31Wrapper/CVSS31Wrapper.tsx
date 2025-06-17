@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Grid from "../../Composition/Grid";
+import Subtitle from "../../Composition/Subtitle";
 import Accordion from "../../Form/Accordion";
 import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
@@ -98,6 +99,7 @@ export default function CVSS31Wrapper() {
       <Grid className="grid-cols-[63%_36%]">
         <Input type="text" label="CVSSv3.1 vector" id="cvssv3" value={cvssValue} onChange={handleInputChange} />
         <ScoreBar score={handleScoreBar()} />
+        <Subtitle text={error} />
       </Grid>
       <Accordion title={"CVSS Calculator"}>
         <CVSS31Render
