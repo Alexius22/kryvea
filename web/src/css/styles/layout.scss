@@ -1,0 +1,21 @@
+.navbar {
+  @apply flex items-center justify-between px-2 py-4;
+  color: var(--text-primary);
+}
+
+.layout-root {
+  @apply flex h-screen max-w-[100vw] gap-4 p-4 transition-position lg:w-auto;
+}
+
+.layout-sidebar {
+  @apply h-full w-full max-w-[300px] rounded-2xl transition-position;
+  background-color: var(--bg-secondary);
+}
+
+.layout-content {
+  @apply flex w-[calc(100%-300px)] flex-col overflow-auto;
+}
+
+.layout-main {
+  @apply flex h-full w-full flex-col justify-between overflow-auto;
+}

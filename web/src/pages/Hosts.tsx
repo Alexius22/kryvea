@@ -1,16 +1,15 @@
 import { mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import Modal from "../components/Composition/Modal";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { targets } from "../mockup_data/targets";
 
-const Hosts = () => {
+export default function Hosts() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   //const { data: targets, loading, error } = useFetch<Host[]>(`/api/targets/${id}`);
@@ -27,9 +26,8 @@ const Hosts = () => {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -39,21 +37,12 @@ const Hosts = () => {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
-        <Buttons>
-          <Button
-            icon={mdiPlus}
-            label="New host"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_host")}
-          />
-        </Buttons>
+        <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -65,16 +54,14 @@ const Hosts = () => {
               Hostname: target.hostname,
               buttons: (
                 <Buttons noWrap>
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}
             perPageCustom={10}
           />
         )}
-      </CardBox>
+      </div>
     </div>
   );
-};
-
-export default Hosts;
+}

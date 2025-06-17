@@ -1,0 +1,28 @@
+/* Table head */
+table thead {
+  background-color: rgba(var(--bg-quaternary-rgb), 0.6);
+}
+
+table th {
+  @apply text-nowrap px-4 py-2 text-left font-semibold;
+}
+
+/* Table body */
+table tr {
+  @apply border-b;
+  border-color: var(--border-primary);
+}
+
+table tbody tr:hover {
+  backdrop-filter: brightness(0.9);
+}
+
+table td {
+  @apply px-4 py-2;
+  width: max-content;
+}
+
+table td:has(div:has(.select-wrapper__control)) {
+  min-width: max-content;
+  will-change: contents;
+}

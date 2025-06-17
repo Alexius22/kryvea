@@ -1,18 +1,21 @@
 import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
-import FormField from "../components/Form/Field";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import { Link, useNavigate } from "react-router";
+import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
+import Label from "../components/Form/Label";
+import SelectWrapper from "../components/Form/SelectWrapper";
+import UploadFile from "../components/Form/UploadFile";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
-const Assessment = () => {
+export default function Assessment() {
   const navigate = useNavigate();
   //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities");
   const loading = false;
@@ -26,16 +29,29 @@ const Assessment = () => {
     setIsModalUploadActive(false);
     setIsModalTrashActive(false);
   };
+  const [fileObj, setFileObj] = useState<File>();
 
   useEffect(() => {
     document.title = getPageTitle("Assessment");
   }, []);
 
+  const changeFile = ({ target: { files } }) => {
+    if (!files || !files[0]) {
+      return;
+    }
+
+    const file: File = files[0];
+    setFileObj(file);
+  };
+
+  const clearFile = () => {
+    setFileObj(null);
+  };
+
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Download report"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
@@ -43,50 +59,52 @@ const Assessment = () => {
       >
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Type" icons={[]}>
-              <Field name="type" component="select">
-                <option value="word">Word (.docx)</option>
-                <option value="excel">Excel (.xlsx)</option>
-                <option value="zip">Archive (.zip)</option>
-              </Field>
-            </FormField>
-            <FormField label="Encryption">
-              <Field name="encryption" component="select">
-                <option value="none">None</option>
-                <option value="password">Password</option>
-              </Field>
-              <Field name="password" placeholder="Insert password" />
-            </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
-            </FormField>
+            <Grid>
+              <SelectWrapper
+                label="Type"
+                id="type"
+                options={[
+                  { value: "word", label: "Word (.docx)" },
+                  { value: "excel", label: "Excel (.xlsx)" },
+                  { value: "zip", label: "Archive (.zip)" },
+                ]}
+                onChange={option => console.log("Selected type:", option.value)}
+              />
+              <Grid className="grid-cols-2">
+                <SelectWrapper
+                  label="Encryption"
+                  id="encryption"
+                  options={[
+                    { value: "none", label: "None" },
+                    { value: "password", label: "Password" },
+                  ]}
+                  onChange={option => console.log("Selected encryption:", option.value)}
+                />
+                <Input type="password" id="password" placeholder="Insert password" />
+              </Grid>
+            </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Upload file"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalUploadActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <FormField label="Choose Nessus file" icons={[]}>
-              <input
-                className="input-focus max-w-96 rounded dark:bg-slate-800"
-                type="file"
-                name="nessus"
-                accept=".nessus"
-              />
-            </FormField>
-          </Form>
-        </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+        <Label text={"Choose bulk file"} />
+        <UploadFile
+          inputId={"nessus_file"}
+          filename={fileObj?.name}
+          name={"imagePoc"}
+          accept={".nessus,text/xml"}
+          onChange={changeFile}
+          onButtonClick={clearFile}
+        />
+      </Modal>
+      <Modal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -96,53 +114,18 @@ const Assessment = () => {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
         <Buttons>
-          <Button
-            icon={mdiFileEye}
-            label="Live editor"
-            roundedFull
-            small
-            color="danger"
-            onClick={() => navigate("/live_editor")}
-          />
-          <Button
-            icon={mdiDownload}
-            label="Download report"
-            roundedFull
-            small
-            color="success"
-            onClick={() => setIsModalDownloadActive(true)}
-          />
-          <Button
-            icon={mdiPlus}
-            label="New host"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_host")}
-          />
-          <Button
-            icon={mdiPlus}
-            label="New vulnerability"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => navigate("/add_vulnerability")}
-          />
-          <Button
-            icon={mdiUpload}
-            label="Upload"
-            roundedFull
-            small
-            color="contrast"
-            onClick={() => setIsModalUploadActive(true)}
-          />
+          <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
+          <Button icon={mdiDownload} text="Download report" small onClick={() => setIsModalDownloadActive(true)} />
+          <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate("/add_vulnerability")} />
+          <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -151,29 +134,25 @@ const Assessment = () => {
           <Table
             data={vulnerabilities.map(vulnerability => ({
               Vulnerability: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/vulnerability`)}
-                >
-                  {vulnerability.category.id + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
-                </span>
+                <Link to={`/vulnerability`}>
+                  {vulnerability.category.index + ": " + vulnerability.category.name} ({vulnerability.detailed_title})
+                </Link>
               ),
               Host:
                 vulnerability.target.ip + (vulnerability.target.hostname ? " - " + vulnerability.target.hostname : ""),
-              "CVSS Score": vulnerability.cvss_score,
+              "CVSSv3.1 Score": vulnerability.cvss_score,
+              "CVSSv4.0 Score": vulnerability.cvss_score,
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiPencil} small onClick={() => navigate("/add_vulnerability")} />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}
             perPageCustom={10}
           />
         )}
-      </CardBox>
+      </div>
     </div>
   );
-};
-
-export default Assessment;
+}

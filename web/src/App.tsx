@@ -10,21 +10,20 @@ import {
   AddVulnerability,
   Assessment,
   Assessments,
+  Categories,
   Customers,
   Dashboard,
   EditPoc,
   EditReport,
-  Error,
+  Hosts,
   Login,
+  ManageCategory,
   Profile,
   Users,
   Vulnerabilities,
   Vulnerability,
 } from "./pages";
-import Categories from "./pages/Categories";
-import Hosts from "./pages/Hosts";
 import LiveEditor from "./pages/LiveEditor";
-import ManageCategory from "./pages/ManageCategory";
 
 export const GlobalContext = createContext<{
   useUsername: [string, Dispatch<SetStateAction<string>>];
@@ -40,8 +39,7 @@ export default function App() {
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
-    document.body.classList[darkTheme ? "add" : "remove"]("dark-scrollbars");
-    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark", "dark-scrollbars-compat");
+    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
   }, [darkTheme]);
 
   return (
@@ -73,7 +71,6 @@ export default function App() {
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
-            <Route path="/error" element={<Error />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />

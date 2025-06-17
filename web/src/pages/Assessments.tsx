@@ -1,22 +1,23 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
-import { formatDate } from "../components/DateUtils";
-import FormField from "../components/Form/Field";
+import { Link, useNavigate } from "react-router";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
+import { formatDate } from "../components/dateUtils";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
 
-const Assessments = () => {
+export default function Assessments() {
   const navigate = useNavigate();
   const loading = false;
   const error = false;
@@ -59,9 +60,8 @@ const Assessments = () => {
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Clone assessment"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalCloneActive}
         onConfirm={handleModalAction}
@@ -69,15 +69,12 @@ const Assessments = () => {
       >
         <Formik initialValues={{ name: assessmentToClone?.name + " (Copy)" }} onSubmit={undefined}>
           <Form>
-            <FormField label="Assessment Name">
-              <Field name="name" placeholder="Cloned assessment name" />
-            </FormField>
+            <Input type="text" label="Assessment Name" placeholder="Cloned assessment name" id="assessment_name" />
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Download report"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={handleModalAction}
@@ -85,104 +82,87 @@ const Assessments = () => {
       >
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="Type" icons={[]}>
-              <Field name="type" component="select">
-                <option value="word">Word (.docx)</option>
-                <option value="excel">Excel (.xlsx)</option>
-                <option value="zip">Archive (.zip)</option>
-              </Field>
-            </FormField>
-            <FormField label="Encryption">
-              <Field name="encryption" component="select">
-                <option value="none">None</option>
-                <option value="password">Password</option>
-              </Field>
-              <Field name="password" placeholder="Insert password" />
-            </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
-            </FormField>
+            <Grid>
+              <SelectWrapper
+                label="Type"
+                id="type"
+                options={[
+                  { value: "word", label: "Word (.docx)" },
+                  { value: "excel", label: "Excel (.xlsx)" },
+                  { value: "zip", label: "Archive (.zip)" },
+                ]}
+                onChange={option => console.log("Selected type:", option.value)}
+              />
+              <Grid className="grid-cols-2">
+                <SelectWrapper
+                  label="Encryption"
+                  id="encryption"
+                  options={[
+                    { value: "none", label: "None" },
+                    { value: "password", label: "Password" },
+                  ]}
+                  onChange={option => console.log("Selected encryption:", option.value)}
+                />
+                <Input type="password" id="password" placeholder="Insert password" />
+              </Grid>
+            </Grid>
           </Form>
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
-        title="Please confirm"
-        buttonColor="danger"
+      </Modal>
+      <Modal
+        title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}
       >
         <p>Are you sure to delete this assessment?</p>
-        <p>
-          <b>Action irreversible</b>
-        </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
-        <Button
-          icon={mdiPlus}
-          label="New assessment"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => navigate("/add_assessment")}
-        />
+        <Button icon={mdiPlus} text="New assessment" small onClick={() => navigate("/add_assessment")} />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
-        {loading ? (
+      {loading ? (
+        <Card>
           <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : (
-          <Table
-            data={assessmentsData.map(assessment => ({
-              Title: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {assessment.name}
-                </span>
-              ),
-              Type: assessment.assessment_type,
-              "CVSS Version": assessment.cvss_version,
-              "Vuln count": assessment.vulnerability_count,
-              Start: formatDate(assessment.start_date_time),
-              End: formatDate(assessment.end_date_time),
-              Status: (
-                <SelectWrapper
-                  options={statusSelectOptions}
-                  onChange={selectedOptions => setSelectedStatus(selectedOptions)}
-                  defaultValue={{ label: "On Hold", value: "hold" }}
+        </Card>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <Table
+          data={assessmentsData.map(assessment => ({
+            Title: <Link to={`/assessment`}>{assessment.name}</Link>,
+            Type: assessment.assessment_type,
+            "CVSS Version": assessment.cvss_version,
+            "Vuln count": assessment.vulnerability_count,
+            Start: formatDate(assessment.start_date_time),
+            End: formatDate(assessment.end_date_time),
+            Status: (
+              <SelectWrapper
+                widthFixed
+                options={statusSelectOptions}
+                onChange={selectedOptions => setSelectedStatus(selectedOptions)}
+                defaultValue={{ label: "On Hold", value: "hold" }}
+              />
+            ),
+            buttons: (
+              <Buttons noWrap>
+                <Button
+                  type={assessment.is_owned ? "warning" : ""}
+                  icon={mdiStar}
+                  onClick={handleFavoriteToggle(assessment.id)}
+                  small
                 />
-              ),
-              buttons: (
-                <Buttons noWrap>
-                  <Button
-                    color={assessment.is_owned ? "warning" : "info"}
-                    icon={mdiStar}
-                    onClick={handleFavoriteToggle(assessment.id)}
-                    small
-                  />
-                  <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                  <Button
-                    color="lightDark"
-                    icon={mdiContentDuplicate}
-                    onClick={() => openCloneModal(assessment)}
-                    small
-                  />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              ),
-            }))}
-            perPageCustom={50}
-          />
-        )}
-      </CardBox>
+                <Button icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
+                <Button icon={mdiContentDuplicate} onClick={() => openCloneModal(assessment)} small />
+                <Button icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
+                <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+              </Buttons>
+            ),
+          }))}
+          perPageCustom={50}
+        />
+      )}
     </div>
   );
-};
-
-export default Assessments;
+}

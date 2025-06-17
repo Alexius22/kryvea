@@ -1,15 +1,15 @@
-import { mdiAccount, mdiAsterisk, mdiFormTextboxPassword } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { mdiAccount } from "@mdi/js";
+import { Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../App";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import FormField from "../components/Form/Field";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Input from "../components/Form/Input";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 
-const Profile = () => {
+export default function Profile() {
   const {
     useUsername: [username],
   } = useContext(GlobalContext);
@@ -21,7 +21,7 @@ const Profile = () => {
   return (
     <div>
       <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main></SectionTitleLineWithButton>
-      <CardBox className="w-[530px] max-w-full">
+      <Card className="w-1/3 max-w-full">
         <Formik
           initialValues={{
             currentPassword: "",
@@ -30,37 +30,18 @@ const Profile = () => {
           }}
           onSubmit={values => alert(JSON.stringify(values, null, 2))}
         >
-          <Form className="flex flex-1 flex-col gap-6">
-            <div>
-              <FormField label="Current password" help="Required" labelFor="currentPassword" icons={[mdiAsterisk]}>
-                <Field name="currentPassword" id="currentPassword" type="password" autoComplete="current-password" />
-              </FormField>
-              <FormField label="New password" help="Required" labelFor="newPassword" icons={[mdiFormTextboxPassword]}>
-                <Field name="newPassword" id="newPassword" type="password" autoComplete="new-password" />
-              </FormField>
-
-              <FormField
-                label="Confirm password"
-                help="Required"
-                labelFor="newPasswordConfirmation"
-                icons={[mdiFormTextboxPassword]}
-              >
-                <Field
-                  name="newPasswordConfirmation"
-                  id="newPasswordConfirmation"
-                  type="password"
-                  autoComplete="new-password"
-                />
-              </FormField>
+          <Form>
+            <Grid className="gap-4">
+              <Input type="password" id="current_password" label="Current password" helperSubtitle="Required" />
+              <Input type="password" id="new_password" label="New password" helperSubtitle="Required" />
+              <Input type="password" id="confirm_password" label="Confirm password" helperSubtitle="Required" />
+            </Grid>
+            <div className="pt-4">
+              <Button text="Submit" onClick={() => {}} />
             </div>
-            <Buttons>
-              <Button color="info" type="submit" label="Submit" />
-            </Buttons>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
-};
-
-export default Profile;
+}

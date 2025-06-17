@@ -1,22 +1,39 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import Divider from "../components/Divider";
+import Card from "../components/CardBox/Card";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocText from "../components/Poc/PocText";
 import { getPageTitle } from "../config";
 
-const EditPoc = () => {
+export default function EditPoc() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
+  const [selectedPoc, setSelectedPoc] = useState<number>(0);
+
+  const pocListParent = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
+  }, []);
+  useEffect(() => {
+    const handleDragStart = () => {
+      pocListParent.current?.classList.add("dragging");
+    };
+    const handleDragEnd = () => {
+      pocListParent.current?.classList.remove("dragging");
+    };
+    document.addEventListener("dragover", handleDragStart);
+    document.addEventListener("dragend", handleDragEnd);
+    document.addEventListener("visibilitychange", handleDragEnd);
+    return () => {
+      document.removeEventListener("dragstart", handleDragStart);
+      document.removeEventListener("visibilitychange", handleDragEnd);
+    };
   }, []);
 
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
@@ -143,6 +160,8 @@ const EditPoc = () => {
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              selectedPoc,
+              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
@@ -156,6 +175,8 @@ const EditPoc = () => {
           onTextChange,
           onRemovePoc,
           onImageChange,
+          selectedPoc,
+          setSelectedPoc,
         };
         return <PocImage {...pocImageProps} key={pocDoc.key} />;
       case "request/response":
@@ -168,6 +189,8 @@ const EditPoc = () => {
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              selectedPoc,
+              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
@@ -177,29 +200,20 @@ const EditPoc = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-300 dark:bg-slate-800">
-        <CardBox
-          noPadding
-          className="rounded-3xl border-[1px] border-slate-400/55 p-4 px-6 dark:border-slate-600/90 dark:!bg-slate-900"
-        >
+      <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
+        <Card className="border-2 border-white/60 !bg-red-400/0">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
-            <Button
-              label="Request/Response"
-              color="contrast"
-              icon={mdiPlus}
-              onClick={addPoc("request/response")}
-              small
-            />
-            <Button label="Image" color="contrast" icon={mdiPlus} onClick={addPoc("image")} small />
-            <Button label="Text" color="contrast" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" label="Submit" color="info" icon={mdiSend} />
+            <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
+            <Button text="Image" icon={mdiPlus} onClick={addPoc("image")} small />
+            <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
+            <Button className="ml-auto" text="Submit" icon={mdiSend} onClick={() => {}} />
           </Buttons>
-        </CardBox>
+        </Card>
       </div>
-      <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
+      <div ref={pocListParent} className="relative flex w-full flex-col gap-3">
+        {pocList.map(switchPocType)}
+      </div>
     </div>
   );
-};
-
-export default EditPoc;
+}

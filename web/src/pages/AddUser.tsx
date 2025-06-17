@@ -1,16 +1,16 @@
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { getPageTitle } from "../config";
-import { users } from "../mockup_data/users";
 import { customers } from "../mockup_data/customers";
 
-const AddUser = () => {
+export default function AddUser() {
   useEffect(() => {
     document.title = getPageTitle("User");
   }, []);
@@ -22,7 +22,7 @@ const AddUser = () => {
   const selectAllOption = { value: "all", label: "Select All" };
 
   return (
-    <CardBox>
+    <Card>
       <Formik
         initialValues={{ username: "", role: "", customers: [], active_user: true }}
         onSubmit={values => console.log("Submitted values:", values)}
@@ -43,20 +43,26 @@ const AddUser = () => {
           };
           return (
             <Form>
-              <FormField label="Username" help="Required">
-                <Field name="username" id="username" placeholder="username" />
-              </FormField>
-              <FormField label="Email" help="Required">
-                <Field name="email" id="email" placeholder="example@email.com" />
-              </FormField>
-              <FormField label="Role" labelFor="role">
-                <Field name="role" id="role" component="select">
-                  <option value="administrator">Administrator</option>
-                  <option value="user">User</option>
-                </Field>
-              </FormField>
-              <FormField label="Customers" singleChild>
+              <Grid className="gap-4">
+                <Input type="text" label="Username" placeholder="username" id="username" />
+                <Input type="email" label="Email" placeholder="example@email.com" id="email" />
                 <SelectWrapper
+                  label="Role"
+                  id="role-selection"
+                  options={[
+                    { value: "administrator", label: "Administrator" },
+                    { value: "user", label: "User" },
+                  ]}
+                  closeMenuOnSelect
+                  onChange={option => setFieldValue("role", option.value)}
+                  value={
+                    values.role
+                      ? { value: values.role, label: values.role.charAt(0).toUpperCase() + values.role.slice(1) }
+                      : null
+                  }
+                />
+                <SelectWrapper
+                  label="Customers"
                   options={[selectAllOption, ...customerOptions]}
                   isMulti
                   value={customerOptions.filter(option => values.customers.includes(option.value))}
@@ -64,18 +70,16 @@ const AddUser = () => {
                   closeMenuOnSelect={false}
                   id="customer-selection"
                 />
-              </FormField>
-              <Divider />
-              <Buttons>
-                <Button type="submit" color="info" label="Submit" />
-                <Button type="cancel" color="info" outline label="Cancel" />
-              </Buttons>
+                <Divider />
+                <Buttons>
+                  <Button text="Submit" onClick={() => {}} />
+                  <Button type="outline-only" text="Cancel" onClick={() => {}} />
+                </Buttons>
+              </Grid>
             </Form>
           );
         }}
       </Formik>
-    </CardBox>
+    </Card>
   );
-};
-
-export default AddUser;
+}

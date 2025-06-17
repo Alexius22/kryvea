@@ -99,9 +99,9 @@ export default class Vector {
    * This constructor initializes the metrics with their default values based on the CVSS v4.0 specification.
    * If a vector string is provided, it parses the string and updates the metrics accordingly.
    *
-   * @param {string} [vectorString=""] - Optional CVSS v4.0 vector string to initialize the metrics (e.g., "CVSS:4.0/AV:L/AC:L/PR:N/UI:R/...").
+   * @param {any} [setError=()=>{}] - Optional CVSS v4.0 vector string to initialize the metrics (e.g., "CVSS:4.0/AV:L/AC:L/PR:N/UI:R/...").
    */
-  constructor(vectorString = "") {
+  constructor({ vectorString, setError } = { vectorString: "", setError: () => {} }) {
     // Initialize the metrics
     const selected = {};
     for (let category in Vector.METRICS) {
@@ -119,6 +119,9 @@ export default class Vector {
         vectorString = vectorString.slice(1);
       }
       this.updateMetricsFromVectorString(vectorString);
+    }
+    if (setError) {
+      this.setError = setError;
     }
   }
 
@@ -362,10 +365,13 @@ export default class Vector {
    */
   validateStringVector(vector) {
     const metrics = vector.split("/");
+    let errorStr = "";
 
     // Check if the prefix is correct
     if (metrics.shift() !== "CVSS:4.0") {
-      console.error("Error: invalid vector, missing CVSS v4.0 prefix from vector: " + vector);
+      errorStr = "Error: invalid vector, missing CVSS v4.0 prefix from vector: " + vector;
+      console.error(errorStr);
+      this.setError(errorStr);
       return false;
     }
 
@@ -377,7 +383,9 @@ export default class Vector {
 
       // Check if there are too many metric values
       if (!expectedMetrics[mandatoryMetricIndex]) {
-        console.error("Error: invalid vector, too many metric values");
+        errorStr = "Error: invalid vector, too many metric values";
+        console.error(errorStr);
+        this.setError(errorStr);
         return false;
       }
 
@@ -385,7 +393,9 @@ export default class Vector {
       while (expectedMetrics[mandatoryMetricIndex] && expectedMetrics[mandatoryMetricIndex][0] !== key) {
         // Check for missing mandatory metrics
         if (mandatoryMetricIndex < 11) {
-          console.error("Error: invalid vector, missing mandatory metrics");
+          errorStr = "Error: invalid vector, missing mandatory metrics";
+          console.error(errorStr);
+          this.setError(errorStr);
           return false;
         }
         mandatoryMetricIndex++;
@@ -393,9 +403,9 @@ export default class Vector {
 
       // Check if the value is valid for the given metric
       if (!expectedMetrics[mandatoryMetricIndex][1].includes(value)) {
-        console.error(
-          `Error: invalid vector, for key ${key}, value ${value} is not in ${expectedMetrics[mandatoryMetricIndex][1]}`
-        );
+        errorStr = `Error: invalid vector, for key ${key}, value ${value} is not in ${expectedMetrics[mandatoryMetricIndex][1]}`;
+        console.error(errorStr);
+        this.setError(errorStr);
         return false;
       }
 
@@ -463,7 +473,9 @@ export default class Vector {
     if (Object.prototype.hasOwnProperty.call(this.metrics, metric)) {
       this.metrics[metric] = value;
     } else {
-      console.error(`Metric ${metric} not found.`);
+      let errorStr = `Metric ${metric} not found.`;
+      console.error(errorStr);
+      this.setError(errorStr);
     }
   }
 }
@@ -872,7 +884,7 @@ export class CVSS40 {
       this.vector = input;
     } else if (typeof input === "string") {
       // If the input is a string, create a new Vector object from the string
-      this.vector = new Vector(input);
+      this.vector = new Vector({ vectorString: input });
     } else {
       throw new Error(
         `Invalid input type for CVSSv4.0 constructor. Expected a string or a Vector object in ${this.vector}`

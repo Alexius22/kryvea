@@ -1,21 +1,21 @@
 import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormCheckRadioGroup from "../components/Form/CheckRadioGroup";
-import FormField from "../components/Form/Field";
+import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Checkbox from "../components/Form/Checkbox";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
+import { customers } from "../mockup_data/customers";
 import { users } from "../mockup_data/users";
 
-const Users = () => {
+export default function Users() {
   const navigate = useNavigate();
   //const { data: users, loading, error } = useFetch<User[]>("/users");
   const loading = false;
@@ -32,20 +32,17 @@ const Users = () => {
     document.title = getPageTitle("Users");
   }, []);
 
-  const customerOptions = users.flatMap(user =>
-    user.customers.map((customer, index) => ({
-      value: customer.name,
-      label: customer.name,
-    }))
-  );
+  const customerOptions = customers.map((customer, index) => ({
+    value: customer.name,
+    label: customer.name,
+  }));
 
   const selectAllOption = { value: "all", label: "Select All" };
 
   return (
     <div>
-      <CardBoxModal
+      <Modal
         title="Edit user"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
@@ -72,38 +69,40 @@ const Users = () => {
 
             return (
               <Form>
-                <FormField label="Username" help="Required">
-                  <Field name="username" placeholder="username" id="username" />
-                </FormField>
-
-                <FormField label="Role">
-                  <Field id="role" name="role" as="select">
-                    <option value="administrator">Administrator</option>
-                    <option value="user">User</option>
-                  </Field>
-                </FormField>
-                <FormField label="Customers" singleChild>
+                <Grid className="gap-4">
+                  <Input type="text" label="Username" placeholder="username" id="username" />
                   <SelectWrapper
+                    label="Role"
+                    id="role-selection"
+                    options={[
+                      { value: "administrator", label: "Administrator" },
+                      { value: "user", label: "User" },
+                    ]}
+                    onChange={option => setFieldValue("role", option.value)}
+                    value={
+                      values.role
+                        ? { value: values.role, label: values.role.charAt(0).toUpperCase() + values.role.slice(1) }
+                        : null
+                    }
+                  />
+                  <SelectWrapper
+                    label="Customers"
+                    id="modal-select-customers"
                     options={[selectAllOption, ...customerOptions]}
                     isMulti
                     value={customerOptions.filter(option => values.customers.includes(option.value))}
                     onChange={handleSelectChange}
                     closeMenuOnSelect={false}
                   />
-                </FormField>
-                  <FormCheckRadioGroup>
-                    <FormCheckRadio type="checkbox" label="Disable user">
-                      <Field type="checkbox" name="disable_user" />
-                    </FormCheckRadio>
-                  </FormCheckRadioGroup>
+                  <Checkbox id={"disable_user"} onChange={{}} htmlFor={"disable_user"} label={"Disable user"} />
+                </Grid>
               </Form>
             );
           }}
         </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+      </Modal>
+      <Modal
         title="Please confirm"
-        buttonColor="danger"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalAction}
@@ -113,19 +112,12 @@ const Users = () => {
         <p>
           <b>Action irreversible</b>
         </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-        <Button
-          icon={mdiPlus}
-          label="New user"
-          roundedFull
-          small
-          color="contrast"
-          onClick={() => navigate("/add_user")}
-        />
+        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -139,17 +131,15 @@ const Users = () => {
               Active: Date.parse(user.disabled_at) > Date.now() ? "True" : "False",
               buttons: (
                 <Buttons noWrap>
-                  <Button color="info" icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
+                  <Button icon={mdiAccountEdit} onClick={() => setIsModalInfoActive(true)} small />
+                  <Button type="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
                 </Buttons>
               ),
             }))}
             perPageCustom={50}
           />
         )}
-      </CardBox>
+      </div>
     </div>
   );
-};
-
-export default Users;
+}

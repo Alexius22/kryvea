@@ -1,49 +1,37 @@
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
 
-const AddHost = () => {
+export default function AddHost() {
   useEffect(() => {
     document.title = getPageTitle("Customer");
   }, []);
 
   return (
     <div>
-      <CardBox>
+      <Card>
         <Formik initialValues={{}} onSubmit={undefined}>
           <Form>
-            <FormField label="IPv4">
-              <Field name="ip" id="ip" placeholder="IPv4 address"></Field>
-            </FormField>
-
-            <FormField label="IPv6">
-              <Field name="ipv6" id="ipv6" placeholder="IPv6 address"></Field>
-            </FormField>
-
-            <FormField label="FQDN">
-              <Field name="fqdn" id="fdqn" placeholder="Fully Qualified Domain Name"></Field>
-            </FormField>
-
-            <FormField label="Name" help="Specify a name to distinguish hosts with the same IP and FQDN">
-              <Field name="name" id="name" placeholder="Sample name"></Field>
-            </FormField>
-
+            <Grid>
+              <Input type="text" id="ipv4" label="IPv4" placeholder="IPv4 address" />
+              <Input type="text" id="ipv6" label="IPv6" placeholder="IPv6 address" />
+              <Input type="text" id="fqdn" label="FQDN" placeholder="Fully Qualified Domain Name" />
+              <Input type="text" id="host_id" label="Host name ID" placeholder="Sample name" />
+            </Grid>
             <Divider />
-
             <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
+              <Button text="Submit" onClick={() => {}} />
+              <Button type="outline-only" text="Cancel" onClick={() => {}} />
             </Buttons>
           </Form>
         </Formik>
-      </CardBox>
+      </Card>
     </div>
   );
-};
-
-export default AddHost;
+}

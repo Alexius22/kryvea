@@ -1,0 +1,126 @@
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--link);
+}
+a:hover {
+  color: var(--link-hover);
+}
+
+button {
+  @apply clickable rounded border-none px-4 py-2;
+  background-color: var(--button-bg);
+}
+button.small {
+  @apply px-3 py-1 text-sm;
+}
+button.secondary {
+  background-color: var(--button-bg-secondary);
+}
+button.warning {
+  background-color: var(--warning);
+}
+button.danger {
+  background-color: var(--error);
+}
+button.outline-only {
+  border: 1px solid var(--border-primary);
+  background-color: transparent;
+}
+button.transparent {
+  background-color: transparent;
+}
+
+input {
+  @apply rounded-md border p-2 ring-0;
+  outline: none;
+  border-color: transparent;
+  height: min-content;
+  background-color: var(--bg-quaternary);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+  font-weight: 300;
+  font-style: italic;
+}
+input:focus {
+  border: 1px solid var(--border-primary);
+}
+input.checkbox {
+  accent-color: var(--link);
+}
+
+textarea {
+  @apply rounded-md p-1 px-2;
+  background-color: var(--bg-quaternary);
+}
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--border-primary);
+  border-color: transparent;
+}
+
+.aside-menu-item-active {
+  background-color: var(--bg-tertiary);
+}
+
+.cardbox {
+  @apply rounded-3xl p-4;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+}
+
+.card-modal {
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(var(--bg-primary-rgb), 0.85),
+    rgba(var(--bg-tertiary-rgb), 0.85),
+    rgba(var(--bg-quaternary-rgb), 0.85)
+  );
+}
+
+.divider {
+  @apply my-2;
+  border-color: var(--border-primary);
+}
+
+.heart {
+  @apply inline-block;
+  translate: 0 0%;
+  scale: 1;
+}
+.heart.heart-up {
+  @apply inline-block;
+  translate: 0 -100%;
+  scale: 3;
+}
+
+.clickable {
+  &:hover {
+    background-color: rgba(var(--button-bg-rgb), 0.8);
+  }
+  &:active {
+    background-color: rgba(var(--button-bg-rgb), 0.5);
+  }
+
+  &[data-type="outline-only"],
+  &[data-type="transparent"] {
+    &:hover {
+      backdrop-filter: brightness(var(--clickable-hover-backdrop-brightness));
+    }
+    &:active {
+      backdrop-filter: brightness(var(--clickable-active-backdrop-brightness));
+    }
+  }
+}
+
+.glasscard {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
+  border: 1px solid var(--border-primary);
+}
