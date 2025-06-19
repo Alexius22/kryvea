@@ -24,7 +24,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = _ => {
+  const handleSubmit = () => {
     axios
       .post("/api/login", {
         username,
