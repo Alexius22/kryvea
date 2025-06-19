@@ -1,5 +1,5 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
-import { isValidElement, useEffect, useState } from "react";
+import { isValidElement, useEffect, useMemo, useState } from "react";
 import Card from "./CardBox/Card";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
@@ -24,11 +24,11 @@ export default function Table({
   const [currentPage, setCurrentPage] = useState(0);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
   const [filterText, setFilterText] = useState("");
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState(data ?? []);
 
   useEffect(() => {
     setFilteredData(
-      data.filter(obj => {
+      (data ?? []).filter(obj => {
         return Object.entries(obj)
           .filter(([key]) => key !== "buttons")
           .some(([_, value]) => {
@@ -82,7 +82,7 @@ export default function Table({
     return arr.slice(perPage * currentPage, perPage * (currentPage + 1));
   };
 
-  const numPages = Math.ceil(filteredData.length / perPage);
+  const numPages = useMemo(() => Math.ceil(filteredData.length / perPage), [filteredData.length, perPage]);
   const pagesList = [];
 
   for (let i = 0; i < numPages; i++) {
