@@ -61,6 +61,8 @@ export type Customer = {
   name: string;
   language: string;
   default_cvss_version: string;
+  updated_at: Date;
+  created_at: Date;
 };
 
 export type Category = {
