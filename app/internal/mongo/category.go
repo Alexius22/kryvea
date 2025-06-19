@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -48,31 +49,41 @@ func (ci CategoryIndex) init() error {
 	return err
 }
 
-func (ci *CategoryIndex) Insert(category *Category) (bson.ObjectID, error) {
+func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	category.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
-	_, err := ci.collection.InsertOne(context.Background(), category)
+
+	_, err = ci.collection.InsertOne(context.Background(), category)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	return category.ID, err
 }
 
-func (ci *CategoryIndex) FirstOrInsert(category *Category) (bson.ObjectID, bool, error) {
+func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, error) {
 	var existingCategory Assessment
 	err := ci.collection.FindOne(context.Background(), bson.M{"index": category.Index, "name": category.Name}).Decode(&existingCategory)
 	if err == nil {
 		return existingCategory.ID, false, nil
 	}
 	if err != mongo.ErrNoDocuments {
-		return bson.NilObjectID, false, err
+		return uuid.Nil, false, err
 	}
 
 	id, err := ci.Insert(category)
 	return id, true, err
 }
 
-func (ci *CategoryIndex) Update(ID bson.ObjectID, category *Category) error {
+func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -95,7 +106,7 @@ func (ci *CategoryIndex) Update(ID bson.ObjectID, category *Category) error {
 	return err
 }
 
-func (ci *CategoryIndex) Delete(ID bson.ObjectID) error {
+func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return err
@@ -104,7 +115,7 @@ func (ci *CategoryIndex) Delete(ID bson.ObjectID) error {
 	filter := bson.M{"category_id": ID}
 	update := bson.M{
 		"$set": bson.M{
-			"category_id": bson.NilObjectID,
+			"category_id": uuid.Nil,
 		},
 	}
 
@@ -124,7 +135,7 @@ func (ci *CategoryIndex) GetAll() ([]Category, error) {
 	return categories, err
 }
 
-func (ci *CategoryIndex) GetByID(categoryID bson.ObjectID) (*Category, error) {
+func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 	var category Category
 	err := ci.collection.FindOne(context.Background(), bson.M{"_id": categoryID}).Decode(&category)
 	if err != nil {

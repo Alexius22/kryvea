@@ -4,7 +4,7 @@ import (
 	"unicode"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 const (
@@ -42,7 +42,7 @@ func IsValidPassword(password string) bool {
 	return false
 }
 
-func CanAccessCustomer(user *mongo.User, customer bson.ObjectID) bool {
+func CanAccessCustomer(user *mongo.User, customer uuid.UUID) bool {
 	if user.Role == mongo.ROLE_ADMIN {
 		return true
 	}

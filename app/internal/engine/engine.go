@@ -70,9 +70,11 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetCategories)
 		apiGroup.Post("/categories", api.AddCategory)
+		apiGroup.Post("/categories/upload", api.UploadCategories)
 		apiGroup.Patch("/categories/:category", api.UpdateCategory)
 		apiGroup.Delete("/categories/:category", api.DeleteCategory)
 
+		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
 		apiGroup.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)

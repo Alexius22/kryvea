@@ -4,10 +4,11 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type categoryRequestData struct {
-	ID                 string            `json:"id"`
+	// ID                 string            `json:"id"`
 	Index              string            `json:"index"`
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
@@ -60,7 +61,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Category created",
-		"category_id": categoryID.Hex(),
+		"category_id": categoryID,
 	})
 }
 
@@ -158,7 +159,7 @@ func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchCategories(c *fiber.Ctx) error {
-	query := c.Query("q")
+	query := c.Query("query")
 	if query == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -195,16 +196,77 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 		categories = []mongo.Category{}
 	}
 
+	download := c.Query("download")
+	if download == "true" {
+		c.Set("Content-Disposition", "attachment; filename=categories.json")
+	}
+
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
 }
 
-func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, string) {
-	if categoryParam == "" {
-		return nil, "category ID is required"
+func (d *Driver) UploadCategories(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// check if user is admin
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
 	}
 
-	categoryID, err := util.ParseMongoID(categoryParam)
+	// parse request body
+	var data []categoryRequestData
+	if err := c.BodyParser(&data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// validate each category data
+	for _, categoryData := range data {
+		errStr := d.validateCategoryData(&categoryData)
+		if errStr != "" {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": errStr,
+			})
+		}
+	}
+
+	// insert each category into database
+	categories := make([]uuid.UUID, 0, len(data))
+	for _, categoryData := range data {
+		categoryID, err := d.mongo.Category().Insert(&mongo.Category{
+			Index:              categoryData.Index,
+			Name:               categoryData.Name,
+			GenericDescription: categoryData.GenericDescription,
+			GenericRemediation: categoryData.GenericRemediation,
+		})
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Cannot create category",
+			})
+		}
+		categories = append(categories, categoryID)
+	}
+
+	c.Status(fiber.StatusCreated)
+	return c.JSON(fiber.Map{
+		"message":      "Categories created",
+		"category_ids": categories,
+	})
+}
+
+func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, string) {
+	if categoryParam == "" {
+		return nil, "Category ID is required"
+	}
+
+	categoryID, err := util.ParseUUID(categoryParam)
 	if err != nil {
 		return nil, "Invalid category ID"
 	}

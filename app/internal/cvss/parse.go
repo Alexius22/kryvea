@@ -9,6 +9,8 @@ import (
 	gocvss40 "github.com/pandatix/go-cvss/40"
 )
 
+// ParseVector parses a CVSS vector string and returns the calculated score
+// and severity level based on the specified CVSS version.
 func ParseVector(vector string, version string) (float64, string, error) {
 	score, err := calculateScore(vector, version)
 	if err != nil {
