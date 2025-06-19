@@ -68,7 +68,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":   "Target created",
-		"target_id": targetID.Hex(),
+		"target_id": targetID,
 	})
 }
 
@@ -303,7 +303,7 @@ func (d *Driver) GetTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	targetID, err := util.ParseMongoID(targetParam)
+	targetID, err := util.ParseUUID(targetParam)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -329,7 +329,7 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 		return nil, "Target ID is required"
 	}
 
-	targetID, err := util.ParseMongoID(targetParam)
+	targetID, err := util.ParseUUID(targetParam)
 	if err != nil {
 		return nil, "Invalid target ID"
 	}

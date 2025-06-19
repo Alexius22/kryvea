@@ -5,7 +5,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type customerRequestData struct {
@@ -59,7 +59,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Customer created",
-		"customer_id": customerID.Hex(),
+		"customer_id": customerID,
 	})
 }
 
@@ -67,7 +67,7 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// retrieve user's customers
-	var userCustomers []bson.ObjectID
+	var userCustomers []uuid.UUID
 	for _, uc := range user.Customers {
 		userCustomers = append(userCustomers, uc.ID)
 	}
@@ -188,7 +188,7 @@ func (d *Driver) customerFromParam(customerParam string) (*mongo.Customer, strin
 		return nil, "Customer ID is required"
 	}
 
-	customerID, err := util.ParseMongoID(customerParam)
+	customerID, err := util.ParseUUID(customerParam)
 	if err != nil {
 		return nil, "Invalid customer ID"
 	}

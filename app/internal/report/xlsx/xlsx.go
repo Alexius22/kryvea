@@ -2,7 +2,6 @@ package xlsx
 
 import (
 	"archive/zip"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -87,9 +86,6 @@ func addFileToZip(zipWriter *zip.Writer, filePath, baseInZip string) error {
 }
 
 func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
-	//timestamp := time.Now().Format("20060102_150405")
-	fileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.xlsx", assessment.AssessmentType, customer.Name, assessment.Name)
-	fileName = sanitizeFileName(fileName)
 	xl := excelize.NewFile()
 	defer xl.Close()
 
@@ -171,6 +167,9 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	}
 
 	tmpDir, err := os.MkdirTemp(".", "prefix-")
+	if err != nil {
+		return "", err
+	}
 	pocRow := 2
 
 	// sort vulnerabilities by score. if score is equal, sort by name in ascending order
@@ -221,14 +220,15 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 				}
 				defer imageFile.Close()
 
-				// base64 decode image data
-				decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
-				if err != nil {
-					continue
-				}
+				// TODO: remove
+				// // base64 decode image data
+				// decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
+				// if err != nil {
+				// 	continue
+				// }
 
 				// copy imagedata to file
-				_, err = imageFile.Write(decodedImage)
+				_, err = imageFile.Write(poc.ImageData)
 				if err != nil {
 					continue
 				}
@@ -255,17 +255,19 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("K%d", row), strings.Join(vuln.References, "\n"))
 	}
 
-	// Save the file
+	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0", assessment.AssessmentType, customer.Name, assessment.Name)
+	baseFileName = sanitizeFileName(baseFileName)
+
+	// Save XLSX file
+	fileName := baseFileName + ".xlsx"
 	if err := xl.SaveAs(fileName); err != nil {
 		return "", err
 	}
 
 	// Create ZIP file
-	zipName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.zip", assessment.AssessmentType, customer.Name, assessment.Name)
-	zipName = sanitizeFileName(zipName)
+	zipName := baseFileName + ".zip"
 	zipFile, err := os.Create(zipName)
 	if err != nil {
-		fmt.Println("Error creating ZIP:", err)
 		return "", err
 	}
 	defer zipFile.Close()
@@ -275,20 +277,17 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 	// Add the primary file to the ZIP
 	if err := addFileToZip(zipWriter, fileName, filepath.Base(fileName)); err != nil {
-		fmt.Println("Error adding file:", err)
 		return "", err
 	}
 
 	// Rename tmpDir to Screenshots
 	screenDir := "Screenshots"
 	if err := os.Rename(tmpDir, screenDir); err != nil {
-		fmt.Println("Error renaming directory:", err)
 		return "", err
 	}
 
 	// Add the Screenshots directory (including contents) to the ZIP
 	if err := addFileToZip(zipWriter, screenDir, screenDir); err != nil {
-		fmt.Println("Error adding screenshots directory:", err)
 		return "", err
 	}
 
@@ -296,7 +295,6 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	os.Remove(fileName)
 	os.RemoveAll(screenDir)
 
-	fmt.Println("ZIP created:", zipName)
 	return zipName, nil
 }
 

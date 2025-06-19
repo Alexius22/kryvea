@@ -1,13 +1,11 @@
 package api
 
 import (
-	"encoding/base64"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type pocRequestData struct {
@@ -17,7 +15,7 @@ type pocRequestData struct {
 	URI          string `json:"uri"`
 	Request      string `json:"request"`
 	Response     string `json:"response"`
-	ImageData    string `json:"image_data"`
+	ImageData    []byte `json:"image_data"`
 	ImageCaption string `json:"image_caption"`
 	TextLanguage string `json:"text_language"`
 	TextData     string `json:"text_data"`
@@ -70,16 +68,9 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 	}
 
 	// parse image data and insert it into the database
-	var imageID bson.ObjectID
+	var imageID uuid.UUID
 	if data.Type == poc.POC_TYPE_IMAGE && len(data.ImageData) != 0 {
-		decodedImage, err := base64.StdEncoding.DecodeString(data.ImageData)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot decode image",
-			})
-		}
-		imageID, err = d.mongo.File().Insert(decodedImage)
+		imageID, err = d.mongo.FileReference().Insert(data.ImageData)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -112,7 +103,7 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "PoC created",
-		"poc_id":  pocID.Hex(),
+		"poc_id":  pocID,
 	})
 }
 
@@ -180,16 +171,9 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 	}
 
 	// parse image data and insert it into the database
-	var imageID bson.ObjectID
+	var imageID uuid.UUID
 	if oldPoc.Type == poc.POC_TYPE_IMAGE && len(data.ImageData) != 0 {
-		decodedImage, err := base64.StdEncoding.DecodeString(data.ImageData)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot decode image",
-			})
-		}
-		imageID, err = d.mongo.File().Insert(decodedImage)
+		imageID, err = d.mongo.FileReference().Insert(data.ImageData)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -333,7 +317,7 @@ func (d *Driver) pocFromParam(pocParam string) (*mongo.Poc, string) {
 		return nil, "PoC ID is required"
 	}
 
-	pocID, err := util.ParseMongoID(pocParam)
+	pocID, err := util.ParseUUID(pocParam)
 	if err != nil {
 		return nil, "Invalid PoC ID"
 	}
