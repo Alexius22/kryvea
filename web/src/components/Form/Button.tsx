@@ -29,7 +29,7 @@ export default function Button({
 }: ButtonProps | IconButtonProps) {
   return (
     <button
-      className={`flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${type} ${className}`}
+      className={`clickable flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${type} ${className}`}
       disabled={disabled}
       onClick={onClick}
       data-type={type}

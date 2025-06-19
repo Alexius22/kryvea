@@ -11,7 +11,7 @@ a:hover {
 }
 
 button {
-  @apply clickable rounded border-none px-4 py-2;
+  @apply rounded border-none px-4 py-2;
   background-color: var(--button-bg);
 }
 button.small {
@@ -101,10 +101,10 @@ textarea:focus {
 
 .clickable {
   &:hover {
-    background-color: rgba(var(--button-bg-rgb), 0.8);
+    filter: brightness(0.85);
   }
   &:active {
-    background-color: rgba(var(--button-bg-rgb), 0.5);
+    filter: brightness(0.7);
   }
 
   &[data-type="outline-only"],
