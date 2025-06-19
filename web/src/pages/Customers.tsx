@@ -12,11 +12,32 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import { customers } from "../mockup_data/customers";
+import useApi from "../hooks/useApi";
+import { Customer } from "../types/common.types";
 
 export default function Customers() {
+  const [customers, setCustomers] = useState<Customer[]>();
+  const [isModalCustomerActive, setIsModalCustomerActive] = useState(false);
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+
+  const {
+    useCustomerName: [_, setCustomerName],
+  } = useContext(GlobalContext);
+
   const navigate = useNavigate();
-  // const { data: customers, loading, error } = useFetch<Customer>(`/api/customers`);
+
+  const { getData } = useApi();
+
+  useEffect(() => {
+    document.title = getPageTitle("Customers");
+    getData<Customer[]>("/api/customers", setCustomers, err => console.error(err));
+  }, []);
+
+  const handleModalAction = () => {
+    setIsModalCustomerActive(false);
+    setIsModalTrashActive(false);
+  };
+
   const loading = false;
   const error = false;
   const languageMapping: Record<string, string> = {
@@ -26,22 +47,6 @@ export default function Customers() {
     de: "German",
     es: "Spanish",
   };
-
-  const [isModalCustomerActive, setIsModalCustomerActive] = useState(false);
-  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
-  const {
-    useCustomerName: [_, setCustomerName],
-  } = useContext(GlobalContext);
-
-  const handleModalAction = () => {
-    setIsModalCustomerActive(false);
-    setIsModalTrashActive(false);
-  };
-
-  useEffect(() => {
-    document.title = getPageTitle("Customers");
-  }, []);
 
   return (
     <div>
@@ -120,7 +125,7 @@ export default function Customers() {
           <p>Error: {error}</p>
         ) : (
           <Table
-            data={customers.map(customer => ({
+            data={customers?.map(customer => ({
               Name: (
                 <Link to="" onClick={() => setCustomerName(customer.name)}>
                   {customer.name}
@@ -131,7 +136,7 @@ export default function Customers() {
               buttons: (
                 <Buttons noWrap>
                   <Button small onClick={() => setIsModalCustomerActive(true)} icon={mdiNoteEdit} />
-                  <Button type="danger" small onClick={() => setIsModalTrashActive(true)} icon={mdiTrashCan} />
+                  <Button small type="danger" onClick={() => setIsModalTrashActive(true)} icon={mdiTrashCan} />
                 </Buttons>
               ),
             }))}
