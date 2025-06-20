@@ -9,7 +9,6 @@ import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
 export default function Vulnerabilities() {
   const navigate = useNavigate();
-  //const { data: vulnerabilities, loading, error } = useFetch<Vulnerability[]>("/api/vulnerabilities/search");
   const loading = false;
   const error = false;
 

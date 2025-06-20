@@ -11,7 +11,6 @@ import { Assessment } from "../types/common.types";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  // const { data: assessments, loading, error } = useFetch<Assessment[]>("/assessment");
   const loading = false;
   const error = false;
 

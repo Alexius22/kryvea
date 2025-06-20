@@ -16,7 +16,6 @@ import { categories } from "../mockup_data/categories";
 
 export default function Categories() {
   const navigate = useNavigate();
-  // const { data: categories, loading, error } = useFetch<Category[]>("/api/categories");
   const loading = false;
   const error = false;
 

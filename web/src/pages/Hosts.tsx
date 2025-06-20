@@ -12,7 +12,6 @@ import { targets } from "../mockup_data/targets";
 export default function Hosts() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  //const { data: targets, loading, error } = useFetch<Host[]>(`/api/targets/${id}`);
   const loading = false;
   const error = false;
 
