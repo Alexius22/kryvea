@@ -17,7 +17,6 @@ import { users } from "../mockup_data/users";
 
 export default function Users() {
   const navigate = useNavigate();
-  //const { data: users, loading, error } = useFetch<User[]>("/users");
   const loading = false;
   const error = false;
 
