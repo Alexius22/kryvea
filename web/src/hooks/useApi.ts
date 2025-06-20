@@ -5,15 +5,6 @@ type OnCatchCallback<T> = (error: T) => any;
 type OnFinallyCallback = () => any;
 
 export default function useApi() {
-  /** wrapOnCatch is created to always agree on handling the error if it is an "AxiosError" */
-  const wrapOnCatch = onCatch => (e: AxiosError) => {
-    if (!axios.isAxiosError(e)) {
-      // maybe handle other errors?
-      return console.error("Unexpected error:", e);
-    }
-    onCatch(e);
-  };
-
   function getData<TResponseData>(
     endpoint: string,
     onThen: OnThenCallback<TResponseData> = undefined,
@@ -23,7 +14,7 @@ export default function useApi() {
     axios
       .get<TResponseData>(endpoint)
       .then(({ data }) => onThen(data))
-      .catch(wrapOnCatch(onCatch))
+      .catch(onCatch)
       .finally(onFinally);
   }
 
@@ -37,7 +28,7 @@ export default function useApi() {
     axios
       .post<TResponseData>(endpoint, data)
       .then(({ data }) => onThen(data))
-      .catch(wrapOnCatch(onCatch))
+      .catch(onCatch)
       .finally(onFinally);
   }
 
@@ -51,7 +42,7 @@ export default function useApi() {
     axios
       .patch<TResponseData>(endpoint, data)
       .then(({ data }) => onThen(data))
-      .catch(wrapOnCatch(onCatch))
+      .catch(onCatch)
       .finally(onFinally);
   }
 
@@ -64,7 +55,7 @@ export default function useApi() {
     axios
       .delete<TResponseData>(endpoint)
       .then(({ data }) => onThen(data))
-      .catch(wrapOnCatch(onCatch))
+      .catch(onCatch)
       .finally(onFinally);
   }
 
