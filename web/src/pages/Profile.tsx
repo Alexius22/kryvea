@@ -1,7 +1,6 @@
 import { mdiAccount } from "@mdi/js";
 import { Form, Formik } from "formik";
-import { useContext, useEffect } from "react";
-import { GlobalContext } from "../App";
+import { useEffect } from "react";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
@@ -10,10 +9,6 @@ import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWi
 import { getPageTitle } from "../config";
 
 export default function Profile() {
-  const {
-    useUsername: [username],
-  } = useContext(GlobalContext);
-
   useEffect(() => {
     document.title = getPageTitle("Profile");
   }, []);
