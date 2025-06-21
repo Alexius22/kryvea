@@ -26,13 +26,11 @@ import {
 import LiveEditor from "./pages/LiveEditor";
 
 export const GlobalContext = createContext<{
-  useUsername: [string, Dispatch<SetStateAction<string>>];
   useCustomerName: [string, Dispatch<SetStateAction<string>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
 }>(null);
 
 export default function App() {
-  const useUsername = useState<string>("kryveaUser");
   const useCustomerName = useState<string>("");
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme, _] = useDarkTheme;
@@ -45,7 +43,6 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useUsername,
         useCustomerName,
         useDarkTheme,
       }}
