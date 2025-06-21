@@ -3,11 +3,14 @@ import axios, { AxiosError } from "axios";
 type OnThenCallback<T> = (response: T) => any;
 type OnCatchCallback<T> = (error: T) => any;
 type OnFinallyCallback = () => any;
+type HttpErrorData = {
+  error: string;
+};
 
 export function getData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -21,7 +24,7 @@ export function postData<TResponseData>(
   endpoint: string,
   data: any = undefined,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError<any, any>> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -35,7 +38,7 @@ export function patchData<TResponseData>(
   endpoint: string,
   data: any = undefined,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -48,7 +51,7 @@ export function patchData<TResponseData>(
 export function deleteData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
