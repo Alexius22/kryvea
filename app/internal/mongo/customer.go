@@ -15,10 +15,10 @@ const (
 )
 
 type Customer struct {
-	Model              `bson:",inline"`
-	Name               string `json:"name" bson:"name"`
-	Language           string `json:"language" bson:"language"`
-	DefaultCVSSVersion string `json:"default_cvss_version" bson:"default_cvss_version"`
+	Model               `bson:",inline"`
+	Name                string   `json:"name" bson:"name"`
+	Language            string   `json:"language" bson:"language"`
+	DefaultCVSSVersions []string `json:"default_cvss_versions" bson:"default_cvss_versions"`
 }
 
 type CustomerIndex struct {
@@ -71,10 +71,10 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at":           time.Now(),
-			"name":                 customer.Name,
-			"language":             customer.Language,
-			"default_cvss_version": customer.DefaultCVSSVersion,
+			"updated_at":            time.Now(),
+			"name":                  customer.Name,
+			"language":              customer.Language,
+			"default_cvss_versions": customer.DefaultCVSSVersions,
 		},
 	}
 

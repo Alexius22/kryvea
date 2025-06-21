@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -18,7 +19,7 @@ type assessmentRequestData struct {
 	Status         string    `json:"status"`
 	Targets        []string  `json:"targets"`
 	AssessmentType string    `json:"assessment_type"`
-	CVSSVersion    string    `json:"cvss_version"`
+	CVSSVersions   []string  `json:"cvss_versions"`
 	Environment    string    `json:"environment"`
 	TestingType    string    `json:"testing_type"`
 	OSSTMMVector   string    `json:"osstmm_vector"`
@@ -53,7 +54,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersion)
+	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersions)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -82,7 +83,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersion:    data.CVSSVersion,
+		CVSSVersions:   data.CVSSVersions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -231,7 +232,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersion)
+	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersions)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -260,7 +261,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersion:    data.CVSSVersion,
+		CVSSVersions:   data.CVSSVersions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -460,15 +461,32 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	// retrieve pocs
 	var pocs []mongo.Poc
 	for _, v := range vulnerabilities {
-		switch assessment.CVSSVersion {
-		case cvss.CVSS2:
-			v.CVSSReport = v.CVSSv2
-		case cvss.CVSS3:
-			v.CVSSReport = v.CVSSv3
-		case cvss.CVSS31:
-			v.CVSSReport = v.CVSSv31
-		case cvss.CVSS4:
-			v.CVSSReport = v.CVSSv4
+		var cvssReportVersion int
+		for _, version := range assessment.CVSSVersions {
+			cvssVersionInt, err := strconv.Atoi(version)
+			if err != nil {
+				c.Status(fiber.StatusBadRequest)
+				return c.JSON(fiber.Map{
+					"error": "Invalid CVSS version",
+				})
+			}
+
+			if cvssVersionInt > cvssReportVersion {
+				switch version {
+				case cvss.CVSS4:
+					v.CVSSReport = v.CVSSv4
+					cvssReportVersion = cvssVersionInt
+				case cvss.CVSS31:
+					v.CVSSReport = v.CVSSv31
+					cvssReportVersion = cvssVersionInt
+				case cvss.CVSS3:
+					v.CVSSReport = v.CVSSv3
+					cvssReportVersion = cvssVersionInt
+				case cvss.CVSS2:
+					v.CVSSReport = v.CVSSv2
+					cvssReportVersion = cvssVersionInt
+				}
+			}
 		}
 
 		pocsByVuln, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
@@ -516,7 +534,7 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 	return assessment, ""
 }
 
-func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSSVersion string) string {
+func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSSVersions []string) string {
 	if data.Name == "" {
 		return "Name is required"
 	}
@@ -529,12 +547,14 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSS
 		return "End date is required"
 	}
 
-	if data.CVSSVersion == "" {
-		data.CVSSVersion = defaultCVSSVersion
+	if len(data.CVSSVersions) == 0 {
+		data.CVSSVersions = defaultCVSSVersions
 	}
 
-	if !cvss.IsValidVersion(data.CVSSVersion) {
-		return "Invalid CVSS version"
+	for _, version := range data.CVSSVersions {
+		if !cvss.IsValidVersion(version) {
+			return "Invalid CVSS version"
+		}
 	}
 
 	return ""

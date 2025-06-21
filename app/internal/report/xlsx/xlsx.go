@@ -151,7 +151,8 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	}
 
 	// Header row
-	headers := []string{"ID", "Severity", "Status", "Name", "Introduction", "Description", "Proof of Concept", fmt.Sprintf("CVSSv%s Vector", assessment.CVSSVersion), fmt.Sprintf("CVSSv%s Score", assessment.CVSSVersion), "Remediations", "References"}
+	// TODO: adjust for multiple CVSS versions
+	headers := []string{"ID", "Severity", "Status", "Name", "Introduction", "Description", "Proof of Concept", fmt.Sprintf("CVSSv%s Vector", vulnerabilities[0].CVSSReport.CVSSVersion), fmt.Sprintf("CVSSv%s Score", vulnerabilities[0].CVSSReport.CVSSVersion), "Remediations", "References"}
 	for i, header := range headers {
 		cell := fmt.Sprintf("%c1", 'A'+i)
 		xl.SetCellValue(vulnSheet, cell, header)

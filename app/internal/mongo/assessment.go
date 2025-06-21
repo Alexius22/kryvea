@@ -61,7 +61,7 @@ type Assessment struct {
 	Targets            []AssessmentTarget `json:"targets" bson:"targets"`
 	Status             string             `json:"status" bson:"status"`
 	AssessmentType     string             `json:"assessment_type" bson:"assessment_type"`
-	CVSSVersion        string             `json:"cvss_version" bson:"cvss_version"`
+	CVSSVersions       []string           `json:"cvss_versions" bson:"cvss_versions"`
 	Environment        string             `json:"environment" bson:"environment"`
 	TestingType        string             `json:"testing_type" bson:"testing_type"`
 	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
@@ -214,7 +214,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 			"targets":         assessment.Targets,
 			"status":          assessment.Status,
 			"type":            assessment.AssessmentType,
-			"cvss_version":    assessment.CVSSVersion,
+			"cvss_versions":   assessment.CVSSVersions,
 			"environment":     assessment.Environment,
 			"method":          assessment.TestingType,
 			"osstmm_vector":   assessment.OSSTMMVector,
