@@ -1,4 +1,5 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
@@ -47,6 +48,7 @@ export default function App() {
         useDarkTheme,
       }}
     >
+      <Toaster position="bottom-center" />
       <BrowserRouter>
         <RouteWatcher />
         <Routes>
