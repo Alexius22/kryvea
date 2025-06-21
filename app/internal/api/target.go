@@ -343,10 +343,6 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 }
 
 func (d *Driver) validateTargetData(data *targetRequestData) string {
-	if data.IP == "" {
-		return "IP is required"
-	}
-
 	if data.Hostname == "" {
 		return "Hostname is required"
 	}
