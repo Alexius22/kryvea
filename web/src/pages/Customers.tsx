@@ -2,6 +2,7 @@ import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { Form, Formik } from "formik";
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { getData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -12,7 +13,6 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import useApi from "../hooks/useApi";
 import { Customer } from "../types/common.types";
 
 export default function Customers() {
@@ -25,8 +25,6 @@ export default function Customers() {
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
-
-  const { getData } = useApi();
 
   useEffect(() => {
     document.title = getPageTitle("Customers");
