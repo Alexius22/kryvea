@@ -23,7 +23,7 @@ export type User = {
   disabled_at: string;
   username: string;
   role: string;
-  customers: { id: string; name: string };
+  customers: [{ id: string; name: string }];
   assessments: { id: string; name: string };
 };
 
