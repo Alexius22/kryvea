@@ -9,9 +9,9 @@ import (
 )
 
 type customerRequestData struct {
-	Name               string `json:"name"`
-	Language           string `json:"language"`
-	DefaultCVSSVersion string `json:"default_cvss_version"`
+	Name                string   `json:"name"`
+	Language            string   `json:"language"`
+	DefaultCVSSVersions []string `json:"default_cvss_versions"`
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -45,9 +45,9 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 	// insert customer into database
 	customerID, err := d.mongo.Customer().Insert(&mongo.Customer{
-		Name:               data.Name,
-		Language:           data.Language,
-		DefaultCVSSVersion: data.DefaultCVSSVersion,
+		Name:                data.Name,
+		Language:            data.Language,
+		DefaultCVSSVersions: data.DefaultCVSSVersions,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -132,9 +132,9 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 	// insert customer into database
 	err := d.mongo.Customer().Update(customer.ID, &mongo.Customer{
-		Name:               data.Name,
-		Language:           data.Language,
-		DefaultCVSSVersion: data.DefaultCVSSVersion,
+		Name:                data.Name,
+		Language:            data.Language,
+		DefaultCVSSVersions: data.DefaultCVSSVersions,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -210,12 +210,14 @@ func (d *Driver) validateCustomerData(customer *customerRequestData) string {
 		return "Language is required"
 	}
 
-	if customer.DefaultCVSSVersion == "" {
-		customer.DefaultCVSSVersion = cvss.CVSS4
+	if len(customer.DefaultCVSSVersions) == 0 {
+		customer.DefaultCVSSVersions = []string{cvss.CVSS4}
 	}
 
-	if !cvss.IsValidVersion(customer.DefaultCVSSVersion) {
-		return "Invalid CVSS version"
+	for _, version := range customer.DefaultCVSSVersions {
+		if !cvss.IsValidVersion(version) {
+			return "Invalid CVSS version"
+		}
 	}
 
 	return ""

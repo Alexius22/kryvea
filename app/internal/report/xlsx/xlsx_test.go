@@ -139,10 +139,9 @@ func randUrl() string {
 
 func TestXlsx(t *testing.T) {
 	customer := &mongo.Customer{
-		Name:               randName(3),
-		Language:           randLanguage(),
-		DefaultCVSSVersion: cvss.CVSS2,
-		// DefaultCVSSVersion: randCVSSVersion(),
+		Name:                randName(3),
+		Language:            randLanguage(),
+		DefaultCVSSVersions: []string{cvss.CVSS2, cvss.CVSS4},
 	}
 
 	var targets []mongo.AssessmentTarget
@@ -159,7 +158,7 @@ func TestXlsx(t *testing.T) {
 		Targets:        targets,
 		Status:         randStatus(),
 		AssessmentType: randAssessmentType(),
-		CVSSVersion:    customer.DefaultCVSSVersion,
+		CVSSVersions:   customer.DefaultCVSSVersions,
 		Environment:    randEnvironment(),
 		TestingType:    randTestingType(),
 		OSSTMMVector:   randOSSTMMVector(),
@@ -173,10 +172,11 @@ func TestXlsx(t *testing.T) {
 	var vulnerabilities []mongo.Vulnerability
 	var pocs []mongo.Poc
 	for i := 0; i < 5; i++ {
-		cvssVector := randCVSSVector(assessment.CVSSVersion)
-		cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, assessment.CVSSVersion)
+		version := rand.Intn(len(assessment.CVSSVersions))
+		cvssVector := randCVSSVector(assessment.CVSSVersions[version])
+		cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, assessment.CVSSVersions[version])
 		if err != nil {
-			t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, assessment.CVSSVersion)
+			t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, assessment.CVSSVersions[version])
 		}
 
 		vulnerability := mongo.Vulnerability{
@@ -184,10 +184,11 @@ func TestXlsx(t *testing.T) {
 			Category:      mongo.VulnerabilityCategory{Name: randName(3)},
 			DetailedTitle: randName(3),
 			CVSSReport: mongo.VulnerabilityCVSS{
+				CVSSVersion:     assessment.CVSSVersions[version],
 				CVSSVector:      cvssVector,
 				CVSSScore:       cvssScore,
 				CVSSSeverity:    cvssSeverity,
-				CVSSDescription: cvss.GenerateDescription(cvssVector, assessment.CVSSVersion, "en"),
+				CVSSDescription: cvss.GenerateDescription(cvssVector, assessment.CVSSVersions[version], "en"),
 			},
 			References: []string{randUrl(), randUrl()},
 			GenericDescription: mongo.VulnerabilityGeneric{
@@ -242,7 +243,7 @@ func TestXlsx(t *testing.T) {
 	t.Run("test", func(t *testing.T) {
 		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
 		if err != nil {
-			t.Errorf("GenerateReport() = %v, want %v, cvss version %s", err, true, assessment.CVSSVersion)
+			t.Errorf("GenerateReport() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
 		}
 	})
 }
