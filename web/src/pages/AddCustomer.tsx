@@ -80,7 +80,7 @@ export default function AddCustomer() {
     const payload = {
       name: companyName.trim(),
       language,
-      default_cvss_version: selectedCvssVersions.length === 1 ? selectedCvssVersions[0] : selectedCvssVersions,
+      default_cvss_versions: selectedCvssVersions,
     };
 
     postData<Customer>(
