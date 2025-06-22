@@ -1,6 +1,9 @@
 package api
 
 import (
+	"encoding/json"
+	"io"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -220,8 +223,33 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	}
 
 	// parse request body
+	fileHeader, err := c.FormFile("categories")
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse XML",
+		})
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to open file",
+		})
+	}
+
+	dataBytes, err := io.ReadAll(file)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to read file",
+		})
+	}
+
 	var data []categoryRequestData
-	if err := c.BodyParser(&data); err != nil {
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
