@@ -72,6 +72,7 @@ export default function App() {
             <Route path="/edit_report" element={<EditReport />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
+            <Route path="/manage_category/:categoryId" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
           <Route path="/login" element={<Login />} />
