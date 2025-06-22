@@ -21,6 +21,7 @@ type Category struct {
 	Name               string            `json:"name" bson:"name"`
 	GenericDescription map[string]string `json:"generic_description" bson:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation" bson:"generic_remediation"`
+	References         []string          `json:"references" bson:"references"`
 }
 
 type CategoryIndex struct {
@@ -91,6 +92,7 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 			"updated_at": time.Now(),
 			"index":      category.Index,
 			"name":       category.Name,
+			"references": category.References,
 		},
 	}
 
