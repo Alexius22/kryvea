@@ -2,18 +2,42 @@ export type ObjectKey = string | number | symbol;
 
 export type Vulnerability = {
   updated_at: string;
-  category: { id: string; name: string };
+  category: { id: string; index: string; name: string };
   detailed_title: string;
-  cvss_vector: string;
-  cvss_score: number;
-  cvss_severity: string;
-  cvss_description: string;
+  cvssv2: {
+    cvss_version: string;
+    cvss_vector: string;
+    cvss_score: number;
+    cvss_severity: string;
+    cvss_description: string;
+  };
+  cvssv3: {
+    cvss_version: string;
+    cvss_vector: string;
+    cvss_score: number;
+    cvss_severity: string;
+    cvss_description: string;
+  };
+  cvssv31: {
+    cvss_version: string;
+    cvss_vector: string;
+    cvss_score: number;
+    cvss_severity: string;
+    cvss_description: string;
+  };
+  cvssv4: {
+    cvss_version: string;
+    cvss_vector: string;
+    cvss_score: number;
+    cvss_severity: string;
+    cvss_description: string;
+  };
   references: string[];
   generic_description: { enabled: boolean; text: string };
   generic_remediation: { enabled: boolean; text: string };
   description: string;
   remediation: string;
-  target: { id: string; ip: string; hostname: string };
+  target: { id: string; ipv4: string; ipv6: string; fqdn: string };
   assessment: { id: string; name: string };
   user: { id: string; username: string };
 };
@@ -54,14 +78,14 @@ export type Host = {
   protocol: string;
   fqdn: string;
   name: string;
-  customer: { id: string; name: string; };
+  customer: { id: string; name: string };
 };
 
 export type Customer = {
   id: string;
   name: string;
   language: string;
-  default_cvss_version: string;
+  default_cvss_versions: string[];
   updated_at: Date;
   created_at: Date;
 };
