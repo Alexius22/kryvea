@@ -1,7 +1,11 @@
 import { mdiAccount, mdiLogout, mdiThemeLightDark } from "@mdi/js";
 import { ReactNode, useContext } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { postData } from "../api/api";
 import { GlobalContext } from "../App";
-import Icon from "./Icon";
+import Button from "./Form/Button";
+import Buttons from "./Form/Buttons";
 
 type Props = {
   children?: ReactNode;
@@ -12,24 +16,46 @@ export default function NavBar({ children }: Props) {
     useDarkTheme: [darkMode, setDarkMode],
   } = useContext(GlobalContext);
 
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    postData(
+      "/api/logout",
+      undefined,
+      () => {
+        toast.success("Logged out successfully");
+        navigate("/login");
+      },
+      err => {
+        toast.error(err.response.data.error);
+      }
+    );
+  };
+
   return (
     <nav className="navbar">
-      <div className="flex-1">{children}</div>
-      <div className="flex items-center gap-x-4">
-        <a href="/profile" className="flex items-center gap-x-2">
-          <Icon path={mdiAccount} />
-          Profile
-        </a>
+      <div>{children}</div>
+      <Buttons>
+        <Button
+          onClick={() => navigate("/profile")}
+          icon={mdiAccount}
+          text="Profile"
+          className="gap-2 bg-transparent text-[color:--link]"
+        />
 
-        <button onClick={() => setDarkMode(!darkMode)} className="flex items-center gap-x-2 !bg-transparent">
-          <Icon path={mdiThemeLightDark} className="text-[color:--link]" />
-        </button>
+        <Button
+          onClick={() => setDarkMode(!darkMode)}
+          icon={mdiThemeLightDark}
+          className="bg-transparent text-[color:--link]"
+        />
 
-        <a href="/login" className="flex items-center gap-x-2">
-          <Icon path={mdiLogout} />
-          Logout
-        </a>
-      </div>
+        <Button
+          onClick={handleLogout}
+          icon={mdiLogout}
+          text="Logout"
+          className="gap-2 bg-transparent text-[color:--link]"
+        />
+      </Buttons>
     </nav>
   );
 }
