@@ -70,6 +70,28 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 	return category.ID, err
 }
 
+func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, error) {
+	if !override {
+		return ci.Insert(category)
+	}
+
+	id, isNew, err := ci.FirstOrInsert(category)
+	if err == nil && isNew {
+		return id, nil
+	}
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	err = ci.Update(id, category)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return id, nil
+}
+
 func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, error) {
 	var existingCategory Assessment
 	err := ci.collection.FindOne(context.Background(), bson.M{"index": category.Index, "name": category.Name}).Decode(&existingCategory)
