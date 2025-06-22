@@ -2,12 +2,11 @@ import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
-import { deleteData, getData } from "../api/api";
+import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
@@ -19,7 +18,7 @@ export default function Users() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
-  const [userDisabled, setUserDisabled] = useState(false);
+  const [userDisabled, setUserDisabled] = useState<string | null>(null);
 
   const [users, setUsers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -35,25 +34,17 @@ export default function Users() {
   useEffect(() => {
     document.title = getPageTitle("Users");
 
-    getData<User[]>(
-      "/api/users",
-      data => setUsers(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        setError(errorMessage);
-        toast.error(errorMessage);
-      }
-    );
+    getData<User[]>("/api/users", setUsers, err => {
+      const errorMessage = err.response.data.error;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    });
 
-    getData<Customer[]>(
-      "/api/customers",
-      data => setCustomers(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        setError(errorMessage);
-        toast.error(errorMessage);
-      }
-    );
+    getData<Customer[]>("/api/customers", setCustomers, err => {
+      const errorMessage = err.response.data.error;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    });
   }, []);
 
   // Prepare customer options for SelectWrapper
@@ -83,7 +74,7 @@ export default function Users() {
     setUsername(user.username);
     setRole(user.role);
     setSelectedCustomers(user.customers.map(c => c.id));
-    setUserDisabled(Boolean(user.disabled_at));
+    setUserDisabled(user.disabled_at);
     setIsModalInfoActive(true);
   };
 
@@ -105,30 +96,39 @@ export default function Users() {
       username,
       role,
       customers: selectedCustomers,
-      disabled: userDisabled,
+      disabled_at: userDisabled,
     };
 
-    getData<User[]>("/api/users", setUsers, err => {
-      const errorMessage = err.response.data.error;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    });
-
-    toast.success("User updated successfully");
-    handleModalAction();
+    patchData<User>(
+      `/api/users/${activeUserId}`,
+      payload,
+      updatedUser => {
+        toast.success(`User ${payload.username} updated successfully`);
+        setIsModalInfoActive(false);
+        setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
   };
 
   const handleDeleteUser = () => {
     if (!activeUserId) return;
 
-    deleteData<User[]>("/api/users", setUsers, err => {
-      const errorMessage = err.response.data.error;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    });
-
-    toast.success("User deleted successfully");
-    handleModalAction();
+    deleteData<{ message: string }>(
+      `/api/users/${activeUserId}`,
+      () => {
+        toast.success("User deleted successfully");
+        setIsModalTrashActive(false);
+        setUsers(prev => prev.filter(u => u.id !== activeUserId));
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
   };
 
   return (
@@ -170,12 +170,14 @@ export default function Users() {
             closeMenuOnSelect={false}
             id="customer-selection"
           />
-          <Checkbox
-            id="disable_user"
-            htmlFor="disable_user"
-            label="Disable user"
-            checked={userDisabled}
-            onChange={e => setUserDisabled(e.target.checked)}
+          <Input
+            type="datetime-local"
+            id="disable_user_at"
+            label="Disable user from"
+            value={userDisabled ? userDisabled.substring(0, 16) : ""}
+            onChange={e => {
+              setUserDisabled(new Date(e.target.value).toISOString());
+            }}
           />
         </Grid>
       </Modal>
@@ -201,26 +203,16 @@ export default function Users() {
           Username: user.username,
           Role: user.role,
           Customers: user.customers.map(customer => customer.name).join(" | "),
-          Active: user.disabled_at && Date.parse(user.disabled_at) > Date.now() ? "False" : "True",
+          Active: Date.parse(user.disabled_at) > Date.now() ? "Yes" : "No",
           buttons: (
             <Buttons noWrap key={user.id}>
-              <Button
-                icon={mdiAccountEdit}
-                onClick={() => openEditModal(user)}
-                small
-                aria-label={`Edit user ${user.username}`}
-              />
-              <Button
-                type="danger"
-                icon={mdiTrashCan}
-                onClick={() => openDeleteModal(user.id)}
-                small
-                aria-label={`Delete user ${user.username}`}
-              />
+              <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small />
+              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
             </Buttons>
           ),
         }))}
         perPageCustom={50}
+        maxWidthColumns={{ Customers: "20rem" }}
       />
     </div>
   );
