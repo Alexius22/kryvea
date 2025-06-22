@@ -147,7 +147,7 @@ func TestXlsx(t *testing.T) {
 	var targets []mongo.AssessmentTarget
 	for i := 0; i < 2; i++ {
 		targets = append(targets, mongo.AssessmentTarget{
-			IP: randIP(), Hostname: randHostname(),
+			IPv4: randIP(), Hostname: randHostname(),
 		})
 	}
 
