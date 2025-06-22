@@ -14,6 +14,7 @@ import (
 
 var (
 	ErrPasswordExpired    = errors.New("password expired")
+	ErrDisabledUser       = errors.New("user is disabled")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
@@ -207,12 +208,16 @@ func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, err
 		return uuid.UUID{}, time.Time{}, err
 	}
 
-	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
-		return uuid.UUID{}, time.Time{}, ErrPasswordExpired
-	}
-
 	if !crypto.Compare(password, user.Password) {
 		return uuid.UUID{}, time.Time{}, ErrInvalidCredentials
+	}
+
+	if user.DisabledAt.Before(time.Now()) {
+		return uuid.UUID{}, time.Time{}, ErrDisabledUser
+	}
+
+	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
+		return uuid.UUID{}, time.Time{}, ErrPasswordExpired
 	}
 
 	token, err := uuid.NewRandom()

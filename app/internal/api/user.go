@@ -120,6 +120,13 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	// get session token from database
 	token, expires, err := d.mongo.User().Login(data.Username, data.Password)
 	if err != nil {
+		if err == mongo.ErrDisabledUser {
+			c.Status(fiber.StatusUnauthorized)
+			return c.JSON(fiber.Map{
+				"error": "User is disabled",
+			})
+		}
+
 		if err == mongo.ErrPasswordExpired {
 			resetToken, err := d.mongo.User().ForgotPassword(data.Username)
 			if err != nil {
@@ -296,9 +303,10 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 
 	// parse request body
 	type reqData struct {
-		Username    string   `json:"username"`
-		Password    string   `json:"password"`
-		Assessments []string `json:"assessments"`
+		Username    string    `json:"username"`
+		Password    string    `json:"password"`
+		Assessments []string  `json:"assessments"`
+		DisabledAt  time.Time `json:"disabled_at"`
 	}
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
@@ -309,7 +317,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.Username == "" && data.Password == "" && len(data.Assessments) == 0 {
+	if data.Username == "" && data.Password == "" && len(data.Assessments) == 0 && data.DisabledAt.IsZero() {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "No data to update",
@@ -350,6 +358,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 		Username:    data.Username,
 		Password:    data.Password,
 		Assessments: assessments,
+		DisabledAt:  data.DisabledAt,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -486,7 +495,7 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 		return "Username is required"
 	}
 
-	if !util.IsValidRole(data.Role) {
+	if data.Role != "" && !util.IsValidRole(data.Role) {
 		return "Invalid role"
 	}
 

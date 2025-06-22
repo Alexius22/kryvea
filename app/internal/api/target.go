@@ -7,7 +7,8 @@ import (
 )
 
 type targetRequestData struct {
-	IP       string `json:"ip"`
+	IPv4     string `json:"ipv4"`
+	IPv6     string `json:"ipv6"`
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
 	Hostname string `json:"hostname"`
@@ -52,7 +53,8 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 
 	// inseert target into database
 	targetID, err := d.mongo.Target().Insert(&mongo.Target{
-		IP:       data.IP,
+		IPv4:     data.IPv4,
+		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		Hostname: data.Hostname,
@@ -127,7 +129,8 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 
 	// update target in database
 	err := d.mongo.Target().Update(target.ID, &mongo.Target{
-		IP:       data.IP,
+		IPv4:     data.IPv4,
+		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		Hostname: data.Hostname,
@@ -343,10 +346,6 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 }
 
 func (d *Driver) validateTargetData(data *targetRequestData) string {
-	if data.IP == "" {
-		return "IP is required"
-	}
-
 	if data.Hostname == "" {
 		return "Hostname is required"
 	}

@@ -10,10 +10,10 @@ base_url = "https://kryvea.local/api"
 
 session = requests.Session()
 session.verify = False
-session.proxies = {
-    "http": "http://127.0.0.1:8080",
-    "https": "http://127.0.0.1:8080",
-}
+# session.proxies = {
+#     "http": "http://127.0.0.1:8080",
+#     "https": "http://127.0.0.1:8080",
+# }
 
 
 def rand_string(length: int = 8) -> str:
@@ -63,6 +63,9 @@ def rand_port() -> int:
 
 def rand_ip() -> str:
     return f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
+
+def rand_ipv6() -> str:
+    return f"{':'.join(['{:x}'.format(random.randint(0, 0xffff)) for _ in range(8)])}"
 
 
 def rand_name(n=1) -> str:
@@ -229,13 +232,15 @@ class Customer:
 class Target:
     def __init__(
         self,
-        ip="127.0.0.1",
+        ipv4="127.0.0.1",
+        ipv6="::1",
         port=80,
         protocol="tcp",
         hostname="localhost",
         customer_id="",
     ):
-        self.ip = ip
+        self.ipv4 = ipv4
+        self.ipv6 = ipv6
         self.port = port
         self.protocol = protocol
         self.hostname = hostname
@@ -243,7 +248,8 @@ class Target:
 
     def json(self) -> dict:
         return {
-            "ip": self.ip,
+            "ipv4": self.ipv4,
+            "ipv6": self.ipv6,
             "port": self.port,
             "protocol": self.protocol,
             "hostname": self.hostname,
@@ -320,12 +326,13 @@ class Assessment:
 
 class Category:
     def __init__(
-        self, index="A01:2021", name="", generic_description={}, generic_remediation={}
+        self, index="A01:2021", name="", generic_description={}, generic_remediation={}, references=[]
     ):
         self.index = index
         self.name = name
         self.generic_description = generic_description
         self.generic_remediation = generic_remediation
+        self.references = references
 
     def json(self) -> dict:
         return {
@@ -333,6 +340,7 @@ class Category:
             "name": self.name,
             "generic_description": self.generic_description,
             "generic_remediation": self.generic_remediation,
+            "references": self.references,
         }
 
     def get(self) -> list:
@@ -455,7 +463,7 @@ def rand_poc_text() -> POC:
         text_data=rand_string(),
     )
     
-image_paths = [ "scripts/images/1.png", "scripts/images/2.jpeg", "scripts/images/3.jpeg", "scripts/images/4.png" ]
+image_paths = [ "scripts/images/1.png", "scripts/images/2.png", "scripts/images/3.png", "scripts/images/4.jpg" ]
 def rand_poc_image() -> POC:
     image = random.choice(image_paths)
     imageBytes = open(image, "rb").read()
@@ -505,7 +513,8 @@ if __name__ == "__main__":
     targets = []
     for i in range(10):
         target = Target(
-            ip=rand_ip(),
+            ipv4=rand_ip(),
+            ipv6=rand_ipv6(),
             port=rand_port(),
             hostname=rand_hostname(),
             customer_id=customer_id,
@@ -563,6 +572,7 @@ if __name__ == "__main__":
                 languages[3]: rand_name(50),
                 languages[4]: rand_name(50),
             },
+            references=rand_urls(random.randint(1, 3)),
         )
         # print(category.json())
         category_id, error = category.create()

@@ -56,10 +56,15 @@ func CanAccessCustomer(user *mongo.User, customer uuid.UUID) bool {
 }
 
 func IsValidRole(role string) bool {
+	if role == "" {
+		return false
+	}
+
 	for _, r := range mongo.ROLES {
 		if r == role {
 			return true
 		}
 	}
+
 	return false
 }
