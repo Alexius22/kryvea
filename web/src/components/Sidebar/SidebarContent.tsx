@@ -19,9 +19,10 @@ type Props = {
 export default function SidebarContent({ nestedMenu, isDropdownList = false, className = "" }: Props) {
   const {
     useCustomerName: [customerName],
+    useCustomerId: [customerId],
   } = useContext(GlobalContext);
 
-  const defaultMenu: MenuAsideItem[] = [
+  const defaultMenu = [
     { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
     { href: "/customers", icon: mdiListBox, label: "Customers" },
     ...(customerName
@@ -30,8 +31,8 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
             label: customerName,
             icon: mdiViewList,
             menu: [
-              { href: "/assessments", label: "Assessments" },
-              { href: "/hosts", label: "Hosts" },
+              { href: `/customers/${customerId}/assessments`, label: "Assessments" },
+              { href: `/customers/${customerId}/targets`, label: "Hosts" },
             ],
           },
         ]

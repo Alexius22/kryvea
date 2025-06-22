@@ -28,13 +28,15 @@ import LiveEditor from "./pages/LiveEditor";
 
 export const GlobalContext = createContext<{
   useCustomerName: [string, Dispatch<SetStateAction<string>>];
+  useCustomerId: [string, Dispatch<SetStateAction<string>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
-}>(null);
+}>(null!);
 
 export default function App() {
-  const useCustomerName = useState<string>("");
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
-  const [darkTheme, _] = useDarkTheme;
+  const [darkTheme] = useDarkTheme;
+  const useCustomerName = useState<string>("");
+  const useCustomerId = useState<string>("");
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
@@ -45,6 +47,7 @@ export default function App() {
     <GlobalContext.Provider
       value={{
         useCustomerName,
+        useCustomerId,
         useDarkTheme,
       }}
     >
@@ -58,8 +61,8 @@ export default function App() {
             <Route path="/customers" element={<Customers />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/assessments" element={<Assessments />} />
-            <Route path="/hosts" element={<Hosts />} />
+            <Route path="/customers/:customerId/assessments" element={<Assessments />} />
+            <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/vulnerability" element={<Vulnerability />} />
             <Route path="/profile" element={<Profile />} />
