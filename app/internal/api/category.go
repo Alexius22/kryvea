@@ -13,6 +13,7 @@ type categoryRequestData struct {
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
+	References         []string          `json:"references"`
 }
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
@@ -50,6 +51,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		References:         data.References,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -109,6 +111,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		References:         data.References,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -244,6 +247,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
+			References:         categoryData.References,
 		})
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)

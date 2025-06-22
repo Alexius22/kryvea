@@ -10,10 +10,10 @@ base_url = "https://kryvea.local/api"
 
 session = requests.Session()
 session.verify = False
-session.proxies = {
-    "http": "http://127.0.0.1:8080",
-    "https": "http://127.0.0.1:8080",
-}
+# session.proxies = {
+#     "http": "http://127.0.0.1:8080",
+#     "https": "http://127.0.0.1:8080",
+# }
 
 
 def rand_string(length: int = 8) -> str:
@@ -320,12 +320,13 @@ class Assessment:
 
 class Category:
     def __init__(
-        self, index="A01:2021", name="", generic_description={}, generic_remediation={}
+        self, index="A01:2021", name="", generic_description={}, generic_remediation={}, references=[]
     ):
         self.index = index
         self.name = name
         self.generic_description = generic_description
         self.generic_remediation = generic_remediation
+        self.references = references
 
     def json(self) -> dict:
         return {
@@ -333,6 +334,7 @@ class Category:
             "name": self.name,
             "generic_description": self.generic_description,
             "generic_remediation": self.generic_remediation,
+            "references": self.references,
         }
 
     def get(self) -> list:
@@ -455,7 +457,7 @@ def rand_poc_text() -> POC:
         text_data=rand_string(),
     )
     
-image_paths = [ "scripts/images/1.png", "scripts/images/2.jpeg", "scripts/images/3.jpeg", "scripts/images/4.png" ]
+image_paths = [ "scripts/images/1.png", "scripts/images/2.png", "scripts/images/3.png", "scripts/images/4.jpg" ]
 def rand_poc_image() -> POC:
     image = random.choice(image_paths)
     imageBytes = open(image, "rb").read()
@@ -563,6 +565,7 @@ if __name__ == "__main__":
                 languages[3]: rand_name(50),
                 languages[4]: rand_name(50),
             },
+            references=rand_urls(random.randint(1, 3)),
         )
         # print(category.json())
         category_id, error = category.create()
