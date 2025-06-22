@@ -1,6 +1,8 @@
-import { mdiDatabaseEdit, mdiPlus } from "@mdi/js";
-import { Form, Formik } from "formik";
+import { mdiDatabaseEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router";
+import { getData, patchData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -14,36 +16,195 @@ import { SelectOption } from "../components/Form/SelectWrapper.types";
 import Textarea from "../components/Form/Textarea";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
+import { Category } from "../types/common.types";
+
+const languageMapping: Record<string, string> = {
+  bg: "Bulgarian",
+  cs: "Czech",
+  da: "Danish",
+  de: "German",
+  el: "Greek",
+  en: "English",
+  es: "Spanish",
+  et: "Estonian",
+  fi: "Finnish",
+  fr: "French",
+  hr: "Croatian",
+  hu: "Hungarian",
+  is: "Icelandic",
+  it: "Italian",
+  lt: "Lithuanian",
+  lv: "Latvian",
+  nl: "Dutch",
+  pl: "Polish",
+  pt: "Portuguese",
+  ro: "Romanian",
+  ru: "Russian",
+  sk: "Slovak",
+  sl: "Slovenian",
+  sv: "Swedish",
+};
 
 export default function ManageCategory() {
+  const navigate = useNavigate();
+  const { categoryId } = useParams<{ categoryId?: string }>();
+
+  const languageOptions: SelectOption[] = Object.entries(languageMapping)
+    .filter(([code]) => code !== "en")
+    .map(([value, label]) => ({ value, label }));
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
-  const [selectedLanguageOptions, setSelectedLanguageOptions] = useState<SelectOption | SelectOption[]>({
-    label: "Italian",
-    value: "IT",
-  });
-  const [LanguageSelectOptions, setLanguageSelectOptions] = useState<SelectOption[]>([
-    { label: "Chinese", value: "CN" },
-    { label: "Dutch", value: "NL" },
-    { label: "French", value: "FR" },
-    { label: "German", value: "DE" },
-    { label: "Italian", value: "IT" },
-    { label: "Japanese", value: "JP" },
-    { label: "Portuguese", value: "PT" },
-    { label: "Russian", value: "RU" },
-    { label: "Spanish", value: "ES" },
-  ]);
+  const [selectedLanguageOption, setSelectedLanguageOption] = useState<SelectOption | null>(null);
   const [additionalFields, setAdditionalFields] = useState<SelectOption[]>([]);
 
+  const [identifier, setIdentifier] = useState("");
+  const [name, setName] = useState("");
+  const [genericDescription, setGenericDescription] = useState("");
+  const [genericRemediation, setGenericRemediation] = useState("");
+  const [genericDescriptions, setGenericDescriptions] = useState<Record<string, string>>({});
+  const [genericRemediations, setGenericRemediations] = useState<Record<string, string>>({});
+  const [references, setReferences] = useState<string[]>([]);
+
+  useEffect(() => {
+    document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
+
+    if (categoryId) {
+      getData<Category[]>(
+        "/api/categories",
+        categories => {
+          const category = categories.find(c => c.id === categoryId);
+          if (!category) {
+            toast.error("Category not found");
+            navigate("/categories");
+            return;
+          }
+
+          setIdentifier(category.index);
+          setName(category.name);
+          setGenericDescription(category.generic_description?.en || "");
+          setGenericRemediation(category.generic_remediation?.en || "");
+          setReferences(category.references || []);
+
+          const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
+          setAdditionalFields(
+            otherLangs.map(lang => ({
+              value: lang,
+              label: languageMapping[lang] || lang,
+            }))
+          );
+
+          setGenericDescriptions(
+            otherLangs.reduce(
+              (acc, lang) => {
+                acc[lang] = category.generic_description?.[lang] || "";
+                return acc;
+              },
+              {} as Record<string, string>
+            )
+          );
+          setGenericRemediations(
+            otherLangs.reduce(
+              (acc, lang) => {
+                acc[lang] = category.generic_remediation?.[lang] || "";
+                return acc;
+              },
+              {} as Record<string, string>
+            )
+          );
+        },
+        err => {
+          toast.error(err.response?.data?.error || "Failed to load categories");
+        }
+      );
+    } else {
+      // New category: initialize empty form
+      setIdentifier("");
+      setName("");
+      setGenericDescription("");
+      setGenericRemediation("");
+      setReferences([]);
+      setAdditionalFields([]);
+      setGenericDescriptions({});
+      setGenericRemediations({});
+    }
+  }, [categoryId, navigate]);
+
   const handleModalAction = () => {
-    if (selectedLanguageOptions && !Array.isArray(selectedLanguageOptions)) {
-      setAdditionalFields(prev => [...prev, selectedLanguageOptions]);
+    if (selectedLanguageOption && !additionalFields.some(f => f.value === selectedLanguageOption.value)) {
+      setAdditionalFields(prev => [...prev, selectedLanguageOption]);
     }
     setIsModalInfoActive(false);
   };
 
-  useEffect(() => {
-    document.title = getPageTitle("Manage Category");
-  }, []);
+  const removeAdditionalLanguage = (value: string) => {
+    setAdditionalFields(prev => prev.filter(f => f.value !== value));
+    setGenericDescriptions(prev => {
+      const copy = { ...prev };
+      delete copy[value];
+      return copy;
+    });
+    setGenericRemediations(prev => {
+      const copy = { ...prev };
+      delete copy[value];
+      return copy;
+    });
+  };
+
+  const updateAdditionalField = (lang: string, field: "description" | "remediation", value: string) => {
+    if (field === "description") {
+      setGenericDescriptions(prev => ({ ...prev, [lang]: value }));
+    } else {
+      setGenericRemediations(prev => ({ ...prev, [lang]: value }));
+    }
+  };
+
+  // Submit handler
+  const handleSubmit = () => {
+    if (!identifier.trim() || !name.trim()) {
+      toast.error("Identifier and Name are required");
+      return;
+    }
+
+    const payload: Category = {
+      index: identifier.trim(),
+      name: name.trim(),
+      generic_description: {
+        en: genericDescription,
+        ...genericDescriptions,
+      },
+      generic_remediation: {
+        en: genericRemediation,
+        ...genericRemediations,
+      },
+      references: references,
+    };
+
+    if (categoryId) {
+      patchData<Category>(
+        `/api/categories/${categoryId}`,
+        payload,
+        () => {
+          toast.success("Category updated successfully");
+          navigate("/categories");
+        },
+        err => {
+          toast.error(err.response.data.error);
+        }
+      );
+    } else {
+      postData<Category>(
+        "/api/categories",
+        payload,
+        () => {
+          toast.success("Category created successfully");
+          navigate("/categories");
+        },
+        err => {
+          toast.error(err.response.data.error);
+        }
+      );
+    }
+  };
 
   return (
     <div>
@@ -55,63 +216,104 @@ export default function ManageCategory() {
         onCancel={() => setIsModalInfoActive(false)}
       >
         <p>The English language option is not available, as it is the default language.</p>
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <SelectWrapper
-              label="Select language"
-              options={LanguageSelectOptions}
-              onChange={selectedOptions => setSelectedLanguageOptions(selectedOptions)}
-              value={selectedLanguageOptions}
-            />
-          </Form>
-        </Formik>
+        <SelectWrapper
+          label="Select language"
+          options={languageOptions.filter(option => !additionalFields.some(f => f.value === option.value))}
+          onChange={option => setSelectedLanguageOption(option)}
+          value={selectedLanguageOption}
+        />
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiDatabaseEdit} title="Manage Category">
+      <SectionTitleLineWithButton icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
         <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
       </SectionTitleLineWithButton>
+
       <Card>
-        <Formik initialValues={undefined} onSubmit={undefined}>
-          <Form>
-            <Grid className="grid-cols-2">
-              <Input type="text" label="Identifier" id="identifier" placeholder="A01:2021" />
-              <Input type="text" label="Name" id="name" placeholder="Vulnerability name" />
+        <Grid className="grid-cols-2 gap-4">
+          <Input
+            type="text"
+            label="Identifier"
+            id="identifier"
+            placeholder="A01:2021"
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
+          />
+          <Input
+            type="text"
+            label="Name"
+            id="name"
+            placeholder="Vulnerability name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
+        </Grid>
+        <Divider />
+        <Textarea
+          label="References"
+          id="references"
+          placeholder="Enter one reference per line"
+          value={references.join("\n")}
+          onChange={e => setReferences(e.target.value.split("\n"))}
+        />
+        <Divider />
+
+        <Label text="English" />
+        <Grid className="grid-cols-2 gap-4">
+          <Textarea
+            label="Generic description"
+            id="gen_desc_en"
+            placeholder="Description here"
+            value={genericDescription}
+            onChange={e => setGenericDescription(e.target.value)}
+            rows={10}
+          />
+          <Textarea
+            label="Generic remediation"
+            id="gen_rem_en"
+            placeholder="Remediation here"
+            value={genericRemediation}
+            onChange={e => setGenericRemediation(e.target.value)}
+            rows={10}
+          />
+        </Grid>
+
+        <Divider />
+
+        {additionalFields.map(language => (
+          <div key={language.value}>
+            <div className="flex items-center justify-between">
+              <Label text={language.label} />
+              <Button type="danger" icon={mdiTrashCan} small onClick={() => removeAdditionalLanguage(language.value)} />
+            </div>
+            <Grid className="grid-cols-2 gap-4">
+              <Textarea
+                label="Generic description"
+                id={`gen_desc_${language.value}`}
+                placeholder="Description here"
+                value={genericDescriptions[language.value] || ""}
+                onChange={e => updateAdditionalField(language.value, "description", e.target.value)}
+                rows={10}
+              />
+              <Textarea
+                label="Generic remediation"
+                id={`gen_rem_${language.value}`}
+                placeholder="Remediation here"
+                value={genericRemediations[language.value] || ""}
+                onChange={e => updateAdditionalField(language.value, "remediation", e.target.value)}
+                rows={10}
+              />
             </Grid>
             <Divider />
-            <Label text="English" />
-            <Grid className="grid-cols-2">
-              <Textarea label="Generic description" id="gen_desc_en" placeholder="Description here" />
-              <Textarea label="Generic remediation" id="gen_rem_en" placeholder="Remediation here" />
-            </Grid>
-            <Divider />
-            {additionalFields.map((language, index) => (
-              <div key={index}>
-                <Label text={language.label} />
-                <Grid className="grid-cols-2">
-                  <Textarea
-                    label="Generic remediation"
-                    id={`gen_desc_${language.value.toLowerCase()}`}
-                    placeholder="Description here"
-                  />
-                  <Textarea
-                    label="Generic remediation"
-                    id={`gen_rem_${language.value.toLowerCase()}`}
-                    placeholder="Remediation here"
-                  />
-                </Grid>
-              </div>
-            ))}
-            <Divider />
-            <Grid>
-              <Textarea label="References" id="references" placeholder="References here" />
-              <Divider />
-              <Buttons>
-                <Button text="Submit" onClick={() => {}} />
-                <Button type="outline-only" text="Cancel" onClick={() => {}} />
-              </Buttons>
-            </Grid>
-          </Form>
-        </Formik>
+          </div>
+        ))}
+
+        <Grid>
+          <Divider />
+          <Buttons>
+            <Button text="Submit" onClick={handleSubmit} />
+            <Button type="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
+          </Buttons>
+        </Grid>
       </Card>
     </div>
   );
