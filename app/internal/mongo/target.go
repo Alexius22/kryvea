@@ -38,7 +38,7 @@ type Target struct {
 	IPv6     string         `json:"ipv6" bson:"ipv6"`
 	Port     int            `json:"port" bson:"port"`
 	Protocol string         `json:"protocol" bson:"protocol"`
-	Hostname string         `json:"hostname" bson:"hostname"`
+	FQDN     string         `json:"fqdn" bson:"fqdn"`
 	Name     string         `json:"name" bson:"name"`
 	Customer TargetCustomer `json:"customer" bson:"customer"`
 }
@@ -67,7 +67,7 @@ func (ti TargetIndex) init() error {
 			Keys: bson.D{
 				{Key: "ipv4", Value: 1},
 				{Key: "ipv6", Value: 1},
-				{Key: "hostname", Value: 1},
+				{Key: "fqdn", Value: 1},
 				{Key: "name", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
@@ -98,7 +98,7 @@ func (ti *TargetIndex) Insert(target *Target) (uuid.UUID, error) {
 
 func (ti *TargetIndex) FirstOrInsert(target *Target) (uuid.UUID, bool, error) {
 	var existingTarget Assessment
-	err := ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "hostname": target.Hostname, "name": target.Name}).Decode(&existingTarget)
+	err := ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "fqdn": target.FQDN, "name": target.Name}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
@@ -120,7 +120,8 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 			"ipv6":       target.IPv6,
 			"port":       target.Port,
 			"protocol":   target.Protocol,
-			"hostname":   target.Hostname,
+			"fqdn":       target.FQDN,
+			"name":       target.Name,
 		},
 	}
 
@@ -220,7 +221,7 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 		{"$or": []bson.M{
 			{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
 			{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"hostname": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
 		}},
 	}})
 	if err != nil {
