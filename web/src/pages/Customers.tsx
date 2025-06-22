@@ -26,7 +26,7 @@ export default function Customers() {
   const [formData, setFormData] = useState({
     name: "",
     language: "en",
-    default_cvss_version: [] as string[],
+    default_cvss_versions: [],
   });
 
   const {
@@ -77,38 +77,39 @@ export default function Customers() {
 
   useEffect(() => {
     document.title = getPageTitle("Customers");
+    fetchCustomers();
+  }, []);
 
+  function fetchCustomers() {
     getData<Customer[]>("/api/customers", setCustomers, err => {
       const errorMessage = err.response.data.error;
       setError(errorMessage);
       toast.error(errorMessage);
     });
-  }, []);
+  }
 
   const openEditModal = (customer: Customer) => {
     setSelectedCustomer(customer);
     setFormData({
       name: customer.name,
       language: customer.language,
-      default_cvss_version: Array.isArray(customer.default_cvss_version)
-        ? customer.default_cvss_version
-        : [customer.default_cvss_version],
+      default_cvss_versions: customer.default_cvss_versions,
     });
     setIsModalCustomerActive(true);
   };
 
   const toggleCvssVersion = (version: string) => {
     setFormData(prev => {
-      const current = prev.default_cvss_version;
+      const current = prev.default_cvss_versions;
       if (current.includes(version)) {
         return {
           ...prev,
-          default_cvss_version: current.filter(v => v !== version),
+          default_cvss_versions: current.filter(v => v !== version),
         };
       } else {
         return {
           ...prev,
-          default_cvss_version: [...current, version],
+          default_cvss_versions: [...current, version],
         };
       }
     });
@@ -120,12 +121,10 @@ export default function Customers() {
   };
 
   const handleEditConfirm = () => {
-    if (!selectedCustomer) return;
-
     const payload = {
       name: formData.name,
       language: formData.language,
-      default_cvss_version: formData.default_cvss_version,
+      default_cvss_versions: formData.default_cvss_versions,
     };
 
     patchData<Customer>(
@@ -135,6 +134,7 @@ export default function Customers() {
         toast.success("Customer updated successfully");
         setIsModalCustomerActive(false);
         setCustomers(prev => prev.map(c => (c.id === updatedCustomer.id ? updatedCustomer : c)));
+        fetchCustomers();
       },
       err => {
         const errorMessage = err.response.data.error;
@@ -210,10 +210,10 @@ export default function Customers() {
             {cvssOptions.map(({ value, label }) => (
               <Checkbox
                 key={value}
-                id={`cvss_${value.replace(".", "")}`}
-                htmlFor={`cvss_${value.replace(".", "")}`}
+                id={`cvss_${value}`}
+                htmlFor={`cvss_${value}`}
                 label={label}
-                checked={formData.default_cvss_version.includes(value)}
+                checked={formData.default_cvss_versions.includes(value)}
                 onChange={() => toggleCvssVersion(value)}
               />
             ))}
@@ -251,9 +251,9 @@ export default function Customers() {
               {customer.name}
             </Link>
           ),
-          "CVSS Version": Array.isArray(customer.default_cvss_version)
-            ? customer.default_cvss_version.join(", ")
-            : customer.default_cvss_version,
+          "CVSS Versions": Array.isArray(customer.default_cvss_versions)
+            ? customer.default_cvss_versions.join(" | ")
+            : customer.default_cvss_versions,
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (
             <Buttons noWrap>
