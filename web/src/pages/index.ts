@@ -15,7 +15,7 @@ import Login from "./Login";
 import ManageCategory from "./ManageCategory";
 import Profile from "./Profile";
 import Users from "./Users";
-import Vulnerabilities from "./Vulnerabilities";
+import VulnerabilitySearch from "./VulnerabilitySearch";
 import VulnerabilityDetail from "./VulnerabilityDetail";
 
 export {
@@ -36,6 +36,6 @@ export {
   ManageCategory,
   Profile,
   Users,
-  Vulnerabilities,
-  VulnerabilityDetail as Vulnerability,
+  VulnerabilitySearch,
+  VulnerabilityDetail,
 };

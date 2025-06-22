@@ -37,7 +37,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
           },
         ]
       : []),
-    { href: "/vulnerabilities", icon: mdiMagnify, label: "Vulnerability Search" },
+    { href: "/vulnerability_search", icon: mdiMagnify, label: "Vulnerability Search" },
     {
       label: "Administration",
       icon: mdiResponsive,
