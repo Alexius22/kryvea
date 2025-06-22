@@ -66,9 +66,10 @@ export type Customer = {
 };
 
 export type Category = {
-  id: string;
+  id?: string;
   index: string;
   name: string;
-  generic_description: { language: string };
-  generic_remediation: { language: string };
+  generic_description: Record<string, string>;
+  generic_remediation: Record<string, string>;
+  references: string[];
 };
