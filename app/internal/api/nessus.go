@@ -143,7 +143,7 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 		}
 
 		target := &mongo.Target{
-			IP:       hostIP,
+			IPv4:     hostIP,
 			Hostname: hostFQDN,
 			Name:     "nessus",
 			Customer: mongo.TargetCustomer{

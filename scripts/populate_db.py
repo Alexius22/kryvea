@@ -64,6 +64,9 @@ def rand_port() -> int:
 def rand_ip() -> str:
     return f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
 
+def rand_ipv6() -> str:
+    return f"{':'.join(['{:x}'.format(random.randint(0, 0xffff)) for _ in range(8)])}"
+
 
 def rand_name(n=1) -> str:
     names = [
@@ -229,13 +232,15 @@ class Customer:
 class Target:
     def __init__(
         self,
-        ip="127.0.0.1",
+        ipv4="127.0.0.1",
+        ipv6="::1",
         port=80,
         protocol="tcp",
         hostname="localhost",
         customer_id="",
     ):
-        self.ip = ip
+        self.ipv4 = ipv4
+        self.ipv6 = ipv6
         self.port = port
         self.protocol = protocol
         self.hostname = hostname
@@ -243,7 +248,8 @@ class Target:
 
     def json(self) -> dict:
         return {
-            "ip": self.ip,
+            "ipv4": self.ipv4,
+            "ipv6": self.ipv6,
             "port": self.port,
             "protocol": self.protocol,
             "hostname": self.hostname,
@@ -507,7 +513,8 @@ if __name__ == "__main__":
     targets = []
     for i in range(10):
         target = Target(
-            ip=rand_ip(),
+            ipv4=rand_ip(),
+            ipv6=rand_ipv6(),
             port=rand_port(),
             hostname=rand_hostname(),
             customer_id=customer_id,

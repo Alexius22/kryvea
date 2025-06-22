@@ -16,12 +16,6 @@ const (
 )
 
 var AssessmentPipeline = mongo.Pipeline{
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "target"},
-		{Key: "localField", Value: "targets._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "targetData"},
-	}}},
 	bson.D{
 		{Key: "$lookup", Value: bson.D{
 			{Key: "from", Value: "vulnerability"},
@@ -71,7 +65,8 @@ type Assessment struct {
 
 type AssessmentTarget struct {
 	ID       uuid.UUID `json:"id" bson:"_id"`
-	IP       string    `json:"ip" bson:"ip"`
+	IPv4     string    `json:"ipv4" bson:"ipv4"`
+	IPv6     string    `json:"ipv6" bson:"ipv6"`
 	Hostname string    `json:"hostname" bson:"hostname"`
 }
 
