@@ -147,7 +147,7 @@ func TestXlsx(t *testing.T) {
 	var targets []mongo.AssessmentTarget
 	for i := 0; i < 2; i++ {
 		targets = append(targets, mongo.AssessmentTarget{
-			IPv4: randIP(), Hostname: randHostname(),
+			IPv4: randIP(), FQDN: randHostname(),
 		})
 	}
 
@@ -209,7 +209,7 @@ func TestXlsx(t *testing.T) {
 				Index:           j + 1,
 				Type:            "request",
 				Description:     randName(10),
-				URI:             fmt.Sprintf("https://%s", vulnerability.Target.Hostname),
+				URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
 				Request:         randName(20),
 				Response:        randName(20),
 				VulnerabilityID: vulnerability.ID,
@@ -221,7 +221,7 @@ func TestXlsx(t *testing.T) {
 			Index:           4,
 			Type:            "image",
 			Description:     randName(10),
-			URI:             fmt.Sprintf("https://%s", vulnerability.Target.Hostname),
+			URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
 			ImageData:       imageDataDecoded,
 			ImageCaption:    "Caption" + randName(2),
 			VulnerabilityID: vulnerability.ID,
@@ -231,7 +231,7 @@ func TestXlsx(t *testing.T) {
 			Index:           5,
 			Type:            "text",
 			Description:     randName(10),
-			URI:             fmt.Sprintf("https://%s", vulnerability.Target.Hostname),
+			URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
 			TextLanguage:    "JavaScript",
 			TextData:        randName(20),
 			VulnerabilityID: vulnerability.ID,

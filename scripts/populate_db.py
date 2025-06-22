@@ -236,14 +236,14 @@ class Target:
         ipv6="::1",
         port=80,
         protocol="tcp",
-        hostname="localhost",
+        fqdn="localhost",
         customer_id="",
     ):
         self.ipv4 = ipv4
         self.ipv6 = ipv6
         self.port = port
         self.protocol = protocol
-        self.hostname = hostname
+        self.fqdn = fqdn
         self.customer_id = customer_id
 
     def json(self) -> dict:
@@ -252,7 +252,7 @@ class Target:
             "ipv6": self.ipv6,
             "port": self.port,
             "protocol": self.protocol,
-            "hostname": self.hostname,
+            "fqdn": self.fqdn,
         }
 
     def get(self) -> list:
@@ -360,7 +360,10 @@ class Vulnerability:
         self,
         category="",
         detailed_title="",
-        cvss_vector="",
+        cvssv2_vector="",
+        cvssv3_vector="",
+        cvssv31_vector="",
+        cvssv4_vector="",
         cvss_score=0.0,
         cvss_severity="",
         references=[],
@@ -373,7 +376,10 @@ class Vulnerability:
     ):
         self.category = category
         self.detailed_title = detailed_title
-        self.cvss_vector = cvss_vector
+        self.cvssv2_vector = cvssv2_vector
+        self.cvssv3_vector = cvssv3_vector
+        self.cvssv31_vector = cvssv31_vector
+        self.cvssv4_vector = cvssv4_vector
         self.cvss_score = cvss_score
         self.cvss_severity = cvss_severity
         self.references = references
@@ -388,7 +394,10 @@ class Vulnerability:
         return {
             "category": self.category,
             "detailed_title": self.detailed_title,
-            "cvss_vector": self.cvss_vector,
+            "cvssv2_vector": self.cvssv2_vector,
+            "cvssv3_vector": self.cvssv3_vector,
+            "cvssv31_vector": self.cvssv31_vector,
+            "cvssv4_vector": self.cvssv4_vector,
             "cvss_score": self.cvss_score,
             "cvss_severity": self.cvss_severity,
             "references": self.references,
@@ -516,7 +525,7 @@ if __name__ == "__main__":
             ipv4=rand_ip(),
             ipv6=rand_ipv6(),
             port=rand_port(),
-            hostname=rand_hostname(),
+            fqdn=rand_hostname(),
             customer_id=customer_id,
         )
         # print(target.json())
@@ -590,7 +599,6 @@ if __name__ == "__main__":
         vulnerability = Vulnerability(
             category=random.choice(categories).id,
             detailed_title=rand_string(),
-            cvss_vector=cvss_vector,
             cvss_score=0,
             cvss_severity="None",
             references=rand_urls(random.randint(1, 3)),
@@ -601,6 +609,10 @@ if __name__ == "__main__":
             target_id=random.choice(vuln_assessment.json().get("targets")),
             assessment_id=vuln_assessment.json().get("id"),
         )
+        if vuln_assessment.cvss_version == "3.1":
+            vulnerability.cvssv31_vector = cvss_vector
+        elif vuln_assessment.cvss_version == "4.0":
+            vulnerability.cvssv4_vector = cvss_vector            
         # print(vulnerability.json())
         vulnerability_id, error = vulnerability.create()
         if error:
