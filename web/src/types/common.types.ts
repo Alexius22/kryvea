@@ -48,12 +48,13 @@ export type Assessment = {
 
 export type Host = {
   id: string;
-  ip: string;
+  ipv4: string;
+  ipv6: string;
   port: number;
   protocol: string;
-  hostname: string;
+  fqdn: string;
   name: string;
-  customer_id: { id: string; name: string };
+  customer: { id: string; name: string; };
 };
 
 export type Customer = {
