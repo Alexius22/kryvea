@@ -222,6 +222,9 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 		})
 	}
 
+	// parse override parameter
+	override := c.FormValue("override")
+
 	// parse request body
 	fileHeader, err := c.FormFile("categories")
 	if err != nil {
@@ -270,13 +273,15 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	// insert each category into database
 	categories := make([]uuid.UUID, 0, len(data))
 	for _, categoryData := range data {
-		categoryID, err := d.mongo.Category().Insert(&mongo.Category{
+		category := &mongo.Category{
 			Index:              categoryData.Index,
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
 			References:         categoryData.References,
-		})
+		}
+
+		categoryID, err := d.mongo.Category().Upsert(category, override == "true")
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
