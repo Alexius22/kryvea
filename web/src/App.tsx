@@ -21,8 +21,8 @@ import {
   ManageCategory,
   Profile,
   Users,
-  Vulnerabilities,
-  Vulnerability,
+  VulnerabilityDetail,
+  VulnerabilitySearch,
 } from "./pages";
 import LiveEditor from "./pages/LiveEditor";
 
@@ -59,12 +59,12 @@ export default function App() {
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+            <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
             <Route path="/users" element={<Users />} />
             <Route path="/customers/:customerId/assessments" element={<Assessments />} />
             <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/assessment" element={<Assessment />} />
-            <Route path="/vulnerability" element={<Vulnerability />} />
+            <Route path="/vulnerability" element={<VulnerabilityDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/add_assessment" element={<AddAssessment />} />
