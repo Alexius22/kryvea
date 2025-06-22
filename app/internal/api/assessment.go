@@ -183,7 +183,7 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 			}
 			assessments[i].Targets[j].IPv4 = target.IPv4
 			assessments[i].Targets[j].IPv6 = target.IPv6
-			assessments[i].Targets[j].Hostname = target.Hostname
+			assessments[i].Targets[j].FQDN = target.FQDN
 		}
 	}
 

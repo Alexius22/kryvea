@@ -11,7 +11,8 @@ type targetRequestData struct {
 	IPv6     string `json:"ipv6"`
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
-	Hostname string `json:"hostname"`
+	FQDN     string `json:"fqdn"`
+	Name     string `json:"name"`
 }
 
 func (d *Driver) AddTarget(c *fiber.Ctx) error {
@@ -57,7 +58,8 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
-		Hostname: data.Hostname,
+		FQDN:     data.FQDN,
+		Name:     data.Name,
 		Customer: mongo.TargetCustomer{ID: customer.ID},
 	})
 	if err != nil {
@@ -133,7 +135,8 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
-		Hostname: data.Hostname,
+		FQDN:     data.FQDN,
+		Name:     target.Name,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -346,8 +349,16 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 }
 
 func (d *Driver) validateTargetData(data *targetRequestData) string {
-	if data.Hostname == "" {
-		return "Hostname is required"
+	if data.FQDN == "" {
+		return "FQDN is required"
+	}
+
+	if data.IPv4 != "" && !util.IsValidIPv4(data.IPv4) {
+		return "Invalid IPv4 address"
+	}
+
+	if data.IPv6 != "" && !util.IsValidIPv6(data.IPv6) {
+		return "Invalid IPv6 address"
 	}
 
 	return ""
