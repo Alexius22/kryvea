@@ -16,7 +16,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
   return (
     <div className="align-middle">
       <ul className="flex gap-2">
-        <li className={"hover:text-slate-600 hover:underline"}>
+        <li className={"hover:underline"}>
           <Link to={"/"}>{homeElement}</Link>
         </li>
         {pathNames.length > 0 && separator}
@@ -32,7 +32,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
 
           return (
             <React.Fragment key={index}>
-              <li className={`${!isLast && "hover:text-slate-600 hover:underline"}`}>
+              <li className={`${!isLast && "hover:underline"}`}>
                 {isLast ? <span className="hover:no-underline">{itemLink}</span> : <Link to={href}>{itemLink}</Link>}
               </li>
               {pathNames.length !== index + 1 && separator}
