@@ -64,10 +64,10 @@ type Assessment struct {
 }
 
 type AssessmentTarget struct {
-	ID       uuid.UUID `json:"id" bson:"_id"`
-	IPv4     string    `json:"ipv4" bson:"ipv4"`
-	IPv6     string    `json:"ipv6" bson:"ipv6"`
-	Hostname string    `json:"hostname" bson:"hostname"`
+	ID   uuid.UUID `json:"id" bson:"_id"`
+	IPv4 string    `json:"ipv4" bson:"ipv4"`
+	IPv6 string    `json:"ipv6" bson:"ipv6"`
+	FQDN string    `json:"fqdn" bson:"fqdn"`
 }
 
 type AssessmentCustomer struct {

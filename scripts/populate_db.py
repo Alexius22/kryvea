@@ -236,14 +236,14 @@ class Target:
         ipv6="::1",
         port=80,
         protocol="tcp",
-        hostname="localhost",
+        fqdn="localhost",
         customer_id="",
     ):
         self.ipv4 = ipv4
         self.ipv6 = ipv6
         self.port = port
         self.protocol = protocol
-        self.hostname = hostname
+        self.fqdn = fqdn
         self.customer_id = customer_id
 
     def json(self) -> dict:
@@ -252,7 +252,7 @@ class Target:
             "ipv6": self.ipv6,
             "port": self.port,
             "protocol": self.protocol,
-            "hostname": self.hostname,
+            "fqdn": self.fqdn,
         }
 
     def get(self) -> list:
@@ -516,7 +516,7 @@ if __name__ == "__main__":
             ipv4=rand_ip(),
             ipv6=rand_ipv6(),
             port=rand_port(),
-            hostname=rand_hostname(),
+            fqdn=rand_hostname(),
             customer_id=customer_id,
         )
         # print(target.json())
