@@ -34,7 +34,8 @@ var TargetPipeline = mongo.Pipeline{
 
 type Target struct {
 	Model    `bson:",inline"`
-	IP       string         `json:"ip" bson:"ip"`
+	IPv4     string         `json:"ipv4" bson:"ipv4"`
+	IPv6     string         `json:"ipv6" bson:"ipv6"`
 	Port     int            `json:"port" bson:"port"`
 	Protocol string         `json:"protocol" bson:"protocol"`
 	Hostname string         `json:"hostname" bson:"hostname"`
@@ -64,7 +65,8 @@ func (ti TargetIndex) init() error {
 		context.Background(),
 		mongo.IndexModel{
 			Keys: bson.D{
-				{Key: "ip", Value: 1},
+				{Key: "ipv4", Value: 1},
+				{Key: "ipv6", Value: 1},
 				{Key: "hostname", Value: 1},
 				{Key: "name", Value: 1},
 			},
@@ -96,7 +98,7 @@ func (ti *TargetIndex) Insert(target *Target) (uuid.UUID, error) {
 
 func (ti *TargetIndex) FirstOrInsert(target *Target) (uuid.UUID, bool, error) {
 	var existingTarget Assessment
-	err := ti.collection.FindOne(context.Background(), bson.M{"ip": target.IP, "hostname": target.Hostname, "name": target.Name}).Decode(&existingTarget)
+	err := ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "hostname": target.Hostname, "name": target.Name}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
@@ -114,7 +116,8 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 	update := bson.M{
 		"$set": bson.M{
 			"updated_at": time.Now(),
-			"ip":         target.IP,
+			"ipv4":       target.IPv4,
+			"ipv6":       target.IPv6,
 			"port":       target.Port,
 			"protocol":   target.Protocol,
 			"hostname":   target.Hostname,
@@ -215,7 +218,8 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
 		{"customer._id": customerID},
 		{"$or": []bson.M{
-			{"ip": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
 			{"hostname": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
 		}},
 	}})

@@ -16,12 +16,6 @@ const (
 )
 
 var AssessmentPipeline = mongo.Pipeline{
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "target"},
-		{Key: "localField", Value: "targets._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "targetData"},
-	}}},
 	bson.D{
 		{Key: "$lookup", Value: bson.D{
 			{Key: "from", Value: "vulnerability"},
@@ -61,7 +55,7 @@ type Assessment struct {
 	Targets            []AssessmentTarget `json:"targets" bson:"targets"`
 	Status             string             `json:"status" bson:"status"`
 	AssessmentType     string             `json:"assessment_type" bson:"assessment_type"`
-	CVSSVersion        string             `json:"cvss_version" bson:"cvss_version"`
+	CVSSVersions       []string           `json:"cvss_versions" bson:"cvss_versions"`
 	Environment        string             `json:"environment" bson:"environment"`
 	TestingType        string             `json:"testing_type" bson:"testing_type"`
 	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
@@ -71,7 +65,8 @@ type Assessment struct {
 
 type AssessmentTarget struct {
 	ID       uuid.UUID `json:"id" bson:"_id"`
-	IP       string    `json:"ip" bson:"ip"`
+	IPv4     string    `json:"ipv4" bson:"ipv4"`
+	IPv6     string    `json:"ipv6" bson:"ipv6"`
 	Hostname string    `json:"hostname" bson:"hostname"`
 }
 
@@ -214,7 +209,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 			"targets":         assessment.Targets,
 			"status":          assessment.Status,
 			"type":            assessment.AssessmentType,
-			"cvss_version":    assessment.CVSSVersion,
+			"cvss_versions":   assessment.CVSSVersions,
 			"environment":     assessment.Environment,
 			"method":          assessment.TestingType,
 			"osstmm_vector":   assessment.OSSTMMVector,

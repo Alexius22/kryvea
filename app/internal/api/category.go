@@ -1,6 +1,9 @@
 package api
 
 import (
+	"encoding/json"
+	"io"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +16,7 @@ type categoryRequestData struct {
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
+	References         []string          `json:"references"`
 }
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
@@ -50,6 +54,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		References:         data.References,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -109,6 +114,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		References:         data.References,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -217,8 +223,33 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	}
 
 	// parse request body
+	fileHeader, err := c.FormFile("categories")
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse XML",
+		})
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to open file",
+		})
+	}
+
+	dataBytes, err := io.ReadAll(file)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to read file",
+		})
+	}
+
 	var data []categoryRequestData
-	if err := c.BodyParser(&data); err != nil {
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -244,6 +275,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
+			References:         categoryData.References,
 		})
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
