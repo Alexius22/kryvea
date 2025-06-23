@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
@@ -18,6 +18,10 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // The page user tried to access before login
+  const from = location.state?.from?.pathname || "/dashboard";
 
   useEffect(() => {
     document.title = getPageTitle("Login");
@@ -27,7 +31,10 @@ export default function Login() {
     postData(
       "/api/login",
       { username, password, remember },
-      () => navigate("/dashboard"),
+      () => {
+        toast.success("User logged in successfully");
+        navigate(from, { replace: true });
+      },
       err => {
         const errorMessage = err.response.data.error;
         setError(errorMessage);
@@ -39,28 +46,41 @@ export default function Login() {
   return (
     <div className="card-modal fixed flex min-h-screen w-screen items-center justify-center">
       <Card className="glasscard">
-        <Grid className="gap-4 p-1">
-          <Input
-            type="text"
-            id="username"
-            label="Username"
-            onChange={e => setUsername(e.target.value)}
-            value={username}
-          />
-          <Input
-            type="password"
-            id="password"
-            label="Password"
-            onChange={e => setPassword(e.target.value)}
-            value={password}
-          />
-          <Grid className="gap-2">
-            <Checkbox id={"remember_me"} onChange={e => setRemember} htmlFor={"remember_me"} label={"Remember me"} />
-            <Subtitle className="text-[color:--error]" text={error} />
-            <Divider />
-            <Button text="Login" className="justify-center" onClick={handleSubmit} />
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <Grid className="gap-4 p-1">
+            <Input
+              type="text"
+              id="username"
+              label="Username"
+              onChange={e => setUsername(e.target.value)}
+              value={username}
+              autoFocus
+            />
+            <Input
+              type="password"
+              id="password"
+              label="Password"
+              onChange={e => setPassword(e.target.value)}
+              value={password}
+            />
+            <Grid className="gap-2">
+              <Checkbox
+                id={"remember_me"}
+                onChange={e => setRemember(e.target.checked)}
+                htmlFor={"remember_me"}
+                label={"Remember me"}
+              />
+              <Subtitle className="text-[color:--error]" text={error} />
+              <Divider />
+              <Button text="Login" className="justify-center" onClick={() => {}} />
+            </Grid>
           </Grid>
-        </Grid>
+        </form>
       </Card>
     </div>
   );
