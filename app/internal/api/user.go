@@ -532,6 +532,10 @@ func (d *Driver) validateUpdateMeData(data *updateMeData, user *mongo.User) stri
 			return "Current password is required"
 		}
 
+		if data.NewPassword == data.CurrentPassword {
+			return "New password cannot be the same as current password"
+		}
+
 		err := d.mongo.User().ValidatePassword(user.ID, data.CurrentPassword)
 		if err != nil || !util.IsValidPassword(data.NewPassword) {
 			return "Invalid passwords"
