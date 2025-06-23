@@ -9,13 +9,16 @@ interface BaseInputProps {
   label?: string;
   helperSubtitle?: string;
   placeholder?: string;
-  value?;
+  value?: string | number;
   onChange?;
+  autoFocus?: boolean;
 }
+
 interface InputProps extends BaseInputProps {
   type: HTMLInputTypeAttribute;
   accept?: undefined;
 }
+
 interface FileInputProps extends BaseInputProps {
   type: "file";
   accept?: string;
@@ -31,6 +34,7 @@ export default function Input({
   value,
   accept,
   onChange,
+  autoFocus,
 }: InputProps | FileInputProps) {
   return (
     <Grid>
@@ -44,6 +48,7 @@ export default function Input({
           value={value}
           onChange={onChange}
           accept={accept}
+          autoFocus={autoFocus}
         />
         {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
       </div>
