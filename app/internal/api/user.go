@@ -193,6 +193,22 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+func (d *Driver) GetMe(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// get user from database
+	userData, err := d.mongo.User().Get(user.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(userData)
+}
+
 func (d *Driver) GetUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
