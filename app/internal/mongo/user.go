@@ -354,28 +354,27 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	return err
 }
 
-func (ui *UserIndex) AddOwnedAssessment(userID, assessmentID uuid.UUID) error {
+func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, delete bool) error {
 	filter := bson.M{"_id": userID}
-	update := bson.M{
-		"$addToSet": bson.M{
-			"assessments": bson.M{
-				"_id": assessmentID,
+
+	var update bson.M
+	if delete {
+		update = bson.M{
+			"$pull": bson.M{
+				"assessments": bson.M{
+					"_id": assessmentID,
+				},
 			},
-		},
+		}
 	}
-
-	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
-	return err
-}
-
-func (ui *UserIndex) DeleteOwnedAssessment(userID, assessmentID uuid.UUID) error {
-	filter := bson.M{"_id": userID}
-	update := bson.M{
-		"$pull": bson.M{
-			"assessments": bson.M{
-				"_id": assessmentID,
+	if !delete {
+		update = bson.M{
+			"$addToSet": bson.M{
+				"assessments": bson.M{
+					"_id": assessmentID,
+				},
 			},
-		},
+		}
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
