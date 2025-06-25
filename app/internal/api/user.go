@@ -390,12 +390,13 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) AddOwnedAssessment(c *fiber.Ctx) error {
+func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse request body
 	type reqData struct {
 		Assessment string `json:"assessment"`
+		IsOwned    bool   `json:"is_owned"`
 	}
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
@@ -422,7 +423,7 @@ func (d *Driver) AddOwnedAssessment(c *fiber.Ctx) error {
 	}
 
 	// add assessment to user in database
-	err := d.mongo.User().AddOwnedAssessment(user.ID, assessment.ID)
+	err := d.mongo.User().UpdateOwnedAssessment(user.ID, assessment.ID, data.IsOwned)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -433,52 +434,6 @@ func (d *Driver) AddOwnedAssessment(c *fiber.Ctx) error {
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"message": "Assessment owned",
-	})
-}
-
-func (d *Driver) DeleteOwnedAssessment(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// parse request body
-	type reqData struct {
-		Assessment string `json:"assessment"`
-	}
-	data := &reqData{}
-	if err := c.BodyParser(data); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
-	}
-
-	// validate data
-	assessment, errStr := d.assessmentFromParam(data.Assessment)
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
-	// add assessment to user in database
-	err := d.mongo.User().DeleteOwnedAssessment(user.ID, assessment.ID)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error": "Cannot delete owned assessment",
-		})
-	}
-
-	c.Status(fiber.StatusOK)
-	return c.JSON(fiber.Map{
-		"message": "Assessment un-owned",
 	})
 }
 
