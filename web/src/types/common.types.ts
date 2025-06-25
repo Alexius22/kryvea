@@ -58,10 +58,10 @@ export type Assessment = {
   name: string;
   start_date_time: string;
   end_date_time: string;
-  targets: { id: string; ip: string; hostname: string }[];
+  targets: { id: string; ipv4: string; ipv6: string; fqdn: string }[];
   status: string;
   assessment_type: string;
-  cvss_version: string;
+  cvss_versions: string[];
   environment: string;
   testing_type: string;
   osstmm_vector: string;
