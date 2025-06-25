@@ -343,21 +343,24 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	// parse assessment ID
-	parsedAssessmentID, err := util.ParseUUID(data.Assessment)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid assessment ID",
-		})
-	}
+	var assessment *mongo.Assessment
+	if data.Assessment != "" {
+		parsedAssessmentID, err := util.ParseUUID(data.Assessment)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid assessment ID",
+			})
+		}
 
-	// retrieve assessments from db
-	assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid assessment ID",
-		})
+		// retrieve assessments from db
+		assessment, err = d.mongo.Assessment().GetByID(parsedAssessmentID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid assessment ID",
+			})
+		}
 	}
 
 	// check if user is allowed to access the assessment
@@ -369,7 +372,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	// update user in database
-	err = d.mongo.User().Update(user.ID, &mongo.User{
+	err := d.mongo.User().Update(user.ID, &mongo.User{
 		Username:    data.Username,
 		Password:    data.NewPassword,
 		Assessments: []mongo.UserAssessment{{ID: assessment.ID}},
