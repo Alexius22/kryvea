@@ -185,6 +185,13 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 			assessments[i].Targets[j].IPv6 = target.IPv6
 			assessments[i].Targets[j].FQDN = target.FQDN
 		}
+
+		for _, userAssessment := range user.Assessments {
+			if userAssessment.ID == assessments[i].ID {
+				assessments[i].IsOwned = true
+				break
+			}
+		}
 	}
 
 	if len(assessments) == 0 {

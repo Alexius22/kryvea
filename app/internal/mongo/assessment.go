@@ -61,6 +61,7 @@ type Assessment struct {
 	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
 	VulnerabilityCount int                `json:"vulnerability_count" bson:"vulnerability_count"`
 	Customer           AssessmentCustomer `json:"customer" bson:"customer"`
+	IsOwned            bool               `json:"is_owned" bson:"is_owned"`
 }
 
 type AssessmentTarget struct {
@@ -120,6 +121,8 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment) (uuid.UUID, error) {
 	if assessment.Targets == nil {
 		assessment.Targets = []AssessmentTarget{}
 	}
+
+	assessment.IsOwned = false
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	return assessment.ID, err
