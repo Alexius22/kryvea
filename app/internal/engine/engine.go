@@ -93,7 +93,9 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/users/:user", api.GetUser)
 		apiGroup.Post("/users", api.AddUser)
 		apiGroup.Patch("/users/me", api.UpdateMe)
+		apiGroup.Patch("/users/assessments", api.AddOwnedAssessment)
 		apiGroup.Patch("/users/:user", api.UpdateUser)
+		apiGroup.Delete("/users/assessments", api.DeleteOwnedAssessment)
 		apiGroup.Delete("/users/:user", api.DeleteUser)
 
 		apiGroup.Post("/logout", api.Logout)
