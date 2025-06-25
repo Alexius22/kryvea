@@ -89,6 +89,7 @@ func (e *Engine) Serve() {
 		apiGroup.Post("/assessments/:assessment/upload/nessus", api.UploadNessus)
 
 		apiGroup.Get("/users", api.GetUsers)
+		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Get("/users/:user", api.GetUser)
 		apiGroup.Post("/users", api.AddUser)
 		apiGroup.Patch("/users/me", api.UpdateMe)

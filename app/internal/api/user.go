@@ -193,6 +193,22 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+func (d *Driver) GetMe(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// get user from database
+	userData, err := d.mongo.User().Get(user.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(userData)
+}
+
 func (d *Driver) GetUser(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
@@ -298,17 +314,18 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	})
 }
 
+type updateMeData struct {
+	Username        string `json:"username"`
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+	Assessment      string `json:"assessment"`
+}
+
 func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse request body
-	type reqData struct {
-		Username    string    `json:"username"`
-		Password    string    `json:"password"`
-		Assessments []string  `json:"assessments"`
-		DisabledAt  time.Time `json:"disabled_at"`
-	}
-	data := &reqData{}
+	data := &updateMeData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -317,17 +334,23 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.Username == "" && data.Password == "" && len(data.Assessments) == 0 && data.DisabledAt.IsZero() {
+	errStr := d.validateUpdateMeData(data, user)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "No data to update",
+			"error": errStr,
 		})
 	}
 
-	// parse assessment IDs
-	assessments := make([]mongo.UserAssessments, len(data.Assessments))
-	for i, assessmentID := range data.Assessments {
-		parsedAssessmentID, err := util.ParseUUID(assessmentID)
+	updateUser := &mongo.User{
+		Username: data.Username,
+		Password: data.NewPassword,
+	}
+
+	// parse assessment ID
+	var assessment *mongo.Assessment
+	if data.Assessment != "" {
+		parsedAssessmentID, err := util.ParseUUID(data.Assessment)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -335,7 +358,8 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
-		assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
+		// retrieve assessments from db
+		assessment, err = d.mongo.Assessment().GetByID(parsedAssessmentID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -343,6 +367,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
+		// check if user is allowed to access the assessment
 		if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, assessment.Customer.ID) {
 			c.Status(fiber.StatusUnauthorized)
 			return c.JSON(fiber.Map{
@@ -350,16 +375,11 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
-		assessments[i] = mongo.UserAssessments{ID: parsedAssessmentID}
+		updateUser.Assessments = []mongo.UserAssessment{{ID: assessment.ID}}
 	}
 
 	// update user in database
-	err := d.mongo.User().Update(user.ID, &mongo.User{
-		Username:    data.Username,
-		Password:    data.Password,
-		Assessments: assessments,
-		DisabledAt:  data.DisabledAt,
-	})
+	err := d.mongo.User().Update(user.ID, updateUser)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -502,6 +522,29 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 	if data.Password != "" {
 		if !util.IsValidPassword(data.Password) {
 			return "Password does not meet policy requirements"
+		}
+	}
+
+	return ""
+}
+
+func (d *Driver) validateUpdateMeData(data *updateMeData, user *mongo.User) string {
+	if data.Username == "" && data.NewPassword == "" && data.Assessment == "" {
+		return "No data to update"
+	}
+
+	if data.NewPassword != "" {
+		if data.CurrentPassword == "" {
+			return "Current password is required"
+		}
+
+		if data.NewPassword == data.CurrentPassword {
+			return "New password cannot be the same as current password"
+		}
+
+		err := d.mongo.User().ValidatePassword(user.ID, data.CurrentPassword)
+		if err != nil || !util.IsValidPassword(data.NewPassword) {
+			return "Invalid passwords"
 		}
 	}
 
