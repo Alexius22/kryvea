@@ -6,6 +6,7 @@ interface BaseButtonProps {
   type?: "secondary" | "warning" | "danger" | "outline-only" | "transparent" | "";
   small?: true | "";
   text?: string;
+  title?: string;
   onClick: () => void;
 }
 interface ButtonProps extends BaseButtonProps {
@@ -25,6 +26,7 @@ export default function Button({
   icon,
   small = "",
   iconSize = 18,
+  title = "",
   onClick,
 }: ButtonProps | IconButtonProps) {
   return (
@@ -33,6 +35,7 @@ export default function Button({
       disabled={disabled}
       onClick={onClick}
       data-type={type}
+      title={title}
     >
       {icon && <Icon path={icon} size={iconSize} />}
       {text}
