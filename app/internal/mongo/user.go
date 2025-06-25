@@ -120,17 +120,17 @@ var UserPipeline = mongo.Pipeline{
 
 type User struct {
 	Model            `bson:",inline"`
-	DisabledAt       time.Time         `json:"disabled_at" bson:"disabled_at"`
-	Username         string            `json:"username" bson:"username"`
-	Password         string            `json:"-" bson:"password"`
-	PasswordExpiry   time.Time         `json:"-" bson:"password_expiry"`
-	ResetToken       string            `json:"-" bson:"reset_token"`
-	ResetTokenExpiry time.Time         `json:"-" bson:"reset_token_expiry"`
-	Token            string            `json:"-" bson:"token"`
-	TokenExpiry      time.Time         `json:"-" bson:"token_expiry"`
-	Role             string            `json:"role" bson:"role"`
-	Customers        []UserCustomer    `json:"customers" bson:"customers"`
-	Assessments      []UserAssessments `json:"assessments" bson:"assessments"`
+	DisabledAt       time.Time        `json:"disabled_at" bson:"disabled_at"`
+	Username         string           `json:"username" bson:"username"`
+	Password         string           `json:"-" bson:"password"`
+	PasswordExpiry   time.Time        `json:"-" bson:"password_expiry"`
+	ResetToken       string           `json:"-" bson:"reset_token"`
+	ResetTokenExpiry time.Time        `json:"-" bson:"reset_token_expiry"`
+	Token            string           `json:"-" bson:"token"`
+	TokenExpiry      time.Time        `json:"-" bson:"token_expiry"`
+	Role             string           `json:"role" bson:"role"`
+	Customers        []UserCustomer   `json:"customers" bson:"customers"`
+	Assessments      []UserAssessment `json:"assessments" bson:"assessments"`
 }
 
 type UserCustomer struct {
@@ -138,7 +138,7 @@ type UserCustomer struct {
 	Name string    `json:"name" bson:"name"`
 }
 
-type UserAssessments struct {
+type UserAssessment struct {
 	ID   uuid.UUID `json:"id" bson:"_id"`
 	Name string    `json:"name" bson:"name"`
 }
@@ -188,7 +188,7 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 	}
 
 	if user.Assessments == nil {
-		user.Assessments = []UserAssessments{}
+		user.Assessments = []UserAssessment{}
 	}
 
 	hash, err := crypto.Encrypt(user.Password)
@@ -312,7 +312,8 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
-		"$set": bson.M{},
+		"$set":  bson.M{},
+		"$push": bson.M{},
 	}
 
 	if !user.DisabledAt.IsZero() {
@@ -345,7 +346,9 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	}
 
 	if user.Assessments != nil {
-		update["$set"].(bson.M)["assessments"] = user.Assessments
+		update["$push"].(bson.M)["assessments"] = bson.M{
+			"$each": user.Assessments,
+		}
 	}
 
 	update["$set"].(bson.M)["updated_at"] = time.Now()
@@ -404,4 +407,22 @@ func (ui *UserIndex) ResetPassword(reset_token, password string) error {
 			"reset_token_expiry": time.Time{},
 		}})
 	return err
+}
+
+func (ui *UserIndex) ValidatePassword(ID uuid.UUID, currentPassword string) error {
+	opts := options.FindOne().SetProjection(bson.M{
+		"password": 1,
+	})
+
+	var user User
+	err := ui.collection.FindOne(context.Background(), bson.M{"_id": ID}, opts).Decode(&user)
+	if err != nil {
+		return err
+	}
+
+	if !crypto.Compare(currentPassword, user.Password) {
+		return ErrInvalidCredentials
+	}
+
+	return nil
 }
