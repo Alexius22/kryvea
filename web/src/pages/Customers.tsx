@@ -251,9 +251,7 @@ export default function Customers() {
               {customer.name}
             </Link>
           ),
-          "CVSS Versions": Array.isArray(customer.default_cvss_versions)
-            ? customer.default_cvss_versions.join(" | ")
-            : customer.default_cvss_versions,
+          "CVSS Versions": customer.default_cvss_versions.join(" | "),
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (
             <Buttons noWrap>
