@@ -315,10 +315,10 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 }
 
 type updateMeData struct {
-	Username        string `json:"username"`
-	CurrentPassword string `json:"current_password"`
-	NewPassword     string `json:"new_password"`
-	Assessment      string `json:"assessment"`
+	Username        string   `json:"username"`
+	CurrentPassword string   `json:"current_password"`
+	NewPassword     string   `json:"new_password"`
+	Assessments     []string `json:"assessments"`
 }
 
 func (d *Driver) UpdateMe(c *fiber.Ctx) error {
@@ -342,15 +342,10 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 		})
 	}
 
-	updateUser := &mongo.User{
-		Username: data.Username,
-		Password: data.NewPassword,
-	}
-
-	// parse assessment ID
-	var assessment *mongo.Assessment
-	if data.Assessment != "" {
-		parsedAssessmentID, err := util.ParseUUID(data.Assessment)
+	// parse assessment IDs
+	assessments := make([]mongo.UserAssessment, len(data.Assessments))
+	for i, assessmentID := range data.Assessments {
+		parsedAssessmentID, err := util.ParseUUID(assessmentID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -358,8 +353,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
-		// retrieve assessments from db
-		assessment, err = d.mongo.Assessment().GetByID(parsedAssessmentID)
+		assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -367,19 +361,22 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 			})
 		}
 
-		// check if user is allowed to access the assessment
-		if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, assessment.Customer.ID) {
+		if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 			c.Status(fiber.StatusUnauthorized)
 			return c.JSON(fiber.Map{
 				"error": "Unauthorized",
 			})
 		}
 
-		updateUser.Assessments = []mongo.UserAssessment{{ID: assessment.ID}}
+		assessments[i] = mongo.UserAssessment{ID: parsedAssessmentID}
 	}
 
 	// update user in database
-	err := d.mongo.User().Update(user.ID, updateUser)
+	err := d.mongo.User().Update(user.ID, &mongo.User{
+		Username:    data.Username,
+		Password:    data.NewPassword,
+		Assessments: assessments,
+	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -390,6 +387,53 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"message": "User updated",
+	})
+}
+
+func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse request body
+	type reqData struct {
+		Assessment string `json:"assessment"`
+		IsOwned    bool   `json:"is_owned"`
+	}
+	data := &reqData{}
+	if err := c.BodyParser(data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// validate data
+	assessment, errStr := d.assessmentFromParam(data.Assessment)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	// add assessment to user in database
+	err := d.mongo.User().UpdateOwnedAssessment(user.ID, assessment.ID, data.IsOwned)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot add owned assessment",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Assessment owned",
 	})
 }
 
@@ -529,7 +573,7 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 }
 
 func (d *Driver) validateUpdateMeData(data *updateMeData, user *mongo.User) string {
-	if data.Username == "" && data.NewPassword == "" && data.Assessment == "" {
+	if data.Username == "" && data.NewPassword == "" && data.Assessments == nil {
 		return "No data to update"
 	}
 

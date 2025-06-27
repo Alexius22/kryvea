@@ -312,8 +312,7 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
-		"$set":  bson.M{},
-		"$push": bson.M{},
+		"$set": bson.M{},
 	}
 
 	if !user.DisabledAt.IsZero() {
@@ -346,12 +345,30 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	}
 
 	if user.Assessments != nil {
-		update["$push"].(bson.M)["assessments"] = bson.M{
-			"$each": user.Assessments,
-		}
+		update["$set"].(bson.M)["assessments"] = user.Assessments
 	}
 
 	update["$set"].(bson.M)["updated_at"] = time.Now()
+
+	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, isOwned bool) error {
+	filter := bson.M{"_id": userID}
+
+	op := "$pull"
+	if isOwned {
+		op = "$addToSet"
+	}
+
+	update := bson.M{
+		op: bson.M{
+			"assessments": bson.M{
+				"_id": assessmentID,
+			},
+		},
+	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
 	return err
