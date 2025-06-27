@@ -185,6 +185,13 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 			assessments[i].Targets[j].IPv6 = target.IPv6
 			assessments[i].Targets[j].FQDN = target.FQDN
 		}
+
+		for _, userAssessment := range user.Assessments {
+			if userAssessment.ID == assessments[i].ID {
+				assessments[i].IsOwned = true
+				break
+			}
+		}
 	}
 
 	if len(assessments) == 0 {
@@ -233,7 +240,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersions)
+	errStr = d.validateAssessmentUpdateData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -550,6 +557,26 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSS
 
 	if len(data.CVSSVersions) == 0 {
 		data.CVSSVersions = defaultCVSSVersions
+	}
+
+	for _, version := range data.CVSSVersions {
+		if !cvss.IsValidVersion(version) {
+			return "Invalid CVSS version"
+		}
+	}
+
+	return ""
+}
+
+func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) string {
+	if data.Name == "" &&
+		data.StartDateTime.IsZero() &&
+		data.EndDateTime.IsZero() &&
+		data.Status == "" &&
+		len(data.Targets) == 0 &&
+		data.AssessmentType == "" {
+
+		return "No data to update"
 	}
 
 	for _, version := range data.CVSSVersions {
