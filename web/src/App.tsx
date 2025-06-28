@@ -69,7 +69,7 @@ export default function App() {
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
             <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
-            <Route path="/add_host/:customerId" element={<AddHost />} />
+            <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
             <Route path="/add_vulnerability" element={<AddVulnerability />} />
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
