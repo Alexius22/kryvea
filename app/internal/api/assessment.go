@@ -202,6 +202,46 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	return c.JSON(assessments)
 }
 
+func (d *Driver) GetAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// check if user has access to customer
+	customer, errStr := d.customerFromParam(c.Params("customer"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	// parse assessment param
+	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// check if assessment belongs to customer
+	if assessment.Customer.ID != customer.ID {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessment)
+}
+
 func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
