@@ -138,6 +138,29 @@ func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) 
 	return &assessment, nil
 }
 
+func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment, error) {
+	pipeline := append(AssessmentPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"_id": assessmentID}}},
+		bson.D{{Key: "$limit", Value: 1}},
+	)
+	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var assessments Assessment
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(&assessments); err != nil {
+			return nil, err
+		}
+
+		return &assessments, nil
+	}
+
+	return nil, mongo.ErrNoDocuments
+}
+
 func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, error) {
 	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
 	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)

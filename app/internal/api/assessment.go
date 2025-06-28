@@ -222,12 +222,50 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse assessment param
-	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
-	if errStr != "" {
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": errStr,
+			"error": "Assessment ID is required",
 		})
+	}
+
+	assessmentID, err := util.ParseUUID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	// retrieve target data
+	// TODO: move this block inside a function
+	for j := range assessment.Targets {
+		target, err := d.mongo.Target().GetByID(assessment.Targets[j].ID)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error": "Cannot get target",
+			})
+		}
+		assessment.Targets[j].IPv4 = target.IPv4
+		assessment.Targets[j].IPv6 = target.IPv6
+		assessment.Targets[j].FQDN = target.FQDN
+	}
+
+	for _, userAssessment := range user.Assessments {
+		if userAssessment.ID == assessment.ID {
+			assessment.IsOwned = true
+			break
+		}
 	}
 
 	// check if assessment belongs to customer
