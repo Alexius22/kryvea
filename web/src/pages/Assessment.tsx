@@ -91,11 +91,6 @@ export default function Assessment() {
   };
 
   const confirmDelete = () => {
-    if (!assessmentId || !vulnerabilityToDelete) {
-      toast.error("Missing assessment or vulnerability to delete");
-      return;
-    }
-
     deleteData(
       `/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`,
       () => {
@@ -202,8 +197,18 @@ export default function Assessment() {
         <Buttons>
           <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
-          <Button icon={mdiPlus} text="New host" small onClick={() => navigate("/add_host")} />
-          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate("/add_vulnerability")} />
+          <Button
+            icon={mdiPlus}
+            text="New host"
+            small
+            onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+          />
+          <Button
+            icon={mdiPlus}
+            text="New vulnerability"
+            small
+            onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/add_vulnerability`)}
+          />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
@@ -211,8 +216,9 @@ export default function Assessment() {
       <Table
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
-            <Link to={`/vulnerability/${vulnerability.id}`}>
-              {vulnerability.category.index}: {vulnerability.category.name} ({vulnerability.detailed_title})
+            <Link to={`/vulnerabilities/${vulnerability.id}/pocs`}>
+              {vulnerability.category.index}: {vulnerability.category.name}{" "}
+              {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
           ),
           Host: (() => {
@@ -226,7 +232,11 @@ export default function Assessment() {
           "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
           buttons: (
             <Buttons noWrap>
-              <Button icon={mdiPencil} small onClick={() => navigate(`/add_vulnerability/${vulnerability.id}`)} />
+              <Button
+                icon={mdiPencil}
+                small
+                onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}`)}
+              />
               <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
             </Buttons>
           ),
