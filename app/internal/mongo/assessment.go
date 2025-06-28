@@ -138,6 +138,26 @@ func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) 
 	return &assessment, nil
 }
 
+func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessment, error) {
+	pipeline := append(AssessmentPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"_id": bson.M{"$in": assessmentIDs}}}},
+		bson.D{{Key: "$sort", Value: bson.M{"_id": 1}}},
+	)
+	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var assessments []Assessment
+	err = cursor.All(context.Background(), &assessments)
+	if err != nil {
+		return nil, err
+	}
+
+	return assessments, nil
+}
+
 func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment, error) {
 	pipeline := append(AssessmentPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": assessmentID}}},

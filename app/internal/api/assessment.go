@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -278,6 +279,59 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(assessment)
+}
+
+func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if len(user.Assessments) == 0 {
+		c.Status(fiber.StatusOK)
+		return c.JSON([]mongo.Assessment{})
+	}
+
+	// map user assessments IDs
+	userAssessments := make([]uuid.UUID, len(user.Assessments))
+	for i, userAssessment := range user.Assessments {
+		fmt.Printf("i: %d, userAssessment: %+v\n", i, userAssessment)
+		userAssessments[i] = userAssessment.ID
+	}
+
+	// get assessments from database
+	assessments, err := d.mongo.Assessment().GetMultipleByID(userAssessments)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get owned assessments",
+		})
+	}
+
+	// retrieve target data
+	// TODO: move this block inside a function
+	// retrieve target data
+	for i := range assessments {
+		for j := range assessments[i].Targets {
+			target, err := d.mongo.Target().GetByID(assessments[i].Targets[j].ID)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Cannot get target",
+				})
+			}
+			assessments[i].Targets[j].IPv4 = target.IPv4
+			assessments[i].Targets[j].IPv6 = target.IPv6
+			assessments[i].Targets[j].FQDN = target.FQDN
+		}
+
+		for _, userAssessment := range user.Assessments {
+			if userAssessment.ID == assessments[i].ID {
+				assessments[i].IsOwned = true
+				break
+			}
+		}
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessments)
 }
 
 func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
