@@ -53,6 +53,7 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
 
 		apiGroup.Get("/assessments/search", api.SearchAssessments)
+		apiGroup.Get("/assessments/owned", api.GetOwnedAssessments)
 		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
 		apiGroup.Get("/customers/:customer/assessments/:assessment", api.GetAssessment)
 		apiGroup.Post("/customers/:customer/assessments", api.AddAssessment)
