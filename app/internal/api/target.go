@@ -136,7 +136,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
-		Name:     target.Name,
+		Name:     data.Name,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
