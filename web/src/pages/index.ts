@@ -1,8 +1,6 @@
-import AssessmentUpsert from "./AssessmentUpsert";
 import AddCustomer from "./AddCustomer";
 import AddHost from "./AddHost";
 import AddUser from "./AddUser";
-import AddVulnerability from "./AddVulnerability";
 import Assessment from "./Assessment";
 import Assessments from "./Assessments";
 import AssessmentUpsert from "./AssessmentUpsert";
@@ -16,15 +14,14 @@ import Login from "./Login";
 import ManageCategory from "./ManageCategory";
 import Profile from "./Profile";
 import Users from "./Users";
-import VulnerabilitySearch from "./VulnerabilitySearch";
 import VulnerabilityDetail from "./VulnerabilityDetail";
+import VulnerabilitySearch from "./VulnerabilitySearch";
+import VulnerabilityUpsert from "./VulnerabilityUpsert";
 
 export {
-  AssessmentUpsert,
   AddCustomer,
   AddHost,
   AddUser,
-  AddVulnerability,
   Assessment,
   Assessments,
   AssessmentUpsert,
@@ -38,6 +35,7 @@ export {
   ManageCategory,
   Profile,
   Users,
-  VulnerabilitySearch,
   VulnerabilityDetail,
+  VulnerabilitySearch,
+  VulnerabilityUpsert,
 };
