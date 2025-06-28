@@ -1,7 +1,6 @@
 import { mdiEye, mdiEyeOff } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
@@ -32,13 +31,11 @@ export default function Login() {
       "/api/login",
       { username, password, remember },
       () => {
-        toast.success("User logged in successfully");
         navigate(from, { replace: true });
       },
       err => {
         const errorMessage = err.response.data.error;
         setError(errorMessage);
-        toast.error(errorMessage);
       }
     );
   };

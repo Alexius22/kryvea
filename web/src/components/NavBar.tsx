@@ -23,7 +23,6 @@ export default function NavBar({ children }: Props) {
       "/api/logout",
       undefined,
       () => {
-        toast.success("Logged out successfully");
         navigate("/login");
       },
       err => {
