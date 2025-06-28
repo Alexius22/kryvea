@@ -27,7 +27,7 @@ const ASSESSMENT_TYPE: SelectOption[] = [
 
 const CVSS_VERSIONS: SelectOption[] = [
   { value: "3.1", label: "3.1" },
-  { value: "4", label: "4.0" },
+  { value: "4.0", label: "4.0" },
 ];
 
 const ENVIRONMENT: SelectOption[] = [
@@ -119,7 +119,10 @@ export default function AssessmentUpsert() {
 
   const targetOptions: SelectOption[] = allTargets.map(target => ({
     value: target.id,
-    label: target.fqdn || target.ipv4 || target.ipv6,
+    label:
+      target.fqdn && (target.ipv4 || target.ipv6)
+        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}`
+        : target.fqdn || target.ipv4 || target.ipv6,
   }));
 
   const handleChange = (field: keyof typeof form, value: any) => {
@@ -129,6 +132,7 @@ export default function AssessmentUpsert() {
   const handleSelectChange = (field: keyof typeof form, option: SelectOption | null) => {
     handleChange(field, option ? option.value : "");
   };
+
   const toggleCvssVersion = (version: string) => {
     setForm(prev => {
       const current = prev.cvss_versions;
@@ -176,99 +180,102 @@ export default function AssessmentUpsert() {
   };
 
   return (
-    <div>
-      <Card>
-        <form onSubmit={handleSubmit}>
-          <Grid>
-            <h2 className="mb-4 text-xl font-bold">{isEdit ? "Edit Assessment" : "Add Assessment"}</h2>
-            <SelectWrapper
-              label="Assessment Type"
-              id="assessment_type"
-              options={ASSESSMENT_TYPE}
-              value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
-              closeMenuOnSelect
-              onChange={option => handleSelectChange("assessment_type", option)}
+    <Card>
+      <form onSubmit={handleSubmit}>
+        <Grid>
+          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "Add Assessment"}</h2>
+          <SelectWrapper
+            label="Assessment Type"
+            id="assessment_type"
+            options={ASSESSMENT_TYPE}
+            value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
+            closeMenuOnSelect
+            onChange={option => handleSelectChange("assessment_type", option)}
+          />
+          <Input
+            type="text"
+            label="Name"
+            id="name"
+            value={form.name}
+            onChange={e => handleChange("name", e.target.value)}
+            placeholder="Insert a name"
+          />
+          <Grid className="grid-cols-2 gap-4">
+            <Input
+              type="date"
+              label="Activity period"
+              id="start_date_time"
+              value={form.start_date_time.slice(0, 10)}
+              onChange={e => handleChange("start_date_time", e.target.value)}
             />
             <Input
-              type="text"
-              label="Name"
-              id="name"
-              value={form.name}
-              onChange={e => handleChange("name", e.target.value)}
-              placeholder="Insert a name"
+              type="date"
+              id="end_date_time"
+              value={form.end_date_time.slice(0, 10)}
+              onChange={e => handleChange("end_date_time", e.target.value)}
             />
-            <Grid className="grid-cols-2 gap-4">
-              <Input
-                type="date"
-                label="Activity period"
-                id="start_date_time"
-                value={form.start_date_time.slice(0, 10)}
-                onChange={e => handleChange("start_date_time", e.target.value)}
-              />
-              <Input
-                type="date"
-                id="end_date_time"
-                value={form.end_date_time.slice(0, 10)}
-                onChange={e => handleChange("end_date_time", e.target.value)}
-              />
-            </Grid>
-            <Grid className="grid-cols-[1fr_auto]">
-              <SelectWrapper
-                label="Session targets"
-                id="targets"
-                options={targetOptions}
-                isMulti
-                value={targetOptions.filter(opt => form.targets.some(t => t.id === opt.value))}
-                onChange={handleTargetsChange}
-                closeMenuOnSelect={false}
-              />
-              <Button className="h-[42px]" icon={mdiPlus} text="Add Host" onClick={() => navigate("/add_host")} />
-            </Grid>
-            <Grid>
-              <Label text="CVSS Versions" />
-              {CVSS_VERSIONS.map(({ value, label }) => (
-                <Checkbox
-                  key={value}
-                  id={`cvss_${value}`}
-                  htmlFor={`cvss_${value}`}
-                  label={label}
-                  checked={form.cvss_versions.includes(value)}
-                  onChange={() => toggleCvssVersion(value)}
-                />
-              ))}
-            </Grid>
-            <SelectWrapper
-              label="Environment"
-              id="environment"
-              options={ENVIRONMENT}
-              value={getOption(ENVIRONMENT, form.environment) || null}
-              closeMenuOnSelect
-              onChange={option => handleSelectChange("environment", option)}
-            />
-            <SelectWrapper
-              label="Testing type"
-              id="testing_type"
-              options={TESTING_TYPE}
-              value={getOption(TESTING_TYPE, form.testing_type) || null}
-              closeMenuOnSelect
-              onChange={option => handleSelectChange("testing_type", option)}
-            />
-            <SelectWrapper
-              label="OSSTMM Vector"
-              id="osstmm_vector"
-              options={OSSTMM_VECTOR}
-              value={getOption(OSSTMM_VECTOR, form.osstmm_vector) || null}
-              closeMenuOnSelect
-              onChange={option => handleSelectChange("osstmm_vector", option)}
-            />
-            <Divider />
-            <Buttons>
-              <Button text="Submit" onClick={() => {}} />
-              <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
-            </Buttons>
           </Grid>
-        </form>
-      </Card>
-    </div>
+          <Grid className="grid-cols-[1fr_auto]">
+            <SelectWrapper
+              label="Session targets"
+              id="targets"
+              options={targetOptions}
+              isMulti
+              value={targetOptions.filter(opt => form.targets.some(t => t.id === opt.value))}
+              onChange={handleTargetsChange}
+              closeMenuOnSelect={false}
+            />
+            <Button
+              className="h-[42px]"
+              icon={mdiPlus}
+              text="Add Host"
+              onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+            />
+          </Grid>
+          <Grid>
+            <Label text="CVSS Versions" />
+            {CVSS_VERSIONS.map(({ value, label }) => (
+              <Checkbox
+                key={value}
+                id={`cvss_${value}`}
+                htmlFor={`cvss_${value}`}
+                label={label}
+                checked={form.cvss_versions.includes(value)}
+                onChange={() => toggleCvssVersion(value)}
+              />
+            ))}
+          </Grid>
+          <SelectWrapper
+            label="Environment"
+            id="environment"
+            options={ENVIRONMENT}
+            value={getOption(ENVIRONMENT, form.environment) || null}
+            closeMenuOnSelect
+            onChange={option => handleSelectChange("environment", option)}
+          />
+          <SelectWrapper
+            label="Testing type"
+            id="testing_type"
+            options={TESTING_TYPE}
+            value={getOption(TESTING_TYPE, form.testing_type) || null}
+            closeMenuOnSelect
+            onChange={option => handleSelectChange("testing_type", option)}
+          />
+          <SelectWrapper
+            label="OSSTMM Vector"
+            id="osstmm_vector"
+            options={OSSTMM_VECTOR}
+            value={getOption(OSSTMM_VECTOR, form.osstmm_vector) || null}
+            closeMenuOnSelect
+            onChange={option => handleSelectChange("osstmm_vector", option)}
+          />
+          <Divider />
+          <Buttons>
+            <Button text="Submit" onClick={() => {}} />
+            <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+          </Buttons>
+        </Grid>
+      </form>
+    </Card>
   );
 }
