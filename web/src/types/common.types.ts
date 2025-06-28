@@ -1,6 +1,7 @@
 export type ObjectKey = string | number | symbol;
 
 export type Vulnerability = {
+  id: string;
   updated_at: string;
   category: { id: string; index: string; name: string };
   detailed_title: string;
