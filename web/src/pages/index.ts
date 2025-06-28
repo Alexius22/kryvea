@@ -1,4 +1,4 @@
-import AddAssessment from "./AddAssessment";
+import AssessmentUpsert from "./AssessmentUpsert";
 import AddCustomer from "./AddCustomer";
 import AddHost from "./AddHost";
 import AddUser from "./AddUser";
@@ -19,7 +19,7 @@ import VulnerabilitySearch from "./VulnerabilitySearch";
 import VulnerabilityDetail from "./VulnerabilityDetail";
 
 export {
-  AddAssessment,
+  AssessmentUpsert,
   AddCustomer,
   AddHost,
   AddUser,

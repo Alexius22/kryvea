@@ -4,13 +4,13 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
 import {
-  AddAssessment,
   AddCustomer,
   AddHost,
   AddUser,
   AddVulnerability,
   Assessment,
   Assessments,
+  AssessmentUpsert,
   Categories,
   Customers,
   Dashboard,
@@ -67,7 +67,8 @@ export default function App() {
             <Route path="/vulnerability" element={<VulnerabilityDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/add_customer" element={<AddCustomer />} />
-            <Route path="/add_assessment" element={<AddAssessment />} />
+            <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
+            <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
             <Route path="/add_host/:customerId" element={<AddHost />} />
             <Route path="/add_vulnerability" element={<AddVulnerability />} />
             <Route path="/add_user" element={<AddUser />} />
