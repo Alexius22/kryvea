@@ -26,10 +26,10 @@ export default function AddHost() {
 
   const handleSubmit = () => {
     const payload = {
-      ipv4: ipv4.trim() || undefined,
-      ipv6: ipv6.trim() || undefined,
-      fdqn: fqdn.trim() || undefined,
-      name: hostName.trim() || undefined,
+      ipv4: ipv4.trim(),
+      ipv6: ipv6.trim(),
+      fqdn: fqdn.trim(),
+      name: hostName.trim(),
     };
 
     postData<Host>(
