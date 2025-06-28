@@ -1,6 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import Button from "./components/Form/Button";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
 import {
@@ -51,11 +52,33 @@ export default function App() {
         useDarkTheme,
       }}
     >
-      <Toaster position="bottom-center" />
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            backgroundColor: "var(--bg-quaternary)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-primary-highlight)",
+          },
+        }}
+      />
       <BrowserRouter>
         <RouteWatcher />
         <Routes>
           <Route element={<LayoutAuthenticated />}>
+            <Route
+              path="/toast"
+              element={
+                <Button
+                  text="test"
+                  onClick={() => {
+                    toast.error("error");
+                    toast.success("success");
+                    toast.loading("loading");
+                  }}
+                />
+              }
+            />
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
