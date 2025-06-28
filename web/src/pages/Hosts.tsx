@@ -58,10 +58,10 @@ export default function Hosts() {
 
   const handleEditConfirm = () => {
     const payload = {
-      ipv4: ipv4.trim() || undefined,
-      ipv6: ipv6.trim() || undefined,
-      fqdn: fqdn.trim() || undefined,
-      name: hostName.trim() || undefined,
+      ipv4: ipv4.trim(),
+      ipv6: ipv6.trim(),
+      fqdn: fqdn.trim(),
+      name: hostName.trim(),
     };
 
     patchData<Host>(
