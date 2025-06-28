@@ -54,8 +54,7 @@ export default function App() {
     >
       <ToastContainer
         position="bottom-center"
-        autoClose={false}
-        // autoClose={10 * 1000}
+        autoClose={3 * 1000}
         closeOnClick
         pauseOnHover
         toastClassName="kryvea-toast"
