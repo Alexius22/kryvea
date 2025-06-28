@@ -52,7 +52,6 @@ export default function Users() {
     label: customer.name,
     value: customer.id,
   }));
-  const selectAllOption = { value: "all", label: "Select All" };
 
   // Handle changes in the customers multi-select
   const handleSelectChange = (selectedOptions: { value: string; label: string }[] | null) => {
@@ -163,7 +162,7 @@ export default function Users() {
           />
           <SelectWrapper
             label="Customers"
-            options={[selectAllOption, ...customerOptions]}
+            options={customerOptions}
             isMulti
             value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
             onChange={handleSelectChange}
