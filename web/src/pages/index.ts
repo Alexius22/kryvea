@@ -5,6 +5,7 @@ import AddUser from "./AddUser";
 import AddVulnerability from "./AddVulnerability";
 import Assessment from "./Assessment";
 import Assessments from "./Assessments";
+import AssessmentUpsert from "./AssessmentUpsert";
 import Categories from "./Categories";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
@@ -26,6 +27,7 @@ export {
   AddVulnerability,
   Assessment,
   Assessments,
+  AssessmentUpsert,
   Categories,
   Customers,
   Dashboard,

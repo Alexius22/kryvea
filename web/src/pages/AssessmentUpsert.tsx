@@ -71,51 +71,41 @@ export default function AssessmentUpsert() {
     osstmm_vector: "",
   });
 
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [assessment, setAssessment] = useState<Assessment | null>(null);
 
   useEffect(() => {
     document.title = getPageTitle(isEdit ? "Edit Assessment" : "Add Assessment");
-    if (customerId) {
-      getData<Assessment[]>(
-        `/api/customers/${customerId}/assessments`,
+    if (customerId && isEdit && assessmentId) {
+      getData<Assessment>(
+        `/api/customers/${customerId}/assessments/${assessmentId}`,
         data => {
-          setAssessments(data);
-          if (isEdit && assessmentId) {
-            const found = data.find(a => a.id === assessmentId);
-            if (!found) {
-              toast.error("Assessment not found.");
-              navigate(`/customers/${customerId}/assessments`);
-              return;
-            }
-            setForm({
-              assessment_type: found.assessment_type,
-              name: found.name,
-              start_date_time: found.start_date_time,
-              end_date_time: found.end_date_time,
-              targets: found.targets,
-              cvss_versions: found.cvss_versions,
-              environment: found.environment,
-              testing_type: found.testing_type,
-              osstmm_vector: found.osstmm_vector,
-            });
-          }
+          setAssessment(data);
+          setForm({
+            assessment_type: data.assessment_type,
+            name: data.name,
+            start_date_time: data.start_date_time,
+            end_date_time: data.end_date_time,
+            targets: data.targets,
+            cvss_versions: data.cvss_versions,
+            environment: data.environment,
+            testing_type: data.testing_type,
+            osstmm_vector: data.osstmm_vector,
+          });
         },
         err => {
           toast.error(err.response.data.error);
+          navigate(`/customers/${customerId}/assessments`);
         }
       );
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
   const allTargets = useMemo(() => {
-    const targetMap = new Map<string, { id: string; ipv4: string; ipv6: string; fqdn: string }>();
-    assessments.forEach(a =>
-      a.targets.forEach(t => {
-        if (!targetMap.has(t.id)) targetMap.set(t.id, t);
-      })
-    );
-    return Array.from(targetMap.values());
-  }, [assessments]);
+    if (isEdit && assessment) {
+      return assessment.targets || [];
+    }
+    return [];
+  }, [assessment, isEdit]);
 
   const targetOptions: SelectOption[] = allTargets.map(target => ({
     value: target.id,
