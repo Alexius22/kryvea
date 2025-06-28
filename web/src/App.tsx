@@ -64,7 +64,7 @@ export default function App() {
         <RouteWatcher />
         <Routes>
           <Route element={<LayoutAuthenticated />}>
-            <Route
+            <Route // remove after testing
               path="/toast"
               element={
                 <Button
