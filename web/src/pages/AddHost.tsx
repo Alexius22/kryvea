@@ -9,6 +9,7 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
+import { Host } from "../types/common.types";
 
 export default function AddHost() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function AddHost() {
       name: hostName.trim() || undefined,
     };
 
-    postData<{ message: string }>(
+    postData<Host>(
       `/api/customers/${customerId}/targets`,
       payload,
       () => {
@@ -45,48 +46,46 @@ export default function AddHost() {
   };
 
   return (
-    <div>
-      <Card>
-        <Grid className="gap-4">
-          <Input
-            type="text"
-            id="ipv4"
-            label="IPv4"
-            placeholder="IPv4 address"
-            value={ipv4}
-            onChange={e => setIpv4(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="ipv6"
-            label="IPv6"
-            placeholder="IPv6 address"
-            value={ipv6}
-            onChange={e => setIpv6(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="fqdn"
-            label="FQDN"
-            placeholder="Fully Qualified Domain Name"
-            value={fqdn}
-            onChange={e => setFqdn(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="name"
-            label="Name"
-            placeholder="This name is used to differentiate between duplicate entries"
-            value={hostName}
-            onChange={e => setHostName(e.target.value)}
-          />
-          <Divider />
-          <Buttons>
-            <Button text={"Submit"} onClick={handleSubmit} />
-            <Button type="outline-only" text="Cancel" onClick={() => navigate(`/customers/${customerId}/targets`)} />
-          </Buttons>
-        </Grid>
-      </Card>
-    </div>
+    <Card>
+      <Grid className="gap-4">
+        <Input
+          type="text"
+          id="ipv4"
+          label="IPv4"
+          placeholder="IPv4 address"
+          value={ipv4}
+          onChange={e => setIpv4(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="ipv6"
+          label="IPv6"
+          placeholder="IPv6 address"
+          value={ipv6}
+          onChange={e => setIpv6(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="fqdn"
+          label="FQDN"
+          placeholder="Fully Qualified Domain Name"
+          value={fqdn}
+          onChange={e => setFqdn(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="name"
+          label="Name"
+          placeholder="This name is used to differentiate between duplicate entries"
+          value={hostName}
+          onChange={e => setHostName(e.target.value)}
+        />
+        <Divider />
+        <Buttons>
+          <Button text={"Submit"} onClick={handleSubmit} />
+          <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+        </Buttons>
+      </Grid>
+    </Card>
   );
 }

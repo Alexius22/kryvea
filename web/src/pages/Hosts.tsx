@@ -163,7 +163,12 @@ export default function Hosts() {
       </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
-        <Button icon={mdiPlus} text="New host" small onClick={() => navigate(`/add_host/${customerId}`)} />
+        <Button
+          icon={mdiPlus}
+          text="New host"
+          small
+          onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+        />
       </SectionTitleLineWithButton>
 
       <Table
