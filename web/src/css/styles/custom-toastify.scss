@@ -1,6 +1,8 @@
 @use "sass:color";
 
 .kryvea-toast {
+  @apply clickable;
+
   background-color: var(--bg-secondary);
   color: var(--text-primary);
 
@@ -28,8 +30,6 @@
   }
 
   &:hover {
-    filter: brightness(0.9);
-
     .Toastify__close-button {
       color: var(--text-primary);
       opacity: 1;

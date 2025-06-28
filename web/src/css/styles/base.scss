@@ -101,10 +101,10 @@ textarea:focus {
 
 .clickable {
   &:hover {
-    filter: brightness(0.85);
+    filter: brightness(0.9);
   }
   &:active {
-    filter: brightness(0.7);
+    filter: brightness(0.8);
   }
 
   &[data-type="outline-only"],
