@@ -62,9 +62,25 @@ export default function SelectWrapper({
     }
   };
 
+  const onChangeWrapper = (newValue, actionMeta: ActionMeta<any>) => {
+    if (isMulti && newValue.some(option => option.value === "all")) {
+      newValue = options.filter(option => option.value !== "all");
+      onChange(newValue, actionMeta);
+      return;
+    }
+    onChange(newValue, actionMeta);
+  };
+
+  if (isMulti) {
+    options = [{ label: "Select all", value: "all" }, ...options];
+  }
+  if (isMulti && value.length === options.length - 1) {
+    options = [];
+  }
+
   const animatedComponents = makeAnimated();
 
-  const longestLabel = options.reduce((a, b) => (a.label.length > b.label.length ? a : b)).label;
+  const longestLabel = options.length ? options.reduce((a, b) => (a.label.length > b.label.length ? a : b)).label : "";
 
   const longestLabelFixedWidth = widthFixed
     ? {
@@ -112,7 +128,7 @@ export default function SelectWrapper({
           onInputChange: handleOnInputChange,
           inputValue,
           options,
-          onChange,
+          onChange: onChangeWrapper,
           defaultValue,
           closeMenuOnSelect,
           inputId: id,
