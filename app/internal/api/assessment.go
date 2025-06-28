@@ -202,6 +202,84 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	return c.JSON(assessments)
 }
 
+func (d *Driver) GetAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// check if user has access to customer
+	customer, errStr := d.customerFromParam(c.Params("customer"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	// parse assessment param
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Assessment ID is required",
+		})
+	}
+
+	assessmentID, err := util.ParseUUID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	// retrieve target data
+	// TODO: move this block inside a function
+	for j := range assessment.Targets {
+		target, err := d.mongo.Target().GetByID(assessment.Targets[j].ID)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error": "Cannot get target",
+			})
+		}
+		assessment.Targets[j].IPv4 = target.IPv4
+		assessment.Targets[j].IPv6 = target.IPv6
+		assessment.Targets[j].FQDN = target.FQDN
+	}
+
+	for _, userAssessment := range user.Assessments {
+		if userAssessment.ID == assessment.ID {
+			assessment.IsOwned = true
+			break
+		}
+	}
+
+	// check if assessment belongs to customer
+	if assessment.Customer.ID != customer.ID {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessment)
+}
+
 func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
