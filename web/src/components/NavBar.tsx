@@ -1,7 +1,7 @@
 import { mdiAccount, mdiLogout, mdiThemeLightDark } from "@mdi/js";
 import { ReactNode, useContext } from "react";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Button from "./Form/Button";

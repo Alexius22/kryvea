@@ -1,7 +1,7 @@
 import { mdiEye, mdiEyeOff } from "@mdi/js";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";

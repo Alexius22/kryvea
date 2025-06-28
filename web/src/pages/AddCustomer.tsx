@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";

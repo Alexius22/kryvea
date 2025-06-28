@@ -1,7 +1,7 @@
 import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
