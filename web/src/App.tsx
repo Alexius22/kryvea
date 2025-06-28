@@ -7,7 +7,6 @@ import {
   AddCustomer,
   AddHost,
   AddUser,
-  AddVulnerability,
   Assessment,
   Assessments,
   AssessmentUpsert,
@@ -23,6 +22,7 @@ import {
   Users,
   VulnerabilityDetail,
   VulnerabilitySearch,
+  VulnerabilityUpsert,
 } from "./pages";
 import LiveEditor from "./pages/LiveEditor";
 
@@ -64,13 +64,20 @@ export default function App() {
             <Route path="/customers/:customerId/assessments" element={<Assessments />} />
             <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
-            <Route path="/vulnerability" element={<VulnerabilityDetail />} />
+            <Route path="/vulnerabilities/:vulnerabilityId/pocs" element={<VulnerabilityDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
             <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
             <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
-            <Route path="/add_vulnerability" element={<AddVulnerability />} />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/add_vulnerability"
+              element={<VulnerabilityUpsert />}
+            />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId"
+              element={<VulnerabilityUpsert />}
+            />
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
