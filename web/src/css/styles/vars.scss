@@ -44,8 +44,14 @@
   );
 
   /* Alerts */
-  --error: #f44336;
-  --warning: #daa520;
+  $error: #ff0000;
+  --error: #{$error};
+  --error-rgb: #{color.channel($error, "red")}, #{color.channel($error, "green")}, #{color.channel($error, "blue")};
+
+  $warning: #fff702;
+  --warning: #{$warning};
+  --warning-rgb:
+    #{color.channel($warning, "red")}, #{color.channel($warning, "green")}, #{color.channel($warning, "blue")};
 
   /* Clickable CSS class */
   --clickable-hover-backdrop-brightness: #{$clickable-hover-backdrop-brightness};
@@ -54,15 +60,15 @@
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
-    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
-      #{color.channel($color, "blue")};
+    --bg-#{$name}-rgb:
+      #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
   }
 
   /* Buttons: hex and RGB */
   @each $name, $color in $buttons {
     --button-#{$name}: #{$color};
-    --button-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
-      #{color.channel($color, "blue")};
+    --button-#{$name}-rgb:
+      #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
   }
 }
 
@@ -109,8 +115,14 @@ html.dark {
   );
 
   /* Alerts */
-  --error: #f44336;
-  --warning: #daa520;
+  $error: #f44336;
+  --error: #{$error};
+  --error-rgb: #{color.channel($error, "red")}, #{color.channel($error, "green")}, #{color.channel($error, "blue")};
+
+  $warning: #daa520;
+  --warning: #{$warning};
+  --warning-rgb:
+    #{color.channel($warning, "red")}, #{color.channel($warning, "green")}, #{color.channel($warning, "blue")};
 
   /* Clickable CSS class */
   --clickable-hover-backdrop-brightness: #{$clickable-hover-backdrop-brightness};
@@ -119,14 +131,14 @@ html.dark {
   /* Backgrounds: hex and RGB */
   @each $name, $color in $backgrounds {
     --bg-#{$name}: #{$color};
-    --bg-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
-      #{color.channel($color, "blue")};
+    --bg-#{$name}-rgb:
+      #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
   }
 
   /* Buttons: hex and RGB */
   @each $name, $color in $buttons {
     --button-#{$name}: #{$color};
-    --button-#{$name}-rgb: #{color.channel($color, "red")}, #{color.channel($color, "green")},
-      #{color.channel($color, "blue")};
+    --button-#{$name}-rgb:
+      #{color.channel($color, "red")}, #{color.channel($color, "green")}, #{color.channel($color, "blue")};
   }
 }

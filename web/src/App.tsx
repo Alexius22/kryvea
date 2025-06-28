@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
 import Button from "./components/Form/Button";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
@@ -52,15 +52,13 @@ export default function App() {
         useDarkTheme,
       }}
     >
-      <Toaster
+      <ToastContainer
         position="bottom-center"
-        toastOptions={{
-          style: {
-            backgroundColor: "var(--bg-quaternary)",
-            color: "var(--text-primary)",
-            border: "1px solid var(--border-primary-highlight)",
-          },
-        }}
+        autoClose={false}
+        // autoClose={10 * 1000}
+        closeOnClick
+        pauseOnHover
+        toastClassName="kryvea-toast"
       />
       <BrowserRouter>
         <RouteWatcher />
@@ -75,6 +73,7 @@ export default function App() {
                     toast.error("error");
                     toast.success("success");
                     toast.loading("loading");
+                    toast.warning("warning");
                   }}
                 />
               }

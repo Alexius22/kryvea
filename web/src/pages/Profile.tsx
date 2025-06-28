@@ -1,6 +1,6 @@
 import { mdiAccount, mdiEye, mdiEyeOff } from "@mdi/js";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { patchData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";

@@ -1,7 +1,7 @@
 import { mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router";
+import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
