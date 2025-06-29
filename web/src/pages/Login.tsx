@@ -23,6 +23,11 @@ export default function Login() {
   const from = location.state?.from?.pathname || "/dashboard";
 
   useEffect(() => {
+    if (document.cookie.includes("kryvea_shadow=ok")) {
+      navigate(from, { replace: true });
+      return;
+    }
+
     document.title = getPageTitle("Login");
   }, []);
 

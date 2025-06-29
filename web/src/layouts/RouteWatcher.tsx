@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
 
 export default function RouteWatcher() {
@@ -8,7 +8,14 @@ export default function RouteWatcher() {
   } = useContext(GlobalContext);
   const location = useLocation();
   const previousPathname = useRef(location.pathname);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!document.cookie.includes("kryvea_shadow=ok")) {
+      navigate("/login", { replace: true });
+      return;
+    }
+  }, []);
   useEffect(() => {
     const currentPathname = location.pathname;
     if (currentPathname === previousPathname.current) {
