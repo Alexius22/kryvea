@@ -85,7 +85,10 @@ export default function App() {
             <Route path="/customers/:customerId/assessments" element={<Assessments />} />
             <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
-            <Route path="/vulnerabilities/:vulnerabilityId/pocs" element={<VulnerabilityDetail />} />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/detail"
+              element={<VulnerabilityDetail />}
+            />
             <Route path="/profile" element={<Profile />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
@@ -100,7 +103,7 @@ export default function App() {
               element={<VulnerabilityUpsert />}
             />
             <Route path="/add_user" element={<AddUser />} />
-            <Route path="/edit_poc" element={<EditPoc />} />
+            <Route path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
