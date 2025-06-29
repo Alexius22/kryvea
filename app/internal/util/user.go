@@ -1,9 +1,11 @@
 package util
 
 import (
+	"time"
 	"unicode"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -67,4 +69,17 @@ func IsValidRole(role string) bool {
 	}
 
 	return false
+}
+
+// ClearShadowCookie removes the cookie visible to the client,
+// meaning new login is required.
+func ClearShadowCookie(c *fiber.Ctx) {
+	c.Cookie(&fiber.Cookie{
+		Name:     "kryvea_shadow",
+		Value:    "",
+		Secure:   true,
+		HTTPOnly: false,
+		SameSite: "Strict",
+		Expires:  time.Now().Add(-1 * time.Hour),
+	})
 }
