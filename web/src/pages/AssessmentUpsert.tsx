@@ -150,6 +150,11 @@ export default function AssessmentUpsert() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const payload = {
+      ...form,
+      targets: form.targets.map(target => target.id),
+    };
+
     const endpoint = isEdit
       ? `/api/customers/${customerId}/assessments/${assessmentId}`
       : `/api/customers/${customerId}/assessments`;
@@ -158,7 +163,7 @@ export default function AssessmentUpsert() {
 
     apiCall(
       endpoint,
-      form,
+      payload,
       () => {
         navigate(`/customers/${customerId}/assessments`);
       },
