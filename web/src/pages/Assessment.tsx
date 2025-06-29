@@ -193,7 +193,7 @@ export default function Assessment() {
         <p>Are you sure to delete this vulnerability?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
+      <SectionTitleLineWithButton icon={mdiListBox} title={`${vulnerabilities[0]?.assessment.name}`}>
         <Buttons>
           <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
@@ -216,7 +216,7 @@ export default function Assessment() {
       <Table
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
-            <Link to={`/vulnerabilities/${vulnerability.id}/pocs`}>
+            <Link to={`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}/detail`}>
               {vulnerability.category.index}: {vulnerability.category.name}{" "}
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
