@@ -4,7 +4,7 @@ import { GlobalContext } from "../App";
 
 export default function RouteWatcher() {
   const {
-    useCustomerName: [customerName, setCustomerName],
+    useCustomerName: [, setCustomerName],
   } = useContext(GlobalContext);
   const location = useLocation();
   const previousPathname = useRef(location.pathname);
