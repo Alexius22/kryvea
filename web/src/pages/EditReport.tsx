@@ -1,26 +1,25 @@
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import CardBox from "../components/CardBox";
-import FormField from "../components/Form/Field";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
+import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
 
-const EditReport = () => {
+export default function EditReport() {
   useEffect(() => {
     document.title = getPageTitle("Edit Report");
   }, []);
 
   return (
-    <CardBox>
+    <Card>
       <Formik initialValues={{}} onSubmit={undefined}>
         <Form>
-          <FormField hasTextareaHeight>
-            <Field name="textarea" as="textarea" placeholder="Layout here" />
-            <Field name="textarea" as="textarea" placeholder="Preview here" />
-          </FormField>
+          <Grid className="grid-cols-2">
+            <Textarea id="layout" placeholder="Layout here" />
+            <Textarea id="preview" placeholder="Preview here" />
+          </Grid>
         </Form>
       </Formik>
-    </CardBox>
+    </Card>
   );
-};
-
-export default EditReport;
+}

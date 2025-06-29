@@ -11,6 +11,8 @@
 app/internal/report/*/reports/
 app/internal/nessus/reports/
 
+scripts/venv
+
 scripts/images/
 scripts/venv/
 *.burp*
