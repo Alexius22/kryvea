@@ -99,3 +99,19 @@ export type Category = {
   generic_remediation: Record<string, string>;
   references: string[];
 };
+
+export type Poc = {
+  id: string;
+  index: number;
+  type: string;
+  description: string;
+  uri: string;
+  request: string;
+  response: string;
+  image_id: string;
+  image_data: string;
+  image_caption: string;
+  text_language: string;
+  text_data: string;
+  vulnerability_id: string;
+};
