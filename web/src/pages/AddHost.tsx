@@ -1,49 +1,91 @@
-import { Field, Form, Formik } from "formik";
-import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { toast } from "react-toastify";
+import { postData } from "../api/api";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
+import { Host } from "../types/common.types";
 
-const AddHost = () => {
+export default function AddHost() {
+  const navigate = useNavigate();
+  const { customerId } = useParams<{ customerId: string }>();
+
+  const [ipv4, setIpv4] = useState("");
+  const [ipv6, setIpv6] = useState("");
+  const [fqdn, setFqdn] = useState("");
+  const [hostName, setHostName] = useState("");
+
   useEffect(() => {
-    document.title = getPageTitle("Customer");
+    document.title = getPageTitle("Add Host");
   }, []);
 
+  const handleSubmit = () => {
+    const payload = {
+      ipv4: ipv4.trim(),
+      ipv6: ipv6.trim(),
+      fqdn: fqdn.trim(),
+      name: hostName.trim(),
+    };
+
+    postData<Host>(
+      `/api/customers/${customerId}/targets`,
+      payload,
+      () => {
+        toast.success("Host added successfully");
+        navigate(`/customers/${customerId}/targets`);
+      },
+      err => {
+        toast.error(err.response.data.error);
+      }
+    );
+  };
+
   return (
-    <div>
-      <CardBox>
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <FormField label="IPv4">
-              <Field name="ip" id="ip" placeholder="IPv4 address"></Field>
-            </FormField>
-
-            <FormField label="IPv6">
-              <Field name="ipv6" id="ipv6" placeholder="IPv6 address"></Field>
-            </FormField>
-
-            <FormField label="FQDN">
-              <Field name="fqdn" id="fdqn" placeholder="Fully Qualified Domain Name"></Field>
-            </FormField>
-
-            <FormField label="Name" help="Specify a name to distinguish hosts with the same IP and FQDN">
-              <Field name="name" id="name" placeholder="Sample name"></Field>
-            </FormField>
-
-            <Divider />
-
-            <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
-            </Buttons>
-          </Form>
-        </Formik>
-      </CardBox>
-    </div>
+    <Card>
+      <Grid className="gap-4">
+        <Input
+          type="text"
+          id="ipv4"
+          label="IPv4"
+          placeholder="IPv4 address"
+          value={ipv4}
+          onChange={e => setIpv4(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="ipv6"
+          label="IPv6"
+          placeholder="IPv6 address"
+          value={ipv6}
+          onChange={e => setIpv6(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="fqdn"
+          label="FQDN"
+          placeholder="Fully Qualified Domain Name"
+          value={fqdn}
+          onChange={e => setFqdn(e.target.value)}
+        />
+        <Input
+          type="text"
+          id="name"
+          label="Name"
+          placeholder="This name is used to differentiate between duplicate entries"
+          value={hostName}
+          onChange={e => setHostName(e.target.value)}
+        />
+        <Divider />
+        <Buttons>
+          <Button text={"Submit"} onClick={handleSubmit} />
+          <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+        </Buttons>
+      </Grid>
+    </Card>
   );
-};
-
-export default AddHost;
+}

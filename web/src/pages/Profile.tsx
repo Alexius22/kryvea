@@ -1,108 +1,125 @@
-import { mdiAccount, mdiAsterisk, mdiFormTextboxPassword, mdiMail } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
-import { useContext, useEffect } from "react";
-import { GlobalContext } from "../App";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxUser from "../components/CardBox/User";
-import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
+import { mdiAccount, mdiEye, mdiEyeOff } from "@mdi/js";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { patchData } from "../api/api";
+import Card from "../components/CardBox/Card";
+import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Input from "../components/Form/Input";
+import Icon from "../components/Icon";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
-import type { UserForm } from "../interfaces";
 
-const Profile = () => {
-  const {
-    useUsername: [username],
-    useUserEmail: [userEmail],
-  } = useContext(GlobalContext);
+export default function Profile() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const userForm: UserForm = {
-    name: username,
-    email: userEmail,
-  };
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     document.title = getPageTitle("Profile");
   }, []);
 
+  const handleSubmit = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirmation do not match");
+      return;
+    }
+
+    const payload = {
+      current_password: currentPassword,
+      new_password: newPassword,
+    };
+
+    patchData<{ message: string }>(
+      "/api/users/me",
+      payload,
+      () => {
+        toast.success("Password updated successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      },
+      err => {
+        const errorMsg = err.response.data.error;
+        toast.error(errorMsg);
+      }
+    );
+  };
+
   return (
     <div>
-      <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main></SectionTitleLineWithButton>
+      <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main />
+      <Card className="w-1/3 max-w-full">
+        <Grid className="gap-4">
+          <div className="relative">
+            <Input
+              type={showCurrentPassword ? "text" : "password"}
+              id="current_password"
+              label="Current password"
+              helperSubtitle="Required"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              className="pr-10"
+            />
+            <span
+              role="button"
+              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              className="absolute right-2 top-[38px] cursor-pointer p-1"
+            >
+              <Icon path={showCurrentPassword ? mdiEyeOff : mdiEye} />
+            </span>
+          </div>
 
-      <CardBoxUser className="mb-6" />
+          <div className="relative">
+            <Input
+              type={showNewPassword ? "text" : "password"}
+              id="new_password"
+              label="New password"
+              helperSubtitle="Required"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              className="pr-10"
+            />
+            <span
+              role="button"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              className="absolute right-2 top-[38px] cursor-pointer p-1"
+            >
+              <Icon path={showNewPassword ? mdiEyeOff : mdiEye} />
+            </span>
+          </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="flex flex-col">
-          <CardBox className="flex-1" noPadding>
-            <Formik initialValues={userForm} onSubmit={(values: UserForm) => alert(JSON.stringify(values, null, 2))}>
-              <Form className="flex flex-1 flex-col">
-                <CardBox>
-                  <FormField label="Username" help="Required" labelFor="name" icons={[mdiAccount]}>
-                    <Field name="name" id="name" placeholder="Name" />
-                  </FormField>
-                  <FormField label="E-mail" help="Required" labelFor="email" icons={[mdiMail]}>
-                    <Field name="email" id="email" placeholder="E-mail" />
-                  </FormField>
-                </CardBox>
-                <div className="p-6">
-                  <Buttons>
-                    <Button color="info" type="submit" label="Submit" />
-                  </Buttons>
-                </div>
-              </Form>
-            </Formik>
-          </CardBox>
+          <div className="relative">
+            <Input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirm_password"
+              label="Confirm password"
+              helperSubtitle="Required"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              className="pr-10"
+            />
+            <span
+              role="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-2 top-[38px] cursor-pointer p-1"
+            >
+              <Icon path={showConfirmPassword ? mdiEyeOff : mdiEye} />
+            </span>
+          </div>
+        </Grid>
+        <div className="pt-4">
+          <Button text="Submit" onClick={handleSubmit} />
         </div>
-
-        <CardBox noPadding>
-          <Formik
-            initialValues={{
-              currentPassword: "",
-              newPassword: "",
-              newPasswordConfirmation: "",
-            }}
-            onSubmit={values => alert(JSON.stringify(values, null, 2))}
-          >
-            <Form className="flex flex-1 flex-col">
-              <CardBox>
-                <FormField label="Current password" help="Required" labelFor="currentPassword" icons={[mdiAsterisk]}>
-                  <Field name="currentPassword" id="currentPassword" type="password" autoComplete="current-password" />
-                </FormField>
-
-                <Divider />
-
-                <FormField label="New password" help="Required" labelFor="newPassword" icons={[mdiFormTextboxPassword]}>
-                  <Field name="newPassword" id="newPassword" type="password" autoComplete="new-password" />
-                </FormField>
-
-                <FormField
-                  label="Confirm password"
-                  help="Required"
-                  labelFor="newPasswordConfirmation"
-                  icons={[mdiFormTextboxPassword]}
-                >
-                  <Field
-                    name="newPasswordConfirmation"
-                    id="newPasswordConfirmation"
-                    type="password"
-                    autoComplete="new-password"
-                  />
-                </FormField>
-              </CardBox>
-
-              <div className="p-6">
-                <Buttons>
-                  <Button color="info" type="submit" label="Submit" />
-                </Buttons>
-              </div>
-            </Form>
-          </Formik>
-        </CardBox>
-      </div>
+      </Card>
     </div>
   );
-};
-
-export default Profile;
+}

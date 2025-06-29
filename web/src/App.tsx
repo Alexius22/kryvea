@@ -1,84 +1,110 @@
 import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
+import Button from "./components/Form/Button";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
 import {
-  AddAssessment,
   AddCustomer,
   AddHost,
   AddUser,
-  AddVulnerability,
   Assessment,
   Assessments,
+  AssessmentUpsert,
+  Categories,
   Customers,
   Dashboard,
   EditPoc,
   EditReport,
-  Error,
+  Hosts,
   Login,
+  ManageCategory,
   Profile,
   Users,
-  Vulnerabilities,
-  Vulnerability,
+  VulnerabilityDetail,
+  VulnerabilitySearch,
+  VulnerabilityUpsert,
 } from "./pages";
-import Categories from "./pages/Categories";
-import Hosts from "./pages/Hosts";
 import LiveEditor from "./pages/LiveEditor";
-import ManageCategory from "./pages/ManageCategory";
 
 export const GlobalContext = createContext<{
-  useUserEmail: [string, Dispatch<SetStateAction<string>>];
-  useUsername: [string, Dispatch<SetStateAction<string>>];
   useCustomerName: [string, Dispatch<SetStateAction<string>>];
+  useCustomerId: [string, Dispatch<SetStateAction<string>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
-}>(null);
+}>(null!);
 
 export default function App() {
-  const useUserEmail = useState<string>("test@email.com");
-  const useUsername = useState<string>("TestUser");
-  const useCustomerName = useState<string>("");
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
-  const [darkTheme, _] = useDarkTheme;
+  const [darkTheme] = useDarkTheme;
+  const useCustomerName = useState<string>("");
+  const useCustomerId = useState<string>("");
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
-    document.body.classList[darkTheme ? "add" : "remove"]("dark-scrollbars");
-    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark", "dark-scrollbars-compat");
+    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
   }, [darkTheme]);
 
   return (
     <GlobalContext.Provider
       value={{
-        useUserEmail,
-        useUsername,
         useCustomerName,
+        useCustomerId,
         useDarkTheme,
       }}
     >
+      <ToastContainer
+        position="bottom-center"
+        autoClose={3 * 1000}
+        closeOnClick
+        pauseOnHover
+        toastClassName="kryvea-toast"
+      />
       <BrowserRouter>
         <RouteWatcher />
         <Routes>
           <Route element={<LayoutAuthenticated />}>
+            <Route // remove after testing
+              path="/toast"
+              element={
+                <Button
+                  text="test"
+                  onClick={() => {
+                    toast.error("error");
+                    toast.success("success");
+                    toast.loading("loading");
+                    toast.warning("warning");
+                  }}
+                />
+              }
+            />
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+            <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/assessments" element={<Assessments />} />
-            <Route path="/hosts" element={<Hosts />} />
-            <Route path="/assessment" element={<Assessment />} />
-            <Route path="/vulnerability" element={<Vulnerability />} />
+            <Route path="/customers/:customerId/assessments" element={<Assessments />} />
+            <Route path="/customers/:customerId/targets" element={<Hosts />} />
+            <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
+            <Route path="/vulnerabilities/:vulnerabilityId/pocs" element={<VulnerabilityDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/add_customer" element={<AddCustomer />} />
-            <Route path="/add_assessment" element={<AddAssessment />} />
-            <Route path="/add_host" element={<AddHost />} />
-            <Route path="/add_vulnerability" element={<AddVulnerability />} />
+            <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
+            <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
+            <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/add_vulnerability"
+              element={<VulnerabilityUpsert />}
+            />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId"
+              element={<VulnerabilityUpsert />}
+            />
             <Route path="/add_user" element={<AddUser />} />
             <Route path="/edit_poc" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
-            <Route path="/error" element={<Error />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
+            <Route path="/manage_category/:categoryId" element={<ManageCategory />} />
             <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
           <Route path="/login" element={<Login />} />

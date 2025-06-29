@@ -1,188 +1,299 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import CardBoxModal from "../components/CardBox/Modal";
-import { formatDate } from "../components/DateUtils";
-import FormField from "../components/Form/Field";
+import { Link, useNavigate, useParams } from "react-router";
+import { toast } from "react-toastify";
+import { deleteData, getData, patchData, postData } from "../api/api";
+import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
+import { formatDate } from "../components/dateUtils";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
 
-const Assessments = () => {
+export default function Assessments() {
   const navigate = useNavigate();
-  const loading = false;
-  const error = false;
+  const { customerId } = useParams<{ customerId: string }>();
 
   const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [isModalCloneActive, setIsModalCloneActive] = useState(false);
-  const [assessmentToClone, setAssessmentToClone] = useState<Assessment>();
-  const handleModalAction = () => {
-    setIsModalDownloadActive(false);
-    setIsModalCloneActive(false);
-    setIsModalTrashActive(false);
-  };
-  const openCloneModal = (assessment: Assessment) => {
-    setAssessmentToClone(assessment);
-    setIsModalCloneActive(true);
-  };
-  const [statusSelectOptions, setStatusSelectOptions] = useState<SelectOption[]>([
-    { label: "On Hold", value: "hold" },
-    { label: "In Progress", value: "progress" },
-    { label: "Completed", value: "completed" },
+
+  const [assessmentToClone, setAssessmentToClone] = useState<Assessment | null>(null);
+  const [assessmentToDelete, setAssessmentToDelete] = useState<Assessment | null>(null);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
+
+  const [cloneName, setCloneName] = useState("");
+
+  const [exportType, setExportType] = useState<SelectOption>({ value: "word", label: "Word (.docx)" });
+  const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
+  const [exportPassword, setExportPassword] = useState("");
+
+  const [statusSelectOptions] = useState<SelectOption[]>([
+    { label: "On Hold", value: "On Hold" },
+    { label: "In Progress", value: "In Progress" },
+    { label: "Completed", value: "Completed" },
   ]);
-  const [selectedStatus, setSelectedStatus] = useState<SelectOption | SelectOption[]>(null);
-  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>(assessments as Assessment[]);
+  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
 
   useEffect(() => {
     document.title = getPageTitle("Assessments");
+    getData<Assessment[]>(
+      `/api/customers/${customerId}/assessments`,
+      data => {
+        setAssessmentsData(data);
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
   }, []);
 
-  const handleFavoriteToggle = id => () => {
-    setAssessmentsData(
-      assessmentsData.map(assessment => {
-        if (assessment.id === id) {
-          assessment.is_owned = !assessment.is_owned;
-        }
-        return assessment;
-      })
+  const handleFavoriteToggle = (id: string) => () => {
+    const updatedAssessments = assessmentsData.map(assessment => {
+      if (assessment.id === id) {
+        const updated = { ...assessment, is_owned: !assessment.is_owned };
+        patchData(`/api/users/me/assessments`, { assessment: assessment.id, is_owned: updated.is_owned });
+        return updated;
+      }
+      return assessment;
+    });
+    setAssessmentsData(updatedAssessments);
+  };
+
+  const openCloneModal = (assessment: Assessment) => {
+    setAssessmentToClone(assessment);
+    setCloneName(`${assessment.name} (Copy)`);
+    setIsModalCloneActive(true);
+  };
+
+  const confirmClone = () => {
+    postData<Assessment>(
+      `/api/customers/${customerId}/assessments/${assessmentToClone.id}/clone`,
+      { name: cloneName },
+      clonedAssessment => {
+        setAssessmentsData(prev => [...prev, clonedAssessment]);
+        setIsModalCloneActive(false);
+        setAssessmentToClone(null);
+        setCloneName("");
+        toast.success("Assessment cloned successfully");
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
+  };
+
+  const openDeleteModal = (assessment: Assessment) => {
+    setAssessmentToDelete(assessment);
+    setIsModalTrashActive(true);
+  };
+
+  const confirmDelete = () => {
+    deleteData(
+      `/api/customers/${customerId}/assessments/${assessmentToDelete.id}`,
+      () => {
+        setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
+        setIsModalTrashActive(false);
+        setAssessmentToDelete(null);
+        toast.success("Assessment deleted successfully");
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
+  };
+
+  const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
+    patchData<Assessment>(
+      `/api/customers/${customerId}/assessments/${assessmentId}`,
+      { status: selectedOption.value },
+      updatedAssessment => {
+        setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
+    );
+  };
+
+  const openExportModal = (assessmentId: string) => {
+    setSelectedAssessmentId(assessmentId);
+    setIsModalDownloadActive(true);
+  };
+
+  const exportAssessment = () => {
+    const payload = {
+      type: exportType.value,
+      encryption: exportEncryption.value,
+      password: exportEncryption.value === "password" ? exportPassword : undefined,
+    };
+    // TODO properly with docx-go-template
+    postData<Blob>(
+      `/api/customers/${customerId}/assessments/${selectedAssessmentId}/export`,
+      payload,
+      data => {
+        const url = window.URL.createObjectURL(new Blob([data]));
+        const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
+        const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setIsModalDownloadActive(false);
+        toast.success("Export started");
+      },
+      err => {
+        const errorMessage = err.response.data.error;
+        toast.error(errorMessage);
+      }
     );
   };
 
   return (
     <div>
-      <CardBoxModal
+      {/* Clone Modal */}
+      <Modal
         title="Clone assessment"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalCloneActive}
-        onConfirm={handleModalAction}
-        onCancel={handleModalAction}
+        onConfirm={confirmClone}
+        onCancel={() => setIsModalCloneActive(false)}
       >
-        <Formik initialValues={{ name: assessmentToClone?.name + " (Copy)" }} onSubmit={undefined}>
-          <Form>
-            <FormField label="Assessment Name">
-              <Field name="name" placeholder="Cloned assessment name" />
-            </FormField>
-          </Form>
-        </Formik>
-      </CardBoxModal>
-      <CardBoxModal
+        <Input
+          type="text"
+          label="Assessment Name"
+          placeholder="Cloned assessment name"
+          id="assessment_name"
+          value={cloneName}
+          onChange={e => setCloneName(e.target.value)}
+        />
+      </Modal>
+
+      {/* Download Modal */}
+      <Modal
         title="Download report"
-        buttonColor="info"
         buttonLabel="Confirm"
         isActive={isModalDownloadActive}
-        onConfirm={handleModalAction}
-        onCancel={handleModalAction}
+        onConfirm={exportAssessment}
+        onCancel={() => setIsModalDownloadActive(false)}
       >
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <FormField label="Type" icons={[]}>
-              <Field name="type" component="select">
-                <option value="word">Word (.docx)</option>
-                <option value="excel">Excel (.xlsx)</option>
-                <option value="zip">Archive (.zip)</option>
-              </Field>
-            </FormField>
-            <FormField label="Encryption">
-              <Field name="encryption" component="select">
-                <option value="none">None</option>
-                <option value="password">Password</option>
-              </Field>
-              <Field name="password" placeholder="Insert password" />
-            </FormField>
-            <FormField label="Options">
-              <Field name="options" placeholder="TODO" />
-            </FormField>
-          </Form>
-        </Formik>
-      </CardBoxModal>
-      <CardBoxModal
-        title="Please confirm"
-        buttonColor="danger"
+        <Grid>
+          <SelectWrapper
+            label="Type"
+            id="type"
+            options={[
+              { value: "word", label: "Word (.docx)" },
+              { value: "excel", label: "Excel (.xlsx)" },
+              { value: "zip", label: "Archive (.zip)" },
+            ]}
+            value={exportType}
+            onChange={option => setExportType(option)}
+          />
+          <Grid className="grid-cols-2">
+            <SelectWrapper
+              label="Encryption"
+              id="encryption"
+              options={[
+                { value: "none", label: "None" },
+                { value: "password", label: "Password" },
+              ]}
+              value={exportEncryption}
+              onChange={option => setExportEncryption(option)}
+            />
+            {exportEncryption.value === "password" && (
+              <Input
+                type="password"
+                id="password"
+                placeholder="Insert password"
+                value={exportPassword}
+                onChange={e => setExportPassword(e.target.value)}
+              />
+            )}
+          </Grid>
+        </Grid>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Please confirm: action irreversible"
         buttonLabel="Confirm"
         isActive={isModalTrashActive}
-        onConfirm={handleModalAction}
-        onCancel={handleModalAction}
+        onConfirm={confirmDelete}
+        onCancel={() => setIsModalTrashActive(false)}
       >
         <p>Are you sure to delete this assessment?</p>
-        <p>
-          <b>Action irreversible</b>
-        </p>
-      </CardBoxModal>
+      </Modal>
 
       <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
         <Button
           icon={mdiPlus}
-          label="New assessment"
-          roundedFull
+          text="New assessment"
           small
-          color="contrast"
-          onClick={() => navigate("/add_assessment")}
+          onClick={() => navigate(`/customers/${customerId}/assessments/new`)}
         />
       </SectionTitleLineWithButton>
-      <CardBox noPadding>
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : (
-          <Table
-            data={assessmentsData.map(assessment => ({
-              Title: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {assessment.name}
-                </span>
-              ),
-              Type: assessment.assessment_type,
-              "CVSS Version": assessment.cvss_version,
-              "Vuln count": assessment.vulnerability_count,
-              Start: formatDate(assessment.start_date_time),
-              End: formatDate(assessment.end_date_time),
-              Status: (
-                <SelectWrapper
-                  options={statusSelectOptions}
-                  onChange={selectedOptions => setSelectedStatus(selectedOptions)}
-                  defaultValue={{ label: "On Hold", value: "hold" }}
-                />
-              ),
-              buttons: (
-                <Buttons noWrap>
-                  <Button
-                    color={assessment.is_owned ? "warning" : "info"}
-                    icon={mdiStar}
-                    onClick={handleFavoriteToggle(assessment.id)}
-                    small
-                  />
-                  <Button color="contrast" icon={mdiFileEdit} onClick={() => navigate(`/add_assessment`)} small />
-                  <Button
-                    color="lightDark"
-                    icon={mdiContentDuplicate}
-                    onClick={() => openCloneModal(assessment)}
-                    small
-                  />
-                  <Button color="success" icon={mdiDownload} onClick={() => setIsModalDownloadActive(true)} small />
-                  <Button color="danger" icon={mdiTrashCan} onClick={() => setIsModalTrashActive(true)} small />
-                </Buttons>
-              ),
-            }))}
-            perPageCustom={50}
-          />
-        )}
-      </CardBox>
+
+      <Table
+        data={assessmentsData.map(assessment => ({
+          Title: <Link to={`/assessments/${assessment.id}/vulnerabilities`}>{assessment.name}</Link>,
+          Type: assessment.assessment_type,
+          "CVSS Versions": assessment.cvss_versions.join(" | "),
+          "Vuln count": assessment.vulnerability_count,
+          Start: formatDate(assessment.start_date_time),
+          End: formatDate(assessment.end_date_time),
+          Status: (
+            <SelectWrapper
+              widthFixed
+              options={statusSelectOptions}
+              value={statusSelectOptions.find(opt => opt.value === assessment.status)}
+              onChange={selectedOption => handleStatusChange(assessment.id, selectedOption)}
+            />
+          ),
+          buttons: (
+            <Buttons noWrap>
+              <Button
+                type={assessment.is_owned ? "warning" : ""}
+                icon={mdiStar}
+                onClick={handleFavoriteToggle(assessment.id)}
+                small
+                title="Take ownership"
+              />
+              <Button
+                icon={mdiFileEdit}
+                onClick={() => navigate(`/customers/${customerId}/assessments/${assessment.id}`)}
+                small
+                title="Edit assessment"
+              />
+              <Button
+                icon={mdiContentDuplicate}
+                onClick={() => openCloneModal(assessment)}
+                small
+                title="Clone assessment"
+              />
+              <Button
+                icon={mdiDownload}
+                onClick={() => openExportModal(assessment.id)}
+                small
+                title="Download assessment"
+              />
+              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
+            </Buttons>
+          ),
+        }))}
+        perPageCustom={50}
+      />
     </div>
   );
-};
-
-export default Assessments;
+}

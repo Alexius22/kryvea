@@ -1,18 +1,16 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../App";
-import CardBox from "../components/CardBox";
-import { formatDate } from "../components/DateUtils";
-import SectionTitleLineWithButton from "../components/Section/TitleLineWithButton";
-import Table from "../components/Table/Table";
+import { formatDate } from "../components/dateUtils";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  // const { data: assessments, loading, error } = useFetch<Assessment[]>("/assessment");
   const loading = false;
   const error = false;
 
@@ -27,7 +25,7 @@ export default function Dashboard() {
   const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
     <div>
       <SectionTitleLineWithButton icon={icon} title={title} />
-      <CardBox noPadding>
+      <div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -36,21 +34,11 @@ export default function Dashboard() {
           <Table
             data={data.map(assessment => ({
               Customer: (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => setCustomerName(assessment.customer.name)}
-                >
+                <Link to="" onClick={() => setCustomerName(assessment.customer.name)}>
                   {assessment.customer.name}
-                </span>
+                </Link>
               ),
-              "Assessment Name": (
-                <span
-                  className="cursor-pointer hover:text-slate-500 hover:underline"
-                  onClick={() => navigate(`/assessment`)}
-                >
-                  {assessment.name}
-                </span>
-              ),
+              "Assessment Name": <Link to={`/assessment`}>{assessment.name}</Link>,
               "Assessment Type": assessment.assessment_type,
               Start: formatDate(assessment.start_date_time),
               End: formatDate(assessment.end_date_time),
@@ -59,7 +47,7 @@ export default function Dashboard() {
             perPageCustom={10}
           />
         )}
-      </CardBox>
+      </div>
     </div>
   );
 
