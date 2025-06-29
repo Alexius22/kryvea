@@ -158,6 +158,15 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		SameSite: "Strict",
 		Expires:  expires,
 	})
+	// set cookie for frontend
+	c.Cookie(&fiber.Cookie{
+		Name:     "kryvea_shadow",
+		Value:    "ok",
+		Secure:   true,
+		HTTPOnly: false,
+		SameSite: "Strict",
+		Expires:  expires,
+	})
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -485,6 +494,7 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	}
 
 	c.ClearCookie("kryvea")
+	util.ClearShadowCookie(c)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{

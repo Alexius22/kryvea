@@ -24,6 +24,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 
 	user, err := d.mongo.User().GetByToken(token)
 	if err != nil || user.TokenExpiry.Before(time.Now()) || (!user.DisabledAt.IsZero() && user.DisabledAt.Before(time.Now())) {
+		util.ClearShadowCookie(c)
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
