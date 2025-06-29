@@ -19,7 +19,8 @@ export default function Dashboard() {
   }, []);
 
   const {
-    useCustomerName: [_, setCustomerName],
+    useCustomerName: [, setCustomerName],
+    useCustomerId: [, setCustomerId],
   } = useContext(GlobalContext);
 
   const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
@@ -34,7 +35,13 @@ export default function Dashboard() {
           <Table
             data={data.map(assessment => ({
               Customer: (
-                <Link to="" onClick={() => setCustomerName(assessment.customer.name)}>
+                <Link
+                  to=""
+                  onClick={() => {
+                    setCustomerName(assessment.customer.name);
+                    setCustomerId(assessment.customer.id);
+                  }}
+                >
                   {assessment.customer.name}
                 </Link>
               ),
