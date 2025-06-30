@@ -78,22 +78,26 @@ export default function App() {
               }
             />
             <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
+
+            {/* Dashboard and Profile */}
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/customers" element={<Customers />} />
-            <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/customers/:customerId/assessments" element={<Assessments />} />
-            <Route path="/customers/:customerId/targets" element={<Hosts />} />
-            <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
-            <Route
-              path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/detail"
-              element={<VulnerabilityDetail />}
-            />
             <Route path="/profile" element={<Profile />} />
+
+            {/* Users */}
+            <Route path="/users" element={<Users />} />
+            <Route path="/add_user" element={<AddUser />} />
+
+            {/* Customers */}
+            <Route path="/customers" element={<Customers />} />
             <Route path="/add_customer" element={<AddCustomer />} />
-            <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
-            <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
+            <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
+            <Route path="/customers/:customerId/assessments" element={<Assessments />} />
+            <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
+            <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
+
+            {/* Assessments */}
+            <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
             <Route
               path="/assessments/:assessmentId/vulnerabilities/add_vulnerability"
               element={<VulnerabilityUpsert />}
@@ -102,12 +106,22 @@ export default function App() {
               path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId"
               element={<VulnerabilityUpsert />}
             />
-            <Route path="/add_user" element={<AddUser />} />
+            <Route
+              path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/detail"
+              element={<VulnerabilityDetail />}
+            />
+
+            {/* Vulnerabilities */}
+            <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
             <Route path="/vulnerabilities/:vulnerabilityId/pocs/edit" element={<EditPoc />} />
-            <Route path="/edit_report" element={<EditReport />} />
+
+            {/* Categories */}
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
             <Route path="/manage_category/:categoryId" element={<ManageCategory />} />
+
+            {/* Other */}
+            <Route path="/edit_report" element={<EditReport />} />
             <Route path="/live_editor" element={<LiveEditor />} />
           </Route>
           <Route path="/login" element={<Login />} />
