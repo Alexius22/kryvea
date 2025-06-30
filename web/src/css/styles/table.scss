@@ -20,6 +20,12 @@ table tbody tr:hover {
 table td {
   @apply px-4 py-2;
   width: max-content;
+
+  &:empty::after {
+    content: "N/A";
+    font-weight: 100;
+    color: var(--border-primary-highlight);
+  }
 }
 
 table td:has(div:has(.select-wrapper__control)) {
