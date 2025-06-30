@@ -75,9 +75,9 @@
 // Dark Theme
 html.dark {
   /* Palette */
-  $bg-primary: #121212;
+  $bg-primary: #161616;
   $text-primary: #e0e0e0;
-  $border: #bdbdbdff;
+  $border: #bdbdbd;
   $link: #ebbebe;
   $button-bg: color.adjust($bg-primary, $lightness: 40%);
   $clickable-hover-backdrop-brightness: 0.8;
