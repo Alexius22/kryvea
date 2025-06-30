@@ -103,7 +103,7 @@ export default function App() {
               element={<VulnerabilityUpsert />}
             />
             <Route path="/add_user" element={<AddUser />} />
-            <Route path="/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/edit_poc" element={<EditPoc />} />
+            <Route path="/vulnerabilities/:vulnerabilityId/pocs/edit" element={<EditPoc />} />
             <Route path="/edit_report" element={<EditReport />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/manage_category" element={<ManageCategory />} />
