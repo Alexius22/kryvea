@@ -249,7 +249,7 @@ export default function Assessments() {
         data={assessmentsData.map(assessment => ({
           Title: <Link to={`/assessments/${assessment.id}/vulnerabilities`}>{assessment.name}</Link>,
           Type: assessment.assessment_type,
-          "CVSS Versions": assessment.cvss_versions.join(" | "),
+          "CVSS Versions": assessment.cvss_versions?.join(" | "),
           "Vuln count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),
