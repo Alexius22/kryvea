@@ -13,13 +13,15 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
   const {
     useCtxCustomer: [ctxCustomer],
     useCtxAssessment: [ctxAssessment],
+    useCtxVulnerability: [ctxVulnerability],
   } = useContext(GlobalContext);
   const IdNameTuples = useMemo(
     () => [
       [ctxCustomer?.id, ctxCustomer?.name],
       [ctxAssessment?.id, ctxAssessment?.name],
+      [ctxVulnerability?.id, ctxVulnerability?.detailed_title],
     ],
-    [ctxCustomer]
+    [ctxCustomer, ctxAssessment, ctxVulnerability]
   ); // will be filled as we go on building breadcrumbs with IDs
 
   const pathNames = useResolvedPath(undefined)

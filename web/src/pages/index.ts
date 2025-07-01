@@ -1,9 +1,9 @@
 import AddCustomer from "./AddCustomer";
 import AddHost from "./AddHost";
 import AddUser from "./AddUser";
-import Assessment from "./Assessment";
 import Assessments from "./Assessments";
 import AssessmentUpsert from "./AssessmentUpsert";
+import AssessmentVulnerabilities from "./AssessmentVulnerabilities";
 import Categories from "./Categories";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
@@ -22,9 +22,9 @@ export {
   AddCustomer,
   AddHost,
   AddUser,
-  Assessment,
   Assessments,
   AssessmentUpsert,
+  AssessmentVulnerabilities,
   Categories,
   Customers,
   Dashboard,
