@@ -1,7 +1,8 @@
-import { createContext, Dispatch, SetStateAction, useLayoutEffect, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import Button from "./components/Form/Button";
+import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
 import {
@@ -28,7 +29,7 @@ import {
 import LiveEditor from "./pages/LiveEditor";
 import { Assessment as AssessmentObj, Customer } from "./types/common.types";
 
-type GlobalContextType = {
+export type GlobalContextType = {
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Partial<Customer>, Dispatch<SetStateAction<Partial<Customer>>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
@@ -39,20 +40,33 @@ export const GlobalContext = createContext<GlobalContextType>(null);
 export default function App() {
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme] = useDarkTheme;
-  const useCtxCustomer = useState<Partial<Customer>>();
-  const useCtxAssessment = useState<Partial<AssessmentObj>>();
+  const useCtxCustomer = useState<Partial<Customer>>(() => getLocalStorageCtxState("useCtxCustomer"));
+  const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
   }, [darkTheme]);
 
+  const bindToLocalStorage = useCallback(function <T>(
+    [state, setState]: [T, Dispatch<SetStateAction<T>>],
+    key: GlobalContextKeys
+  ): [T, (newState: T | ((prevState: T) => T)) => any] {
+    return [
+      state,
+      (value: T | ((prevState: T) => T)) => {
+        setState(value);
+        setLocalStorageCtxState(key, value);
+      },
+    ];
+  }, []);
+
   return (
     <GlobalContext.Provider
       value={{
         useDarkTheme,
-        useCtxCustomer,
-        useCtxAssessment,
+        useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
+        useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
       }}
     >
       <ToastContainer
