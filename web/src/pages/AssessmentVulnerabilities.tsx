@@ -18,10 +18,11 @@ import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Vulnerability } from "../types/common.types";
 
-export default function Assessment() {
+export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
   const {
     useCtxCustomer: [ctxCustomer],
+    useCtxVulnerability: [, setCtxVulnerability],
   } = useContext(GlobalContext);
   const { assessmentId } = useParams<{ assessmentId: string }>();
 
@@ -216,7 +217,10 @@ export default function Assessment() {
       <Table
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
-            <Link to={`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}/detail`}>
+            <Link
+              to={`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}/detail`}
+              onClick={() => setCtxVulnerability(vulnerability)}
+            >
               {vulnerability.category.index}: {vulnerability.category.name}{" "}
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>

@@ -9,9 +9,9 @@ import {
   AddCustomer,
   AddHost,
   AddUser,
-  Assessment,
   Assessments,
   AssessmentUpsert,
+  AssessmentVulnerabilities,
   Categories,
   Customers,
   Dashboard,
@@ -27,11 +27,12 @@ import {
   VulnerabilityUpsert,
 } from "./pages";
 import LiveEditor from "./pages/LiveEditor";
-import { Assessment as AssessmentObj, Customer } from "./types/common.types";
+import { Assessment as AssessmentObj, Customer, Vulnerability } from "./types/common.types";
 
 export type GlobalContextType = {
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Partial<Customer>, Dispatch<SetStateAction<Partial<Customer>>>];
+  useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
 };
 
@@ -42,6 +43,7 @@ export default function App() {
   const [darkTheme] = useDarkTheme;
   const useCtxCustomer = useState<Partial<Customer>>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
+  const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
@@ -67,6 +69,7 @@ export default function App() {
         useDarkTheme,
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
+        useCtxVulnerability: bindToLocalStorage(useCtxVulnerability, "useCtxVulnerability"),
       }}
     >
       <ToastContainer
@@ -114,7 +117,7 @@ export default function App() {
             <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
 
             {/* Assessments */}
-            <Route path="/assessments/:assessmentId/vulnerabilities" element={<Assessment />} />
+            <Route path="/assessments/:assessmentId/vulnerabilities" element={<AssessmentVulnerabilities />} />
             <Route
               path="/assessments/:assessmentId/vulnerabilities/add_vulnerability"
               element={<VulnerabilityUpsert />}
