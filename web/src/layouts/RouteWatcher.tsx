@@ -26,6 +26,8 @@ export default function RouteWatcher() {
       case "customers":
       case "assessments":
       case "targets":
+      case "vulnerabilities":
+      case "detail":
         break;
       default:
         setCtxCustomer(undefined);
