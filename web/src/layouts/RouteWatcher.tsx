@@ -17,7 +17,7 @@ export default function RouteWatcher() {
     }
   }, []);
   useEffect(() => {
-    const currentPathname = location.pathname.split("/").pop();
+    const currentPathname = location.pathname.split("/")[1];
     if (currentPathname === previousPathname.current) {
       return;
     }
@@ -25,9 +25,6 @@ export default function RouteWatcher() {
     switch (currentPathname) {
       case "customers":
       case "assessments":
-      case "targets":
-      case "vulnerabilities":
-      case "detail":
         break;
       default:
         setCtxCustomer(undefined);
