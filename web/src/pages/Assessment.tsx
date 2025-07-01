@@ -21,7 +21,7 @@ import { Vulnerability } from "../types/common.types";
 export default function Assessment() {
   const navigate = useNavigate();
   const {
-    useCustomerId: [customerId, _],
+    useCtxCustomer: [ctxCustomer],
   } = useContext(GlobalContext);
   const { assessmentId } = useParams<{ assessmentId: string }>();
 
@@ -64,7 +64,7 @@ export default function Assessment() {
 
     // TODO properly with docx-go-template
     postData<Blob>(
-      `/api/customers/${customerId}/assessments/${assessmentId}/export`,
+      `/api/customers/${ctxCustomer.id}/assessments/${assessmentId}/export`,
       payload,
       data => {
         const url = window.URL.createObjectURL(new Blob([data]));
@@ -201,7 +201,7 @@ export default function Assessment() {
             icon={mdiPlus}
             text="New host"
             small
-            onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/add_host`)}
           />
           <Button
             icon={mdiPlus}

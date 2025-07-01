@@ -4,7 +4,7 @@ import { GlobalContext } from "../App";
 
 export default function RouteWatcher() {
   const {
-    useCustomerName: [, setCustomerName],
+    useCtxCustomer: [, setCtxCustomer],
   } = useContext(GlobalContext);
   const location = useLocation();
   const previousPathname = useRef(location.pathname);
@@ -17,18 +17,18 @@ export default function RouteWatcher() {
     }
   }, []);
   useEffect(() => {
-    const currentPathname = location.pathname;
+    const currentPathname = location.pathname.split("/").pop();
     if (currentPathname === previousPathname.current) {
       return;
     }
 
     switch (currentPathname) {
-      case "/customers":
-      case "/assessments":
-      case "/hosts":
+      case "customers":
+      case "assessments":
+      case "targets":
         break;
       default:
-        setCustomerName("");
+        setCtxCustomer(undefined);
         break;
     }
     previousPathname.current = currentPathname;

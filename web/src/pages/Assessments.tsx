@@ -1,8 +1,9 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
+import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import { formatDate } from "../components/dateUtils";
@@ -40,6 +41,10 @@ export default function Assessments() {
     { label: "Completed", value: "Completed" },
   ]);
   const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
+
+  const {
+    useCtxAssessment: [, setCtxAssessment],
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     document.title = getPageTitle("Assessments");
@@ -247,7 +252,11 @@ export default function Assessments() {
 
       <Table
         data={assessmentsData.map(assessment => ({
-          Title: <Link to={`/assessments/${assessment.id}/vulnerabilities`}>{assessment.name}</Link>,
+          Title: (
+            <Link to={`/assessments/${assessment.id}/vulnerabilities`} onClick={() => setCtxAssessment(assessment)}>
+              {assessment.name}
+            </Link>
+          ),
           Type: assessment.assessment_type,
           "CVSS Versions": assessment.cvss_versions?.join(" | "),
           "Vuln count": assessment.vulnerability_count,
