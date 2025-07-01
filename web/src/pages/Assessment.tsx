@@ -222,11 +222,11 @@ export default function Assessment() {
             </Link>
           ),
           Host: (() => {
-            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
+            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6;
             if (ip) {
               return ip + (vulnerability.target.fqdn ? ` - ${vulnerability.target.fqdn}` : "");
             }
-            return vulnerability.target.fqdn || "None";
+            return vulnerability.target.fqdn;
           })(),
           "CVSSv3.1 Score": vulnerability.cvssv31.cvss_score,
           "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
