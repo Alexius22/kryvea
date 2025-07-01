@@ -30,8 +30,7 @@ export default function Customers() {
   });
 
   const {
-    useCustomerName: [, setCustomerName],
-    useCustomerId: [, setCustomerId],
+    useCtxCustomer: [ctxCustomer, setCtxCustomer],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -171,11 +170,6 @@ export default function Customers() {
     setSelectedCustomer(null);
   };
 
-  const handleCustomerSelect = (customer: Customer) => {
-    setCustomerName(customer.name);
-    setCustomerId(customer.id);
-  };
-
   return (
     <div>
       {/* Edit Customer Modal */}
@@ -245,7 +239,7 @@ export default function Customers() {
               to="#"
               onClick={e => {
                 e.preventDefault();
-                handleCustomerSelect(customer);
+                setCtxCustomer(customer);
               }}
             >
               {customer.name}

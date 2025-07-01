@@ -12,8 +12,7 @@ import { Assessment } from "../types/common.types";
 
 export default function Dashboard() {
   const {
-    useCustomerName: [, setCustomerName],
-    useCustomerId: [, setCustomerId],
+    useCtxCustomer: [, setCtxCustomer],
   } = useContext(GlobalContext);
 
   const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
@@ -39,10 +38,10 @@ export default function Dashboard() {
         data={assessments.map(assessment => ({
           Customer: (
             <Link
-              to={``}
-              onClick={() => {
-                setCustomerName(assessment.customer.name);
-                setCustomerId(assessment.customer.id);
+              to={`#`}
+              onClick={e => {
+                e.preventDefault();
+                setCtxCustomer(assessment.customer);
               }}
             >
               {assessment.customer.name}

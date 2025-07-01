@@ -26,18 +26,21 @@ import {
   VulnerabilityUpsert,
 } from "./pages";
 import LiveEditor from "./pages/LiveEditor";
+import { Assessment as AssessmentObj, Customer } from "./types/common.types";
 
-export const GlobalContext = createContext<{
-  useCustomerName: [string, Dispatch<SetStateAction<string>>];
-  useCustomerId: [string, Dispatch<SetStateAction<string>>];
+type GlobalContextType = {
+  useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
+  useCtxCustomer: [Partial<Customer>, Dispatch<SetStateAction<Partial<Customer>>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
-}>(null!);
+};
+
+export const GlobalContext = createContext<GlobalContextType>(null);
 
 export default function App() {
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme] = useDarkTheme;
-  const useCustomerName = useState<string>("");
-  const useCustomerId = useState<string>("");
+  const useCtxCustomer = useState<Partial<Customer>>();
+  const useCtxAssessment = useState<Partial<AssessmentObj>>();
 
   useLayoutEffect(() => {
     localStorage.setItem("darkMode", darkTheme ? "1" : "0");
@@ -47,9 +50,9 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useCustomerName,
-        useCustomerId,
         useDarkTheme,
+        useCtxCustomer,
+        useCtxAssessment,
       }}
     >
       <ToastContainer
