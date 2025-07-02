@@ -1,6 +1,5 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
-import Icon from "../Icon";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -59,8 +58,8 @@ export default function PocRequestResponse({
         <input
           id={urlInputId}
           className=""
-          value={pocDoc.url}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "url")}
+          value={pocDoc.uri}
+          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "uri")}
         />
       </div>
 

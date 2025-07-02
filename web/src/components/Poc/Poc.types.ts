@@ -3,6 +3,7 @@ export type PocType = "text" | "image" | "request/response";
 type PocBaseDoc = {
   key: string;
   description: string;
+  index: number;
 };
 
 export interface PocTextDoc extends PocBaseDoc {
@@ -13,13 +14,13 @@ export interface PocTextDoc extends PocBaseDoc {
 
 export interface PocImageDoc extends PocBaseDoc {
   type: "image";
-  choseImage: File;
-  caption: string;
+  image_data: File;
+  image_caption: string;
 }
 
 export interface PocRequestResponseDoc extends PocBaseDoc {
   type: "request/response";
-  url: string;
+  uri: string;
   request: string;
   response: string;
 }
