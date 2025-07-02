@@ -14,7 +14,7 @@ export interface PocTextDoc extends PocBaseDoc {
 
 export interface PocImageDoc extends PocBaseDoc {
   type: "image";
-  image_data: File;
+  image_data: string;
   image_caption: string;
 }
 
