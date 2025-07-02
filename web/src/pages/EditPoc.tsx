@@ -50,7 +50,10 @@ export default function EditPoc() {
       });
     };
   }
-  function onImageChange(currentIndex, image_data: File) {
+  async function onImageChange(currentIndex, file: File) {
+    const arrayBuffer = await file.arrayBuffer();
+    const image_data = btoa(Array.from(new Uint8Array(arrayBuffer)).toString());
+
     setPocList(prev => {
       const newPocList = [...prev];
       newPocList[currentIndex] = { ...newPocList[currentIndex], image_data } as PocImageDoc;
