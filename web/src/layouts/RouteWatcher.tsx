@@ -11,12 +11,10 @@ export default function RouteWatcher() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!document.cookie.includes("kryvea_shadow=ok")) {
+    if (!document.cookie.includes("kryvea_shadow=ok") && location.pathname !== "/login") {
       navigate("/login", { replace: true });
       return;
     }
-  }, []);
-  useEffect(() => {
     const currentPathname = location.pathname.split("/")[1];
     if (currentPathname === previousPathname.current) {
       return;
