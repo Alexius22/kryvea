@@ -162,9 +162,9 @@ export default function PocImage({
       <div className="grid">
         <label htmlFor={captionTextareaId}>Caption</label>
         <input
-          value={pocDoc.caption}
+          value={pocDoc.image_caption}
           id={captionTextareaId}
-          onChange={onTextChange<PocImageDoc>(currentIndex, "caption")}
+          onChange={onTextChange<PocImageDoc>(currentIndex, "image_caption")}
         />
       </div>
     </PocTemplate>

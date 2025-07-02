@@ -1,6 +1,8 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router";
 import { v4 } from "uuid";
+import { postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -16,6 +18,8 @@ export default function EditPoc() {
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
 
   const pocListParent = useRef<HTMLDivElement>(null);
+
+  const { vulnerabilityId } = useParams();
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
@@ -46,10 +50,10 @@ export default function EditPoc() {
       });
     };
   }
-  function onImageChange(currentIndex, image: File) {
+  function onImageChange(currentIndex, image_data: File) {
     setPocList(prev => {
       const newPocList = [...prev];
-      newPocList[currentIndex] = { ...newPocList[currentIndex], choseImage: image } as PocImageDoc;
+      newPocList[currentIndex] = { ...newPocList[currentIndex], image_data } as PocImageDoc;
       return newPocList;
     });
   }
@@ -110,7 +114,7 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
             language: "",
             text: "",
@@ -123,10 +127,10 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
-            caption: "",
-            choseImage: null,
+            image_caption: "",
+            image_data: null,
             title: "",
           },
         ]);
@@ -137,11 +141,11 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
             request: "",
             response: "",
-            url: "",
+            uri: "",
           },
         ]);
         break;
@@ -207,7 +211,14 @@ export default function EditPoc() {
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
             <Button text="Image" icon={mdiPlus} onClick={addPoc("image")} small />
             <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" text="Submit" icon={mdiSend} onClick={() => {}} />
+            <Button
+              className="ml-auto"
+              text="Submit"
+              icon={mdiSend}
+              onClick={() => {
+                postData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocList[0]);
+              }}
+            />
           </Buttons>
         </Card>
       </div>
