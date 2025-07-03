@@ -63,6 +63,30 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) GetCustomer(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// get customer from param
+	customer, errStr := d.customerFromParam(c.Params("customer"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// check if user has access to the customer
+	if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(customer)
+}
+
 func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
