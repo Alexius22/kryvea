@@ -48,6 +48,7 @@ func (e *Engine) Serve() {
 	apiGroup.Use(api.ContentTypeMiddleware)
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
+		apiGroup.Get("/customers/:customer", api.GetCustomer)
 		apiGroup.Post("/customers", api.AddCustomer)
 		apiGroup.Patch("/customers/:customer", api.UpdateCustomer)
 		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
