@@ -12,7 +12,7 @@ export function getLocalStorageCtxStates() {
 }
 
 export function getLocalStorageCtxState(key: GlobalContextKeys) {
-  const state = JSON.parse(localStorage.getItem(REACT_GLOBAL_CONTEXT))[key];
+  const state = (JSON.parse(localStorage.getItem(REACT_GLOBAL_CONTEXT)) ?? {})[key];
   return state;
 }
 
