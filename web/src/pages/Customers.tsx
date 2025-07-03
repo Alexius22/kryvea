@@ -16,6 +16,7 @@ import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWi
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Customer } from "../types/common.types";
+import { languageMapping } from "../types/languages";
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -34,33 +35,6 @@ export default function Customers() {
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
-
-  const languageMapping: Record<string, string> = {
-    bg: "Bulgarian",
-    cs: "Czech",
-    da: "Danish",
-    de: "German",
-    el: "Greek",
-    en: "English",
-    es: "Spanish",
-    et: "Estonian",
-    fi: "Finnish",
-    fr: "French",
-    hr: "Croatian",
-    hu: "Hungarian",
-    is: "Icelandic",
-    it: "Italian",
-    lt: "Lithuanian",
-    lv: "Latvian",
-    nl: "Dutch",
-    pl: "Polish",
-    pt: "Portuguese",
-    ro: "Romanian",
-    ru: "Russian",
-    sk: "Slovak",
-    sl: "Slovenian",
-    sv: "Swedish",
-  };
 
   const languageOptions = Object.entries(languageMapping).map(([code, label]) => ({
     value: code,
@@ -236,9 +210,8 @@ export default function Customers() {
         data={customers.map(customer => ({
           Name: (
             <Link
-              to="#"
+              to={`/customers/${customer.id}`}
               onClick={e => {
-                e.preventDefault();
                 setCtxCustomer(customer);
               }}
             >
