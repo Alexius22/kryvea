@@ -13,6 +13,7 @@ import {
   AssessmentUpsert,
   AssessmentVulnerabilities,
   Categories,
+  CustomerDetail,
   Customers,
   Dashboard,
   EditPoc,
@@ -110,6 +111,7 @@ export default function App() {
             {/* Customers */}
             <Route path="/customers" element={<Customers />} />
             <Route path="/add_customer" element={<AddCustomer />} />
+            <Route path="/customers/:customerId" element={<CustomerDetail />} />
             <Route path="/customers/:customerId/targets" element={<Hosts />} />
             <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
             <Route path="/customers/:customerId/assessments" element={<Assessments />} />

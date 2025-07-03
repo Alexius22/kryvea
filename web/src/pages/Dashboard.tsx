@@ -38,9 +38,8 @@ export default function Dashboard() {
         data={assessments.map(assessment => ({
           Customer: (
             <Link
-              to={`#`}
+              to={`/customers/${assessment.customer.id}`}
               onClick={e => {
-                e.preventDefault();
                 setCtxCustomer(assessment.customer);
               }}
             >

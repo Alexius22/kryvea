@@ -5,6 +5,7 @@ import Assessments from "./Assessments";
 import AssessmentUpsert from "./AssessmentUpsert";
 import AssessmentVulnerabilities from "./AssessmentVulnerabilities";
 import Categories from "./Categories";
+import CustomerDetail from "./CustomerDetail";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
 import EditPoc from "./EditPoc";
@@ -26,6 +27,7 @@ export {
   AssessmentUpsert,
   AssessmentVulnerabilities,
   Categories,
+  CustomerDetail,
   Customers,
   Dashboard,
   EditPoc,
