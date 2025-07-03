@@ -115,3 +115,9 @@ export type Poc = {
   text_data: string;
   vulnerability_id: string;
 };
+
+export type TemplateExport = {
+  template_name: string;
+  template_file: File | null;
+  template_type: "docx" | "xlsx" | null;
+};
