@@ -14,6 +14,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
 import { Customer } from "../types/common.types";
+import { languageMapping } from "../types/languages";
 
 export default function AddCustomer() {
   const navigate = useNavigate();
@@ -21,33 +22,6 @@ export default function AddCustomer() {
   const [companyName, setCompanyName] = useState("");
   const [language, setLanguage] = useState("en");
   const [selectedCvssVersions, setSelectedCvssVersions] = useState<string[]>([]);
-
-  const languageMapping: Record<string, string> = {
-    bg: "Bulgarian",
-    cs: "Czech",
-    da: "Danish",
-    de: "German",
-    el: "Greek",
-    en: "English",
-    es: "Spanish",
-    et: "Estonian",
-    fi: "Finnish",
-    fr: "French",
-    hr: "Croatian",
-    hu: "Hungarian",
-    is: "Icelandic",
-    it: "Italian",
-    lt: "Lithuanian",
-    lv: "Latvian",
-    nl: "Dutch",
-    pl: "Polish",
-    pt: "Portuguese",
-    ro: "Romanian",
-    ru: "Russian",
-    sk: "Slovak",
-    sl: "Slovenian",
-    sv: "Swedish",
-  };
 
   const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([code, label]) => ({
     value: code,
