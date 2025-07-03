@@ -66,15 +66,6 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 func (d *Driver) GetCustomer(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// retrieve user's customers
-	var userCustomers []uuid.UUID
-	for _, uc := range user.Customers {
-		userCustomers = append(userCustomers, uc.ID)
-	}
-	if user.Role == mongo.ROLE_ADMIN {
-		userCustomers = nil
-	}
-
 	// get customer from param
 	customer, errStr := d.customerFromParam(c.Params("customer"))
 	if errStr != "" {
