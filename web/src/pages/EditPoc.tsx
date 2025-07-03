@@ -1,8 +1,9 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
+import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import { postData } from "../api/api";
+import { getData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -21,8 +22,20 @@ export default function EditPoc() {
 
   const { vulnerabilityId } = useParams();
 
+  const getPocKeyByType = (type: PocType) => `poc-${type}-${v4()}`;
+
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
+  }, []);
+  useEffect(() => {
+    getData<PocDoc[]>(
+      `/api/vulnerabilities/${vulnerabilityId}/pocs`,
+      pocs =>
+        setPocList(
+          pocs.sort((a, b) => a.index - b.index).map((poc, i) => ({ ...poc, key: getPocKeyByType(poc.type) }))
+        ),
+      e => toast.error(e.response.data.error)
+    );
   }, []);
   useEffect(() => {
     const handleDragStart = () => {
@@ -109,7 +122,7 @@ export default function EditPoc() {
   };
 
   const addPoc = (type: PocType) => () => {
-    const key = `poc-${type}-${v4()}`;
+    const key = getPocKeyByType(type);
     switch (type) {
       case "text":
         setPocList(prev => [
