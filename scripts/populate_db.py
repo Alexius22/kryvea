@@ -1,7 +1,9 @@
-from typing import Tuple
-import random, string
-import requests
 import base64
+import random
+import string
+from typing import Tuple
+
+import requests
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,6 +66,7 @@ def rand_port() -> int:
 def rand_ip() -> str:
     return f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
 
+
 def rand_ipv6() -> str:
     return f"{':'.join(['{:x}'.format(random.randint(0, 0xffff)) for _ in range(8)])}"
 
@@ -120,7 +123,11 @@ def rand_language() -> str:
 
 
 def rand_status() -> str:
-    statuses = ["On Hold", "In Progress", "Completed",]
+    statuses = [
+        "On Hold",
+        "In Progress",
+        "Completed",
+    ]
     return random.choice(statuses)
 
 
@@ -164,16 +171,32 @@ def rand_urls(n=1) -> list:
     ]
     return random.choices(urls, k=n)
 
-POC_TYPE_TEXT    = "text"
-POC_TYPE_REQUEST = "request"
-POC_TYPE_IMAGE   = "image"
+
+POC_TYPE_TEXT = "text"
+POC_TYPE_REQUEST = "request/response"
+POC_TYPE_IMAGE = "image"
 POC_TYPES = [POC_TYPE_TEXT, POC_TYPE_REQUEST, POC_TYPE_IMAGE]
+
+
 def rand_poc_type() -> str:
     return random.choice(POC_TYPES)
 
+
 def rand_code_language() -> str:
-    languages = ["python", "javascript", "php", "java", "c", "c++", "c#", "ruby", "go", "rust"]
+    languages = [
+        "python",
+        "javascript",
+        "php",
+        "java",
+        "c",
+        "c++",
+        "c#",
+        "ruby",
+        "go",
+        "rust",
+    ]
     return random.choice(languages)
+
 
 class bcolors:
     HEADER = "\033[95m"
@@ -260,7 +283,9 @@ class Target:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(f"{base_url}/customers/{self.customer_id}/targets", json=self.json())
+        response = session.post(
+            f"{base_url}/customers/{self.customer_id}/targets", json=self.json()
+        )
         jr = response.json()
         if response.status_code == 201:
             return jr.get("target_id"), ""
@@ -315,7 +340,9 @@ class Assessment:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(f"{base_url}/customers/{self.customer_id}/assessments", json=self.json())
+        response = session.post(
+            f"{base_url}/customers/{self.customer_id}/assessments", json=self.json()
+        )
         jr = response.json()
         id = jr.get("assessment_id")
         self.id = id
@@ -326,7 +353,12 @@ class Assessment:
 
 class Category:
     def __init__(
-        self, index="A01:2021", name="", generic_description={}, generic_remediation={}, references=[]
+        self,
+        index="A01:2021",
+        name="",
+        generic_description={},
+        generic_remediation={},
+        references=[],
     ):
         self.index = index
         self.name = name
@@ -409,20 +441,39 @@ class Vulnerability:
         }
 
     def get(self):
-        response = session.get(f"{base_url}/assessments/{self.assessment_id}/vulnerabilities")
+        response = session.get(
+            f"{base_url}/assessments/{self.assessment_id}/vulnerabilities"
+        )
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(f"{base_url}/assessments/{self.assessment_id}/vulnerabilities", json=self.json())
+        response = session.post(
+            f"{base_url}/assessments/{self.assessment_id}/vulnerabilities",
+            json=self.json(),
+        )
         jr = response.json()
         id = jr.get("vulnerability_id")
         self.id = id
         if response.status_code == 201:
             return id, ""
         return "", jr.get("error")
-        
+
+
 class POC:
-    def __init__(self, index=1, type="exploit", description="", uri="", request="", response="", image_data="", image_caption="", text_language="", text_data="", vulnerability_id=""):
+    def __init__(
+        self,
+        index=1,
+        type="exploit",
+        description="",
+        uri="",
+        request="",
+        response="",
+        image_data="",
+        image_caption="",
+        text_language="",
+        text_data="",
+        vulnerability_id="",
+    ):
         self.index = index
         self.type = type
         self.description = description
@@ -434,7 +485,7 @@ class POC:
         self.text_language = text_language
         self.text_data = text_data
         self.vulnerability_id = vulnerability_id
-        
+
     def json(self):
         return {
             "index": self.index,
@@ -448,13 +499,17 @@ class POC:
             "text_language": self.text_language,
             "text_data": self.text_data,
         }
-        
+
     def get(self):
-        response = session.get(f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs")
+        response = session.get(
+            f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs"
+        )
         return response.json()
-    
+
     def create(self) -> Tuple[str, str]:
-        response = session.post(f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json())
+        response = session.post(
+            f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json()
+        )
         jr = response.json()
         id = jr.get("poc_id")
         self.id = id
@@ -471,8 +526,16 @@ def rand_poc_text() -> POC:
         text_language=rand_code_language(),
         text_data=rand_string(),
     )
-    
-image_paths = [ "scripts/images/1.png", "scripts/images/2.png", "scripts/images/3.png", "scripts/images/4.jpg" ]
+
+
+image_paths = [
+    "scripts/images/1.png",
+    "scripts/images/2.png",
+    "scripts/images/3.png",
+    "scripts/images/4.jpg",
+]
+
+
 def rand_poc_image() -> POC:
     image = random.choice(image_paths)
     imageBytes = open(image, "rb").read()
@@ -484,6 +547,7 @@ def rand_poc_image() -> POC:
         image_data=imageb64,
         image_caption=rand_string(),
     )
+
 
 def rand_poc_request() -> POC:
     return POC(
@@ -501,10 +565,10 @@ if __name__ == "__main__":
     if not admin_user.login():
         print("Login failed")
         exit(1)
-        
+
     users = []
     for i in range(5):
-        user = User(username=rand_string(8), password=rand_string(10)+"1!")
+        user = User(username=rand_string(8), password=rand_string(10) + "1!")
         if not user.register():
             print("Registration failed")
             exit(1)
@@ -612,7 +676,7 @@ if __name__ == "__main__":
         if vuln_assessment.cvss_version == "3.1":
             vulnerability.cvssv31_vector = cvss_vector
         elif vuln_assessment.cvss_version == "4.0":
-            vulnerability.cvssv4_vector = cvss_vector            
+            vulnerability.cvssv4_vector = cvss_vector
         # print(vulnerability.json())
         vulnerability_id, error = vulnerability.create()
         if error:
