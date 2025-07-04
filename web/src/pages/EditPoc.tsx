@@ -75,7 +75,7 @@ export default function EditPoc() {
   }
 
   const onPositionChange = currentIndex => e => {
-    const num = e.target.value.toString().replace(/^0+(?!$)/, "");
+    const num = e;
     const newIndex = +num;
     const shift = (prev: PocDoc[]) => {
       if (newIndex < 0 || newIndex >= prev.length) {
