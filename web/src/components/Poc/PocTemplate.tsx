@@ -72,7 +72,7 @@ export default function PocTemplate({
       <div className="flex flex-col gap-3">
         <div className="poc-template-children-sibling flex gap-6">
           <div className="col-span-1 col-start-12 grid">
-            <label htmlFor={positionInputId}>Position</label>
+            <label htmlFor={positionInputId}>Index</label>
             <Input
               type="number"
               className="input h-8 w-[55px] rounded text-center"
