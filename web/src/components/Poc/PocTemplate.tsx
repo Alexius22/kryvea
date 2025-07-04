@@ -1,6 +1,7 @@
 import { mdiDelete } from "@mdi/js";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Button from "../Form/Button";
+import Input from "../Form/Input";
 import Icon from "../Icon";
 
 export default function PocTemplate({
@@ -13,42 +14,16 @@ export default function PocTemplate({
   onRemovePoc,
   selectedPoc,
   setSelectedPoc,
-  handleDragOver,
-  handleDragLeave,
   handleDrop = () => () => {},
   children,
 }: {
   pocList: any[];
   [key: string | number | symbol]: any;
 }) {
-  const [tmpPosition, setTmpPosition] = useState(currentIndex);
   const dropRef = useRef<HTMLDivElement>(null);
   const dragCounter = useRef(0);
 
-  useEffect(() => {
-    setTmpPosition(currentIndex.toString().replace(/^0+(?!$)/, ""));
-  }, [currentIndex]);
-  // useEffect(() => {
-  //   const handleDragEnd = () => {
-  //     dropRef.current?.classList.remove("dragged-over");
-  //   };
-  //   document.addEventListener("dragend", handleDragEnd);
-  //   return () => {
-  //     document.addEventListener("dragend", handleDragEnd);
-  //   };
-  // }, []);
-
   const positionInputId = `poc-position-${currentIndex}-${pocDoc.key}`;
-
-  const handleKeyDown = e => {
-    if (e.key === "Enter") {
-      onPositionChange(currentIndex)({ target: { value: e.target.value } });
-    }
-  };
-
-  const handleBlur = () => {
-    onPositionChange(currentIndex)({ target: { value: tmpPosition } });
-  };
 
   return (
     <div
@@ -98,16 +73,14 @@ export default function PocTemplate({
         <div className="poc-template-children-sibling flex gap-6">
           <div className="col-span-1 col-start-12 grid">
             <label htmlFor={positionInputId}>Position</label>
-            <input
+            <Input
+              type="number"
               className="input h-8 w-[55px] rounded text-center"
               id={positionInputId}
-              type="number"
-              value={tmpPosition}
+              value={currentIndex}
               min={0}
               max={pocList.length - 1}
-              onChange={e => setTmpPosition(+e.target.value)}
-              onKeyDown={handleKeyDown}
-              onBlur={handleBlur}
+              onChange={onPositionChange(currentIndex)} // passes event inside the curried function
             />
           </div>
 
