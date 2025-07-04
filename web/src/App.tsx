@@ -32,7 +32,7 @@ import { Assessment as AssessmentObj, Customer, Vulnerability } from "./types/co
 
 export type GlobalContextType = {
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
-  useCtxCustomer: [Partial<Customer>, Dispatch<SetStateAction<Partial<Customer>>>];
+  useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
   useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
 };
@@ -42,7 +42,7 @@ export const GlobalContext = createContext<GlobalContextType>(null);
 export default function App() {
   const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
   const [darkTheme] = useDarkTheme;
-  const useCtxCustomer = useState<Partial<Customer>>(() => getLocalStorageCtxState("useCtxCustomer"));
+  const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
 
