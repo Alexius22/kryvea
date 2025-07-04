@@ -232,7 +232,14 @@ export default function EditPoc() {
               text="Submit"
               icon={mdiSend}
               onClick={() => {
-                postData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocList[0]);
+                postData(
+                  `/api/vulnerabilities/${vulnerabilityId}/pocs`,
+                  pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
+                  () => {
+                    toast.success("PoCs updated successfully");
+                  },
+                  e => toast.error(e.response.data.error)
+                );
               }}
             />
           </Buttons>
