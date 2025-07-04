@@ -77,10 +77,10 @@ export default function PocTemplate({
               type="number"
               className="input h-8 w-[55px] rounded text-center"
               id={positionInputId}
-              value={currentIndex}
-              min={0}
-              max={pocList.length - 1}
-              onChange={onPositionChange(currentIndex)} // passes event inside the curried function
+              value={currentIndex + 1}
+              min={1}
+              max={pocList.length}
+              onChange={e => onPositionChange(currentIndex)(e - 1)}
             />
           </div>
 
