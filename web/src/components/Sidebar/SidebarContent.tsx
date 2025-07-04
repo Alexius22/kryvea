@@ -31,7 +31,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
             icon: mdiViewList,
             menu: [
               { href: `/customers/${ctxCustomer.id}/assessments`, label: "Assessments" },
-              { href: `/customers/${ctxCustomer.id}/targets`, label: "Hosts" },
+              { href: `/customers/${ctxCustomer.id}/targets`, label: "Targets" },
             ],
           },
         ]

@@ -200,9 +200,9 @@ export default function AssessmentVulnerabilities() {
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
           <Button
             icon={mdiPlus}
-            text="New host"
+            text="New Target"
             small
-            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/add_host`)}
+            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/add_target`)}
           />
           <Button
             icon={mdiPlus}
@@ -225,7 +225,7 @@ export default function AssessmentVulnerabilities() {
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
           ),
-          Host: (() => {
+          Target: (() => {
             const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6;
             if (ip) {
               return ip + (vulnerability.target.fqdn ? ` - ${vulnerability.target.fqdn}` : "");

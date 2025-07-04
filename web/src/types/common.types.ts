@@ -71,7 +71,7 @@ export type Assessment = {
   is_owned: boolean;
 };
 
-export type Host = {
+export type Target = {
   id: string;
   ipv4: string;
   ipv6: string;

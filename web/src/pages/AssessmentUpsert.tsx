@@ -223,8 +223,8 @@ export default function AssessmentUpsert() {
             <Button
               className="h-[42px]"
               icon={mdiPlus}
-              text="Add Host"
-              onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+              text="Add Target"
+              onClick={() => navigate(`/customers/${customerId}/targets/add_target`)}
             />
           </Grid>
           <Grid>

@@ -7,7 +7,7 @@ import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
 import {
   AddCustomer,
-  AddHost,
+  AddTarget,
   AddUser,
   Assessments,
   AssessmentUpsert,
@@ -18,10 +18,10 @@ import {
   Dashboard,
   EditPoc,
   EditReport,
-  Hosts,
   Login,
   ManageCategory,
   Profile,
+  Targets,
   Users,
   VulnerabilityDetail,
   VulnerabilitySearch,
@@ -112,8 +112,8 @@ export default function App() {
             <Route path="/customers" element={<Customers />} />
             <Route path="/add_customer" element={<AddCustomer />} />
             <Route path="/customers/:customerId" element={<CustomerDetail />} />
-            <Route path="/customers/:customerId/targets" element={<Hosts />} />
-            <Route path="/customers/:customerId/targets/add_host" element={<AddHost />} />
+            <Route path="/customers/:customerId/targets" element={<Targets />} />
+            <Route path="/customers/:customerId/targets/add_target" element={<AddTarget />} />
             <Route path="/customers/:customerId/assessments" element={<Assessments />} />
             <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
             <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
