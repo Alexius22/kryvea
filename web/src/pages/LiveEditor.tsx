@@ -12,7 +12,6 @@ import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import Textarea from "../components/Form/Textarea";
 import { getPageTitle } from "../config";
-import { vulnerabilities } from "../mockup_data/vulnerabilities";
 
 const sections = [
   {
@@ -46,6 +45,25 @@ export default function LiveEditor() {
   const [isCvss4, setIsCvss4] = useState(false);
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const pdfRef = useRef(null);
+
+  const vulnerabilities = [
+    {
+      detailed_title: "Vulnerability 1",
+      description: "Description of vulnerability 1",
+      cvss_vector: "CVSS Vector 1",
+      cvss_score: 7.5,
+      remediation: "Remediation for vulnerability 1",
+      references: ["Reference 1", "Reference 2"],
+    },
+    {
+      detailed_title: "Vulnerability 2",
+      description: "Description of vulnerability 2",
+      cvss_vector: "CVSS Vector 2",
+      cvss_score: 5.0,
+      remediation: "Remediation for vulnerability 2",
+      references: ["Reference 3", "Reference 4"],
+    },
+  ];
 
   const handleModalAction = () => {
     setIsModalInfoActive(false);
