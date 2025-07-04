@@ -9,9 +9,9 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
-import { Host } from "../types/common.types";
+import { Target } from "../types/common.types";
 
-export default function AddHost() {
+export default function AddTarget() {
   const navigate = useNavigate();
   const { customerId } = useParams<{ customerId: string }>();
 
@@ -21,7 +21,7 @@ export default function AddHost() {
   const [hostName, setHostName] = useState("");
 
   useEffect(() => {
-    document.title = getPageTitle("Add Host");
+    document.title = getPageTitle("Add Target");
   }, []);
 
   const handleSubmit = () => {
@@ -32,11 +32,11 @@ export default function AddHost() {
       name: hostName.trim(),
     };
 
-    postData<Host>(
+    postData<Target>(
       `/api/customers/${customerId}/targets`,
       payload,
       () => {
-        toast.success("Host added successfully");
+        toast.success("Target added successfully");
         navigate(`/customers/${customerId}/targets`);
       },
       err => {
