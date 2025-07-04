@@ -25,7 +25,7 @@ export default function AssessmentVulnerabilities() {
     useCtxCustomer: [ctxCustomer],
     useCtxVulnerability: [, setCtxVulnerability],
   } = useContext(GlobalContext);
-  const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { assessmentId, customerId } = useParams<{ customerId: string; assessmentId: string }>();
 
   const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
@@ -66,7 +66,7 @@ export default function AssessmentVulnerabilities() {
 
     // TODO properly with docx-go-template
     postData<Blob>(
-      `/api/customers/${ctxCustomer.id}/assessments/${assessmentId}/export`,
+      `/api/customers/${customerId}/assessments/${assessmentId}/export`,
       payload,
       data => {
         const url = window.URL.createObjectURL(new Blob([data]));

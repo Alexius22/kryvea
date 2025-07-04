@@ -1,6 +1,6 @@
 import { mdiAccountEdit, mdiDownload, mdiListBox, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
@@ -21,7 +21,12 @@ import { Customer, TemplateExport } from "../types/common.types";
 import { languageMapping } from "../types/languages";
 
 export default function CustomerDetail() {
-  const [customer, setCustomer] = useState<Customer | null>(null);
+  const {
+    useCtxCustomer: [ctxCustomer, setCtxCustomer],
+  } = useContext(GlobalContext);
+
+  const { customerId } = useParams<{ customerId: string }>();
+  const [customer, setCustomer] = useState<Customer | null>(ctxCustomer);
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [uploadedTemplates, setUploadedTemplates] = useState<File[]>([]);
   const [templateCustomer, setTemplateCustomer] = useState<TemplateExport>({
@@ -35,10 +40,6 @@ export default function CustomerDetail() {
     language: "en",
     default_cvss_versions: [] as string[],
   });
-
-  const {
-    useCtxCustomer: [ctxCustomer, setCtxCustomer],
-  } = useContext(GlobalContext);
 
   const navigate = useNavigate();
 
@@ -64,8 +65,12 @@ export default function CustomerDetail() {
 
   useEffect(() => {
     document.title = getPageTitle("Customer detail");
+
+    if (ctxCustomer?.id) {
+      return;
+    }
     getData<Customer>(
-      `/api/customers/${ctxCustomer.id}`,
+      `/api/customers/${customerId}`,
       data => {
         setCustomer(data);
         setFormCustomer({
@@ -79,6 +84,9 @@ export default function CustomerDetail() {
         toast.error(errorMessage);
       }
     );
+  }, []);
+
+  useEffect(() => {
     const mockFile1 = new File(
       [
         new Blob(["Mock Word document content"], {
@@ -99,7 +107,7 @@ export default function CustomerDetail() {
       { type: "xlsx" }
     );
     setUploadedTemplates([mockFile1, mockFile2]);
-  }, [ctxCustomer?.id]);
+  }, []);
 
   const toggleCvssVersion = (version: string) => {
     setFormCustomer(prev => {

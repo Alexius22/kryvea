@@ -48,7 +48,7 @@ export type User = {
   disabled_at: string;
   username: string;
   role: string;
-  customers: [{ id: string; name: string }];
+  customers: Customer[];
   assessments: { id: string; name: string };
 };
 
@@ -67,7 +67,7 @@ export type Assessment = {
   testing_type: string;
   osstmm_vector: string;
   vulnerability_count: number;
-  customer: { id: string; name: string };
+  customer: Customer;
   is_owned: boolean;
 };
 
@@ -79,7 +79,7 @@ export type Target = {
   protocol: string;
   fqdn: string;
   name: string;
-  customer: { id: string; name: string };
+  customer: Customer;
 };
 
 export type Customer = {
