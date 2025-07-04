@@ -6,6 +6,7 @@ import { deleteData, getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -234,6 +235,7 @@ export default function AssessmentVulnerabilities() {
           })(),
           "CVSSv3.1 Score": vulnerability.cvssv31.cvss_score,
           "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
+          "Last update": formatDate(vulnerability.updated_at),
           buttons: (
             <Buttons noWrap>
               <Button
