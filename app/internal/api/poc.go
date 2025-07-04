@@ -21,7 +21,7 @@ type pocRequestData struct {
 	TextData     string `json:"text_data"`
 }
 
-func (d *Driver) AddPoc(c *fiber.Ctx) error {
+func (d *Driver) AddPocs(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse vulnerability param
@@ -50,8 +50,8 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 	}
 
 	// parse request body
-	data := &pocRequestData{}
-	if err := c.BodyParser(data); err != nil {
+	data := []pocRequestData{}
+	if err := c.BodyParser(&data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -59,51 +59,45 @@ func (d *Driver) AddPoc(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateData(data)
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	// parse image data and insert it into the database
-	var imageID uuid.UUID
-	if data.Type == poc.POC_TYPE_IMAGE && len(data.ImageData) != 0 {
-		imageID, err = d.mongo.FileReference().Insert(data.ImageData)
-		if err != nil {
+	pocs := make([]*mongo.Poc, len(data))
+	for i, pocData := range data {
+		errStr = d.validateData(&pocData)
+		if errStr != "" {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
-				"error": "Cannot upload image",
+				"error": errStr,
 			})
+		}
+
+		// insert poc into the database
+		pocs[i] = &mongo.Poc{
+			Index:           pocData.Index,
+			Type:            pocData.Type,
+			Description:     pocData.Description,
+			URI:             pocData.URI,
+			Request:         pocData.Request,
+			Response:        pocData.Response,
+			ImageData:       pocData.ImageData,
+			ImageCaption:    pocData.ImageCaption,
+			TextLanguage:    pocData.TextLanguage,
+			TextData:        pocData.TextData,
+			VulnerabilityID: vulnerability.ID,
 		}
 	}
 
-	// insert poc into the database
-	pocID, err := d.mongo.Poc().Insert(&mongo.Poc{
-		Index:           data.Index,
-		Type:            data.Type,
-		Description:     data.Description,
-		URI:             data.URI,
-		Request:         data.Request,
-		Response:        data.Response,
-		ImageID:         imageID,
-		ImageCaption:    data.ImageCaption,
-		TextLanguage:    data.TextLanguage,
-		TextData:        data.TextData,
-		VulnerabilityID: vulnerability.ID,
-	})
+	// insert pocs into the database
+	pocIDs, err := d.mongo.Poc().InsertMany(pocs, vulnerability.ID)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest)
+		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot create PoC",
+			"error": "Failed to create PoCs",
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "PoC created",
-		"poc_id":  pocID,
+		"poc_ids": pocIDs,
 	})
 }
 
