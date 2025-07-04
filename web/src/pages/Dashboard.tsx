@@ -48,6 +48,7 @@ export default function Dashboard() {
           ),
           "Assessment Name": <Link to={`/assessments/${assessment.id}/vulnerabilities`}>{assessment.name}</Link>,
           "Assessment Type": assessment.assessment_type,
+          "Vulnerability Count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),
           Status: assessment.status,
