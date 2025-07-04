@@ -45,8 +45,9 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: create function to update the customers only, to avoid the use of mongo.Model
 	// parse customer IDs
-	customers := make([]mongo.UserCustomer, len(data.Customers))
+	customers := make([]mongo.Customer, len(data.Customers))
 	for i, customerID := range data.Customers {
 		parsedCustomerID, err := util.ParseUUID(customerID)
 		if err != nil {
@@ -64,7 +65,11 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 			})
 		}
 
-		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
+		customers[i] = mongo.Customer{
+			Model: mongo.Model{
+				ID: parsedCustomerID,
+			},
+		}
 	}
 
 	// insert user into database
@@ -280,8 +285,9 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: create function to update the customers only, to avoid the use of mongo.Model
 	// parse customer IDs
-	customers := make([]mongo.UserCustomer, len(data.Customers))
+	customers := make([]mongo.Customer, len(data.Customers))
 	for i, customerID := range data.Customers {
 		parsedCustomerID, err := util.ParseUUID(customerID)
 		if err != nil {
@@ -299,7 +305,11 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 			})
 		}
 
-		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
+		customers[i] = mongo.Customer{
+			Model: mongo.Model{
+				ID: parsedCustomerID,
+			},
+		}
 	}
 
 	// update user in database

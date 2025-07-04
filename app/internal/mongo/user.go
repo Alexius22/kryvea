@@ -42,25 +42,15 @@ var UserPipeline = mongo.Pipeline{
 				{Key: "input", Value: "$customers"},
 				{Key: "as", Value: "customer"},
 				{Key: "in", Value: bson.D{
-					{Key: "_id", Value: "$$customer._id"},
-					{Key: "name", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$customerData"},
-											{Key: "as", Value: "cust"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$cust._id", "$$customer._id"}},
-											}},
-										}}},
-										0,
-									}},
-								}},
+					{Key: "$arrayElemAt", Value: bson.A{
+						bson.D{{Key: "$filter", Value: bson.D{
+							{Key: "input", Value: "$customerData"},
+							{Key: "as", Value: "cust"},
+							{Key: "cond", Value: bson.D{
+								{Key: "$eq", Value: bson.A{"$$cust._id", "$$customer._id"}},
 							}},
-							{Key: "in", Value: "$$matched.name"},
-						}},
+						}}},
+						0,
 					}},
 				}},
 			}},
@@ -129,13 +119,8 @@ type User struct {
 	Token            string           `json:"-" bson:"token"`
 	TokenExpiry      time.Time        `json:"-" bson:"token_expiry"`
 	Role             string           `json:"role" bson:"role"`
-	Customers        []UserCustomer   `json:"customers" bson:"customers"`
+	Customers        []Customer       `json:"customers" bson:"customers"`
 	Assessments      []UserAssessment `json:"assessments" bson:"assessments"`
-}
-
-type UserCustomer struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	Name string    `json:"name" bson:"name"`
 }
 
 type UserAssessment struct {
@@ -184,7 +169,7 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 
 	if user.Customers == nil {
-		user.Customers = []UserCustomer{}
+		user.Customers = []Customer{}
 	}
 
 	if user.Assessments == nil {

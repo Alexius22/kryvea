@@ -60,8 +60,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
 		Name:     data.Name,
-		Customer: mongo.TargetCustomer{ID: customer.ID},
-	})
+	}, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
