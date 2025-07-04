@@ -88,10 +88,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
-		Customer: mongo.AssessmentCustomer{
-			ID: customer.ID,
-		},
-	})
+	}, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{

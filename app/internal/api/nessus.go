@@ -146,12 +146,9 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 			IPv4: hostIP,
 			FQDN: hostFQDN,
 			Name: "nessus",
-			Customer: mongo.TargetCustomer{
-				ID: customer.ID,
-			},
 		}
 
-		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target)
+		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target, customer.ID)
 		if err != nil {
 			return err
 		}
