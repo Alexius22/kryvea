@@ -13,7 +13,6 @@ interface BaseInputProps {
   // min?: undefined | number;
   // max?: undefined | number;
   autoFocus?: boolean;
-  onChange?;
 }
 
 interface InputProps extends BaseInputProps {
@@ -21,6 +20,7 @@ interface InputProps extends BaseInputProps {
   min?: undefined;
   max?: undefined;
   accept?: undefined;
+  onChange?: any;
 }
 
 interface FileInputProps extends BaseInputProps {
@@ -28,6 +28,7 @@ interface FileInputProps extends BaseInputProps {
   min?: undefined;
   max?: undefined;
   accept?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface NumberInputProps extends BaseInputProps {
