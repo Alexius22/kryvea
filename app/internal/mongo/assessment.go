@@ -207,10 +207,16 @@ func (ai *AssessmentIndex) GetByCustomerAndID(customerID, assessmentID uuid.UUID
 	return &assessment, nil
 }
 
-func (ai *AssessmentIndex) Search(customers []uuid.UUID, name string) ([]Assessment, error) {
-	filter := bson.M{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}}}
+func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, name string) ([]Assessment, error) {
+	filter := bson.M{
+		"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}},
+	}
 
-	if customers != nil {
+	if customerID != uuid.Nil {
+		filter["customer._id"] = customerID
+	}
+
+	if customerID == uuid.Nil && customers != nil {
 		filter["customer._id"] = bson.M{"$in": customers}
 	}
 
