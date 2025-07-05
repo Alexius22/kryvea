@@ -9,7 +9,6 @@ import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -36,7 +35,6 @@ export default function CustomerDetail() {
   const [formCustomer, setFormCustomer] = useState({
     name: ctxCustomer.name,
     language: ctxCustomer.language,
-    default_cvss_versions: ctxCustomer.default_cvss_versions,
   });
 
   const navigate = useNavigate();
@@ -45,11 +43,6 @@ export default function CustomerDetail() {
     value: code,
     label,
   }));
-
-  const cvssOptions = [
-    { value: "4.0", label: "4.0" },
-    { value: "3.1", label: "3.1" },
-  ];
 
   const templateTypeOptions = [
     { value: "docx", label: "Word Document (docx)" },
@@ -88,23 +81,6 @@ export default function CustomerDetail() {
     setUploadedTemplates([mockFile1, mockFile2]);
   }, []);
 
-  const toggleCvssVersion = (version: string) => {
-    setFormCustomer(prev => {
-      const current = prev.default_cvss_versions;
-      if (current.includes(version)) {
-        return {
-          ...prev,
-          default_cvss_versions: current.filter(v => v !== version),
-        };
-      } else {
-        return {
-          ...prev,
-          default_cvss_versions: [...current, version],
-        };
-      }
-    });
-  };
-
   const handleCustomerName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
 
@@ -127,7 +103,6 @@ export default function CustomerDetail() {
     const payload = {
       name: formCustomer.name,
       language: formCustomer.language,
-      default_cvss_versions: formCustomer.default_cvss_versions,
     };
 
     patchData<Customer>(`/api/customers/${ctxCustomer.id}`, payload, updatedCustomer => {
@@ -247,20 +222,6 @@ export default function CustomerDetail() {
               value={selectedLanguageOption}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
-
-            <Grid>
-              <Label text="CVSS Versions" />
-              {cvssOptions.map(({ value, label }) => (
-                <Checkbox
-                  key={value}
-                  id={`cvss_${value}`}
-                  htmlFor={`cvss_${value}`}
-                  label={label}
-                  checked={formCustomer.default_cvss_versions.includes(value)}
-                  onChange={() => toggleCvssVersion(value)}
-                />
-              ))}
-            </Grid>
           </Grid>
           <Divider />
           <Buttons>
