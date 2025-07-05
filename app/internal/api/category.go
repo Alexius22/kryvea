@@ -211,6 +211,20 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 	return c.JSON(categories)
 }
 
+func (d *Driver) GetCategory(c *fiber.Ctx) error {
+	// parse category param
+	category, errStr := d.categoryFromParam(c.Params("category"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(category)
+}
+
 func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
