@@ -34,7 +34,7 @@ export default function AddCustomer() {
   ];
 
   useEffect(() => {
-    document.title = getPageTitle("Add Customer");
+    document.title = getPageTitle("New Customer");
   }, []);
 
   const toggleCvssVersion = (version: string) => {

@@ -21,7 +21,7 @@ export default function AddTarget() {
   const [hostName, setHostName] = useState("");
 
   useEffect(() => {
-    document.title = getPageTitle("Add Target");
+    document.title = getPageTitle("New Target");
   }, []);
 
   const handleSubmit = () => {

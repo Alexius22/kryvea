@@ -148,7 +148,7 @@ export default function Targets() {
           icon={mdiPlus}
           text="New target"
           small
-          onClick={() => navigate(`/customers/${customerId}/targets/add_target`)}
+          onClick={() => navigate(`/customers/${customerId}/targets/new`)}
         />
       </SectionTitleLineWithButton>
 
