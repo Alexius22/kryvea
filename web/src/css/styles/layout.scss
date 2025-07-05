@@ -4,7 +4,10 @@
 }
 
 .layout-root {
-  @apply flex h-screen max-w-[100vw] gap-4 p-4 transition-position lg:w-auto;
+  @apply flex h-screen gap-4 p-4 transition-position lg:w-auto;
+  max-width: 1920px;
+  width: 100%;
+  justify-self: center;
 }
 
 .layout-sidebar {
