@@ -21,7 +21,7 @@ const ASSESSMENT_TYPE: SelectOption[] = [
   { value: "WAPT", label: "Web Application Penetration Test" },
   { value: "MAPT", label: "Mobile Application Penetration Test" },
   { value: "NPT", label: "Network Penetration Test" },
-  { value: "Red Team", label: "Red Team" },
+  { value: "Red Team Assessment", label: "Red Team Assessment" },
   { value: "IoT", label: "IoT" },
 ];
 

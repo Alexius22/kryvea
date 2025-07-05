@@ -7,7 +7,8 @@ interface BaseButtonProps {
   small?: true | "";
   text?: string;
   title?: string;
-  onClick: () => void;
+  submitForm?: boolean;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 interface ButtonProps extends BaseButtonProps {
   icon: string;
@@ -27,13 +28,19 @@ export default function Button({
   small = "",
   iconSize = 18,
   title = "",
+  submitForm,
   onClick,
 }: ButtonProps | IconButtonProps) {
   return (
     <button
       className={`clickable flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${type} ${className}`}
       disabled={disabled}
-      onClick={onClick}
+      onClick={e => {
+        if (!submitForm) {
+          e.preventDefault();
+        }
+        onClick(e);
+      }}
       data-type={type}
       title={title}
     >
