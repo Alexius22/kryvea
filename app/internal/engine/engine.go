@@ -72,6 +72,7 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetCategories)
+		apiGroup.Get("/categories/:category", api.GetCategory)
 		apiGroup.Post("/categories", api.AddCategory)
 		apiGroup.Post("/categories/upload/bulk", api.UploadCategories)
 		apiGroup.Patch("/categories/:category", api.UpdateCategory)
