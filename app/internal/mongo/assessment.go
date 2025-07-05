@@ -118,6 +118,11 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 	}
 
 	assessment.IsOwned = false
+	assessment.Customer = Customer{
+		Model: Model{
+			ID: customerID,
+		},
+	}
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	return assessment.ID, err
