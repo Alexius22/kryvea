@@ -86,7 +86,6 @@ export type Customer = {
   id: string;
   name: string;
   language: string;
-  default_cvss_versions: string[];
   updated_at: Date;
   created_at: Date;
 };
