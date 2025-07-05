@@ -24,7 +24,7 @@ export default function RouteWatcher() {
       );
     }
     if (assessmentId != undefined && ctxAssessment?.id !== assessmentId) {
-      getData<Assessment>(`/api/customers/${customerId}/assessments/${assessmentId}`, setCtxAssessment, () =>
+      getData<Assessment>(`/api/assessments/${assessmentId}`, setCtxAssessment, () =>
         toast.error("Could not retrieve assessment by id: " + assessmentId)
       );
     }
