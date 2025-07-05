@@ -59,7 +59,7 @@ type Metrics = {
   ProviderUrgency: XClearGreenAmberRed;
 };
 
-export default function CVSS40Wrapper() {
+export default function CVSS40Wrapper({ value }) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [metrics, setMetrics] = useState({
     AttackVector: "N",
@@ -151,6 +151,13 @@ export default function CVSS40Wrapper() {
       .join("");
     return baseString + metricEntries;
   };
+
+  useEffect(() => {
+    if (!value) {
+      return;
+    }
+    handleInputChange({ target: { value } } as any);
+  }, []);
 
   useEffect(() => {
     const vectorString = calculateRaw(metrics);
