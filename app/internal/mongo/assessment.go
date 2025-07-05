@@ -22,13 +22,15 @@ var AssessmentPipeline = mongo.Pipeline{
 			{Key: "localField", Value: "_id"},
 			{Key: "foreignField", Value: "assessment._id"},
 			{Key: "as", Value: "vulnerabilityData"},
-		}}},
+		}},
+	},
 	bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "vulnerability_count", Value: bson.D{
 				{Key: "$size", Value: "$vulnerabilityData"},
 			}},
-		}}},
+		}},
+	},
 	bson.D{{Key: "$unset", Value: "vulnerabilityData"}},
 
 	bson.D{
@@ -37,38 +39,44 @@ var AssessmentPipeline = mongo.Pipeline{
 			{Key: "localField", Value: "customer._id"},
 			{Key: "foreignField", Value: "_id"},
 			{Key: "as", Value: "customerData"},
-		}}},
+		}},
+	},
 	bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "customer", Value: bson.D{
 				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
 			}},
-		}}},
-	bson.D{{Key: "$unset", Value: "customerData"}},
+		}},
+	},
+	bson.D{
+		{Key: "$unset", Value: "customerData"},
+	},
+
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "target"},
+			{Key: "localField", Value: "targets._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "targets"},
+		}},
+	},
 }
 
 type Assessment struct {
 	Model              `bson:",inline"`
-	Name               string             `json:"name" bson:"name"`
-	StartDateTime      time.Time          `json:"start_date_time" bson:"start_date_time"`
-	EndDateTime        time.Time          `json:"end_date_time" bson:"end_date_time"`
-	Targets            []AssessmentTarget `json:"targets" bson:"targets"`
-	Status             string             `json:"status" bson:"status"`
-	AssessmentType     string             `json:"assessment_type" bson:"assessment_type"`
-	CVSSVersions       []string           `json:"cvss_versions" bson:"cvss_versions"`
-	Environment        string             `json:"environment" bson:"environment"`
-	TestingType        string             `json:"testing_type" bson:"testing_type"`
-	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
-	VulnerabilityCount int                `json:"vulnerability_count" bson:"vulnerability_count"`
-	Customer           Customer           `json:"customer" bson:"customer"`
-	IsOwned            bool               `json:"is_owned" bson:"is_owned"`
-}
-
-type AssessmentTarget struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	IPv4 string    `json:"ipv4" bson:"ipv4"`
-	IPv6 string    `json:"ipv6" bson:"ipv6"`
-	FQDN string    `json:"fqdn" bson:"fqdn"`
+	Name               string    `json:"name" bson:"name"`
+	StartDateTime      time.Time `json:"start_date_time" bson:"start_date_time"`
+	EndDateTime        time.Time `json:"end_date_time" bson:"end_date_time"`
+	Targets            []Target  `json:"targets" bson:"targets"`
+	Status             string    `json:"status" bson:"status"`
+	AssessmentType     string    `json:"assessment_type" bson:"assessment_type"`
+	CVSSVersions       []string  `json:"cvss_versions" bson:"cvss_versions"`
+	Environment        string    `json:"environment" bson:"environment"`
+	TestingType        string    `json:"testing_type" bson:"testing_type"`
+	OSSTMMVector       string    `json:"osstmm_vector" bson:"osstmm_vector"`
+	VulnerabilityCount int       `json:"vulnerability_count" bson:"vulnerability_count"`
+	Customer           Customer  `json:"customer" bson:"customer"`
+	IsOwned            bool      `json:"is_owned" bson:"is_owned"`
 }
 
 type AssessmentIndex struct {
@@ -114,7 +122,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 	}
 
 	if assessment.Targets == nil {
-		assessment.Targets = []AssessmentTarget{}
+		assessment.Targets = []Target{}
 	}
 
 	assessment.IsOwned = false
@@ -220,7 +228,8 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 		filter["customer._id"] = bson.M{"$in": customers}
 	}
 
-	cursor, err := ai.collection.Find(context.Background(), filter)
+	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: filter}})
+	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}

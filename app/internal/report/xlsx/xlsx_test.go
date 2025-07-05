@@ -144,9 +144,9 @@ func TestXlsx(t *testing.T) {
 		DefaultCVSSVersions: []string{cvss.CVSS2, cvss.CVSS4},
 	}
 
-	var targets []mongo.AssessmentTarget
+	var targets []mongo.Target
 	for i := 0; i < 2; i++ {
-		targets = append(targets, mongo.AssessmentTarget{
+		targets = append(targets, mongo.Target{
 			IPv4: randIP(), FQDN: randHostname(),
 		})
 	}
@@ -199,7 +199,7 @@ func TestXlsx(t *testing.T) {
 			},
 			Description: randName(20),
 			Remediation: randName(10),
-			Target:      mongo.VulnerabilityTarget(assessment.Targets[rand.Intn(len(assessment.Targets))]),
+			Target:      assessment.Targets[rand.Intn(len(assessment.Targets))],
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)

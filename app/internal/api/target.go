@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -185,8 +183,6 @@ func (d *Driver) GetTargetsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(customer)
-
 	if !util.CanAccessCustomer(user, customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -194,14 +190,13 @@ func (d *Driver) GetTargetsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	targets, err := d.mongo.Target().Search(customer.ID, c.Query("query"))
+	targets, err := d.mongo.Target().Search(customer.ID, c.Query("search"))
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get targets",
 		})
 	}
-	fmt.Println(targets)
 
 	if len(targets) == 0 {
 		targets = []mongo.Target{}
@@ -232,7 +227,7 @@ func (d *Driver) GetTarget(c *fiber.Ctx) error {
 	}
 
 	// get target by customer and ID from database
-	target, err := d.mongo.Target().GetByID(targetID)
+	target, err := d.mongo.Target().GetByIDPipeline(targetID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -270,7 +265,7 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 		return nil, "Invalid target ID"
 	}
 
-	target, err := d.mongo.Target().GetByID(targetID)
+	target, err := d.mongo.Target().GetByIDPipeline(targetID)
 	if err != nil {
 		return nil, "Invalid target ID"
 	}
