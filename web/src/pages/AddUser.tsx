@@ -104,7 +104,7 @@ export default function AddUser() {
         <Divider />
         <Buttons>
           <Button text="Submit" onClick={handleSubmit} />
-          <Button type="outline-only" text="Cancel" onClick={() => navigate("/users")} />
+          <Button variant="outline-only" text="Cancel" onClick={() => navigate("/users")} />
         </Buttons>
       </Grid>
     </Card>

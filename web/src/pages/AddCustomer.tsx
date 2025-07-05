@@ -107,7 +107,7 @@ export default function AddCustomer() {
 
           <Buttons>
             <Button text="Submit" onClick={handleSubmit} />
-            <Button type="secondary" text="Cancel" onClick={handleCancel} />
+            <Button variant="secondary" text="Cancel" onClick={handleCancel} />
           </Buttons>
         </Grid>
       </Card>

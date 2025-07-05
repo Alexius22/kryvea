@@ -162,7 +162,7 @@ export default function Categories() {
               <Buttons noWrap key={category.id}>
                 <Button icon={mdiPencil} small onClick={() => navigate(`/manage_category/${category.id}`)} />
                 <Button
-                  type="danger"
+                  variant="danger"
                   icon={mdiTrashCan}
                   small
                   onClick={() => {

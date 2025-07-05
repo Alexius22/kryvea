@@ -205,7 +205,7 @@ export default function Table({
           <Buttons>
             {pagesList.map(page => (
               <Button
-                type={currentPage === page ? "" : "secondary"}
+                variant={currentPage === page ? "" : "secondary"}
                 key={page}
                 small
                 text={page + 1}

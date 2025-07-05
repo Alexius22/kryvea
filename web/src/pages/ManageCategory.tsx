@@ -237,7 +237,12 @@ export default function ManageCategory() {
           <div key={language.value}>
             <div className="flex items-center justify-between">
               <Label text={language.label} />
-              <Button type="danger" icon={mdiTrashCan} small onClick={() => removeAdditionalLanguage(language.value)} />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                small
+                onClick={() => removeAdditionalLanguage(language.value)}
+              />
             </div>
             <Grid className="grid-cols-2 gap-4">
               <Textarea
@@ -265,7 +270,7 @@ export default function ManageCategory() {
           <Divider />
           <Buttons>
             <Button text="Submit" onClick={handleSubmit} />
-            <Button type="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
+            <Button variant="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
           </Buttons>
         </Grid>
       </Card>

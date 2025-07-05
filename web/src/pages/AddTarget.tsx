@@ -76,7 +76,7 @@ export default function AddTarget() {
         <Divider />
         <Buttons>
           <Button text={"Submit"} onClick={handleSubmit} />
-          <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+          <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
         </Buttons>
       </Grid>
     </Card>

@@ -3,7 +3,7 @@ import Icon from "../Icon";
 interface BaseButtonCoreProps {
   className?: string;
   disabled?: boolean;
-  type?: "secondary" | "warning" | "danger" | "outline-only" | "transparent" | "";
+  variant?: "secondary" | "warning" | "danger" | "outline-only" | "transparent" | "";
   small?: true | "";
   text?: string;
   title?: string;
@@ -34,18 +34,19 @@ type ButtonProps =
 export default function Button({
   className = "",
   disabled,
-  type = "",
+  variant = "",
   text,
   icon,
   small = "",
   iconSize = 18,
   title = "",
   formSubmit,
-  onClick,
+  onClick = () => {},
 }: ButtonProps) {
   return (
     <button
-      className={`clickable flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${type} ${className}`}
+      type={formSubmit ? "submit" : "button"}
+      className={`clickable flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${variant} ${className}`}
       disabled={disabled}
       onClick={e => {
         if (!formSubmit) {
@@ -53,7 +54,7 @@ export default function Button({
         }
         onClick(e);
       }}
-      data-type={type}
+      data-variant={variant}
       title={title}
     >
       {icon && <Icon path={icon} size={iconSize} />}

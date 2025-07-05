@@ -39,7 +39,7 @@ export default function UploadFile({
         id={inputId}
         onChange={onChange}
       />
-      <Button text="Clear" className="rounded-xl" onClick={onButtonClick} type="danger" />
+      <Button text="Clear" className="rounded-xl" onClick={onButtonClick} variant="danger" />
     </div>
   );
 }

@@ -67,7 +67,7 @@ export default function PocTemplate({
           <Icon path={icon} size={25} />
           {title}
         </h1>
-        <Button type="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
+        <Button variant="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
       </div>
       <div className="flex flex-col gap-3">
         <div className="poc-template-children-sibling flex gap-6">

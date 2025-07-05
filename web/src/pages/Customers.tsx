@@ -208,7 +208,7 @@ export default function Customers() {
           buttons: (
             <Buttons noWrap>
               <Button small onClick={() => openEditModal(customer)} icon={mdiNoteEdit} />
-              <Button small type="danger" onClick={() => openDeleteModal(customer)} icon={mdiTrashCan} />
+              <Button small variant="danger" onClick={() => openDeleteModal(customer)} icon={mdiTrashCan} />
             </Buttons>
           ),
         }))}

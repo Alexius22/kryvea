@@ -161,7 +161,7 @@ export default function Targets() {
           buttons: (
             <Buttons noWrap>
               <Button icon={mdiPencil} onClick={() => openEditModal(target)} small />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(target)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(target)} small />
             </Buttons>
           ),
         }))}

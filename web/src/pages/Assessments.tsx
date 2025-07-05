@@ -241,7 +241,7 @@ export default function Assessments() {
           buttons: (
             <Buttons noWrap>
               <Button
-                type={assessment.is_owned ? "warning" : ""}
+                variant={assessment.is_owned ? "warning" : ""}
                 icon={mdiStar}
                 onClick={handleFavoriteToggle(assessment.id)}
                 small
@@ -265,7 +265,7 @@ export default function Assessments() {
                 small
                 title="Download assessment"
               />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
             </Buttons>
           ),
         }))}
