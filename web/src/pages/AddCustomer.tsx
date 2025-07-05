@@ -57,18 +57,10 @@ export default function AddCustomer() {
       default_cvss_versions: selectedCvssVersions,
     };
 
-    postData<Customer>(
-      "/api/customers",
-      payload,
-      () => {
-        toast.success(`Customer "${payload.name}" added successfully`);
-        navigate("/customers");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Customer>("/api/customers", payload, () => {
+      toast.success(`Customer "${payload.name}" added successfully`);
+      navigate("/customers");
+    });
   };
 
   const handleCancel = () => {

@@ -44,10 +44,7 @@ export default function AssessmentVulnerabilities() {
   useEffect(() => {
     document.title = getPageTitle("Assessment");
 
-    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities, err => {
-      const errorMessage = err.response.data.error;
-      toast.error(errorMessage);
-    });
+    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
   }, [assessmentId]);
 
   const openExportModal = () => {
@@ -62,26 +59,18 @@ export default function AssessmentVulnerabilities() {
     };
 
     // TODO properly with docx-go-template
-    postData<Blob>(
-      `/api/customers/${customerId}/assessments/${assessmentId}/export`,
-      payload,
-      data => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const fileName = `${assessmentId}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setIsModalDownloadActive(false);
-        toast.success("Export started");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Blob>(`/api/customers/${customerId}/assessments/${assessmentId}/export`, payload, data => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const fileName = `${assessmentId}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsModalDownloadActive(false);
+      toast.success("Export started");
+    });
   };
 
   const openDeleteModal = (vulnerability: Vulnerability) => {
@@ -90,19 +79,12 @@ export default function AssessmentVulnerabilities() {
   };
 
   const confirmDelete = () => {
-    deleteData(
-      `/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`,
-      () => {
-        setVulnerabilities(prev => prev.filter(v => v.id !== vulnerabilityToDelete.id));
-        toast.success("Vulnerability deleted successfully");
-        setIsModalTrashActive(false);
-        setVulnerabilityToDelete(null);
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData(`/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`, () => {
+      setVulnerabilities(prev => prev.filter(v => v.id !== vulnerabilityToDelete.id));
+      toast.success("Vulnerability deleted successfully");
+      setIsModalTrashActive(false);
+      setVulnerabilityToDelete(null);
+    });
   };
 
   const changeFile = ({ target: { files } }: React.ChangeEvent<HTMLInputElement>) => {

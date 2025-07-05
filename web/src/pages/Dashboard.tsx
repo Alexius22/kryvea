@@ -1,7 +1,6 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
-import { toast } from "react-toastify";
 import { getData } from "../api/api";
 import { GlobalContext } from "../App";
 import { formatDate } from "../components/dateUtils";
@@ -19,16 +18,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     document.title = getPageTitle("Dashboard");
-    getData<Assessment[]>(
-      "/api/assessments/owned",
-      data => {
-        setAssessmentsData(data);
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    getData<Assessment[]>("/api/assessments/owned", setAssessmentsData);
   }, []);
 
   const renderTable = (title: string, icon: string, assessments: Assessment[]) => (

@@ -48,16 +48,7 @@ export default function Assessments() {
 
   useEffect(() => {
     document.title = getPageTitle("Assessments");
-    getData<Assessment[]>(
-      `/api/customers/${customerId}/assessments`,
-      data => {
-        setAssessmentsData(data);
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
   }, []);
 
   const handleFavoriteToggle = (id: string) => () => {
@@ -88,10 +79,6 @@ export default function Assessments() {
         setAssessmentToClone(null);
         setCloneName("");
         toast.success("Assessment cloned successfully");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
       }
     );
   };
@@ -102,19 +89,12 @@ export default function Assessments() {
   };
 
   const confirmDelete = () => {
-    deleteData(
-      `/api/customers/${customerId}/assessments/${assessmentToDelete.id}`,
-      () => {
-        setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
-        setIsModalTrashActive(false);
-        setAssessmentToDelete(null);
-        toast.success("Assessment deleted successfully");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData(`/api/customers/${customerId}/assessments/${assessmentToDelete.id}`, () => {
+      setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
+      setIsModalTrashActive(false);
+      setAssessmentToDelete(null);
+      toast.success("Assessment deleted successfully");
+    });
   };
 
   const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
@@ -123,10 +103,6 @@ export default function Assessments() {
       { status: selectedOption.value },
       updatedAssessment => {
         setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
       }
     );
   };
@@ -143,27 +119,19 @@ export default function Assessments() {
       password: exportEncryption.value === "password" ? exportPassword : undefined,
     };
     // TODO properly with docx-go-template
-    postData<Blob>(
-      `/api/customers/${customerId}/assessments/${selectedAssessmentId}/export`,
-      payload,
-      data => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
-        const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setIsModalDownloadActive(false);
-        toast.success("Export started");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Blob>(`/api/customers/${customerId}/assessments/${selectedAssessmentId}/export`, payload, data => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
+      const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsModalDownloadActive(false);
+      toast.success("Export started");
+    });
   };
 
   return (

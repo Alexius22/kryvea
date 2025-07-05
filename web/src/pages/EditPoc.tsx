@@ -28,13 +28,8 @@ export default function EditPoc() {
     document.title = getPageTitle("Edit PoC");
   }, []);
   useEffect(() => {
-    getData<PocDoc[]>(
-      `/api/vulnerabilities/${vulnerabilityId}/pocs`,
-      pocs =>
-        setPocList(
-          pocs.sort((a, b) => a.index - b.index).map((poc, i) => ({ ...poc, key: getPocKeyByType(poc.type) }))
-        ),
-      e => toast.error(e.response.data.error)
+    getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs =>
+      setPocList(pocs.sort((a, b) => a.index - b.index).map((poc, i) => ({ ...poc, key: getPocKeyByType(poc.type) })))
     );
   }, []);
   useEffect(() => {
@@ -237,8 +232,7 @@ export default function EditPoc() {
                   pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
                   () => {
                     toast.success("PoCs updated successfully");
-                  },
-                  e => toast.error(e.response.data.error)
+                  }
                 );
               }}
             />

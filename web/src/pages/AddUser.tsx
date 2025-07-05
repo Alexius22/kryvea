@@ -24,15 +24,11 @@ export default function AddUser() {
   useEffect(() => {
     document.title = getPageTitle("User");
 
-    getData<Customer[]>(
-      "/api/customers",
-      data => setCustomers(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        setError(errorMessage);
-        toast.error(errorMessage);
-      }
-    );
+    getData<Customer[]>("/api/customers", setCustomers, err => {
+      const errorMessage = err.response.data.error;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    });
   }, []);
 
   // Prepare options for the customers select dropdown
