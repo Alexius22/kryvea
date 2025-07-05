@@ -154,7 +154,10 @@ export default function Table({
         <tbody>
           {filteredData.length === 0 ? (
             <tr>
-              <td colSpan={Object.keys(filteredData[0] ?? {}).length} className="text-center">
+              <td
+                colSpan={Object.keys(filteredData[0] ?? {}).length}
+                className="border-t-[1px] border-[color:var(--border-primary)] text-center font-thin italic opacity-50"
+              >
                 No results available
               </td>
             </tr>
