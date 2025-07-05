@@ -94,7 +94,7 @@ export default function LiveEditor() {
         className="overflow-y-auto xl:w-8/12"
       >
         <Formik initialValues={{}} onSubmit={undefined}>
-          {isCvss4 ? <CVSS40Wrapper /> : <CVSS31Wrapper />}
+          {isCvss4 ? <CVSS40Wrapper value={undefined} /> : <CVSS31Wrapper value={""} />}
         </Formik>
       </Modal>
 

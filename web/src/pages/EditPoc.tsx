@@ -132,8 +132,8 @@ export default function EditPoc() {
             type,
             index: prev.length,
             description: "",
-            language: "",
-            text: "",
+            text_language: "",
+            text_data: "",
           },
         ]);
         break;

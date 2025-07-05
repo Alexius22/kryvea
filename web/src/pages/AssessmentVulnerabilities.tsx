@@ -24,6 +24,7 @@ export default function AssessmentVulnerabilities() {
   const {
     useCtxCustomer: [ctxCustomer],
     useCtxVulnerability: [, setCtxVulnerability],
+    useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
   const { assessmentId, customerId } = useParams<{ customerId: string; assessmentId: string }>();
 
@@ -43,14 +44,10 @@ export default function AssessmentVulnerabilities() {
   useEffect(() => {
     document.title = getPageTitle("Assessment");
 
-    getData<Vulnerability[]>(
-      `/api/assessments/${assessmentId}/vulnerabilities`,
-      data => setVulnerabilities(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities, err => {
+      const errorMessage = err.response.data.error;
+      toast.error(errorMessage);
+    });
   }, [assessmentId]);
 
   const openExportModal = () => {
@@ -195,7 +192,7 @@ export default function AssessmentVulnerabilities() {
         <p>Are you sure to delete this vulnerability?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title={`${vulnerabilities[0]?.assessment.name}`}>
+      <SectionTitleLineWithButton icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
           <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
@@ -205,12 +202,7 @@ export default function AssessmentVulnerabilities() {
             small
             onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/add_target`)}
           />
-          <Button
-            icon={mdiPlus}
-            text="New vulnerability"
-            small
-            onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/add_vulnerability`)}
-          />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`add_vulnerability`)} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
@@ -218,10 +210,7 @@ export default function AssessmentVulnerabilities() {
       <Table
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
-            <Link
-              to={`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}/detail`}
-              onClick={() => setCtxVulnerability(vulnerability)}
-            >
+            <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
               {vulnerability.category.index}: {vulnerability.category.name}{" "}
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
@@ -238,11 +227,7 @@ export default function AssessmentVulnerabilities() {
           "Last update": formatDate(vulnerability.updated_at),
           buttons: (
             <Buttons noWrap>
-              <Button
-                icon={mdiPencil}
-                small
-                onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}`)}
-              />
+              <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
               <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
             </Buttons>
           ),

@@ -253,7 +253,7 @@ export default function Assessments() {
       <Table
         data={assessmentsData.map(assessment => ({
           Title: (
-            <Link to={`/assessments/${assessment.id}/vulnerabilities`} onClick={() => setCtxAssessment(assessment)}>
+            <Link to={`${assessment.id}/vulnerabilities`} onClick={() => setCtxAssessment(assessment)}>
               {assessment.name}
             </Link>
           ),
