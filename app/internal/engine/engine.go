@@ -86,7 +86,7 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/assessments/:assessment/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
-		apiGroup.Post("/vulnerabilities/:vulnerability/pocs", api.AddPoc)
+		apiGroup.Post("/vulnerabilities/:vulnerability/pocs", api.AddPocs)
 		apiGroup.Patch("/vulnerabilities/:vulnerability/pocs/:poc", api.UpdatePoc)
 		apiGroup.Delete("/vulnerabilities/:vulnerability/pocs/:poc", api.DeletePoc)
 

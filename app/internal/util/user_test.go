@@ -13,9 +13,9 @@ func TestCanAccessCustomer(t *testing.T) {
 	}
 	regularUser := &mongo.User{
 		Role: mongo.ROLE_USER,
-		Customers: []mongo.UserCustomer{
-			{ID: uuid.New()},
-			{ID: uuid.New()},
+		Customers: []mongo.Customer{
+			{Model: mongo.Model{ID: uuid.New()}},
+			{Model: mongo.Model{ID: uuid.New()}},
 		},
 	}
 	existingCustomer := regularUser.Customers[0].ID

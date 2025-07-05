@@ -25,8 +25,8 @@ var TargetPipeline = mongo.Pipeline{
 		}}},
 	bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "customer.name", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+			{Key: "customer", Value: bson.D{
+				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
 			}},
 		}}},
 	bson.D{{Key: "$unset", Value: "customerData"}},
@@ -34,18 +34,13 @@ var TargetPipeline = mongo.Pipeline{
 
 type Target struct {
 	Model    `bson:",inline"`
-	IPv4     string         `json:"ipv4" bson:"ipv4"`
-	IPv6     string         `json:"ipv6" bson:"ipv6"`
-	Port     int            `json:"port" bson:"port"`
-	Protocol string         `json:"protocol" bson:"protocol"`
-	FQDN     string         `json:"fqdn" bson:"fqdn"`
-	Name     string         `json:"name" bson:"name"`
-	Customer TargetCustomer `json:"customer" bson:"customer"`
-}
-
-type TargetCustomer struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	Name string    `json:"name" bson:"name"`
+	IPv4     string   `json:"ipv4" bson:"ipv4"`
+	IPv6     string   `json:"ipv6" bson:"ipv6"`
+	Port     int      `json:"port" bson:"port"`
+	Protocol string   `json:"protocol" bson:"protocol"`
+	FQDN     string   `json:"fqdn" bson:"fqdn"`
+	Name     string   `json:"name" bson:"name"`
+	Customer Customer `json:"customer" bson:"customer"`
 }
 
 type TargetIndex struct {
@@ -76,8 +71,8 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target) (uuid.UUID, error) {
-	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.Customer.ID}).Err()
+func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, error) {
+	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -96,9 +91,14 @@ func (ti *TargetIndex) Insert(target *Target) (uuid.UUID, error) {
 	return target.ID, err
 }
 
-func (ti *TargetIndex) FirstOrInsert(target *Target) (uuid.UUID, bool, error) {
+func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid.UUID, bool, error) {
+	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
+	if err != nil {
+		return uuid.Nil, false, err
+	}
+
 	var existingTarget Assessment
-	err := ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "fqdn": target.FQDN, "name": target.Name}).Decode(&existingTarget)
+	err = ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "fqdn": target.FQDN, "name": target.Name}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
@@ -106,7 +106,7 @@ func (ti *TargetIndex) FirstOrInsert(target *Target) (uuid.UUID, bool, error) {
 		return uuid.Nil, false, err
 	}
 
-	id, err := ti.Insert(target)
+	id, err := ti.Insert(target, customerID)
 	return id, true, err
 }
 

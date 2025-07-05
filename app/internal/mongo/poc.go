@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -74,6 +75,55 @@ func (pi *PocIndex) Insert(poc *Poc) (uuid.UUID, error) {
 	}
 	_, err = pi.collection.InsertOne(context.Background(), poc)
 	return poc.ID, err
+}
+
+func (pi *PocIndex) InsertMany(pocs []*Poc, vulnerabilityID uuid.UUID) ([]uuid.UUID, error) {
+	if len(pocs) == 0 {
+		return nil, nil
+	}
+
+	err := pi.driver.Vulnerability().collection.FindOne(context.Background(), bson.M{"_id": vulnerabilityID}).Err()
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]uuid.UUID, len(pocs))
+	for i, pocToInsert := range pocs {
+		// insert images
+		if pocToInsert.Type == poc.POC_TYPE_IMAGE && len(pocToInsert.ImageData) > 0 {
+			imageID, err := pi.driver.FileReference().Insert(pocToInsert.ImageData)
+			if err != nil {
+				return nil, err
+			}
+
+			pocToInsert.ImageID = imageID
+		}
+
+		id, err := uuid.NewRandom()
+		if err != nil {
+			return nil, err
+		}
+		pocToInsert.Model = Model{
+			ID:        id,
+			UpdatedAt: time.Now(),
+			CreatedAt: time.Now(),
+		}
+		pocToInsert.VulnerabilityID = vulnerabilityID
+		ids[i] = id
+	}
+
+	_, err = pi.collection.InsertMany(context.Background(), pocs)
+	if err != nil {
+		// delete images if insert failed
+		for _, pocToDelete := range pocs {
+			if pocToDelete.ImageID != uuid.Nil {
+				_ = pi.driver.FileReference().Delete(pocToDelete.ImageID)
+			}
+		}
+		return nil, err
+	}
+
+	return ids, nil
 }
 
 func (pi *PocIndex) Update(ID uuid.UUID, poc *Poc) error {
