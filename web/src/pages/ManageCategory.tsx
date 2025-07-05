@@ -139,7 +139,7 @@ export default function ManageCategory() {
       return;
     }
 
-    const payload: Category = {
+    const payload: Omit<Category, "id"> = {
       index: identifier.trim(),
       name: name.trim(),
       generic_description: {
