@@ -59,7 +59,7 @@ export default function AssessmentVulnerabilities() {
     };
 
     // TODO properly with docx-go-template
-    postData<Blob>(`/api/customers/${customerId}/assessments/${assessmentId}/export`, payload, data => {
+    postData<Blob>(`/api/assessments/${assessmentId}/export`, payload, data => {
       const url = window.URL.createObjectURL(new Blob([data]));
       const fileName = `${assessmentId}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
       const link = document.createElement("a");

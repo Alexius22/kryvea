@@ -70,17 +70,13 @@ export default function Assessments() {
   };
 
   const confirmClone = () => {
-    postData<Assessment>(
-      `/api/customers/${customerId}/assessments/${assessmentToClone.id}/clone`,
-      { name: cloneName },
-      clonedAssessment => {
-        setAssessmentsData(prev => [...prev, clonedAssessment]);
-        setIsModalCloneActive(false);
-        setAssessmentToClone(null);
-        setCloneName("");
-        toast.success("Assessment cloned successfully");
-      }
-    );
+    postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, clonedAssessment => {
+      setAssessmentsData(prev => [...prev, clonedAssessment]);
+      setIsModalCloneActive(false);
+      setAssessmentToClone(null);
+      setCloneName("");
+      toast.success("Assessment cloned successfully");
+    });
   };
 
   const openDeleteModal = (assessment: Assessment) => {
@@ -89,7 +85,7 @@ export default function Assessments() {
   };
 
   const confirmDelete = () => {
-    deleteData(`/api/customers/${customerId}/assessments/${assessmentToDelete.id}`, () => {
+    deleteData(`/api/assessments/${assessmentToDelete.id}`, () => {
       setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
       setIsModalTrashActive(false);
       setAssessmentToDelete(null);
@@ -98,13 +94,9 @@ export default function Assessments() {
   };
 
   const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
-    patchData<Assessment>(
-      `/api/customers/${customerId}/assessments/${assessmentId}`,
-      { status: selectedOption.value },
-      updatedAssessment => {
-        setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
-      }
-    );
+    patchData<Assessment>(`/api/assessments/${assessmentId}`, { status: selectedOption.value }, updatedAssessment => {
+      setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
+    });
   };
 
   const openExportModal = (assessmentId: string) => {
@@ -119,7 +111,7 @@ export default function Assessments() {
       password: exportEncryption.value === "password" ? exportPassword : undefined,
     };
     // TODO properly with docx-go-template
-    postData<Blob>(`/api/customers/${customerId}/assessments/${selectedAssessmentId}/export`, payload, data => {
+    postData<Blob>(`/api/assessments/${selectedAssessmentId}/export`, payload, data => {
       const url = window.URL.createObjectURL(new Blob([data]));
       const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
       const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;

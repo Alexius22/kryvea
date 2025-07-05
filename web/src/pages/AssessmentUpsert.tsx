@@ -77,7 +77,7 @@ export default function AssessmentUpsert() {
     document.title = getPageTitle(isEdit ? "Edit Assessment" : "Add Assessment");
     if (customerId && isEdit && assessmentId) {
       getData<Assessment>(
-        `/api/customers/${customerId}/assessments/${assessmentId}`,
+        `/api/assessments/${assessmentId}`,
         data => {
           setAssessment(data);
           setForm({
@@ -153,11 +153,10 @@ export default function AssessmentUpsert() {
     const payload = {
       ...form,
       targets: form.targets.map(target => target.id),
+      customer_id: customerId,
     };
 
-    const endpoint = isEdit
-      ? `/api/customers/${customerId}/assessments/${assessmentId}`
-      : `/api/customers/${customerId}/assessments`;
+    const endpoint = isEdit ? `/api/assessments/${assessmentId}` : `/api/assessments`;
 
     const apiCall = isEdit ? patchData : postData;
 
@@ -258,7 +257,7 @@ export default function AssessmentUpsert() {
           />
           <Divider />
           <Buttons>
-            <Button text="Submit" onClick={() => {}} />
+            <Button text="Submit" onClick={() => {}} formSubmit />
             <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
           </Buttons>
         </Grid>
