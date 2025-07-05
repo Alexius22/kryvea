@@ -188,8 +188,8 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 				References:    strings.Split(item.SeeAlso, "\n"),
 				Description:   item.Synopsis,
 				Remediation:   item.Solution,
-				Target: mongo.VulnerabilityTarget{
-					ID: targetID,
+				Target: mongo.Target{
+					Model: mongo.Model{ID: targetID},
 				},
 				Assessment: mongo.VulnerabilityAssessment{
 					ID: assessment.ID,

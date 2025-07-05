@@ -65,7 +65,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	var targets []mongo.Target
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
@@ -74,7 +74,11 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
 	}
 
 	// insert assessment into database
@@ -183,6 +187,7 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot search assessments",
+			"err":   err.Error(),
 		})
 	}
 
@@ -347,7 +352,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	var targets []mongo.Target
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
@@ -356,7 +361,11 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
 	}
 
 	// update assessment in database
