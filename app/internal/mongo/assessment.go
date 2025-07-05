@@ -40,8 +40,8 @@ var AssessmentPipeline = mongo.Pipeline{
 		}}},
 	bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "customer.name", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData.name", 0}},
+			{Key: "customer", Value: bson.D{
+				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
 			}},
 		}}},
 	bson.D{{Key: "$unset", Value: "customerData"}},
@@ -60,7 +60,7 @@ type Assessment struct {
 	TestingType        string             `json:"testing_type" bson:"testing_type"`
 	OSSTMMVector       string             `json:"osstmm_vector" bson:"osstmm_vector"`
 	VulnerabilityCount int                `json:"vulnerability_count" bson:"vulnerability_count"`
-	Customer           AssessmentCustomer `json:"customer" bson:"customer"`
+	Customer           Customer           `json:"customer" bson:"customer"`
 	IsOwned            bool               `json:"is_owned" bson:"is_owned"`
 }
 
@@ -69,11 +69,6 @@ type AssessmentTarget struct {
 	IPv4 string    `json:"ipv4" bson:"ipv4"`
 	IPv6 string    `json:"ipv6" bson:"ipv6"`
 	FQDN string    `json:"fqdn" bson:"fqdn"`
-}
-
-type AssessmentCustomer struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	Name string    `json:"name" bson:"name"`
 }
 
 type AssessmentIndex struct {
@@ -101,8 +96,8 @@ func (ai AssessmentIndex) init() error {
 	return err
 }
 
-func (ai *AssessmentIndex) Insert(assessment *Assessment) (uuid.UUID, error) {
-	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": assessment.Customer.ID}).Err()
+func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) (uuid.UUID, error) {
+	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
 	}
