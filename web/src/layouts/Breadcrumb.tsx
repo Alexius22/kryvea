@@ -43,7 +43,6 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
           // Capitalize links if required
           let itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
           for (const [id, name] of IdNameTuples) {
-            console.log(`Breadcrumb: Replacing ${link} with ${id}`);
             if (link === id) {
               itemLink = name;
               break;
