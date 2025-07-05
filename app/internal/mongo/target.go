@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -87,6 +88,13 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
+
+	target.Customer = Customer{
+		Model: Model{
+			ID: customerID,
+		},
+	}
+
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	return target.ID, err
 }
@@ -216,14 +224,28 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Targ
 }
 
 func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
+	conditions := []bson.M{
 		{"customer._id": customerID},
-		{"$or": []bson.M{
-			{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-		}},
-	}})
+	}
+
+	if ip != "" {
+		orCondition := bson.M{
+			"$or": []bson.M{
+				{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+				{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+				{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			},
+		}
+		conditions = append(conditions, orCondition)
+	}
+
+	filter := bson.M{
+		"$and": conditions,
+	}
+
+	fmt.Println(filter)
+
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
