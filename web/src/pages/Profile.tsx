@@ -6,7 +6,6 @@ import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
-import Icon from "../components/Icon";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 
@@ -50,67 +49,71 @@ export default function Profile() {
     <div>
       <SectionTitleLineWithButton icon={mdiAccount} title="Profile" main />
       <Card className="w-1/3 max-w-full">
-        <Grid className="gap-4">
-          <div className="relative">
-            <Input
-              type={showCurrentPassword ? "text" : "password"}
-              id="current_password"
-              label="Current password"
-              helperSubtitle="Required"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              className="pr-10"
-            />
-            <span
-              role="button"
-              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              className="absolute right-2 top-[38px] cursor-pointer p-1"
-            >
-              <Icon path={showCurrentPassword ? mdiEyeOff : mdiEye} />
-            </span>
-          </div>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <Grid className="gap-4">
+            <div className="relative">
+              <Input
+                type={showCurrentPassword ? "text" : "password"}
+                id="current_password"
+                label="Current password"
+                helperSubtitle="Required"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                className="pr-10"
+              />
+              <Button
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-2 top-[38px] cursor-pointer p-1"
+                icon={showCurrentPassword ? mdiEye : mdiEyeOff}
+                type="transparent"
+              />
+            </div>
 
-          <div className="relative">
-            <Input
-              type={showNewPassword ? "text" : "password"}
-              id="new_password"
-              label="New password"
-              helperSubtitle="Required"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              className="pr-10"
-            />
-            <span
-              role="button"
-              onClick={() => setShowNewPassword(!showNewPassword)}
-              className="absolute right-2 top-[38px] cursor-pointer p-1"
-            >
-              <Icon path={showNewPassword ? mdiEyeOff : mdiEye} />
-            </span>
-          </div>
+            <div className="relative">
+              <Input
+                type={showNewPassword ? "text" : "password"}
+                id="new_password"
+                label="New password"
+                helperSubtitle="Required"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="pr-10"
+              />
+              <Button
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-2 top-[38px] cursor-pointer p-1"
+                icon={showNewPassword ? mdiEye : mdiEyeOff}
+                type="transparent"
+              />
+            </div>
 
-          <div className="relative">
-            <Input
-              type={showConfirmPassword ? "text" : "password"}
-              id="confirm_password"
-              label="Confirm password"
-              helperSubtitle="Required"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              className="pr-10"
-            />
-            <span
-              role="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-2 top-[38px] cursor-pointer p-1"
-            >
-              <Icon path={showConfirmPassword ? mdiEyeOff : mdiEye} />
-            </span>
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirm_password"
+                label="Confirm password"
+                helperSubtitle="Required"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="pr-10"
+              />
+              <Button
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-2 top-[38px] cursor-pointer p-1"
+                icon={showConfirmPassword ? mdiEye : mdiEyeOff}
+                type="transparent"
+              />
+            </div>
+          </Grid>
+          <div className="pt-4">
+            <Button text="Update" formSubmit />
           </div>
-        </Grid>
-        <div className="pt-4">
-          <Button text="Submit" onClick={handleSubmit} />
-        </div>
+        </form>
       </Card>
     </div>
   );
