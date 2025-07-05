@@ -333,16 +333,15 @@ class Assessment:
             "environment": self.environment,
             "testing_type": self.testing_type,
             "osstmm_vector": self.osstmm_vector,
+            "customer_id": self.customer_id,
         }
 
     def get(self) -> list:
-        response = session.get(f"{base_url}/customers/{self.customer_id}/assessments")
+        response = session.get(f"{base_url}/assessments?customer={self.customer_id}")
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(
-            f"{base_url}/customers/{self.customer_id}/assessments", json=self.json()
-        )
+        response = session.post(f"{base_url}/assessments", json=self.json())
         jr = response.json()
         id = jr.get("assessment_id")
         self.id = id
