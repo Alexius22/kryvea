@@ -100,20 +100,12 @@ export default function Customers() {
       default_cvss_versions: formData.default_cvss_versions,
     };
 
-    patchData<Customer>(
-      `/api/customers/${selectedCustomer.id}`,
-      payload,
-      updatedCustomer => {
-        toast.success("Customer updated successfully");
-        setIsModalCustomerActive(false);
-        setCustomers(prev => prev.map(c => (c.id === updatedCustomer.id ? updatedCustomer : c)));
-        fetchCustomers();
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    patchData<Customer>(`/api/customers/${selectedCustomer.id}`, payload, updatedCustomer => {
+      toast.success("Customer updated successfully");
+      setIsModalCustomerActive(false);
+      setCustomers(prev => prev.map(c => (c.id === updatedCustomer.id ? updatedCustomer : c)));
+      fetchCustomers();
+    });
   };
 
   const openDeleteModal = (customer: Customer) => {
@@ -124,18 +116,11 @@ export default function Customers() {
   const handleDeleteConfirm = () => {
     if (!selectedCustomer) return;
 
-    deleteData<{ message: string }>(
-      `/api/customers/${selectedCustomer.id}`,
-      () => {
-        toast.success("Customer deleted successfully");
-        setIsModalTrashActive(false);
-        setCustomers(prev => prev.filter(c => c.id !== selectedCustomer.id));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData<{ message: string }>(`/api/customers/${selectedCustomer.id}`, () => {
+      toast.success("Customer deleted successfully");
+      setIsModalTrashActive(false);
+      setCustomers(prev => prev.filter(c => c.id !== selectedCustomer.id));
+    });
   };
 
   const handleModalClose = () => {

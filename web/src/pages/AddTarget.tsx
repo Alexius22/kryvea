@@ -32,17 +32,10 @@ export default function AddTarget() {
       name: hostName.trim(),
     };
 
-    postData<Target>(
-      `/api/customers/${customerId}/targets`,
-      payload,
-      () => {
-        toast.success("Target added successfully");
-        navigate(`/customers/${customerId}/targets`);
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    postData<Target>(`/api/customers/${customerId}/targets`, payload, () => {
+      toast.success("Target added successfully");
+      navigate(`/customers/${customerId}/targets`);
+    });
   };
 
   return (

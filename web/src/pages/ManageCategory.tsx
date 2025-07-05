@@ -43,53 +43,47 @@ export default function ManageCategory() {
     document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
 
     if (categoryId) {
-      getData<Category[]>(
-        "/api/categories",
-        categories => {
-          const category = categories.find(c => c.id === categoryId);
-          if (!category) {
-            toast.error("Category not found");
-            navigate("/categories");
-            return;
-          }
-
-          setIdentifier(category.index);
-          setName(category.name);
-          setGenericDescription(category.generic_description?.en || "");
-          setGenericRemediation(category.generic_remediation?.en || "");
-          setReferences(category.references || []);
-
-          const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
-          setAdditionalFields(
-            otherLangs.map(lang => ({
-              value: lang,
-              label: languageMapping[lang] || lang,
-            }))
-          );
-
-          setGenericDescriptions(
-            otherLangs.reduce(
-              (acc, lang) => {
-                acc[lang] = category.generic_description?.[lang] || "";
-                return acc;
-              },
-              {} as Record<string, string>
-            )
-          );
-          setGenericRemediations(
-            otherLangs.reduce(
-              (acc, lang) => {
-                acc[lang] = category.generic_remediation?.[lang] || "";
-                return acc;
-              },
-              {} as Record<string, string>
-            )
-          );
-        },
-        err => {
-          toast.error(err.response?.data?.error || "Failed to load categories");
+      getData<Category[]>("/api/categories", categories => {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category) {
+          toast.error("Category not found");
+          navigate("/categories");
+          return;
         }
-      );
+
+        setIdentifier(category.index);
+        setName(category.name);
+        setGenericDescription(category.generic_description?.en || "");
+        setGenericRemediation(category.generic_remediation?.en || "");
+        setReferences(category.references || []);
+
+        const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
+        setAdditionalFields(
+          otherLangs.map(lang => ({
+            value: lang,
+            label: languageMapping[lang] || lang,
+          }))
+        );
+
+        setGenericDescriptions(
+          otherLangs.reduce(
+            (acc, lang) => {
+              acc[lang] = category.generic_description?.[lang] || "";
+              return acc;
+            },
+            {} as Record<string, string>
+          )
+        );
+        setGenericRemediations(
+          otherLangs.reduce(
+            (acc, lang) => {
+              acc[lang] = category.generic_remediation?.[lang] || "";
+              return acc;
+            },
+            {} as Record<string, string>
+          )
+        );
+      });
     } else {
       // New category: initialize empty form
       setIdentifier("");
@@ -154,29 +148,15 @@ export default function ManageCategory() {
     };
 
     if (categoryId) {
-      patchData<Category>(
-        `/api/categories/${categoryId}`,
-        payload,
-        () => {
-          toast.success("Category updated successfully");
-          navigate("/categories");
-        },
-        err => {
-          toast.error(err.response.data.error);
-        }
-      );
+      patchData<Category>(`/api/categories/${categoryId}`, payload, () => {
+        toast.success("Category updated successfully");
+        navigate("/categories");
+      });
     } else {
-      postData<Category>(
-        "/api/categories",
-        payload,
-        () => {
-          toast.success("Category created successfully");
-          navigate("/categories");
-        },
-        err => {
-          toast.error(err.response.data.error);
-        }
-      );
+      postData<Category>("/api/categories", payload, () => {
+        toast.success("Category created successfully");
+        navigate("/categories");
+      });
     }
   };
 

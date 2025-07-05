@@ -31,15 +31,7 @@ export default function Targets() {
   const { customerId } = useParams<{ customerId: string }>();
 
   const fetchTargets = () => {
-    getData<Target[]>(
-      `/api/customers/${customerId}/targets`,
-      data => {
-        setTargets(data);
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
   };
 
   useEffect(() => {
@@ -64,19 +56,12 @@ export default function Targets() {
       name: hostName.trim(),
     };
 
-    patchData<Target>(
-      `/api/customers/${customerId}/targets/${editingTarget.id}`,
-      payload,
-      () => {
-        toast.success("Target updated successfully");
-        setIsModalEditActive(false);
-        setEditingTarget(null);
-        fetchTargets();
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    patchData<Target>(`/api/customers/${customerId}/targets/${editingTarget.id}`, payload, () => {
+      toast.success("Target updated successfully");
+      setIsModalEditActive(false);
+      setEditingTarget(null);
+      fetchTargets();
+    });
   };
 
   const openDeleteModal = (target: Target) => {
@@ -85,20 +70,14 @@ export default function Targets() {
   };
 
   const handleDeleteConfirm = () => {
-    deleteData(
-      `/api/customers/${customerId}/targets/${targetToDelete.id}`,
-      () => {
-        toast.success(
-          `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
-        );
-        setIsModalTrashActive(false);
-        setTargetToDelete(null);
-        fetchTargets();
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    deleteData(`/api/customers/${customerId}/targets/${targetToDelete.id}`, () => {
+      toast.success(
+        `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
+      );
+      setIsModalTrashActive(false);
+      setTargetToDelete(null);
+      fetchTargets();
+    });
   };
 
   return (

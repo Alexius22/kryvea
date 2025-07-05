@@ -38,20 +38,12 @@ export default function Profile() {
       new_password: newPassword,
     };
 
-    patchData<{ message: string }>(
-      "/api/users/me",
-      payload,
-      () => {
-        toast.success("Password updated successfully");
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      },
-      err => {
-        const errorMsg = err.response.data.error;
-        toast.error(errorMsg);
-      }
-    );
+    patchData<{ message: string }>("/api/users/me", payload, () => {
+      toast.success("Password updated successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    });
   };
 
   return (

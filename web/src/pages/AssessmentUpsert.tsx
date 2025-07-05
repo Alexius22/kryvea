@@ -161,17 +161,9 @@ export default function AssessmentUpsert() {
 
     const apiCall = isEdit ? patchData : postData;
 
-    apiCall(
-      endpoint,
-      payload,
-      () => {
-        navigate(`/customers/${customerId}/assessments`);
-      },
-      err => {
-        const errorMessage = err?.response?.data?.error || (isEdit ? "Update failed." : "Creation failed.");
-        toast.error(errorMessage);
-      }
-    );
+    apiCall(endpoint, payload, () => {
+      navigate(`/customers/${customerId}/assessments`);
+    });
   };
 
   return (

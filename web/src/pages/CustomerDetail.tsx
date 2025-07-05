@@ -130,18 +130,10 @@ export default function CustomerDetail() {
       default_cvss_versions: formCustomer.default_cvss_versions,
     };
 
-    patchData<Customer>(
-      `/api/customers/${ctxCustomer.id}`,
-      payload,
-      updatedCustomer => {
-        toast.success("Customer updated successfully");
-        setCtxCustomer(updatedCustomer);
-      },
-      err => {
-        const errorMessage = err?.response?.data?.error;
-        toast.error(errorMessage);
-      }
-    );
+    patchData<Customer>(`/api/customers/${ctxCustomer.id}`, payload, updatedCustomer => {
+      toast.success("Customer updated successfully");
+      setCtxCustomer(updatedCustomer);
+    });
   };
 
   const changeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,23 +189,15 @@ export default function CustomerDetail() {
     formData.append("template_type", templateCustomer.template_type);
     formData.append("template_file", templateCustomer.template_file);
 
-    postData(
-      `/api/customers/${ctxCustomer.id}/templates`,
-      formData,
-      response => {
-        toast.success("Template uploaded successfully");
-        setTemplateCustomer({
-          template_name: "",
-          template_file: null,
-          template_type: null,
-        });
-        setFileObj(null);
-      },
-      err => {
-        const errorMessage = err?.response?.data?.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData(`/api/customers/${ctxCustomer.id}/templates`, formData, response => {
+      toast.success("Template uploaded successfully");
+      setTemplateCustomer({
+        template_name: "",
+        template_file: null,
+        template_type: null,
+      });
+      setFileObj(null);
+    });
   };
 
   // Dynamically set accept attribute based on template type

@@ -1,7 +1,6 @@
 import { mdiAccount, mdiLogout, mdiThemeLightDark } from "@mdi/js";
 import { ReactNode, useContext } from "react";
 import { useNavigate } from "react-router";
-import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Button from "./Form/Button";
@@ -19,16 +18,9 @@ export default function NavBar({ children }: Props) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    postData(
-      "/api/logout",
-      undefined,
-      () => {
-        navigate("/login");
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    postData("/api/logout", undefined, () => {
+      navigate("/login");
+    });
   };
 
   return (
