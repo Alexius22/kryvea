@@ -88,7 +88,7 @@ export default function PocText({
             onChange={(_, __, value) => {
               onTextChange<PocTextDoc>(
                 currentIndex,
-                "text"
+                "text_data"
               )({
                 target: { value },
               } as any);

@@ -14,14 +14,16 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
     useCtxCustomer: [ctxCustomer],
     useCtxAssessment: [ctxAssessment],
     useCtxVulnerability: [ctxVulnerability],
+    useCtxCategory: [ctxCategory],
   } = useContext(GlobalContext);
   const IdNameTuples = useMemo(
     () => [
       [ctxCustomer?.id, ctxCustomer?.name],
       [ctxAssessment?.id, ctxAssessment?.name],
       [ctxVulnerability?.id, ctxVulnerability?.detailed_title],
+      [ctxCategory?.id, ctxCategory?.name],
     ],
-    [ctxCustomer, ctxAssessment, ctxVulnerability]
+    [ctxCustomer, ctxAssessment, ctxVulnerability, ctxCategory]
   ); // will be filled as we go on building breadcrumbs with IDs
 
   const pathNames = useResolvedPath(undefined)
@@ -41,6 +43,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
           // Capitalize links if required
           let itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
           for (const [id, name] of IdNameTuples) {
+            console.log(`Breadcrumb: Replacing ${link} with ${id}`);
             if (link === id) {
               itemLink = name;
               break;

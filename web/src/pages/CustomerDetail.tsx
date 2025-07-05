@@ -1,8 +1,8 @@
 import { mdiAccountEdit, mdiDownload, mdiListBox, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { getData, patchData, postData } from "../api/api";
+import { patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
@@ -25,8 +25,6 @@ export default function CustomerDetail() {
     useCtxCustomer: [ctxCustomer, setCtxCustomer],
   } = useContext(GlobalContext);
 
-  const { customerId } = useParams<{ customerId: string }>();
-  const [customer, setCustomer] = useState<Customer | null>(ctxCustomer);
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [uploadedTemplates, setUploadedTemplates] = useState<File[]>([]);
   const [templateCustomer, setTemplateCustomer] = useState<TemplateExport>({
@@ -36,9 +34,9 @@ export default function CustomerDetail() {
   });
 
   const [formCustomer, setFormCustomer] = useState({
-    name: "",
-    language: "en",
-    default_cvss_versions: [] as string[],
+    name: ctxCustomer.name,
+    language: ctxCustomer.language,
+    default_cvss_versions: ctxCustomer.default_cvss_versions,
   });
 
   const navigate = useNavigate();
@@ -65,25 +63,6 @@ export default function CustomerDetail() {
 
   useEffect(() => {
     document.title = getPageTitle("Customer detail");
-
-    if (ctxCustomer?.id) {
-      return;
-    }
-    getData<Customer>(
-      `/api/customers/${customerId}`,
-      data => {
-        setCustomer(data);
-        setFormCustomer({
-          name: data.name,
-          language: data.language,
-          default_cvss_versions: data.default_cvss_versions || [],
-        });
-      },
-      err => {
-        const errorMessage = err?.response?.data?.error;
-        toast.error(errorMessage);
-      }
-    );
   }, []);
 
   useEffect(() => {
@@ -156,7 +135,6 @@ export default function CustomerDetail() {
       payload,
       updatedCustomer => {
         toast.success("Customer updated successfully");
-        setCustomer(updatedCustomer);
         setCtxCustomer(updatedCustomer);
       },
       err => {
@@ -251,11 +229,17 @@ export default function CustomerDetail() {
       <SectionTitleLineWithButton icon={mdiAccountEdit} title={`Customer: ${ctxCustomer.name}`}>
         <Buttons>
           <Button
+            small
             text="Assessments"
             icon={mdiListBox}
             onClick={() => navigate(`/customers/${ctxCustomer.id}/assessments`)}
           />
-          <Button text="Targets" icon={mdiTarget} onClick={() => navigate(`/customers/${ctxCustomer.id}/targets`)} />
+          <Button
+            small
+            text="Targets"
+            icon={mdiTarget}
+            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets`)}
+          />
         </Buttons>
       </SectionTitleLineWithButton>
       <div className="grid grid-cols-2 gap-4">

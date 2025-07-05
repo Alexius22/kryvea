@@ -14,9 +14,6 @@ import { getPageTitle } from "../config";
 import { Target } from "../types/common.types";
 
 export default function Targets() {
-  const navigate = useNavigate();
-  const { customerId } = useParams<{ customerId: string }>();
-
   const [targets, setTargets] = useState<Target[]>([]);
 
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -29,6 +26,9 @@ export default function Targets() {
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
   const [hostName, setHostName] = useState("");
+
+  const navigate = useNavigate();
+  const { customerId } = useParams<{ customerId: string }>();
 
   const fetchTargets = () => {
     getData<Target[]>(

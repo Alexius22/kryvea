@@ -8,8 +8,8 @@ type PocBaseDoc = {
 
 export interface PocTextDoc extends PocBaseDoc {
   type: "text";
-  language: string;
-  text: string;
+  text_language: string;
+  text_data: string;
 }
 
 export interface PocImageDoc extends PocBaseDoc {

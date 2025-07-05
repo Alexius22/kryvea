@@ -92,7 +92,7 @@ export type Customer = {
 };
 
 export type Category = {
-  id?: string;
+  id: string;
   index: string;
   name: string;
   generic_description: Record<string, string>;
