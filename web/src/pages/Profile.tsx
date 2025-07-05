@@ -70,7 +70,7 @@ export default function Profile() {
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 className="absolute right-2 top-[38px] cursor-pointer p-1"
                 icon={showCurrentPassword ? mdiEye : mdiEyeOff}
-                type="transparent"
+                variant="transparent"
               />
             </div>
 
@@ -88,7 +88,7 @@ export default function Profile() {
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 className="absolute right-2 top-[38px] cursor-pointer p-1"
                 icon={showNewPassword ? mdiEye : mdiEyeOff}
-                type="transparent"
+                variant="transparent"
               />
             </div>
 
@@ -106,7 +106,7 @@ export default function Profile() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-2 top-[38px] cursor-pointer p-1"
                 icon={showConfirmPassword ? mdiEye : mdiEyeOff}
-                type="transparent"
+                variant="transparent"
               />
             </div>
           </Grid>

@@ -114,7 +114,7 @@ export default function CVSS31Render({ selectedValues, handleButtonClick }) {
           {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
             <Button
               small
-              type={optionKey === selectedValues[metricKey] ? "" : "secondary"}
+              variant={optionKey === selectedValues[metricKey] ? "" : "secondary"}
               text={`${optionLabel} (${optionKey})`}
               onClick={() => handleButtonClick(metricKey, optionKey)}
               key={`${optionLabel}-${cvss31KeyUuid}`}

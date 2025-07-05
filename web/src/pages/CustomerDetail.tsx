@@ -265,7 +265,7 @@ export default function CustomerDetail() {
           <Divider />
           <Buttons>
             <Button text="Submit" onClick={handleSubmit} />
-            <Button type="secondary" text="Cancel" onClick={() => navigate("/customers")} />
+            <Button variant="secondary" text="Cancel" onClick={() => navigate("/customers")} />
           </Buttons>
         </Card>
         <Card className="w-full">
@@ -312,8 +312,8 @@ export default function CustomerDetail() {
               Type: file.type,
               buttons: (
                 <Buttons noWrap>
-                  <Button icon={mdiDownload} onClick={() => downloadUploadedTemplate(index)} type="secondary" />
-                  <Button icon={mdiTrashCan} onClick={() => deleteUploadedTemplate(index)} type="danger" />
+                  <Button icon={mdiDownload} onClick={() => downloadUploadedTemplate(index)} variant="secondary" />
+                  <Button icon={mdiTrashCan} onClick={() => deleteUploadedTemplate(index)} variant="danger" />
                 </Buttons>
               ),
             }))}

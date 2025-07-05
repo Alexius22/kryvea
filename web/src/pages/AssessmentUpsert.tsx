@@ -259,7 +259,7 @@ export default function AssessmentUpsert() {
           <Divider />
           <Buttons>
             <Button text="Submit" onClick={() => {}} />
-            <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+            <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
           </Buttons>
         </Grid>
       </form>

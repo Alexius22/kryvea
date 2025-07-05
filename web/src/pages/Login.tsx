@@ -75,7 +75,7 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2 top-[38px] cursor-pointer p-1"
                 icon={showPassword ? mdiEye : mdiEyeOff}
-                type="transparent"
+                variant="transparent"
               />
             </div>
             <Checkbox

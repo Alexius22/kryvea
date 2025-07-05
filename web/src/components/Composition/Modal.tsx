@@ -23,7 +23,7 @@ export default function Modal({ title, buttonLabel, isActive, children, classNam
   const footer = (
     <Buttons className="-ml-6">
       <Button text={buttonLabel} onClick={onConfirm} />
-      {!!onCancel && <Button type="outline-only" text="Cancel" onClick={onCancel} />}
+      {!!onCancel && <Button variant="outline-only" text="Cancel" onClick={onCancel} />}
     </Buttons>
   );
 
@@ -32,7 +32,7 @@ export default function Modal({ title, buttonLabel, isActive, children, classNam
       <div className={"max-h-modal w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
         <Card className={`${className}`} footer={footer}>
           <CardTitle title={title}>
-            {!!onCancel && <Button type="transparent" icon={mdiClose} onClick={onCancel} small />}
+            {!!onCancel && <Button variant="transparent" icon={mdiClose} onClick={onCancel} small />}
           </CardTitle>
           {children}
         </Card>

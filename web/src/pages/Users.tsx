@@ -191,7 +191,7 @@ export default function Users() {
           buttons: (
             <Buttons noWrap key={user.id}>
               <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
             </Buttons>
           ),
         }))}

@@ -210,7 +210,7 @@ export default function AssessmentVulnerabilities() {
           buttons: (
             <Buttons noWrap>
               <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
             </Buttons>
           ),
         }))}

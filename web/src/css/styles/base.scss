@@ -114,8 +114,8 @@ textarea:focus {
     filter: brightness(0.8);
   }
 
-  &[data-type="outline-only"],
-  &[data-type="transparent"] {
+  &[data-variant="outline-only"],
+  &[data-variant="transparent"] {
     &:hover {
       backdrop-filter: brightness(var(--clickable-hover-backdrop-brightness));
     }
@@ -128,6 +128,10 @@ textarea:focus {
 .glasscard {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
+  background-image: linear-gradient(
+    to top left,
+    rgba(var(--bg-primary-rgb), 0.5),
+    rgba(var(--bg-secondary-rgb), 0.5)
+  );
   border: 1px solid var(--border-primary);
 }
