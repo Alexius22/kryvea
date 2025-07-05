@@ -8,9 +8,7 @@ import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
@@ -27,7 +25,6 @@ export default function Customers() {
   const [formData, setFormData] = useState({
     name: "",
     language: "en",
-    default_cvss_versions: [],
   });
 
   const {
@@ -40,11 +37,6 @@ export default function Customers() {
     value: code,
     label,
   }));
-
-  const cvssOptions = [
-    { value: "4.0", label: "4.0" },
-    { value: "3.1", label: "3.1" },
-  ];
 
   const selectedLanguageOption = languageOptions.find(opt => opt.value === formData.language);
 
@@ -66,26 +58,8 @@ export default function Customers() {
     setFormData({
       name: customer.name,
       language: customer.language,
-      default_cvss_versions: customer.default_cvss_versions,
     });
     setIsModalCustomerActive(true);
-  };
-
-  const toggleCvssVersion = (version: string) => {
-    setFormData(prev => {
-      const current = prev.default_cvss_versions;
-      if (current.includes(version)) {
-        return {
-          ...prev,
-          default_cvss_versions: current.filter(v => v !== version),
-        };
-      } else {
-        return {
-          ...prev,
-          default_cvss_versions: [...current, version],
-        };
-      }
-    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -97,7 +71,6 @@ export default function Customers() {
     const payload = {
       name: formData.name,
       language: formData.language,
-      default_cvss_versions: formData.default_cvss_versions,
     };
 
     patchData<Customer>(`/api/customers/${selectedCustomer.id}`, payload, updatedCustomer => {
@@ -157,20 +130,6 @@ export default function Customers() {
             value={selectedLanguageOption}
             onChange={option => setFormData(prev => ({ ...prev, language: option.value }))}
           />
-
-          <Grid>
-            <Label text="CVSS Versions" />
-            {cvssOptions.map(({ value, label }) => (
-              <Checkbox
-                key={value}
-                id={`cvss_${value}`}
-                htmlFor={`cvss_${value}`}
-                label={label}
-                checked={formData.default_cvss_versions.includes(value)}
-                onChange={() => toggleCvssVersion(value)}
-              />
-            ))}
-          </Grid>
         </Grid>
       </Modal>
 
@@ -203,7 +162,6 @@ export default function Customers() {
               {customer.name}
             </Link>
           ),
-          "CVSS Versions": customer.default_cvss_versions?.join(" | "),
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (
             <Buttons noWrap>
