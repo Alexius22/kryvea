@@ -178,7 +178,7 @@ export default function Users() {
       </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
+        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/users/new")} />
       </SectionTitleLineWithButton>
 
       {/* Users Table */}

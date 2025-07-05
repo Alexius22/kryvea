@@ -182,9 +182,9 @@ export default function AssessmentVulnerabilities() {
             icon={mdiPlus}
             text="New Target"
             small
-            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/add_target`)}
+            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/new`)}
           />
-          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`add_vulnerability`)} />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>

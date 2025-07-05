@@ -109,14 +109,14 @@ export default function App() {
 
               {/* Users */}
               <Route path="/users" element={<Users />} />
-              <Route path="/add_user" element={<AddUser />} />
+              <Route path="/users/new" element={<AddUser />} />
 
               {/* Customers */}
               <Route path="/customers" element={<Customers />} />
-              <Route path="/add_customer" element={<AddCustomer />} />
+              <Route path="/customers/new" element={<AddCustomer />} />
               <Route path="/customers/:customerId" element={<CustomerDetail />} />
               <Route path="/customers/:customerId/targets" element={<Targets />} />
-              <Route path="/customers/:customerId/targets/add_target" element={<AddTarget />} />
+              <Route path="/customers/:customerId/targets/new" element={<AddTarget />} />
               <Route path="/customers/:customerId/assessments" element={<Assessments />} />
               <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
               <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
@@ -127,7 +127,7 @@ export default function App() {
                 element={<AssessmentVulnerabilities />}
               />
               <Route
-                path="/customers/:customerId/assessments/:assessmentId/vulnerabilities/add_vulnerability"
+                path="/customers/:customerId/assessments/:assessmentId/vulnerabilities/new"
                 element={<VulnerabilityUpsert />}
               />
               <Route

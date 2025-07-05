@@ -170,7 +170,7 @@ export default function AssessmentUpsert() {
     <Card>
       <form onSubmit={handleSubmit}>
         <Grid>
-          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "Add Assessment"}</h2>
+          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
           <SelectWrapper
             label="Assessment Type"
             id="assessment_type"
@@ -215,8 +215,8 @@ export default function AssessmentUpsert() {
             <Button
               className="h-[42px]"
               icon={mdiPlus}
-              text="Add Target"
-              onClick={() => navigate(`/customers/${customerId}/targets/add_target`)}
+              text="New Target"
+              onClick={() => navigate(`/customers/${customerId}/targets/new`)}
             />
           </Grid>
           <Grid>
