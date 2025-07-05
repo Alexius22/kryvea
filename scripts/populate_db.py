@@ -462,7 +462,7 @@ class Vulnerability:
 class POC:
     def __init__(
         self,
-        index=1,
+        index=0,
         type="exploit",
         description="",
         uri="",
@@ -487,18 +487,20 @@ class POC:
         self.vulnerability_id = vulnerability_id
 
     def json(self):
-        return {
-            "index": self.index,
-            "type": self.type,
-            "description": self.description,
-            "uri": self.uri,
-            "request": self.request,
-            "response": self.response,
-            "image_data": self.image_data,
-            "image_caption": self.image_caption,
-            "text_language": self.text_language,
-            "text_data": self.text_data,
-        }
+        return [
+            {
+                "index": self.index,
+                "type": self.type,
+                "description": self.description,
+                "uri": self.uri,
+                "request": self.request,
+                "response": self.response,
+                "image_data": self.image_data,
+                "image_caption": self.image_caption,
+                "text_language": self.text_language,
+                "text_data": self.text_data,
+            }
+        ]
 
     def get(self):
         response = session.get(
@@ -511,16 +513,16 @@ class POC:
             f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json()
         )
         jr = response.json()
-        id = jr.get("poc_id")
-        self.id = id
+        ids = jr.get("poc_ids")
+        self.id = ids[0] if ids else ""
         if response.status_code == 201:
-            return id, ""
+            return self.id, ""
         return "", jr.get("error")
 
 
 def rand_poc_text() -> POC:
     return POC(
-        index=1,
+        index=0,
         type=POC_TYPE_TEXT,
         description=rand_string(),
         text_language=rand_code_language(),
@@ -541,7 +543,7 @@ def rand_poc_image() -> POC:
     imageBytes = open(image, "rb").read()
     imageb64 = base64.b64encode(imageBytes).decode("utf-8")
     return POC(
-        index=1,
+        index=0,
         type=POC_TYPE_IMAGE,
         description=rand_string(),
         image_data=imageb64,
@@ -551,7 +553,7 @@ def rand_poc_image() -> POC:
 
 def rand_poc_request() -> POC:
     return POC(
-        index=1,
+        index=0,
         type=POC_TYPE_REQUEST,
         description=rand_string(),
         uri=random.choice(rand_urls()),
