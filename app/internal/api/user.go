@@ -446,13 +446,13 @@ func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot add owned assessment",
+			"error": "Cannot edit owned assessment",
 		})
 	}
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
-		"message": "Assessment owned",
+		"message": "Owned assessment updated",
 	})
 }
 
