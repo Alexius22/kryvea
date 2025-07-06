@@ -142,7 +142,7 @@ def rand_environment() -> str:
 
 
 def rand_testing_type() -> str:
-    types = ["Black Box", "White Box", "Grey Box"]
+    types = ["Black Box", "White Box", "Gray Box"]
     return random.choice(types)
 
 
@@ -276,6 +276,7 @@ class Target:
             "port": self.port,
             "protocol": self.protocol,
             "fqdn": self.fqdn,
+            "customer_id": self.customer_id,
         }
 
     def get(self) -> list:
@@ -283,9 +284,7 @@ class Target:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(
-            f"{base_url}/customers/{self.customer_id}/targets", json=self.json()
-        )
+        response = session.post(f"{base_url}/targets", json=self.json())
         jr = response.json()
         if response.status_code == 201:
             return jr.get("target_id"), ""
@@ -337,7 +336,7 @@ class Assessment:
         }
 
     def get(self) -> list:
-        response = session.get(f"{base_url}/assessments?customer={self.customer_id}")
+        response = session.get(f"{base_url}/customers/{self.customer_id}/assessments")
         return response.json()
 
     def create(self) -> Tuple[str, str]:

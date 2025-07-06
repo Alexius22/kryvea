@@ -65,7 +65,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	var targets []mongo.Target
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
@@ -74,7 +74,11 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
 	}
 
 	// insert assessment into database
@@ -110,12 +114,6 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	// parse query parameters
 	customerParam := c.Query("customer")
 	nameParam := c.Query("name")
-	if customerParam == "" && nameParam == "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Customer ID or name is required",
-		})
-	}
 
 	var customerID uuid.UUID
 	if customerParam != "" {
@@ -164,6 +162,43 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	return c.JSON(assessments)
 }
 
+func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// check if user can access the customer
+	customer, errStr := d.customerFromParam(c.Params("customer"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	if !util.CanAccessCustomer(user, customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	// retrieve assessments
+	assessments, err := d.mongo.Assessment().GetByCustomerID(customer.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot search assessments",
+			"err":   err.Error(),
+		})
+	}
+
+	if len(assessments) == 0 {
+		assessments = []mongo.Assessment{}
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessments)
+}
+
 func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 	// parse assessment param
@@ -192,15 +227,7 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid customer ID",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -317,15 +344,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid customer ID",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -333,7 +352,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	var targets []mongo.Target
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
@@ -342,11 +361,15 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
 	}
 
 	// update assessment in database
-	err = d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
+	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
 		Name:           data.Name,
 		StartDateTime:  data.StartDateTime,
 		EndDateTime:    data.EndDateTime,
@@ -384,15 +407,7 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid customer ID",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -400,7 +415,7 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 	}
 
 	// delete assessment from database
-	err = d.mongo.Assessment().Delete(assessment.ID)
+	err := d.mongo.Assessment().Delete(assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -427,15 +442,7 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid customer ID",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",

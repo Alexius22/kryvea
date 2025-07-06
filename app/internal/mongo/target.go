@@ -22,14 +22,18 @@ var TargetPipeline = mongo.Pipeline{
 			{Key: "localField", Value: "customer._id"},
 			{Key: "foreignField", Value: "_id"},
 			{Key: "as", Value: "customerData"},
-		}}},
+		}},
+	},
 	bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "customer", Value: bson.D{
 				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
 			}},
-		}}},
-	bson.D{{Key: "$unset", Value: "customerData"}},
+		}},
+	},
+	bson.D{
+		{Key: "$unset", Value: "customerData"},
+	},
 }
 
 type Target struct {
@@ -87,6 +91,13 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
+
+	target.Customer = Customer{
+		Model: Model{
+			ID: customerID,
+		},
+	}
+
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	return target.ID, err
 }
@@ -157,6 +168,15 @@ func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
 }
 
 func (ti *TargetIndex) GetByID(targetID uuid.UUID) (*Target, error) {
+	var target Target
+	err := ti.collection.FindOne(context.Background(), bson.M{"_id": targetID}).Decode(&target)
+	if err != nil {
+		return nil, err
+	}
+
+	return &target, nil
+}
+func (ti *TargetIndex) GetByIDPipeline(targetID uuid.UUID) (*Target, error) {
 	pipeline := append(TargetPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
 		bson.D{{Key: "$limit", Value: 1}},
@@ -216,14 +236,27 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Targ
 }
 
 func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{"$and": []bson.M{
+	conditions := []bson.M{
 		{"customer._id": customerID},
-		{"$or": []bson.M{
-			{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-			{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-		}},
-	}})
+	}
+
+	if ip != "" {
+		orCondition := bson.M{
+			"$or": []bson.M{
+				{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+				{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+				{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+			},
+		}
+		conditions = append(conditions, orCondition)
+	}
+
+	filter := bson.M{
+		"$and": conditions,
+	}
+
+	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: filter}})
+	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}

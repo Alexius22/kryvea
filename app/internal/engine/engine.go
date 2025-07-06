@@ -54,6 +54,7 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
 
 		apiGroup.Get("/assessments", api.SearchAssessments)
+		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
 		apiGroup.Get("/assessments/owned", api.GetOwnedAssessments)
 		apiGroup.Get("/assessments/:assessment", api.GetAssessment)
 		apiGroup.Post("/assessments", api.AddAssessment)
@@ -62,12 +63,12 @@ func (e *Engine) Serve() {
 		apiGroup.Post("/assessments/:assessment/clone", api.CloneAssessment)
 		apiGroup.Post("/assessments/:assessment/export", api.ExportAssessment)
 
-		apiGroup.Get("/customers/:customer/targets/search", api.SearchTargets)
+		// apiGroup.Get("/targets", api.SearchTargets)
 		apiGroup.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
-		apiGroup.Get("/customers/:customer/targets/:target", api.GetTarget)
-		apiGroup.Post("/customers/:customer/targets", api.AddTarget)
-		apiGroup.Patch("/customers/:customer/targets/:target", api.UpdateTarget)
-		apiGroup.Delete("/customers/:customer/targets/:target", api.DeleteTarget)
+		apiGroup.Get("/targets/:target", api.GetTarget)
+		apiGroup.Post("/targets", api.AddTarget)
+		apiGroup.Patch("/targets/:target", api.UpdateTarget)
+		apiGroup.Delete("/targets/:target", api.DeleteTarget)
 
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetCategories)
