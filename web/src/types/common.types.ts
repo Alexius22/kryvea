@@ -38,7 +38,7 @@ export type Vulnerability = {
   generic_remediation: { enabled: boolean; text: string };
   description: string;
   remediation: string;
-  target: { id: string; ipv4: string; ipv6: string; fqdn: string };
+  target: { id: string; ipv4: string; ipv6: string; fqdn: string; name: string; customer: Customer };
   assessment: { id: string; name: string };
   user: { id: string; username: string };
 };
