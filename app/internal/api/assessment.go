@@ -186,13 +186,22 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot search assessments",
-			"err":   err.Error(),
+			"error": "Cannot retrieve assessments",
 		})
 	}
 
 	if len(assessments) == 0 {
 		assessments = []mongo.Assessment{}
+	}
+
+	// set owned assessments
+	for i := range assessments {
+		for _, userAssessment := range user.Assessments {
+			if userAssessment.ID == assessments[i].ID {
+				assessments[i].IsOwned = true
+				break
+			}
+		}
 	}
 
 	c.Status(fiber.StatusOK)
@@ -234,21 +243,7 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// retrieve target data
-	// TODO: move this block inside a function
-	for j := range assessment.Targets {
-		target, err := d.mongo.Target().GetByID(assessment.Targets[j].ID)
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{
-				"error": "Cannot get target",
-			})
-		}
-		assessment.Targets[j].IPv4 = target.IPv4
-		assessment.Targets[j].IPv6 = target.IPv6
-		assessment.Targets[j].FQDN = target.FQDN
-	}
-
+	// set owned assessment
 	for _, userAssessment := range user.Assessments {
 		if userAssessment.ID == assessment.ID {
 			assessment.IsOwned = true
@@ -284,23 +279,12 @@ func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	// retrieve target data
-	// TODO: move this block inside a function
-	// retrieve target data
-	for i := range assessments {
-		for j := range assessments[i].Targets {
-			target, err := d.mongo.Target().GetByID(assessments[i].Targets[j].ID)
-			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
-				return c.JSON(fiber.Map{
-					"error": "Cannot get target",
-				})
-			}
-			assessments[i].Targets[j].IPv4 = target.IPv4
-			assessments[i].Targets[j].IPv6 = target.IPv6
-			assessments[i].Targets[j].FQDN = target.FQDN
-		}
+	if len(assessments) == 0 {
+		assessments = []mongo.Assessment{}
+	}
 
+	// set owned assessments
+	for i := range assessments {
 		for _, userAssessment := range user.Assessments {
 			if userAssessment.ID == assessments[i].ID {
 				assessments[i].IsOwned = true
