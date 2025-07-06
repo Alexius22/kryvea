@@ -190,7 +190,9 @@ func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment,
 }
 
 func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, error) {
-	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
+	pipeline := append(AssessmentPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}},
+	)
 	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
@@ -198,7 +200,8 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	defer cursor.Close(context.Background())
 
 	var assessments []Assessment
-	if err := cursor.All(context.Background(), &assessments); err != nil {
+	err = cursor.All(context.Background(), &assessments)
+	if err != nil {
 		return nil, err
 	}
 
