@@ -30,6 +30,7 @@ export default function AddTarget() {
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
       name: hostName.trim(),
+      customer_id: customerId,
     };
 
     postData<Target>(`/api/targets`, payload, () => {
