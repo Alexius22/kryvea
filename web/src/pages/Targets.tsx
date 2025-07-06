@@ -56,7 +56,7 @@ export default function Targets() {
       name: hostName.trim(),
     };
 
-    patchData<Target>(`/api/customers/${customerId}/targets/${editingTarget.id}`, payload, () => {
+    patchData<Target>(`/api/targets/${editingTarget.id}`, payload, () => {
       toast.success("Target updated successfully");
       setIsModalEditActive(false);
       setEditingTarget(null);
@@ -70,7 +70,7 @@ export default function Targets() {
   };
 
   const handleDeleteConfirm = () => {
-    deleteData(`/api/customers/${customerId}/targets/${targetToDelete.id}`, () => {
+    deleteData(`/api/targets/${targetToDelete.id}`, () => {
       toast.success(
         `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
       );
