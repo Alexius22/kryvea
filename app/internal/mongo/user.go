@@ -30,82 +30,69 @@ var (
 )
 
 var UserPipeline = mongo.Pipeline{
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "customer"},
-		{Key: "localField", Value: "customers._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "customerData"},
-	}}},
-	bson.D{{Key: "$set", Value: bson.D{
-		{Key: "customers", Value: bson.D{
-			{Key: "$map", Value: bson.D{
-				{Key: "input", Value: "$customers"},
-				{Key: "as", Value: "customer"},
-				{Key: "in", Value: bson.D{
-					{Key: "$arrayElemAt", Value: bson.A{
-						bson.D{{Key: "$filter", Value: bson.D{
-							{Key: "input", Value: "$customerData"},
-							{Key: "as", Value: "cust"},
-							{Key: "cond", Value: bson.D{
-								{Key: "$eq", Value: bson.A{"$$cust._id", "$$customer._id"}},
-							}},
-						}}},
-						0,
-					}},
-				}},
-			}},
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "customer"},
+			{Key: "localField", Value: "customers._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "customers"},
 		}},
-	}}},
-	bson.D{{Key: "$unset", Value: "customerData"}},
+	},
 
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "assessment"},
-		{Key: "localField", Value: "assessments._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "assessmentData"},
-	}}},
-	bson.D{{Key: "$set", Value: bson.D{
-		{Key: "assessments", Value: bson.D{
-			{Key: "$map", Value: bson.D{
-				{Key: "input", Value: "$assessments"},
-				{Key: "as", Value: "assessment"},
-				{Key: "in", Value: bson.D{
-					{Key: "_id", Value: "$$assessment._id"},
-					{Key: "name", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$assessmentData"},
-											{Key: "as", Value: "assess"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$assess._id", "$$assessment._id"}},
-											}},
-										}}},
-										0,
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "assessment"},
+			{Key: "localField", Value: "assessments._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "assessmentData"},
+		}},
+	},
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "assessments", Value: bson.D{
+				{Key: "$map", Value: bson.D{
+					{Key: "input", Value: "$assessments"},
+					{Key: "as", Value: "assessment"},
+					{Key: "in", Value: bson.D{
+						{Key: "_id", Value: "$$assessment._id"},
+						{Key: "name", Value: bson.D{
+							{Key: "$let", Value: bson.D{
+								{Key: "vars", Value: bson.D{
+									{Key: "matched", Value: bson.D{
+										{Key: "$arrayElemAt", Value: bson.A{
+											bson.D{{Key: "$filter", Value: bson.D{
+												{Key: "input", Value: "$assessmentData"},
+												{Key: "as", Value: "assess"},
+												{Key: "cond", Value: bson.D{
+													{Key: "$eq", Value: bson.A{"$$assess._id", "$$assessment._id"}},
+												}},
+											}}},
+											0,
+										}},
 									}},
 								}},
+								{Key: "in", Value: "$$matched.name"},
 							}},
-							{Key: "in", Value: "$$matched.name"},
 						}},
 					}},
 				}},
 			}},
 		}},
-	}}},
+	},
 	bson.D{{Key: "$unset", Value: "assessmentData"}},
 
-	bson.D{{Key: "$project", Value: bson.D{
-		{Key: "_id", Value: 1},
-		{Key: "created_at", Value: 1},
-		{Key: "updated_at", Value: 1},
-		{Key: "disabled_at", Value: 1},
-		{Key: "username", Value: 1},
-		{Key: "role", Value: 1},
-		{Key: "customers", Value: 1},
-		{Key: "assessments", Value: 1},
-	}}},
+	bson.D{
+		{Key: "$project", Value: bson.D{
+			{Key: "_id", Value: 1},
+			{Key: "created_at", Value: 1},
+			{Key: "updated_at", Value: 1},
+			{Key: "disabled_at", Value: 1},
+			{Key: "username", Value: 1},
+			{Key: "role", Value: 1},
+			{Key: "customers", Value: 1},
+			{Key: "assessments", Value: 1},
+		}},
+	},
 }
 
 type User struct {
