@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -14,7 +14,7 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
-import { Assessment } from "../types/common.types";
+import { Assessment, Target } from "../types/common.types";
 
 const ASSESSMENT_TYPE: SelectOption[] = [
   { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
@@ -55,6 +55,7 @@ function getOption(options: SelectOption[], value: string): SelectOption | undef
 export default function AssessmentUpsert() {
   const navigate = useNavigate();
   const { customerId, assessmentId } = useParams<{ customerId: string; assessmentId?: string }>();
+  const [targets, setTargets] = useState<Target[]>([]);
   const isEdit = Boolean(assessmentId);
 
   const [form, setForm] = useState<
@@ -75,7 +76,9 @@ export default function AssessmentUpsert() {
 
   useEffect(() => {
     document.title = getPageTitle(isEdit ? "Edit Assessment" : "Add Assessment");
-    if (customerId && isEdit && assessmentId) {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+
+    if (isEdit) {
       getData<Assessment>(
         `/api/assessments/${assessmentId}`,
         data => {
@@ -100,14 +103,7 @@ export default function AssessmentUpsert() {
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
-  const allTargets = useMemo(() => {
-    if (isEdit && assessment) {
-      return assessment.targets || [];
-    }
-    return [];
-  }, [assessment, isEdit]);
-
-  const targetOptions: SelectOption[] = allTargets.map(target => ({
+  const targetOptions: SelectOption[] = targets.map(target => ({
     value: target.id,
     label:
       target.fqdn && (target.ipv4 || target.ipv6)
@@ -141,10 +137,7 @@ export default function AssessmentUpsert() {
   };
 
   const handleTargetsChange = (options: SelectOption[] | null) => {
-    handleChange(
-      "targets",
-      options ? options.map(opt => allTargets.find(t => t.id === opt.value)!).filter(Boolean) : []
-    );
+    handleChange("targets", options ? options.map(opt => targets.find(t => t.id === opt.value)!).filter(Boolean) : []);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
