@@ -20,7 +20,10 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
     () => [
       [ctxCustomer?.id, ctxCustomer?.name],
       [ctxAssessment?.id, ctxAssessment?.name],
-      [ctxVulnerability?.id, ctxVulnerability?.detailed_title],
+      [
+        ctxVulnerability?.id,
+        `${ctxVulnerability?.category.index}: ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
+      ],
       [ctxCategory?.id, ctxCategory?.name],
     ],
     [ctxCustomer, ctxAssessment, ctxVulnerability, ctxCategory]
