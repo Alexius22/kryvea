@@ -579,10 +579,8 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 		return "Invalid role"
 	}
 
-	if data.Password != "" {
-		if !util.IsValidPassword(data.Password) {
-			return "Password does not meet policy requirements"
-		}
+	if !util.IsValidPassword(data.Password) {
+		return "Password does not meet policy requirements"
 	}
 
 	return ""
