@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Grid from "../../Composition/Grid";
 import Subtitle from "../../Composition/Subtitle";
 import Accordion from "../../Form/Accordion";
@@ -7,7 +7,7 @@ import ScoreBar from "../ScoreBar";
 import { calculateCVSSFromMetrics, calculateCVSSFromVector } from "./CVSS31";
 import CVSS31Render from "./CVSS31Render";
 
-export default function CVSS31Wrapper() {
+export default function CVSS31Wrapper({ value }) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [selectedValues, setSelectedValues] = useState({
     AttackVector: "N",
@@ -46,6 +46,13 @@ export default function CVSS31Wrapper() {
     setError("");
     return cvssInfo.environmentalMetricScore;
   }, [cvssString]);
+
+  useEffect(() => {
+    if (!value) {
+      return;
+    }
+    handleInputChange({ target: { value } } as any);
+  }, []);
 
   const handleInputChange = e => {
     const cvssStringChange = e.target.value;

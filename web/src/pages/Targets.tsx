@@ -11,48 +11,40 @@ import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import { Host } from "../types/common.types";
+import { Target } from "../types/common.types";
 
-export default function Hosts() {
-  const navigate = useNavigate();
-  const { customerId } = useParams<{ customerId: string }>();
-
-  const [hosts, setHosts] = useState<Host[]>([]);
+export default function Targets() {
+  const [targets, setTargets] = useState<Target[]>([]);
 
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-  const [hostToDelete, setHostToDelete] = useState<Host | null>(null);
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
 
   const [isModalEditActive, setIsModalEditActive] = useState(false);
-  const [editingHost, setEditingHost] = useState<Host | null>(null);
+  const [editingTarget, setEditingTarget] = useState<Target | null>(null);
 
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
   const [hostName, setHostName] = useState("");
 
-  const fetchHosts = () => {
-    getData<Host[]>(
-      `/api/customers/${customerId}/targets`,
-      data => {
-        setHosts(data);
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+  const navigate = useNavigate();
+  const { customerId } = useParams<{ customerId: string }>();
+
+  const fetchTargets = () => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
   };
 
   useEffect(() => {
-    document.title = getPageTitle("Hosts");
-    fetchHosts();
+    document.title = getPageTitle("Targets");
+    fetchTargets();
   }, [customerId]);
 
-  const openEditModal = (host: Host) => {
-    setEditingHost(host);
-    setIpv4(host.ipv4 || "");
-    setIpv6(host.ipv6 || "");
-    setFqdn(host.fqdn || "");
-    setHostName(host.name || "");
+  const openEditModal = (target: Target) => {
+    setEditingTarget(target);
+    setIpv4(target.ipv4 || "");
+    setIpv6(target.ipv6 || "");
+    setFqdn(target.fqdn || "");
+    setHostName(target.name || "");
     setIsModalEditActive(true);
   };
 
@@ -64,48 +56,35 @@ export default function Hosts() {
       name: hostName.trim(),
     };
 
-    patchData<Host>(
-      `/api/customers/${customerId}/targets/${editingHost.id}`,
-      payload,
-      () => {
-        toast.success("Host updated successfully");
-        setIsModalEditActive(false);
-        setEditingHost(null);
-        fetchHosts();
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    patchData<Target>(`/api/targets/${editingTarget.id}`, payload, () => {
+      toast.success("Target updated successfully");
+      setIsModalEditActive(false);
+      setEditingTarget(null);
+      fetchTargets();
+    });
   };
 
-  const openDeleteModal = (target: Host) => {
-    setHostToDelete(target);
+  const openDeleteModal = (target: Target) => {
+    setTargetToDelete(target);
     setIsModalTrashActive(true);
   };
 
   const handleDeleteConfirm = () => {
-    deleteData(
-      `/api/customers/${customerId}/targets/${hostToDelete.id}`,
-      () => {
-        toast.success(
-          `Host "${hostToDelete.name || hostToDelete.fqdn || hostToDelete.ipv4 || hostToDelete.ipv6}" deleted successfully`
-        );
-        setIsModalTrashActive(false);
-        setHostToDelete(null);
-        fetchHosts();
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    deleteData(`/api/targets/${targetToDelete.id}`, () => {
+      toast.success(
+        `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
+      );
+      setIsModalTrashActive(false);
+      setTargetToDelete(null);
+      fetchTargets();
+    });
   };
 
   return (
     <div>
-      {/* Edit Host Modal */}
+      {/* Edit Target Modal */}
       <Modal
-        title="Edit Host"
+        title="Edit Target"
         buttonLabel="Save"
         isActive={isModalEditActive}
         onConfirm={handleEditConfirm}
@@ -157,30 +136,32 @@ export default function Hosts() {
       >
         <p>
           Are you sure to delete{" "}
-          <strong>{hostToDelete?.name || hostToDelete?.fqdn || hostToDelete?.ipv4 || hostToDelete?.ipv6 || ""}</strong>{" "}
-          host?
+          <strong>
+            {targetToDelete?.name || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
+          </strong>{" "}
+          target?
         </p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Hosts">
+      <SectionTitleLineWithButton icon={mdiListBox} title="Targets">
         <Button
           icon={mdiPlus}
-          text="New host"
+          text="New target"
           small
-          onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+          onClick={() => navigate(`/customers/${customerId}/targets/new`)}
         />
       </SectionTitleLineWithButton>
 
       <Table
-        data={hosts.map(host => ({
-          FQDN: host.fqdn,
-          IPv4: host.ipv4,
-          IPv6: host.ipv6,
-          Name: host.name,
+        data={targets.map(target => ({
+          FQDN: target.fqdn,
+          IPv4: target.ipv4,
+          IPv6: target.ipv6,
+          Name: target.name,
           buttons: (
             <Buttons noWrap>
-              <Button icon={mdiPencil} onClick={() => openEditModal(host)} small />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(host)} small />
+              <Button icon={mdiPencil} onClick={() => openEditModal(target)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(target)} small />
             </Buttons>
           ),
         }))}

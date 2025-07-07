@@ -98,36 +98,21 @@ export default function Users() {
       disabled_at: userDisabled,
     };
 
-    patchData<User>(
-      `/api/users/${activeUserId}`,
-      payload,
-      updatedUser => {
-        toast.success(`User ${payload.username} updated successfully`);
-        setIsModalInfoActive(false);
-        setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    patchData<User>(`/api/users/${activeUserId}`, payload, updatedUser => {
+      toast.success(`User ${payload.username} updated successfully`);
+      setIsModalInfoActive(false);
+      setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
+    });
   };
 
   const handleDeleteUser = () => {
     if (!activeUserId) return;
 
-    deleteData<{ message: string }>(
-      `/api/users/${activeUserId}`,
-      () => {
-        toast.success("User deleted successfully");
-        setIsModalTrashActive(false);
-        setUsers(prev => prev.filter(u => u.id !== activeUserId));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData<{ message: string }>(`/api/users/${activeUserId}`, () => {
+      toast.success("User deleted successfully");
+      setIsModalTrashActive(false);
+      setUsers(prev => prev.filter(u => u.id !== activeUserId));
+    });
   };
 
   return (
@@ -193,7 +178,7 @@ export default function Users() {
       </Modal>
 
       <SectionTitleLineWithButton icon={mdiListBox} title="Users">
-        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/add_user")} />
+        <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/users/new")} />
       </SectionTitleLineWithButton>
 
       {/* Users Table */}
@@ -206,7 +191,7 @@ export default function Users() {
           buttons: (
             <Buttons noWrap key={user.id}>
               <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
             </Buttons>
           ),
         }))}

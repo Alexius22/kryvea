@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 type OnThenCallback<T> = (response: T) => any;
 type OnCatchCallback<T> = (error: T) => any;
@@ -7,10 +8,15 @@ type HttpErrorData = {
   error: string;
 };
 
+const UNKNOWN_HTTP_ERROR_CAUSE = "Unknown error";
+
+const defaultHandleCatch: OnCatchCallback<AxiosError<HttpErrorData>> = err =>
+  toast.error(err.response?.data.error || UNKNOWN_HTTP_ERROR_CAUSE);
+
 export function getData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -24,7 +30,7 @@ export function postData<TResponseData>(
   endpoint: string,
   data: any = undefined,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -38,7 +44,7 @@ export function patchData<TResponseData>(
   endpoint: string,
   data: any = undefined,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios
@@ -51,7 +57,7 @@ export function patchData<TResponseData>(
 export function deleteData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
-  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
   onFinally: OnFinallyCallback = undefined
 ) {
   axios

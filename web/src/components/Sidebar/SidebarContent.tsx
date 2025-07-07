@@ -1,5 +1,5 @@
-import { useContext } from "react";
 import { mdiAccountMultiple, mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiViewList } from "@mdi/js";
+import { useContext } from "react";
 import { GlobalContext } from "../../App";
 import Item from "./Item";
 
@@ -18,21 +18,20 @@ type Props = {
 
 export default function SidebarContent({ nestedMenu, isDropdownList = false, className = "" }: Props) {
   const {
-    useCustomerName: [customerName],
-    useCustomerId: [customerId],
+    useCtxCustomer: [ctxCustomer],
   } = useContext(GlobalContext);
 
   const defaultMenu = [
     { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
     { href: "/customers", icon: mdiListBox, label: "Customers" },
-    ...(customerName
+    ...(ctxCustomer
       ? [
           {
-            label: customerName,
+            label: ctxCustomer.name,
             icon: mdiViewList,
             menu: [
-              { href: `/customers/${customerId}/assessments`, label: "Assessments" },
-              { href: `/customers/${customerId}/targets`, label: "Hosts" },
+              { href: `/customers/${ctxCustomer.id}/assessments`, label: "Assessments" },
+              { href: `/customers/${ctxCustomer.id}/targets`, label: "Targets" },
             ],
           },
         ]

@@ -169,7 +169,7 @@ export default function CVSS40Render({ selectedValues, handleButtonClick }) {
             return (
               <Button
                 small
-                type={isSelected ? "" : "secondary"}
+                variant={isSelected ? "" : "secondary"}
                 text={`${optionLabel} (${optionKey})`}
                 onClick={() => handleButtonClick(metricKey, optionKey)}
                 key={`${optionLabel}-${cvss40KeyUuid}`}

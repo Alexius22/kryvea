@@ -14,6 +14,7 @@ import { Customer } from "../types/common.types";
 
 export default function AddUser() {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -24,15 +25,11 @@ export default function AddUser() {
   useEffect(() => {
     document.title = getPageTitle("User");
 
-    getData<Customer[]>(
-      "/api/customers",
-      data => setCustomers(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        setError(errorMessage);
-        toast.error(errorMessage);
-      }
-    );
+    getData<Customer[]>("/api/customers", setCustomers, err => {
+      const errorMessage = err.response.data.error;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    });
   }, []);
 
   // Prepare options for the customers select dropdown
@@ -62,6 +59,7 @@ export default function AddUser() {
       "/api/users",
       {
         username,
+        password,
         role,
         customers: selectedCustomers,
       },
@@ -84,6 +82,14 @@ export default function AddUser() {
           id="username"
           value={username}
           onChange={e => setUsername(e.target.value)}
+        />
+        <Input
+          type="password"
+          label="Password"
+          placeholder="password"
+          id="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
         />
         <SelectWrapper
           label="Role"
@@ -108,7 +114,7 @@ export default function AddUser() {
         <Divider />
         <Buttons>
           <Button text="Submit" onClick={handleSubmit} />
-          <Button type="outline-only" text="Cancel" onClick={() => navigate("/users")} />
+          <Button variant="outline-only" text="Cancel" onClick={() => navigate("/users")} />
         </Buttons>
       </Grid>
     </Card>
