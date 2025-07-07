@@ -224,6 +224,7 @@ export default function Assessments() {
           End: formatDate(assessment.end_date_time),
           Status: (
             <SelectWrapper
+              small
               widthFixed
               options={statusSelectOptions}
               value={statusSelectOptions.find(opt => opt.value === assessment.status)}
