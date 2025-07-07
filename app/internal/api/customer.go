@@ -91,7 +91,7 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// retrieve user's customers
-	var userCustomers []uuid.UUID
+	userCustomers := []uuid.UUID{}
 	for _, uc := range user.Customers {
 		userCustomers = append(userCustomers, uc.ID)
 	}

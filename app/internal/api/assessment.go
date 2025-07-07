@@ -137,7 +137,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	}
 
 	// retrieve user's customers
-	var customers []uuid.UUID
+	customers := []uuid.UUID{}
 	for _, uc := range user.Customers {
 		customers = append(customers, uc.ID)
 	}
