@@ -108,10 +108,6 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(customers) == 0 {
-		customers = []mongo.Customer{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(customers)
 }

@@ -258,14 +258,14 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: filter}})
 	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		return nil, err
+		return []Target{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var targets []Target
+	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
 	if err != nil {
-		return nil, err
+		return []Target{}, err
 	}
 
 	return targets, nil

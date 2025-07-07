@@ -181,10 +181,6 @@ func (d *Driver) SearchCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(categories) == 0 {
-		categories = []mongo.Category{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
 }
@@ -196,10 +192,6 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"error": "Cannot get categories",
 		})
-	}
-
-	if len(categories) == 0 {
-		categories = []mongo.Category{}
 	}
 
 	download := c.Query("download")

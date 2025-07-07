@@ -198,10 +198,6 @@ func (d *Driver) GetTargetsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(targets) == 0 {
-		targets = []mongo.Target{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(targets)
 }

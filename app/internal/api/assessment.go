@@ -154,10 +154,6 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(assessments) == 0 {
-		assessments = []mongo.Assessment{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(assessments)
 }
@@ -188,10 +184,6 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"error": "Cannot retrieve assessments",
 		})
-	}
-
-	if len(assessments) == 0 {
-		assessments = []mongo.Assessment{}
 	}
 
 	// set owned assessments
@@ -277,10 +269,6 @@ func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"error": "Cannot get owned assessments",
 		})
-	}
-
-	if len(assessments) == 0 {
-		assessments = []mongo.Assessment{}
 	}
 
 	// set owned assessments

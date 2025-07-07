@@ -153,14 +153,14 @@ func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessm
 	)
 	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		return nil, err
+		return []Assessment{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var assessments []Assessment
+	assessments := []Assessment{}
 	err = cursor.All(context.Background(), &assessments)
 	if err != nil {
-		return nil, err
+		return []Assessment{}, err
 	}
 
 	return assessments, nil
@@ -234,12 +234,12 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: filter}})
 	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		return nil, err
+		return []Assessment{}, err
 	}
 
-	var assessments []Assessment
+	assessments := []Assessment{}
 	if err := cursor.All(context.Background(), &assessments); err != nil {
-		return nil, err
+		return []Assessment{}, err
 	}
 
 	return assessments, nil
