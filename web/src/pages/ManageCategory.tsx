@@ -17,33 +17,7 @@ import Textarea from "../components/Form/Textarea";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
-
-const languageMapping: Record<string, string> = {
-  bg: "Bulgarian",
-  cs: "Czech",
-  da: "Danish",
-  de: "German",
-  el: "Greek",
-  en: "English",
-  es: "Spanish",
-  et: "Estonian",
-  fi: "Finnish",
-  fr: "French",
-  hr: "Croatian",
-  hu: "Hungarian",
-  is: "Icelandic",
-  it: "Italian",
-  lt: "Lithuanian",
-  lv: "Latvian",
-  nl: "Dutch",
-  pl: "Polish",
-  pt: "Portuguese",
-  ro: "Romanian",
-  ru: "Russian",
-  sk: "Slovak",
-  sl: "Slovenian",
-  sv: "Swedish",
-};
+import { languageMapping } from "../types/languages";
 
 export default function ManageCategory() {
   const navigate = useNavigate();
@@ -69,53 +43,47 @@ export default function ManageCategory() {
     document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
 
     if (categoryId) {
-      getData<Category[]>(
-        "/api/categories",
-        categories => {
-          const category = categories.find(c => c.id === categoryId);
-          if (!category) {
-            toast.error("Category not found");
-            navigate("/categories");
-            return;
-          }
-
-          setIdentifier(category.index);
-          setName(category.name);
-          setGenericDescription(category.generic_description?.en || "");
-          setGenericRemediation(category.generic_remediation?.en || "");
-          setReferences(category.references || []);
-
-          const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
-          setAdditionalFields(
-            otherLangs.map(lang => ({
-              value: lang,
-              label: languageMapping[lang] || lang,
-            }))
-          );
-
-          setGenericDescriptions(
-            otherLangs.reduce(
-              (acc, lang) => {
-                acc[lang] = category.generic_description?.[lang] || "";
-                return acc;
-              },
-              {} as Record<string, string>
-            )
-          );
-          setGenericRemediations(
-            otherLangs.reduce(
-              (acc, lang) => {
-                acc[lang] = category.generic_remediation?.[lang] || "";
-                return acc;
-              },
-              {} as Record<string, string>
-            )
-          );
-        },
-        err => {
-          toast.error(err.response?.data?.error || "Failed to load categories");
+      getData<Category[]>("/api/categories", categories => {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category) {
+          toast.error("Category not found");
+          navigate("/categories");
+          return;
         }
-      );
+
+        setIdentifier(category.index);
+        setName(category.name);
+        setGenericDescription(category.generic_description?.en || "");
+        setGenericRemediation(category.generic_remediation?.en || "");
+        setReferences(category.references || []);
+
+        const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
+        setAdditionalFields(
+          otherLangs.map(lang => ({
+            value: lang,
+            label: languageMapping[lang] || lang,
+          }))
+        );
+
+        setGenericDescriptions(
+          otherLangs.reduce(
+            (acc, lang) => {
+              acc[lang] = category.generic_description?.[lang] || "";
+              return acc;
+            },
+            {} as Record<string, string>
+          )
+        );
+        setGenericRemediations(
+          otherLangs.reduce(
+            (acc, lang) => {
+              acc[lang] = category.generic_remediation?.[lang] || "";
+              return acc;
+            },
+            {} as Record<string, string>
+          )
+        );
+      });
     } else {
       // New category: initialize empty form
       setIdentifier("");
@@ -165,7 +133,7 @@ export default function ManageCategory() {
       return;
     }
 
-    const payload: Category = {
+    const payload: Omit<Category, "id"> = {
       index: identifier.trim(),
       name: name.trim(),
       generic_description: {
@@ -180,29 +148,15 @@ export default function ManageCategory() {
     };
 
     if (categoryId) {
-      patchData<Category>(
-        `/api/categories/${categoryId}`,
-        payload,
-        () => {
-          toast.success("Category updated successfully");
-          navigate("/categories");
-        },
-        err => {
-          toast.error(err.response.data.error);
-        }
-      );
+      patchData<Category>(`/api/categories/${categoryId}`, payload, () => {
+        toast.success("Category updated successfully");
+        navigate("/categories");
+      });
     } else {
-      postData<Category>(
-        "/api/categories",
-        payload,
-        () => {
-          toast.success("Category created successfully");
-          navigate("/categories");
-        },
-        err => {
-          toast.error(err.response.data.error);
-        }
-      );
+      postData<Category>("/api/categories", payload, () => {
+        toast.success("Category created successfully");
+        navigate("/categories");
+      });
     }
   };
 
@@ -283,7 +237,12 @@ export default function ManageCategory() {
           <div key={language.value}>
             <div className="flex items-center justify-between">
               <Label text={language.label} />
-              <Button type="danger" icon={mdiTrashCan} small onClick={() => removeAdditionalLanguage(language.value)} />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                small
+                onClick={() => removeAdditionalLanguage(language.value)}
+              />
             </div>
             <Grid className="grid-cols-2 gap-4">
               <Textarea
@@ -311,7 +270,7 @@ export default function ManageCategory() {
           <Divider />
           <Buttons>
             <Button text="Submit" onClick={handleSubmit} />
-            <Button type="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
+            <Button variant="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
           </Buttons>
         </Grid>
       </Card>

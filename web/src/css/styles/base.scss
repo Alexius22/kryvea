@@ -14,6 +14,13 @@ button {
   @apply rounded border-none px-4 py-2;
   background-color: var(--button-bg);
 }
+button[disabled] {
+  @apply cursor-not-allowed opacity-50;
+
+  &:hover {
+    filter: none;
+  }
+}
 button.small {
   @apply px-3 py-1 text-sm;
 }
@@ -107,8 +114,8 @@ textarea:focus {
     filter: brightness(0.8);
   }
 
-  &[data-type="outline-only"],
-  &[data-type="transparent"] {
+  &[data-variant="outline-only"],
+  &[data-variant="transparent"] {
     &:hover {
       backdrop-filter: brightness(var(--clickable-hover-backdrop-brightness));
     }
@@ -121,6 +128,10 @@ textarea:focus {
 .glasscard {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
+  background-image: linear-gradient(
+    to top left,
+    rgba(var(--bg-primary-rgb), 0.5),
+    rgba(var(--bg-secondary-rgb), 0.5)
+  );
   border: 1px solid var(--border-primary);
 }

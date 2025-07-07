@@ -1,6 +1,9 @@
 import { mdiPlus, mdiSend } from "@mdi/js";
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router";
+import { toast } from "react-toastify";
 import { v4 } from "uuid";
+import { getData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -17,8 +20,17 @@ export default function EditPoc() {
 
   const pocListParent = useRef<HTMLDivElement>(null);
 
+  const { vulnerabilityId } = useParams();
+
+  const getPocKeyByType = (type: PocType) => `poc-${type}-${v4()}`;
+
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
+  }, []);
+  useEffect(() => {
+    getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs =>
+      setPocList(pocs.sort((a, b) => a.index - b.index).map((poc, i) => ({ ...poc, key: getPocKeyByType(poc.type) })))
+    );
   }, []);
   useEffect(() => {
     const handleDragStart = () => {
@@ -46,16 +58,19 @@ export default function EditPoc() {
       });
     };
   }
-  function onImageChange(currentIndex, image: File) {
+  async function onImageChange(currentIndex, file: File) {
+    const arrayBuffer = await file.arrayBuffer();
+    const image_data = btoa(Array.from(new Uint8Array(arrayBuffer)).toString());
+
     setPocList(prev => {
       const newPocList = [...prev];
-      newPocList[currentIndex] = { ...newPocList[currentIndex], choseImage: image } as PocImageDoc;
+      newPocList[currentIndex] = { ...newPocList[currentIndex], image_data } as PocImageDoc;
       return newPocList;
     });
   }
 
   const onPositionChange = currentIndex => e => {
-    const num = e.target.value.toString().replace(/^0+(?!$)/, "");
+    const num = e;
     const newIndex = +num;
     const shift = (prev: PocDoc[]) => {
       if (newIndex < 0 || newIndex >= prev.length) {
@@ -102,7 +117,7 @@ export default function EditPoc() {
   };
 
   const addPoc = (type: PocType) => () => {
-    const key = `poc-${type}-${v4()}`;
+    const key = getPocKeyByType(type);
     switch (type) {
       case "text":
         setPocList(prev => [
@@ -110,10 +125,10 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
-            language: "",
-            text: "",
+            text_language: "",
+            text_data: "",
           },
         ]);
         break;
@@ -123,10 +138,10 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
-            caption: "",
-            choseImage: null,
+            image_caption: "",
+            image_data: null,
             title: "",
           },
         ]);
@@ -137,11 +152,11 @@ export default function EditPoc() {
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
             request: "",
             response: "",
-            url: "",
+            uri: "",
           },
         ]);
         break;
@@ -207,7 +222,20 @@ export default function EditPoc() {
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
             <Button text="Image" icon={mdiPlus} onClick={addPoc("image")} small />
             <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" text="Submit" icon={mdiSend} onClick={() => {}} />
+            <Button
+              className="ml-auto"
+              text="Submit"
+              icon={mdiSend}
+              onClick={() => {
+                postData(
+                  `/api/vulnerabilities/${vulnerabilityId}/pocs`,
+                  pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
+                  () => {
+                    toast.success("PoCs updated successfully");
+                  }
+                );
+              }}
+            />
           </Buttons>
         </Card>
       </div>

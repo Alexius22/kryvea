@@ -6,6 +6,7 @@ import { deleteData, getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -18,12 +19,14 @@ import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Vulnerability } from "../types/common.types";
 
-export default function Assessment() {
+export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
   const {
-    useCustomerId: [customerId, _],
+    useCtxCustomer: [ctxCustomer],
+    useCtxVulnerability: [, setCtxVulnerability],
+    useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
-  const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { assessmentId, customerId } = useParams<{ customerId: string; assessmentId: string }>();
 
   const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
@@ -41,14 +44,7 @@ export default function Assessment() {
   useEffect(() => {
     document.title = getPageTitle("Assessment");
 
-    getData<Vulnerability[]>(
-      `/api/assessments/${assessmentId}/vulnerabilities`,
-      data => setVulnerabilities(data),
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
   }, [assessmentId]);
 
   const openExportModal = () => {
@@ -63,26 +59,18 @@ export default function Assessment() {
     };
 
     // TODO properly with docx-go-template
-    postData<Blob>(
-      `/api/customers/${customerId}/assessments/${assessmentId}/export`,
-      payload,
-      data => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const fileName = `${assessmentId}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setIsModalDownloadActive(false);
-        toast.success("Export started");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Blob>(`/api/assessments/${assessmentId}/export`, payload, data => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const fileName = `${assessmentId}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsModalDownloadActive(false);
+      toast.success("Export started");
+    });
   };
 
   const openDeleteModal = (vulnerability: Vulnerability) => {
@@ -91,19 +79,12 @@ export default function Assessment() {
   };
 
   const confirmDelete = () => {
-    deleteData(
-      `/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`,
-      () => {
-        setVulnerabilities(prev => prev.filter(v => v.id !== vulnerabilityToDelete.id));
-        toast.success("Vulnerability deleted successfully");
-        setIsModalTrashActive(false);
-        setVulnerabilityToDelete(null);
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData(`/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`, () => {
+      setVulnerabilities(prev => prev.filter(v => v.id !== vulnerabilityToDelete.id));
+      toast.success("Vulnerability deleted successfully");
+      setIsModalTrashActive(false);
+      setVulnerabilityToDelete(null);
+    });
   };
 
   const changeFile = ({ target: { files } }: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,22 +174,17 @@ export default function Assessment() {
         <p>Are you sure to delete this vulnerability?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Assessment">
+      <SectionTitleLineWithButton icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
           <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
           <Button
             icon={mdiPlus}
-            text="New host"
+            text="New Target"
             small
-            onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/new`)}
           />
-          <Button
-            icon={mdiPlus}
-            text="New vulnerability"
-            small
-            onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/add_vulnerability`)}
-          />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
@@ -216,28 +192,25 @@ export default function Assessment() {
       <Table
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
-            <Link to={`/vulnerabilities/${vulnerability.id}/pocs`}>
+            <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
               {vulnerability.category.index}: {vulnerability.category.name}{" "}
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
           ),
-          Host: (() => {
-            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
+          Target: (() => {
+            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6;
             if (ip) {
               return ip + (vulnerability.target.fqdn ? ` - ${vulnerability.target.fqdn}` : "");
             }
-            return vulnerability.target.fqdn || "None";
+            return vulnerability.target.fqdn;
           })(),
           "CVSSv3.1 Score": vulnerability.cvssv31.cvss_score,
           "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
+          "Last update": formatDate(vulnerability.updated_at),
           buttons: (
             <Buttons noWrap>
-              <Button
-                icon={mdiPencil}
-                small
-                onClick={() => navigate(`/assessments/${assessmentId}/vulnerabilities/${vulnerability.id}`)}
-              />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
+              <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
             </Buttons>
           ),
         }))}

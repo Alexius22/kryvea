@@ -9,9 +9,9 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import { getPageTitle } from "../config";
-import { Host } from "../types/common.types";
+import { Target } from "../types/common.types";
 
-export default function AddHost() {
+export default function AddTarget() {
   const navigate = useNavigate();
   const { customerId } = useParams<{ customerId: string }>();
 
@@ -21,7 +21,7 @@ export default function AddHost() {
   const [hostName, setHostName] = useState("");
 
   useEffect(() => {
-    document.title = getPageTitle("Add Host");
+    document.title = getPageTitle("New Target");
   }, []);
 
   const handleSubmit = () => {
@@ -30,19 +30,13 @@ export default function AddHost() {
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
       name: hostName.trim(),
+      customer_id: customerId,
     };
 
-    postData<Host>(
-      `/api/customers/${customerId}/targets`,
-      payload,
-      () => {
-        toast.success("Host added successfully");
-        navigate(`/customers/${customerId}/targets`);
-      },
-      err => {
-        toast.error(err.response.data.error);
-      }
-    );
+    postData<Target>(`/api/targets`, payload, () => {
+      toast.success("Target added successfully");
+      navigate(`/customers/${customerId}/targets`);
+    });
   };
 
   return (
@@ -83,7 +77,7 @@ export default function AddHost() {
         <Divider />
         <Buttons>
           <Button text={"Submit"} onClick={handleSubmit} />
-          <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+          <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
         </Buttons>
       </Grid>
     </Card>

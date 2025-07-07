@@ -1,6 +1,7 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useEffect, useMemo, useState } from "react";
 import Card from "./CardBox/Card";
+import Flex from "./Composition/Flex";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
 import Input from "./Form/Input";
@@ -82,7 +83,13 @@ export default function Table({
     return arr.slice(perPage * currentPage, perPage * (currentPage + 1));
   };
 
-  const numPages = useMemo(() => Math.ceil(filteredData.length / perPage), [filteredData.length, perPage]);
+  const numPages = useMemo(() => {
+    const num = Math.ceil(filteredData.length / perPage);
+    if (isNaN(num)) {
+      return 0;
+    }
+    return num;
+  }, [filteredData.length, perPage]);
   const pagesList = [];
 
   for (let i = 0; i < numPages; i++) {
@@ -147,7 +154,10 @@ export default function Table({
         <tbody>
           {filteredData.length === 0 ? (
             <tr>
-              <td colSpan={Object.keys(filteredData[0] ?? {}).length} className="text-center">
+              <td
+                colSpan={Object.keys(filteredData[0] ?? {}).length}
+                className="border-t-[1px] border-[color:var(--border-primary)] text-center font-thin italic opacity-50"
+              >
                 No results available
               </td>
             </tr>
@@ -195,7 +205,7 @@ export default function Table({
           <Buttons>
             {pagesList.map(page => (
               <Button
-                type={currentPage === page ? "" : "secondary"}
+                variant={currentPage === page ? "" : "secondary"}
                 key={page}
                 small
                 text={page + 1}
@@ -204,42 +214,19 @@ export default function Table({
               />
             ))}
           </Buttons>
-          <input
-            type="number"
-            className="ml-auto mr-2 h-8 w-[50px] rounded-md text-center"
-            value={perPagePreview}
-            onChange={e => {
-              let value = e.target.value;
-              if (value !== "0") {
-                value = value.replace(/^0/, "");
-              }
-
-              setPerPagePreview(value);
-            }}
-            onKeyDown={e => {
-              if (e.key !== "Enter") {
-                return;
-              }
-
-              e.currentTarget.blur();
-            }}
-            onBlur={e => {
-              let value = +e.currentTarget.value;
-              if (value === 0) {
-                setPerPagePreview(1); // reset to 1 if perPagePreview is empty
-              }
-
-              if (value >= filteredData.length) {
-                value = filteredData.length; // limit to the number of items available
-                setPerPagePreview(value);
-              }
-
-              setPerPage(value > 0 ? value : 1);
-            }}
-          />
-          <small className="mt-6 md:mt-0">
-            Page {currentPage + 1} of {numPages}
-          </small>
+          <Flex items="center">
+            <Input
+              type="number"
+              className="mr-2 h-8 w-[50px] rounded-md text-center"
+              value={perPagePreview}
+              min={1}
+              max={filteredData.length}
+              onChange={setPerPage}
+            />
+            <small className="mt-6 md:mt-0">
+              Page {numPages === 0 ? 0 : currentPage + 1} of {numPages}
+            </small>
+          </Flex>
         </div>
       </div>
     </Card>

@@ -1,5 +1,6 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext, useMemo } from "react";
 import { Link, useResolvedPath } from "react-router";
+import { GlobalContext } from "../App";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
@@ -9,6 +10,25 @@ type TBreadCrumbProps = {
 };
 
 export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: TBreadCrumbProps) {
+  const {
+    useCtxCustomer: [ctxCustomer],
+    useCtxAssessment: [ctxAssessment],
+    useCtxVulnerability: [ctxVulnerability],
+    useCtxCategory: [ctxCategory],
+  } = useContext(GlobalContext);
+  const IdNameTuples = useMemo(
+    () => [
+      [ctxCustomer?.id, ctxCustomer?.name],
+      [ctxAssessment?.id, ctxAssessment?.name],
+      [
+        ctxVulnerability?.id,
+        `${ctxVulnerability?.category.index}: ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
+      ],
+      [ctxCategory?.id, ctxCategory?.name],
+    ],
+    [ctxCustomer, ctxAssessment, ctxVulnerability, ctxCategory]
+  ); // will be filled as we go on building breadcrumbs with IDs
+
   const pathNames = useResolvedPath(undefined)
     .pathname.split("/")
     .filter(path => path);
@@ -24,7 +44,14 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
           // Replace underscores with spaces
           const displayName = link.replace(/_/g, " ");
           // Capitalize links if required
-          const itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
+          let itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
+          for (const [id, name] of IdNameTuples) {
+            if (link === id) {
+              itemLink = name;
+              break;
+            }
+          }
+
           // Generate the href
           const href = `/${pathNames.slice(0, index + 1).join("/")}`;
 

@@ -1,8 +1,9 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
+import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import { formatDate } from "../components/dateUtils";
@@ -41,18 +42,13 @@ export default function Assessments() {
   ]);
   const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
 
+  const {
+    useCtxAssessment: [, setCtxAssessment],
+  } = useContext(GlobalContext);
+
   useEffect(() => {
     document.title = getPageTitle("Assessments");
-    getData<Assessment[]>(
-      `/api/customers/${customerId}/assessments`,
-      data => {
-        setAssessmentsData(data);
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
   }, []);
 
   const handleFavoriteToggle = (id: string) => () => {
@@ -74,21 +70,13 @@ export default function Assessments() {
   };
 
   const confirmClone = () => {
-    postData<Assessment>(
-      `/api/customers/${customerId}/assessments/${assessmentToClone.id}/clone`,
-      { name: cloneName },
-      clonedAssessment => {
-        setAssessmentsData(prev => [...prev, clonedAssessment]);
-        setIsModalCloneActive(false);
-        setAssessmentToClone(null);
-        setCloneName("");
-        toast.success("Assessment cloned successfully");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, clonedAssessment => {
+      setAssessmentsData(prev => [...prev, clonedAssessment]);
+      setIsModalCloneActive(false);
+      setAssessmentToClone(null);
+      setCloneName("");
+      toast.success("Assessment cloned successfully");
+    });
   };
 
   const openDeleteModal = (assessment: Assessment) => {
@@ -97,33 +85,18 @@ export default function Assessments() {
   };
 
   const confirmDelete = () => {
-    deleteData(
-      `/api/customers/${customerId}/assessments/${assessmentToDelete.id}`,
-      () => {
-        setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
-        setIsModalTrashActive(false);
-        setAssessmentToDelete(null);
-        toast.success("Assessment deleted successfully");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData(`/api/assessments/${assessmentToDelete.id}`, () => {
+      setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
+      setIsModalTrashActive(false);
+      setAssessmentToDelete(null);
+      toast.success("Assessment deleted successfully");
+    });
   };
 
   const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
-    patchData<Assessment>(
-      `/api/customers/${customerId}/assessments/${assessmentId}`,
-      { status: selectedOption.value },
-      updatedAssessment => {
-        setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    patchData<Assessment>(`/api/assessments/${assessmentId}`, { status: selectedOption.value }, updatedAssessment => {
+      setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? updatedAssessment : a)));
+    });
   };
 
   const openExportModal = (assessmentId: string) => {
@@ -138,27 +111,19 @@ export default function Assessments() {
       password: exportEncryption.value === "password" ? exportPassword : undefined,
     };
     // TODO properly with docx-go-template
-    postData<Blob>(
-      `/api/customers/${customerId}/assessments/${selectedAssessmentId}/export`,
-      payload,
-      data => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
-        const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setIsModalDownloadActive(false);
-        toast.success("Export started");
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<Blob>(`/api/assessments/${selectedAssessmentId}/export`, payload, data => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
+      const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsModalDownloadActive(false);
+      toast.success("Export started");
+    });
   };
 
   return (
@@ -247,9 +212,13 @@ export default function Assessments() {
 
       <Table
         data={assessmentsData.map(assessment => ({
-          Title: <Link to={`/assessments/${assessment.id}/vulnerabilities`}>{assessment.name}</Link>,
+          Title: (
+            <Link to={`${assessment.id}/vulnerabilities`} onClick={() => setCtxAssessment(assessment)}>
+              {assessment.name}
+            </Link>
+          ),
           Type: assessment.assessment_type,
-          "CVSS Versions": assessment.cvss_versions.join(" | "),
+          "CVSS Versions": assessment.cvss_versions?.join(" | "),
           "Vuln count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),
@@ -264,7 +233,7 @@ export default function Assessments() {
           buttons: (
             <Buttons noWrap>
               <Button
-                type={assessment.is_owned ? "warning" : ""}
+                variant={assessment.is_owned ? "warning" : ""}
                 icon={mdiStar}
                 onClick={handleFavoriteToggle(assessment.id)}
                 small
@@ -288,7 +257,7 @@ export default function Assessments() {
                 small
                 title="Download assessment"
               />
-              <Button type="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
+              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
             </Buttons>
           ),
         }))}

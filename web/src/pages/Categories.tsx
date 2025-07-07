@@ -32,10 +32,7 @@ export default function Categories() {
   }, []);
 
   function fetchCategories() {
-    getData<Category[]>("/api/categories", setCategories, err => {
-      const errorMessage = err.response.data.error;
-      toast.error(errorMessage);
-    });
+    getData<Category[]>("/api/categories", setCategories);
   }
 
   const changeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,19 +49,12 @@ export default function Categories() {
   const confirmDeleteCategory = () => {
     if (!categoryToDelete) return;
 
-    deleteData<{ message: string }>(
-      `/api/categories/${categoryToDelete.id}`,
-      () => {
-        toast.success(`Category "${categoryToDelete.name}" deleted successfully`);
-        setIsModalTrashActive(false);
-        setCategoryToDelete(null);
-        setCategories(prev => prev.filter(c => c.id !== categoryToDelete.id));
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    deleteData<{ message: string }>(`/api/categories/${categoryToDelete.id}`, () => {
+      toast.success(`Category "${categoryToDelete.name}" deleted successfully`);
+      setIsModalTrashActive(false);
+      setCategoryToDelete(null);
+      setCategories(prev => prev.filter(c => c.id !== categoryToDelete.id));
+    });
   };
 
   // Export categories file
@@ -88,20 +78,12 @@ export default function Categories() {
     formData.append("categories", fileObj);
     formData.append("override", overrideExisting ? "true" : "false");
 
-    postData<{ message: string }>(
-      "/api/categories/upload/bulk",
-      formData,
-      () => {
-        toast.success("Categories uploaded successfully");
-        setIsModalManageActive(false);
-        setFileObj(null);
-        fetchCategories();
-      },
-      err => {
-        const errorMessage = err.response.data.error;
-        toast.error(errorMessage);
-      }
-    );
+    postData<{ message: string }>("/api/categories/upload/bulk", formData, () => {
+      toast.success("Categories uploaded successfully");
+      setIsModalManageActive(false);
+      setFileObj(null);
+      fetchCategories();
+    });
   };
 
   const handleModalManageConfirm = () => {
@@ -180,7 +162,7 @@ export default function Categories() {
               <Buttons noWrap key={category.id}>
                 <Button icon={mdiPencil} small onClick={() => navigate(`/manage_category/${category.id}`)} />
                 <Button
-                  type="danger"
+                  variant="danger"
                   icon={mdiTrashCan}
                   small
                   onClick={() => {

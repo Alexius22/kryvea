@@ -1,53 +1,54 @@
 import { mdiDotsCircle, mdiHistory } from "@mdi/js";
-import { useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router";
+import { getData } from "../api/api";
 import { GlobalContext } from "../App";
 import { formatDate } from "../components/dateUtils";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import { assessments } from "../mockup_data/assessments";
 import { Assessment } from "../types/common.types";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const loading = false;
-  const error = false;
+  const {
+    useCtxCustomer: [, setCtxCustomer],
+  } = useContext(GlobalContext);
+
+  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
 
   useEffect(() => {
     document.title = getPageTitle("Dashboard");
+    getData<Assessment[]>("/api/assessments/owned", setAssessmentsData);
   }, []);
 
-  const {
-    useCustomerName: [_, setCustomerName],
-  } = useContext(GlobalContext);
-
-  const renderTable = (title: string, icon: string, data: Partial<Assessment>[]) => (
+  const renderTable = (title: string, icon: string, assessments: Assessment[]) => (
     <div>
       <SectionTitleLineWithButton icon={icon} title={title} />
-      <div>
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : (
-          <Table
-            data={data.map(assessment => ({
-              Customer: (
-                <Link to="" onClick={() => setCustomerName(assessment.customer.name)}>
-                  {assessment.customer.name}
-                </Link>
-              ),
-              "Assessment Name": <Link to={`/assessment`}>{assessment.name}</Link>,
-              "Assessment Type": assessment.assessment_type,
-              Start: formatDate(assessment.start_date_time),
-              End: formatDate(assessment.end_date_time),
-              Status: assessment.status,
-            }))}
-            perPageCustom={10}
-          />
-        )}
-      </div>
+      <Table
+        data={assessments.map(assessment => ({
+          Customer: (
+            <Link
+              to={`/customers/${assessment.customer.id}`}
+              onClick={e => {
+                setCtxCustomer(assessment.customer);
+              }}
+            >
+              {assessment.customer.name}
+            </Link>
+          ),
+          "Assessment Name": (
+            <Link to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}>
+              {assessment.name}
+            </Link>
+          ),
+          "Assessment Type": assessment.assessment_type,
+          "Vulnerability Count": assessment.vulnerability_count,
+          Start: formatDate(assessment.start_date_time),
+          End: formatDate(assessment.end_date_time),
+          Status: assessment.status,
+        }))}
+        perPageCustom={10}
+      />
     </div>
   );
 
@@ -56,12 +57,12 @@ export default function Dashboard() {
       {renderTable(
         "Ongoing Assessments",
         mdiDotsCircle,
-        assessments.filter(a => a.status !== "Completed")
+        assessmentsData.filter(a => a.status !== "Completed")
       )}
       {renderTable(
         "Completed Assessments",
         mdiHistory,
-        assessments.filter(a => a.status === "Completed")
+        assessmentsData.filter(a => a.status === "Completed")
       )}
     </div>
   );

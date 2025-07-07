@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -14,14 +14,14 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
-import { Assessment } from "../types/common.types";
+import { Assessment, Target } from "../types/common.types";
 
 const ASSESSMENT_TYPE: SelectOption[] = [
   { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
   { value: "WAPT", label: "Web Application Penetration Test" },
   { value: "MAPT", label: "Mobile Application Penetration Test" },
   { value: "NPT", label: "Network Penetration Test" },
-  { value: "Red Team", label: "Red Team" },
+  { value: "Red Team Assessment", label: "Red Team Assessment" },
   { value: "IoT", label: "IoT" },
 ];
 
@@ -55,6 +55,7 @@ function getOption(options: SelectOption[], value: string): SelectOption | undef
 export default function AssessmentUpsert() {
   const navigate = useNavigate();
   const { customerId, assessmentId } = useParams<{ customerId: string; assessmentId?: string }>();
+  const [targets, setTargets] = useState<Target[]>([]);
   const isEdit = Boolean(assessmentId);
 
   const [form, setForm] = useState<
@@ -75,9 +76,11 @@ export default function AssessmentUpsert() {
 
   useEffect(() => {
     document.title = getPageTitle(isEdit ? "Edit Assessment" : "Add Assessment");
-    if (customerId && isEdit && assessmentId) {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+
+    if (isEdit) {
       getData<Assessment>(
-        `/api/customers/${customerId}/assessments/${assessmentId}`,
+        `/api/assessments/${assessmentId}`,
         data => {
           setAssessment(data);
           setForm({
@@ -100,14 +103,7 @@ export default function AssessmentUpsert() {
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
-  const allTargets = useMemo(() => {
-    if (isEdit && assessment) {
-      return assessment.targets || [];
-    }
-    return [];
-  }, [assessment, isEdit]);
-
-  const targetOptions: SelectOption[] = allTargets.map(target => ({
+  const targetOptions: SelectOption[] = targets.map(target => ({
     value: target.id,
     label:
       target.fqdn && (target.ipv4 || target.ipv6)
@@ -141,39 +137,32 @@ export default function AssessmentUpsert() {
   };
 
   const handleTargetsChange = (options: SelectOption[] | null) => {
-    handleChange(
-      "targets",
-      options ? options.map(opt => allTargets.find(t => t.id === opt.value)!).filter(Boolean) : []
-    );
+    handleChange("targets", options ? options.map(opt => targets.find(t => t.id === opt.value)!).filter(Boolean) : []);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const endpoint = isEdit
-      ? `/api/customers/${customerId}/assessments/${assessmentId}`
-      : `/api/customers/${customerId}/assessments`;
+    const payload = {
+      ...form,
+      targets: form.targets.map(target => target.id),
+      customer_id: customerId,
+    };
+
+    const endpoint = isEdit ? `/api/assessments/${assessmentId}` : `/api/assessments`;
 
     const apiCall = isEdit ? patchData : postData;
 
-    apiCall(
-      endpoint,
-      form,
-      () => {
-        navigate(`/customers/${customerId}/assessments`);
-      },
-      err => {
-        const errorMessage = err?.response?.data?.error || (isEdit ? "Update failed." : "Creation failed.");
-        toast.error(errorMessage);
-      }
-    );
+    apiCall(endpoint, payload, () => {
+      navigate(`/customers/${customerId}/assessments`);
+    });
   };
 
   return (
     <Card>
       <form onSubmit={handleSubmit}>
         <Grid>
-          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "Add Assessment"}</h2>
+          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
           <SelectWrapper
             label="Assessment Type"
             id="assessment_type"
@@ -218,8 +207,8 @@ export default function AssessmentUpsert() {
             <Button
               className="h-[42px]"
               icon={mdiPlus}
-              text="Add Host"
-              onClick={() => navigate(`/customers/${customerId}/targets/add_host`)}
+              text="New Target"
+              onClick={() => navigate(`/customers/${customerId}/targets/new`)}
             />
           </Grid>
           <Grid>
@@ -261,8 +250,8 @@ export default function AssessmentUpsert() {
           />
           <Divider />
           <Buttons>
-            <Button text="Submit" onClick={() => {}} />
-            <Button type="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+            <Button text="Submit" onClick={() => {}} formSubmit />
+            <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
           </Buttons>
         </Grid>
       </form>

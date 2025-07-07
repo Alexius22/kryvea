@@ -38,7 +38,7 @@ export type Vulnerability = {
   generic_remediation: { enabled: boolean; text: string };
   description: string;
   remediation: string;
-  target: { id: string; ipv4: string; ipv6: string; fqdn: string };
+  target: { id: string; ipv4: string; ipv6: string; fqdn: string; name: string; customer: Customer };
   assessment: { id: string; name: string };
   user: { id: string; username: string };
 };
@@ -48,7 +48,7 @@ export type User = {
   disabled_at: string;
   username: string;
   role: string;
-  customers: [{ id: string; name: string }];
+  customers: Customer[];
   assessments: { id: string; name: string };
 };
 
@@ -67,11 +67,11 @@ export type Assessment = {
   testing_type: string;
   osstmm_vector: string;
   vulnerability_count: number;
-  customer: { id: string; name: string };
+  customer: Customer;
   is_owned: boolean;
 };
 
-export type Host = {
+export type Target = {
   id: string;
   ipv4: string;
   ipv6: string;
@@ -79,23 +79,44 @@ export type Host = {
   protocol: string;
   fqdn: string;
   name: string;
-  customer: { id: string; name: string };
+  customer: Customer;
 };
 
 export type Customer = {
   id: string;
   name: string;
   language: string;
-  default_cvss_versions: string[];
   updated_at: Date;
   created_at: Date;
 };
 
 export type Category = {
-  id?: string;
+  id: string;
   index: string;
   name: string;
   generic_description: Record<string, string>;
   generic_remediation: Record<string, string>;
   references: string[];
+};
+
+export type Poc = {
+  id: string;
+  index: number;
+  type: string;
+  description: string;
+  uri: string;
+  request: string;
+  response: string;
+  image_id: string;
+  image_data: string;
+  image_caption: string;
+  text_language: string;
+  text_data: string;
+  vulnerability_id: string;
+};
+
+export type TemplateExport = {
+  template_name: string;
+  template_file: File | null;
+  template_type: "docx" | "xlsx" | null;
 };

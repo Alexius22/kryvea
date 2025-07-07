@@ -8,7 +8,6 @@ import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import Icon from "../components/Icon";
 import { getPageTitle } from "../config";
 
 export default function Login() {
@@ -23,6 +22,11 @@ export default function Login() {
   const from = location.state?.from?.pathname || "/dashboard";
 
   useEffect(() => {
+    if (document.cookie.includes("kryvea_shadow=ok")) {
+      navigate(from, { replace: true });
+      return;
+    }
+
     document.title = getPageTitle("Login");
   }, []);
 
@@ -67,13 +71,12 @@ export default function Login() {
                 value={password}
                 className="pr-10"
               />
-              <span
-                role="button"
+              <Button
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2 top-[38px] cursor-pointer p-1"
-              >
-                <Icon path={showPassword ? mdiEye : mdiEyeOff} />
-              </span>
+                icon={showPassword ? mdiEye : mdiEyeOff}
+                variant="transparent"
+              />
             </div>
             <Checkbox
               id={"remember_me"}
@@ -82,7 +85,7 @@ export default function Login() {
               label={"Remember me"}
             />
             <Subtitle className="text-[color:--error]" text={error} />
-            <Button text="Login" className="justify-center" onClick={() => {}} />
+            <Button text="Login" className="justify-center" formSubmit />
           </Grid>
         </form>
       </Card>
