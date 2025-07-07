@@ -204,21 +204,21 @@ func (pi *PocIndex) GetByID(pocID uuid.UUID) (*Poc, error) {
 func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) ([]Poc, error) {
 	cursor, err := pi.collection.Find(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
 	if err != nil {
-		return nil, err
+		return []Poc{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var pocs []Poc
+	pocs := []Poc{}
 	for cursor.Next(context.Background()) {
-		var poc Poc
+		poc := Poc{}
 		if err := cursor.Decode(&poc); err != nil {
-			return nil, err
+			return []Poc{}, err
 		}
 
 		if poc.ImageID != uuid.Nil {
 			poc.ImageData, err = pi.driver.FileReference().ReadByID(poc.ImageID)
 			if err != nil {
-				return nil, err
+				return []Poc{}, err
 			}
 		}
 

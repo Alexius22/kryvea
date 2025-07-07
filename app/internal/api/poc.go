@@ -298,10 +298,6 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(pocs) == 0 {
-		pocs = []mongo.Poc{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(pocs)
 }

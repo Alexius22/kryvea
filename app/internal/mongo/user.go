@@ -245,11 +245,11 @@ func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 func (ui *UserIndex) GetAll() ([]User, error) {
 	cursor, err := ui.collection.Aggregate(context.Background(), UserPipeline)
 	if err != nil {
-		return nil, err
+		return []User{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var users []User
+	users := []User{}
 	err = cursor.All(context.Background(), &users)
 	return users, err
 }

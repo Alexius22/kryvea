@@ -199,10 +199,6 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(users) == 0 {
-		users = []mongo.User{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(users)
 }

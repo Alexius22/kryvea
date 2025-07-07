@@ -159,10 +159,10 @@ func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 }
 
 func (ci *CategoryIndex) GetAll() ([]Category, error) {
-	var categories []Category
+	categories := []Category{}
 	cursor, err := ci.collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		return categories, err
+		return []Category{}, err
 	}
 	defer cursor.Close(context.Background())
 
@@ -186,14 +186,14 @@ func (ci *CategoryIndex) Search(query string) ([]Category, error) {
 		{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 	}})
 	if err != nil {
-		return nil, err
+		return []Category{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var categories []Category
+	categories := []Category{}
 	err = cursor.All(context.Background(), &categories)
 	if err != nil {
-		return nil, err
+		return []Category{}, err
 	}
 
 	return categories, err

@@ -136,13 +136,13 @@ func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
 
 	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
-		return nil, err
+		return []Customer{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var customers []Customer
+	customers := []Customer{}
 	if err := cursor.All(context.Background(), &customers); err != nil {
-		return nil, err
+		return []Customer{}, err
 	}
 
 	return customers, nil
