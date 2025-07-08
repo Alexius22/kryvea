@@ -1,4 +1,4 @@
-import { mdiAccount, mdiLogout, mdiThemeLightDark } from "@mdi/js";
+import { mdiAccount, mdiFullscreen, mdiFullscreenExit, mdiLogout, mdiMoonFull, mdiMoonNew } from "@mdi/js";
 import { ReactNode, useContext } from "react";
 import { useNavigate } from "react-router";
 import { postData } from "../api/api";
@@ -12,7 +12,8 @@ type Props = {
 
 export default function NavBar({ children }: Props) {
   const {
-    useDarkTheme: [darkMode, setDarkMode],
+    useDarkTheme: [darkTheme, setDarkTheme],
+    useFullscreen: [fullscreen, setFullScreen],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -35,8 +36,14 @@ export default function NavBar({ children }: Props) {
         />
 
         <Button
-          onClick={() => setDarkMode(!darkMode)}
-          icon={mdiThemeLightDark}
+          onClick={() => setDarkTheme(prev => !prev)}
+          icon={darkTheme ? mdiMoonNew : mdiMoonFull}
+          className="bg-transparent text-[color:--link]"
+        />
+
+        <Button
+          onClick={() => setFullScreen(prev => !prev)}
+          icon={fullscreen ? mdiFullscreenExit : mdiFullscreen}
           className="bg-transparent text-[color:--link]"
         />
 

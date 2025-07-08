@@ -32,6 +32,7 @@ import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
   useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
@@ -41,15 +42,15 @@ export type GlobalContextType = {
 export const GlobalContext = createContext<GlobalContextType>(null);
 
 export default function App() {
-  const useDarkTheme = useState(localStorage.getItem("darkMode") === "1");
+  const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
   const [darkTheme] = useDarkTheme;
+  const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
 
   useLayoutEffect(() => {
-    localStorage.setItem("darkMode", darkTheme ? "1" : "0");
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
   }, [darkTheme]);
 
@@ -60,6 +61,15 @@ export default function App() {
     return [
       state,
       (value: T | ((prevState: T) => T)) => {
+        if (typeof value === "function") {
+          setState(prev => {
+            const newValue = (value as CallableFunction)(prev);
+            console.log(`Updating localStorage for key: ${key}`, newValue);
+            setLocalStorageCtxState(key, newValue);
+            return newValue;
+          });
+          return;
+        }
         setState(value);
         setLocalStorageCtxState(key, value);
       },
@@ -69,7 +79,8 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useDarkTheme,
+        useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
         useCtxVulnerability: bindToLocalStorage(useCtxVulnerability, "useCtxVulnerability"),
