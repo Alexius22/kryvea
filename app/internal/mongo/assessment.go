@@ -282,7 +282,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		update["$set"].(bson.M)["end_date_time"] = assessment.EndDateTime
 	}
 
-	if assessment.Targets != nil {
+	if len(assessment.Targets) > 0 {
 		update["$set"].(bson.M)["targets"] = assessment.Targets
 	}
 
@@ -294,7 +294,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		update["$set"].(bson.M)["assessment_type"] = assessment.AssessmentType
 	}
 
-	if assessment.CVSSVersions != nil {
+	if len(assessment.CVSSVersions) > 0 {
 		update["$set"].(bson.M)["cvss_versions"] = assessment.CVSSVersions
 	}
 
