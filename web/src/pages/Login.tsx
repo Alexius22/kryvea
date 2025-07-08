@@ -1,4 +1,3 @@
-import { mdiEye, mdiEyeOff } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { postData } from "../api/api";
@@ -62,22 +61,13 @@ export default function Login() {
               value={username}
               autoFocus
             />
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                label="Password"
-                onChange={e => setPassword(e.target.value)}
-                value={password}
-                className="pr-10"
-              />
-              <Button
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-[38px] cursor-pointer p-1"
-                icon={showPassword ? mdiEye : mdiEyeOff}
-                variant="transparent"
-              />
-            </div>
+            <Input
+              type="password"
+              id="password"
+              label="Password"
+              onChange={e => setPassword(e.target.value)}
+              value={password}
+            />
             <Checkbox
               id={"remember_me"}
               onChange={e => setRemember(e.target.checked)}
