@@ -80,11 +80,11 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
+		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
-		apiGroup.Get("/assessments/:assessment/vulnerabilities/:vulnerability", api.GetVulnerability)
-		apiGroup.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)
-		apiGroup.Patch("/assessments/:assessment/vulnerabilities/:vulnerability", api.UpdateVulnerability)
-		apiGroup.Delete("/assessments/:assessment/vulnerabilities/:vulnerability", api.DeleteVulnerability)
+		apiGroup.Post("/vulnerabilities", api.AddVulnerability)
+		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
+		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
 		apiGroup.Post("/vulnerabilities/:vulnerability/pocs", api.AddPocs)
