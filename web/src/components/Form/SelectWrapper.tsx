@@ -17,6 +17,7 @@ type SelectWrapperProps = {
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
+  small?: boolean;
 };
 type SelectWrapperMultiProps = {
   label?: string;
@@ -30,6 +31,7 @@ type SelectWrapperMultiProps = {
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
   closeMenuOnSelect?: boolean;
   id?: string;
+  small?: boolean;
 };
 
 export default function SelectWrapper({
@@ -44,6 +46,7 @@ export default function SelectWrapper({
   closeMenuOnSelect,
   id,
   label,
+  small,
 }: SelectWrapperProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
   const [width, setWidth] = useState<number>(0);
@@ -101,6 +104,23 @@ export default function SelectWrapper({
       }
     : {};
 
+  const controlStyleSmall = small
+    ? {
+        control: (base: any) => ({
+          ...base,
+          padding: 0,
+          paddingLeft: "8px",
+          paddingRight: "8px",
+        }),
+      }
+    : {};
+
+  const combinedStyles = {
+    menuPortal: (base: any) => ({ ...base, zIndex: 10 }),
+    ...longestLabelFixedWidth,
+    ...controlStyleSmall,
+  };
+
   return (
     <Grid>
       {label && <Label text={label} htmlFor={id} />}
@@ -136,10 +156,7 @@ export default function SelectWrapper({
         unstyled
         components={animatedComponents}
         menuPortalTarget={document.body}
-        styles={{
-          menuPortal: base => ({ ...base, zIndex: 10 }),
-          ...longestLabelFixedWidth,
-        }}
+        styles={combinedStyles}
       />
     </Grid>
   );
