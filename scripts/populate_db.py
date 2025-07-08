@@ -436,6 +436,7 @@ class Vulnerability:
             "description": self.description,
             "remediation": self.remediation,
             "target_id": self.target_id,
+            "assessment_id": self.assessment_id,
         }
 
     def get(self):
@@ -446,7 +447,7 @@ class Vulnerability:
 
     def create(self) -> Tuple[str, str]:
         response = session.post(
-            f"{base_url}/assessments/{self.assessment_id}/vulnerabilities",
+            f"{base_url}/vulnerabilities",
             json=self.json(),
         )
         jr = response.json()
