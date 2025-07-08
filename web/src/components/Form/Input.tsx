@@ -1,6 +1,8 @@
+import { mdiEye, mdiEyeOff } from "@mdi/js";
 import { HTMLInputTypeAttribute, useEffect, useState } from "react";
 import Grid from "../Composition/Grid";
 import Subtitle from "../Composition/Subtitle";
+import Button from "./Button";
 import Label from "./Label";
 
 interface BaseInputProps {
@@ -10,8 +12,6 @@ interface BaseInputProps {
   helperSubtitle?: string;
   placeholder?: string;
   value?: string | number;
-  // min?: undefined | number;
-  // max?: undefined | number;
   autoFocus?: boolean;
 }
 
@@ -54,9 +54,12 @@ export default function Input({
   onChange,
 }: InputProps | FileInputProps | NumberInputProps) {
   const [numberPreview, setNumberPreview] = useState(value);
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     setNumberPreview(value);
   }, [value]);
+
   return (
     <Grid>
       {label && <Label text={label} htmlFor={id} />}
@@ -89,10 +92,10 @@ export default function Input({
                 value = value.replace(/^0/, "");
               }
 
-              if (min != undefined && num < min) {
+              if (min !== undefined && num < min) {
                 num = min;
               }
-              if (max != undefined && num > max) {
+              if (max !== undefined && num > max) {
                 num = max;
               }
 
@@ -101,18 +104,31 @@ export default function Input({
             }}
           />
         ) : (
-          <input
-            className={className}
-            type={type}
-            id={id}
-            placeholder={placeholder}
-            value={value}
-            onChange={onChange}
-            accept={accept}
-            autoFocus={autoFocus}
-          />
+          <>
+            <div className="relative w-full">
+              <input
+                className={`${className} ${type === "password" ? "pr-10" : ""} w-full`}
+                type={type === "password" ? (showPassword ? "text" : "password") : type}
+                id={id}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                accept={accept}
+                autoFocus={autoFocus}
+              />
+              {type === "password" && (
+                <Button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 transform cursor-pointer p-1"
+                  icon={showPassword ? mdiEye : mdiEyeOff}
+                  variant="transparent"
+                  title={showPassword ? "Hide password" : "Show password"}
+                />
+              )}
+            </div>
+            {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
+          </>
         )}
-        {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
       </div>
     </Grid>
   );
