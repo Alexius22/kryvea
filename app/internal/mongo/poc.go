@@ -79,12 +79,12 @@ func (pi *PocIndex) Insert(poc *Poc) (uuid.UUID, error) {
 
 func (pi *PocIndex) InsertMany(pocs []*Poc, vulnerabilityID uuid.UUID) ([]uuid.UUID, error) {
 	if len(pocs) == 0 {
-		return nil, nil
+		return []uuid.UUID{}, nil
 	}
 
 	err := pi.driver.Vulnerability().collection.FindOne(context.Background(), bson.M{"_id": vulnerabilityID}).Err()
 	if err != nil {
-		return nil, err
+		return []uuid.UUID{}, err
 	}
 
 	ids := make([]uuid.UUID, len(pocs))
@@ -93,7 +93,7 @@ func (pi *PocIndex) InsertMany(pocs []*Poc, vulnerabilityID uuid.UUID) ([]uuid.U
 		if pocToInsert.Type == poc.POC_TYPE_IMAGE && len(pocToInsert.ImageData) > 0 {
 			imageID, err := pi.driver.FileReference().Insert(pocToInsert.ImageData)
 			if err != nil {
-				return nil, err
+				return []uuid.UUID{}, err
 			}
 
 			pocToInsert.ImageID = imageID
@@ -101,7 +101,7 @@ func (pi *PocIndex) InsertMany(pocs []*Poc, vulnerabilityID uuid.UUID) ([]uuid.U
 
 		id, err := uuid.NewRandom()
 		if err != nil {
-			return nil, err
+			return []uuid.UUID{}, err
 		}
 		pocToInsert.Model = Model{
 			ID:        id,
@@ -120,7 +120,7 @@ func (pi *PocIndex) InsertMany(pocs []*Poc, vulnerabilityID uuid.UUID) ([]uuid.U
 				_ = pi.driver.FileReference().Delete(pocToDelete.ImageID)
 			}
 		}
-		return nil, err
+		return []uuid.UUID{}, err
 	}
 
 	return ids, nil
