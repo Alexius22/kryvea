@@ -121,10 +121,6 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 		UpdatedAt: time.Now(),
 	}
 
-	if assessment.Targets == nil {
-		assessment.Targets = []Target{}
-	}
-
 	assessment.IsOwned = false
 	assessment.Customer = Customer{
 		Model: Model{
