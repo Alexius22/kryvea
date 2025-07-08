@@ -65,7 +65,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.Target
+	targets := []mongo.Target{}
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
@@ -187,12 +187,13 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	}
 
 	// set owned assessments
+	owned := make(map[uuid.UUID]struct{}, len(user.Assessments))
+	for _, ua := range user.Assessments {
+		owned[ua.ID] = struct{}{}
+	}
 	for i := range assessments {
-		for _, userAssessment := range user.Assessments {
-			if userAssessment.ID == assessments[i].ID {
-				assessments[i].IsOwned = true
-				break
-			}
+		if _, ok := owned[assessments[i].ID]; ok {
+			assessments[i].IsOwned = true
 		}
 	}
 
@@ -272,12 +273,13 @@ func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
 	}
 
 	// set owned assessments
+	owned := make(map[uuid.UUID]struct{}, len(user.Assessments))
+	for _, ua := range user.Assessments {
+		owned[ua.ID] = struct{}{}
+	}
 	for i := range assessments {
-		for _, userAssessment := range user.Assessments {
-			if userAssessment.ID == assessments[i].ID {
-				assessments[i].IsOwned = true
-				break
-			}
+		if _, ok := owned[assessments[i].ID]; ok {
+			assessments[i].IsOwned = true
 		}
 	}
 
@@ -324,7 +326,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.Target
+	targets := []mongo.Target{}
 	for _, target := range data.Targets {
 		targetID, err := util.ParseUUID(target)
 		if err != nil {
