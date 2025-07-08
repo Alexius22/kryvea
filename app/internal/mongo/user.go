@@ -227,14 +227,14 @@ func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 		bson.D{{Key: "$limit", Value: 1}})
 	cursor, err := ui.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		return nil, err
+		return &User{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var user User
+	user := User{}
 	if cursor.Next(context.Background()) {
 		if err := cursor.Decode(&user); err != nil {
-			return nil, err
+			return &User{}, err
 		}
 		return &user, nil
 	}
