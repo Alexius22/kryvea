@@ -166,7 +166,7 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 
 	// parse image data and insert it into the database
 	var imageID uuid.UUID
-	if oldPoc.Type == poc.POC_TYPE_IMAGE && len(data.ImageData) != 0 {
+	if oldPoc.Type == poc.POC_TYPE_IMAGE && len(data.ImageData) > 0 {
 		imageID, err = d.mongo.FileReference().Insert(data.ImageData)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
