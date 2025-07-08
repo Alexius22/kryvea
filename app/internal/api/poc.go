@@ -9,6 +9,11 @@ import (
 )
 
 type pocRequestData struct {
+	VulnerabilityID string    `json:"vulnerability_id"`
+	Pocs            []pocData `json:"pocs"`
+}
+
+type pocData struct {
 	Index        int    `json:"index"`
 	Type         string `json:"type"`
 	Description  string `json:"description"`
@@ -24,8 +29,17 @@ type pocRequestData struct {
 func (d *Driver) AddPocs(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// parse vulnerability param
-	vulnerability, errStr := d.vulnerabilityFromParam(c.Params("vulnerability"))
+	// parse request body
+	data := &pocRequestData{}
+	if err := c.BodyParser(&data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// retrieve vulnerability from database
+	vulnerability, errStr := d.vulnerabilityFromParam(data.VulnerabilityID)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -49,18 +63,9 @@ func (d *Driver) AddPocs(c *fiber.Ctx) error {
 		})
 	}
 
-	// parse request body
-	data := []pocRequestData{}
-	if err := c.BodyParser(&data); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
-	}
-
 	// validate data
-	pocs := make([]*mongo.Poc, len(data))
-	for i, pocData := range data {
+	pocs := make([]*mongo.Poc, len(data.Pocs))
+	for i, pocData := range data.Pocs {
 		errStr = d.validateData(&pocData)
 		if errStr != "" {
 			c.Status(fiber.StatusBadRequest)
@@ -104,12 +109,21 @@ func (d *Driver) AddPocs(c *fiber.Ctx) error {
 func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// parse vulnerability param
-	vulnerability, errStr := d.vulnerabilityFromParam(c.Params("vulnerability"))
+	// parse poc param
+	oldPoc, errStr := d.pocFromParam(c.Params("poc"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": errStr,
+		})
+	}
+
+	// retrieve vulnerability from database
+	vulnerability, err := d.mongo.Vulnerability().GetByID(oldPoc.VulnerabilityID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid vulnerability",
 		})
 	}
 
@@ -129,25 +143,8 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 		})
 	}
 
-	// parse poc param
-	oldPoc, errStr := d.pocFromParam(c.Params("poc"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	// check poc belongs to vulnerability
-	if oldPoc.VulnerabilityID != vulnerability.ID {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid PoC ID",
-		})
-	}
-
 	// parse request body
-	data := &pocRequestData{}
+	data := &pocData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -179,6 +176,7 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 	// update poc in the database
 	err = d.mongo.Poc().Update(oldPoc.ID, &mongo.Poc{
 		Index:        data.Index,
+		Type:         data.Type,
 		Description:  data.Description,
 		URI:          data.URI,
 		Request:      data.Request,
@@ -204,12 +202,21 @@ func (d *Driver) UpdatePoc(c *fiber.Ctx) error {
 func (d *Driver) DeletePoc(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// parse vulnerability param
-	vulnerability, errStr := d.vulnerabilityFromParam(c.Params("vulnerability"))
+	// parse poc param
+	poc, errStr := d.pocFromParam(c.Params("poc"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": errStr,
+		})
+	}
+
+	// retrieve vulnerability from database
+	vulnerability, err := d.mongo.Vulnerability().GetByID(poc.VulnerabilityID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid vulnerability",
 		})
 	}
 
@@ -226,23 +233,6 @@ func (d *Driver) DeletePoc(c *fiber.Ctx) error {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
-		})
-	}
-
-	// parse poc param
-	poc, errStr := d.pocFromParam(c.Params("poc"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	// check poc belongs to vulnerability
-	if poc.VulnerabilityID != vulnerability.ID {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid PoC ID",
 		})
 	}
 
@@ -320,7 +310,7 @@ func (d *Driver) pocFromParam(pocParam string) (*mongo.Poc, string) {
 	return poc, ""
 }
 
-func (d *Driver) validateData(data *pocRequestData) string {
+func (d *Driver) validateData(data *pocData) string {
 	if !poc.IsValidType(data.Type) {
 		return "Invalid PoC type"
 	}
