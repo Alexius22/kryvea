@@ -194,8 +194,8 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	download := c.Query("download")
-	if download == "true" {
+	_, ok := c.Queries()["download"]
+	if ok {
 		c.Set("Content-Disposition", "attachment; filename=categories.json")
 	}
 
