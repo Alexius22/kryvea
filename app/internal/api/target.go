@@ -231,16 +231,7 @@ func (d *Driver) GetTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(target.Customer.ID)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error": "Cannot get customer",
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, target.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
