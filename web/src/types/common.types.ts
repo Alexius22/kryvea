@@ -1,5 +1,10 @@
 export type ObjectKey = string | number | symbol;
 
+export type IdObject = {
+  id: string;
+  [k: ObjectKey]: any;
+};
+
 export type Vulnerability = {
   id: string;
   updated_at: string;
