@@ -29,10 +29,8 @@ export default function RouteWatcher() {
       );
     }
     if (vulnerabilityId != undefined && ctxVulnerability?.id !== vulnerabilityId) {
-      getData<Vulnerability>(
-        `/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityId}`,
-        setCtxVulnerability,
-        () => toast.error("Could not retrieve vulnerability by id: " + vulnerabilityId)
+      getData<Vulnerability>(`/api/vulnerabilities/${vulnerabilityId}`, setCtxVulnerability, () =>
+        toast.error("Could not retrieve vulnerability by id: " + vulnerabilityId)
       );
     }
     if (categoryId != undefined && ctxCategory?.id !== categoryId) {

@@ -79,7 +79,7 @@ export default function AssessmentVulnerabilities() {
   };
 
   const confirmDelete = () => {
-    deleteData(`/api/assessments/${assessmentId}/vulnerabilities/${vulnerabilityToDelete.id}`, () => {
+    deleteData(`/api/vulnerabilities/${vulnerabilityToDelete.id}`, () => {
       setVulnerabilities(prev => prev.filter(v => v.id !== vulnerabilityToDelete.id));
       toast.success("Vulnerability deleted successfully");
       setIsModalTrashActive(false);
