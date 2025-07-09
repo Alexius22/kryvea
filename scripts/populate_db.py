@@ -436,6 +436,7 @@ class Vulnerability:
             "description": self.description,
             "remediation": self.remediation,
             "target_id": self.target_id,
+            "assessment_id": self.assessment_id,
         }
 
     def get(self):
@@ -446,7 +447,7 @@ class Vulnerability:
 
     def create(self) -> Tuple[str, str]:
         response = session.post(
-            f"{base_url}/assessments/{self.assessment_id}/vulnerabilities",
+            f"{base_url}/vulnerabilities",
             json=self.json(),
         )
         jr = response.json()
@@ -485,20 +486,23 @@ class POC:
         self.vulnerability_id = vulnerability_id
 
     def json(self):
-        return [
-            {
-                "index": self.index,
-                "type": self.type,
-                "description": self.description,
-                "uri": self.uri,
-                "request": self.request,
-                "response": self.response,
-                "image_data": self.image_data,
-                "image_caption": self.image_caption,
-                "text_language": self.text_language,
-                "text_data": self.text_data,
-            }
-        ]
+        return {
+            "vulnerability_id": self.vulnerability_id,
+            "pocs": [
+                {
+                    "index": self.index,
+                    "type": self.type,
+                    "description": self.description,
+                    "uri": self.uri,
+                    "request": self.request,
+                    "response": self.response,
+                    "image_data": self.image_data,
+                    "image_caption": self.image_caption,
+                    "text_language": self.text_language,
+                    "text_data": self.text_data,
+                }
+            ],
+        }
 
     def get(self):
         response = session.get(
@@ -507,9 +511,7 @@ class POC:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
-        response = session.post(
-            f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json()
-        )
+        response = session.post(f"{base_url}/pocs", json=self.json())
         jr = response.json()
         ids = jr.get("poc_ids")
         self.id = ids[0] if ids else ""
