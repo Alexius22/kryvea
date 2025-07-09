@@ -170,7 +170,7 @@ func (pi *PocIndex) Update(ID uuid.UUID, poc *Poc) error {
 	}
 
 	if poc.TextData != "" {
-		update["$set"].(bson.M)["text"] = poc.TextData
+		update["$set"].(bson.M)["text_data"] = poc.TextData
 	}
 
 	update["$set"].(bson.M)["updated_at"] = time.Now()
