@@ -16,6 +16,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	session := c.Cookies("kryvea")
 	token, err := util.ParseUUID(session)
 	if err != nil {
+		util.ClearShadowCookie(c)
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
