@@ -217,7 +217,7 @@ export default function EditPoc() {
   return (
     <div className="flex flex-col gap-2">
       <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
-        <Card className="!border-2 !border-[color:--bg-active] !bg-neutral-50/0">
+        <Card className="!border-2 !border-[color:--bg-active] !bg-transparent">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
