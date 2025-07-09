@@ -46,21 +46,26 @@ export default function Assessments() {
     useCtxAssessment: [, setCtxAssessment],
   } = useContext(GlobalContext);
 
+  const fetchAssessments = () => {
+    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
+  };
+
   useEffect(() => {
     document.title = getPageTitle("Assessments");
-    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
+    fetchAssessments();
   }, []);
 
-  const handleFavoriteToggle = (id: string) => () => {
-    const updatedAssessments = assessmentsData.map(assessment => {
-      if (assessment.id === id) {
-        const updated = { ...assessment, is_owned: !assessment.is_owned };
-        patchData(`/api/users/me/assessments`, { assessment: assessment.id, is_owned: updated.is_owned });
-        return updated;
-      }
-      return assessment;
-    });
-    setAssessmentsData(updatedAssessments);
+  const handleOwnedToggle = assessment => () => {
+    //   patchData(
+    //     `/api/users/me/assessments`,
+    //     { assessment: assessment.id, is_owned: !assessment.is_owned },
+    //     autoUpdateArrState(setAssessmentsData)
+    //   );
+    patchData(
+      `/api/users/me/assessments`,
+      { assessment: assessment.id, is_owned: !assessment.is_owned },
+      fetchAssessments
+    );
   };
 
   const openCloneModal = (assessment: Assessment) => {
@@ -236,7 +241,7 @@ export default function Assessments() {
               <Button
                 variant={assessment.is_owned ? "warning" : ""}
                 icon={mdiStar}
-                onClick={handleFavoriteToggle(assessment.id)}
+                onClick={handleOwnedToggle(assessment)}
                 small
                 title="Take ownership"
               />
