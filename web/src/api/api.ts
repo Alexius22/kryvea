@@ -55,6 +55,20 @@ export function patchData<TResponseData>(
     .finally(onFinally);
 }
 
+export function putData<TResponseData>(
+  endpoint: string,
+  data: any = undefined,
+  onThen: OnThenCallback<TResponseData> = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
+  onFinally: OnFinallyCallback = undefined
+) {
+  axios
+    .put<TResponseData>(endpoint, data)
+    .then(({ data }) => onThen(data))
+    .catch(onCatch)
+    .finally(onFinally);
+}
+
 export function deleteData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
