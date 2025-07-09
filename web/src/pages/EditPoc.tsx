@@ -7,6 +7,7 @@ import { getData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import { POC_TYPE_IMAGE, POC_TYPE_REQUEST_RESPONSE, POC_TYPE_TEXT } from "../components/Poc/Poc.consts";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
@@ -119,7 +120,7 @@ export default function EditPoc() {
   const addPoc = (type: PocType) => () => {
     const key = getPocKeyByType(type);
     switch (type) {
-      case "text":
+      case POC_TYPE_TEXT:
         setPocList(prev => [
           ...prev,
           {
@@ -132,7 +133,7 @@ export default function EditPoc() {
           },
         ]);
         break;
-      case "image":
+      case POC_TYPE_IMAGE:
         setPocList(prev => [
           ...prev,
           {
@@ -146,7 +147,7 @@ export default function EditPoc() {
           },
         ]);
         break;
-      case "request/response":
+      case POC_TYPE_REQUEST_RESPONSE:
         setPocList(prev => [
           ...prev,
           {
@@ -165,7 +166,7 @@ export default function EditPoc() {
 
   const switchPocType = (pocDoc: PocDoc, i: number) => {
     switch (pocDoc.type) {
-      case "text":
+      case POC_TYPE_TEXT:
         return (
           <PocText
             {...{
@@ -181,7 +182,7 @@ export default function EditPoc() {
             key={pocDoc.key}
           />
         );
-      case "image":
+      case POC_TYPE_IMAGE:
         const pocImageProps: PocImageProps = {
           currentIndex: i,
           pocDoc,
@@ -194,7 +195,7 @@ export default function EditPoc() {
           setSelectedPoc,
         };
         return <PocImage {...pocImageProps} key={pocDoc.key} />;
-      case "request/response":
+      case POC_TYPE_REQUEST_RESPONSE:
         return (
           <PocRequestResponse
             {...{
@@ -219,9 +220,9 @@ export default function EditPoc() {
         <Card className="border-2 border-white/60 !bg-red-400/0">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
-            <Button text="Request/Response" icon={mdiPlus} onClick={addPoc("request/response")} small />
-            <Button text="Image" icon={mdiPlus} onClick={addPoc("image")} small />
-            <Button text="Text" icon={mdiPlus} onClick={addPoc("text")} small />
+            <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
+            <Button text="Image" icon={mdiPlus} onClick={addPoc(POC_TYPE_IMAGE)} small />
+            <Button text="Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_TEXT)} small />
             <Button
               className="ml-auto"
               text="Submit"
