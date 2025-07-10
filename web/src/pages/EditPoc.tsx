@@ -18,6 +18,7 @@ export default function EditPoc() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
+  const [goToBottom, setGoToBottom] = useState(false);
 
   const pocListParent = useRef<HTMLDivElement>(null);
 
@@ -48,6 +49,12 @@ export default function EditPoc() {
       document.removeEventListener("visibilitychange", handleDragEnd);
     };
   }, []);
+  useEffect(() => {
+    if (pocListParent.current?.lastElementChild == null) {
+      return;
+    }
+    pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
+  }, [goToBottom]);
 
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
@@ -162,6 +169,7 @@ export default function EditPoc() {
         ]);
         break;
     }
+    setGoToBottom(prev => !prev);
   };
 
   const switchPocType = (pocDoc: PocDoc, i: number) => {
