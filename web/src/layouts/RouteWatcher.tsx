@@ -53,6 +53,7 @@ export default function RouteWatcher() {
     switch (currentPathname) {
       case "customers":
       case "assessments":
+      case "vulnerabilities":
         break;
       default:
         setCtxCustomer(undefined);
