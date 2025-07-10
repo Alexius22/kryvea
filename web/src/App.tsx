@@ -64,7 +64,6 @@ export default function App() {
         if (typeof value === "function") {
           setState(prev => {
             const newValue = (value as CallableFunction)(prev);
-            console.log(`Updating localStorage for key: ${key}`, newValue);
             setLocalStorageCtxState(key, newValue);
             return newValue;
           });

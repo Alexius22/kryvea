@@ -84,8 +84,6 @@ export function deleteData<TResponseData>(
 
 export function autoUpdateArrState(setState) {
   return (data: IdObject) => {
-    console.log("data =", data);
-
     setState((prev: IdObject[]) => {
       if (!Array.isArray(prev)) {
         console.error("Expected previous state to be an array");
