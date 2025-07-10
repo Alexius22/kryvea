@@ -216,7 +216,7 @@ export default function Assessments() {
       </SectionTitleLineWithButton>
 
       <Table
-        data={assessmentsData.map(assessment => ({
+        data={assessmentsData?.map(assessment => ({
           Title: (
             <Link
               to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}
