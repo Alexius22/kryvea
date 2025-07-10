@@ -170,7 +170,7 @@ func TestXlsx(t *testing.T) {
 	}
 
 	var vulnerabilities []mongo.Vulnerability
-	var pocs []mongo.Poc
+	poc := mongo.Poc{}
 	for i := 0; i < 5; i++ {
 		version := rand.Intn(len(assessment.CVSSVersions))
 		cvssVector := randCVSSVector(assessment.CVSSVersions[version])
@@ -205,43 +205,38 @@ func TestXlsx(t *testing.T) {
 		vulnerabilities = append(vulnerabilities, vulnerability)
 
 		for j := 0; j < 3; j++ {
-			poc := mongo.Poc{
-				Index:           j + 1,
-				Type:            "request",
-				Description:     randName(10),
-				URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
-				Request:         randName(20),
-				Response:        randName(20),
-				VulnerabilityID: vulnerability.ID,
-			}
-
-			pocs = append(pocs, poc)
+			poc.Pocs = append(poc.Pocs, mongo.PocItem{
+				Index:       j + 1,
+				Type:        "request",
+				Description: randName(10),
+				URI:         fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
+				Request:     randName(20),
+				Response:    randName(20),
+			})
 		}
-		pocs = append(pocs, mongo.Poc{
-			Index:           4,
-			Type:            "image",
-			Description:     randName(10),
-			URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
-			ImageData:       imageDataDecoded,
-			ImageCaption:    "Caption" + randName(2),
-			VulnerabilityID: vulnerability.ID,
+		poc.Pocs = append(poc.Pocs, mongo.PocItem{
+			Index:        4,
+			Type:         "image",
+			Description:  randName(10),
+			URI:          fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
+			ImageData:    imageDataDecoded,
+			ImageCaption: "Caption" + randName(2),
 		})
 
-		pocs = append(pocs, mongo.Poc{
-			Index:           5,
-			Type:            "text",
-			Description:     randName(10),
-			URI:             fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
-			TextLanguage:    "JavaScript",
-			TextData:        randName(20),
-			VulnerabilityID: vulnerability.ID,
+		poc.Pocs = append(poc.Pocs, mongo.PocItem{
+			Index:        5,
+			Type:         "text",
+			Description:  randName(10),
+			URI:          fmt.Sprintf("https://%s", vulnerability.Target.FQDN),
+			TextLanguage: "JavaScript",
+			TextData:     randName(20),
 		})
 	}
 
 	assessment.VulnerabilityCount = len(vulnerabilities)
 
 	t.Run("test", func(t *testing.T) {
-		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
+		_, err := GenerateReport(customer, assessment, vulnerabilities, poc)
 		if err != nil {
 			t.Errorf("GenerateReport() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
 		}

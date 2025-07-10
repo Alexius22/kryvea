@@ -7,5 +7,9 @@ const (
 )
 
 var (
-	POCTypes = []string{POC_TYPE_TEXT, POC_TYPE_REQUEST, POC_TYPE_IMAGE}
+	POCTypes = map[string]struct{}{
+		POC_TYPE_TEXT:    {},
+		POC_TYPE_REQUEST: {},
+		POC_TYPE_IMAGE:   {},
+	}
 )

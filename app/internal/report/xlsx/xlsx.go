@@ -85,7 +85,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath, baseInZip string) error {
 	return err
 }
 
-func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
+func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, poc mongo.Poc) (string, error) {
 	xl := excelize.NewFile()
 	defer xl.Close()
 
@@ -194,58 +194,57 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		pocCount := 0
 
 		// Process PoCs for this vulnerability
-		for _, poc := range pocs {
-			if poc.VulnerabilityID != vuln.ID {
-				continue
-			}
-			// Append new PoCs at the end
-			pocID := fmt.Sprintf("POC_%d_%d", i, pocCount)
+		if poc.VulnerabilityID == vuln.ID {
+			for _, pocItem := range poc.Pocs {
+				// Append new PoCs at the end
+				pocID := fmt.Sprintf("POC_%d_%d", i, pocCount)
 
-			xl.SetCellValue(pocSheet, fmt.Sprintf("A%d", pocRow), i)
-			xl.SetCellValue(pocSheet, fmt.Sprintf("B%d", pocRow), pocID)
+				xl.SetCellValue(pocSheet, fmt.Sprintf("A%d", pocRow), i)
+				xl.SetCellValue(pocSheet, fmt.Sprintf("B%d", pocRow), pocID)
 
-			// Update description with PoC references
-			if poc.Description != "" {
-				description += fmt.Sprintf("\n\n%s\n\n%s", poc.Description, pocID)
-			} else {
-				description += fmt.Sprintf("\n\n%s", pocID)
-			}
-
-			switch poc.Type {
-			case "image":
-				imagePath := fmt.Sprintf("%s/POC_%d_%d.PNG", tmpDir, i, pocCount)
-				// create image file
-				imageFile, err := os.Create(imagePath)
-				if err != nil {
-					continue
-				}
-				defer imageFile.Close()
-
-				// TODO: remove
-				// // base64 decode image data
-				// decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
-				// if err != nil {
-				// 	continue
-				// }
-
-				// copy imagedata to file
-				_, err = imageFile.Write(poc.ImageData)
-				if err != nil {
-					continue
+				// Update description with PoC references
+				if pocItem.Description != "" {
+					description += fmt.Sprintf("\n\n%s\n\n%s", pocItem.Description, pocID)
+				} else {
+					description += fmt.Sprintf("\n\n%s", pocID)
 				}
 
-				xl.SetCellValue(pocSheet, fmt.Sprintf("C%d", pocRow), fmt.Sprintf("%s\n\n%s | %s", poc.Description, filepath.Base(imagePath), poc.ImageCaption))
-			case "request":
-				xl.SetCellValue(pocSheet, fmt.Sprintf("D%d", pocRow), poc.Request)
-				xl.SetCellValue(pocSheet, fmt.Sprintf("E%d", pocRow), poc.Response)
+				switch pocItem.Type {
+				case "image":
+					imagePath := fmt.Sprintf("%s/POC_%d_%d.PNG", tmpDir, i, pocCount)
+					// create image file
+					imageFile, err := os.Create(imagePath)
+					if err != nil {
+						continue
+					}
+					defer imageFile.Close()
 
-			case "text":
-				xl.SetCellValue(pocSheet, fmt.Sprintf("F%d", pocRow), poc.TextData)
+					// TODO: remove
+					// // base64 decode image data
+					// decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
+					// if err != nil {
+					// 	continue
+					// }
+
+					// copy imagedata to file
+					_, err = imageFile.Write(pocItem.ImageData)
+					if err != nil {
+						continue
+					}
+
+					xl.SetCellValue(pocSheet, fmt.Sprintf("C%d", pocRow), fmt.Sprintf("%s\n\n%s | %s", pocItem.Description, filepath.Base(imagePath), pocItem.ImageCaption))
+				case "request":
+					xl.SetCellValue(pocSheet, fmt.Sprintf("D%d", pocRow), pocItem.Request)
+					xl.SetCellValue(pocSheet, fmt.Sprintf("E%d", pocRow), pocItem.Response)
+
+				case "text":
+					xl.SetCellValue(pocSheet, fmt.Sprintf("F%d", pocRow), pocItem.TextData)
+				}
+
+				pocEntries = append(pocEntries, pocID)
+				pocCount++
+				pocRow++
 			}
-
-			pocEntries = append(pocEntries, pocID)
-			pocCount++
-			pocRow++
 		}
 
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("F%d", row), description)
@@ -314,6 +313,6 @@ func sanitizeFileName(name string) string {
 	return replacer.Replace(name)
 }
 
-func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
-	return renderReport(customer, assessment, vulnerabilities, pocs)
+func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, poc mongo.Poc) (string, error) {
+	return renderReport(customer, assessment, vulnerabilities, poc)
 }

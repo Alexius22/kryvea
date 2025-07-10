@@ -516,7 +516,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	// retrieve pocs
-	var pocs []mongo.Poc
+	reportPoc := mongo.Poc{}
 	for _, v := range vulnerabilities {
 		var cvssReportVersion int
 		for _, version := range assessment.CVSSVersions {
@@ -546,21 +546,21 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 			}
 		}
 
-		pocsByVuln, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
+		poc, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Failed to retrieve pocs",
 			})
 		}
-		pocs = append(pocs, pocsByVuln...)
+		reportPoc = *poc
 	}
 
 	// generate report
 	var fileName string
 	switch data.Type {
 	case "xlsx":
-		fileName, err = xlsx.GenerateReport(customer, assessment, vulnerabilities, pocs)
+		fileName, err = xlsx.GenerateReport(customer, assessment, vulnerabilities, reportPoc)
 	}
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)

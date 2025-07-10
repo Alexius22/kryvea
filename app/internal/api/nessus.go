@@ -157,6 +157,9 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 		}
 
 		for _, item := range host.ReportItems {
+			poc := mongo.Poc{
+				Pocs: make([]mongo.PocItem, 0, 1),
+			}
 			category := &mongo.Category{
 				Index: item.PluginID,
 				Name:  item.PluginName,
@@ -233,14 +236,14 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 
 			vulnerabilities = append(vulnerabilities, vulnerabilityID)
 
-			poc := &mongo.Poc{
-				Index:           0,
-				Type:            "text",
-				TextData:        item.PluginOutput,
-				VulnerabilityID: vulnerabilityID,
-			}
+			poc.Pocs = append(poc.Pocs, mongo.PocItem{
+				Index:    0,
+				Type:     "text",
+				TextData: item.PluginOutput,
+			})
+			poc.VulnerabilityID = vulnerabilityID
 
-			_, err = d.mongo.Poc().Insert(poc)
+			err = d.mongo.Poc().Upsert(&poc)
 			if err != nil {
 				return err
 			}

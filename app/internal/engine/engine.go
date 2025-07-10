@@ -87,9 +87,10 @@ func (e *Engine) Serve() {
 		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
-		apiGroup.Post("/pocs", api.AddPocs)
-		apiGroup.Patch("/pocs/:poc", api.UpdatePoc)
-		apiGroup.Delete("/pocs/:poc", api.DeletePoc)
+		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)
+		// apiGroup.Post("/pocs", api.AddPocs)
+		// apiGroup.Patch("/pocs/:poc", api.UpdatePoc)
+		// apiGroup.Delete("/pocs/:poc", api.DeletePoc)
 
 		apiGroup.Post("/assessments/:assessment/upload/nessus", api.UploadNessus)
 
