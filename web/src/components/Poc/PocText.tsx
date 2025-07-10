@@ -1,6 +1,6 @@
 import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { UnControlled as CodeMirror } from "react-codemirror2";
 import SelectWrapper from "../Form/SelectWrapper";
 import { PocDoc, PocTextDoc } from "./Poc.types";
@@ -28,7 +28,7 @@ export default function PocText({
   setSelectedPoc,
 }: PocTextProps) {
   // prettier-ignore
-  const [languages] = useState(["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"]);
+  const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
