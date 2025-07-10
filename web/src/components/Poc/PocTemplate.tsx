@@ -93,18 +93,16 @@ export default function PocTemplate({
                   small
                   className="h-8"
                   disabled={currentIndex === 0}
-                  onClick={() =>
-                    onPositionChange(currentIndex)({ target: { value: currentIndex <= 0 ? 0 : currentIndex - 1 } })
-                  }
+                  onClick={() => onPositionChange(currentIndex)(currentIndex <= 0 ? 0 : currentIndex - 1)}
                 />
                 <Button
                   text="Move Down"
                   small
                   disabled={currentIndex === pocList.length - 1}
                   onClick={() =>
-                    onPositionChange(currentIndex)({
-                      target: { value: currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1 },
-                    })
+                    onPositionChange(currentIndex)(
+                      currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1
+                    )
                   }
                 />
               </div>
