@@ -1,10 +1,18 @@
-import { mdiAccount, mdiFullscreen, mdiFullscreenExit, mdiLogout, mdiMoonFull, mdiMoonNew } from "@mdi/js";
+import {
+  mdiAccount,
+  mdiFullscreen,
+  mdiFullscreenExit,
+  mdiLogout,
+  mdiWeatherNight,
+  mdiWhiteBalanceSunny,
+} from "@mdi/js";
 import { ReactNode, useContext } from "react";
 import { useNavigate } from "react-router";
 import { postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
+import Icon from "./Icon";
 
 type Props = {
   children?: ReactNode;
@@ -35,11 +43,15 @@ export default function NavBar({ children }: Props) {
           className="gap-2 bg-transparent text-[color:--link]"
         />
 
-        <Button
+        <div
+          className={`relative h-4 w-4 ${darkTheme ? "text-amber-400" : "text-[color:--link]"}`}
           onClick={() => setDarkTheme(prev => !prev)}
-          icon={darkTheme ? mdiMoonNew : mdiMoonFull}
-          className="bg-transparent text-[color:--link]"
-        />
+          role="button"
+          tabIndex={0}
+        >
+          <Icon path={mdiWhiteBalanceSunny} className={`absolute opacity-0 ${darkTheme ? "" : "rotateFadeIn"}`} />
+          <Icon path={mdiWeatherNight} className={`absolute opacity-0 ${darkTheme ? "rotateFadeIn" : ""}`} />
+        </div>
 
         <Button
           onClick={() => setFullScreen(prev => !prev)}
