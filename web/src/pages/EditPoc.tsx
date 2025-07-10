@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import { getData, postData } from "../api/api";
+import { getData, putData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -228,8 +228,8 @@ export default function EditPoc() {
               text="Submit"
               icon={mdiSend}
               onClick={() => {
-                postData(
-                  `/api/pocs`,
+                putData(
+                  `/api/vulnerabilities/${vulnerabilityId}/pocs`,
                   pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
                   () => {
                     toast.success("PoCs updated successfully");
