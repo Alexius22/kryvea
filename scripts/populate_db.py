@@ -8,7 +8,7 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-base_url = "https://kryvea.local/api"
+base_url = "https://localhost/api"
 
 session = requests.Session()
 session.verify = False
