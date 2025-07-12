@@ -55,7 +55,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersions)
+	errStr = d.validateAssessmentData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -589,7 +589,7 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 	return assessment, ""
 }
 
-func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSSVersions []string) string {
+func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 	if data.Name == "" {
 		return "Name is required"
 	}
@@ -603,7 +603,7 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSS
 	}
 
 	if len(data.CVSSVersions) == 0 {
-		data.CVSSVersions = defaultCVSSVersions
+		return "At least one CVSS version is required"
 	}
 
 	for _, version := range data.CVSSVersions {

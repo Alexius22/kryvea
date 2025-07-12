@@ -139,9 +139,8 @@ func randUrl() string {
 
 func TestXlsx(t *testing.T) {
 	customer := &mongo.Customer{
-		Name:                randName(3),
-		Language:            randLanguage(),
-		DefaultCVSSVersions: []string{cvss.CVSS2, cvss.CVSS4},
+		Name:     randName(3),
+		Language: randLanguage(),
 	}
 
 	var targets []mongo.Target
@@ -158,7 +157,6 @@ func TestXlsx(t *testing.T) {
 		Targets:        targets,
 		Status:         randStatus(),
 		AssessmentType: randAssessmentType(),
-		CVSSVersions:   customer.DefaultCVSSVersions,
 		Environment:    randEnvironment(),
 		TestingType:    randTestingType(),
 		OSSTMMVector:   randOSSTMMVector(),

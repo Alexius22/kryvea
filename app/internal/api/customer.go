@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -9,9 +8,8 @@ import (
 )
 
 type customerRequestData struct {
-	Name                string   `json:"name"`
-	Language            string   `json:"language"`
-	DefaultCVSSVersions []string `json:"default_cvss_versions"`
+	Name     string `json:"name"`
+	Language string `json:"language"`
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -45,9 +43,8 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 	// insert customer into database
 	customerID, err := d.mongo.Customer().Insert(&mongo.Customer{
-		Name:                data.Name,
-		Language:            data.Language,
-		DefaultCVSSVersions: data.DefaultCVSSVersions,
+		Name:     data.Name,
+		Language: data.Language,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -152,9 +149,8 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 	// insert customer into database
 	err := d.mongo.Customer().Update(customer.ID, &mongo.Customer{
-		Name:                data.Name,
-		Language:            data.Language,
-		DefaultCVSSVersions: data.DefaultCVSSVersions,
+		Name:     data.Name,
+		Language: data.Language,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -228,16 +224,6 @@ func (d *Driver) validateCustomerData(customer *customerRequestData) string {
 
 	if customer.Language == "" {
 		return "Language is required"
-	}
-
-	if len(customer.DefaultCVSSVersions) == 0 {
-		customer.DefaultCVSSVersions = []string{cvss.CVSS4}
-	}
-
-	for _, version := range customer.DefaultCVSSVersions {
-		if !cvss.IsValidVersion(version) {
-			return "Invalid CVSS version"
-		}
 	}
 
 	return ""
