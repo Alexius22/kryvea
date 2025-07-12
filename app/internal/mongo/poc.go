@@ -218,6 +218,16 @@ func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error
 		}, err
 	}
 
+	for i, item := range poc.Pocs {
+		if item.ImageID != uuid.Nil {
+			imageData, err := pi.driver.FileReference().ReadByID(item.ImageID)
+			if err != nil {
+				return nil, err
+			}
+			poc.Pocs[i].ImageData = imageData
+		}
+	}
+
 	return &poc, nil
 }
 
