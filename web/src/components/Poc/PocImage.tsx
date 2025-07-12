@@ -1,6 +1,7 @@
 import { mdiImage } from "@mdi/js";
 import React, { useEffect, useRef, useState } from "react";
 import Grid from "../Composition/Grid";
+import Textarea from "../Form/Textarea";
 import UploadFile from "../Form/UploadFile";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
@@ -131,7 +132,7 @@ export default function PocImage({
     >
       <div className="poc-image col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
-        <textarea
+        <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
