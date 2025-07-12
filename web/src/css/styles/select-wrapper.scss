@@ -98,3 +98,9 @@
 .select-wrapper__input {
   box-shadow: none;
 }
+
+.select-wrapper__single-value:empty::after {
+  content: "Select...";
+  color: var(--text-secondary);
+  font-weight: 100;
+}
