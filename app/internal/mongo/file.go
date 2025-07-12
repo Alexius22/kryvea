@@ -33,12 +33,3 @@ func (i *FileIndex) GetByID(id bson.ObjectID) ([]byte, error) {
 func (i *FileIndex) Delete(id bson.ObjectID) error {
 	return i.driver.bucket.Delete(context.Background(), id)
 }
-
-func (i *FileIndex) Clone(fileID bson.ObjectID) (bson.ObjectID, error) {
-	data, err := i.GetByID(fileID)
-	if err != nil {
-		return bson.NilObjectID, err
-	}
-
-	return i.Insert(data)
-}

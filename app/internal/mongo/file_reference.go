@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"crypto/md5"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,8 +15,9 @@ const (
 )
 
 type FileReference struct {
-	Model `bson:",inline"`
-	File  bson.ObjectID `json:"file" bson:"file"`
+	Model    `bson:",inline"`
+	File     bson.ObjectID `json:"file" bson:"file"`
+	Checksum [16]byte      `json:"checksum" bson:"checksum"`
 }
 
 type FileReferenceIndex struct {
@@ -39,6 +41,15 @@ func (fri FileReferenceIndex) init() error {
 }
 
 func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
+	checksum := md5.Sum(data)
+	reference, err := i.GetByChecksum(checksum)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return uuid.Nil, err
+	}
+	if reference != nil {
+		return reference.ID, nil
+	}
+
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.Nil, err
@@ -54,7 +65,8 @@ func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
 			ID:        id,
 			CreatedAt: time.Now(),
 		},
-		File: fileID,
+		File:     fileID,
+		Checksum: checksum,
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
@@ -69,6 +81,16 @@ func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
 func (i *FileReferenceIndex) GetByID(id uuid.UUID) (*FileReference, error) {
 	var fileReference FileReference
 	err := i.collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&fileReference)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fileReference, nil
+}
+
+func (i *FileReferenceIndex) GetByChecksum(checksum [16]byte) (*FileReference, error) {
+	var fileReference FileReference
+	err := i.collection.FindOne(context.Background(), bson.M{"checksum": checksum}).Decode(&fileReference)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +113,14 @@ func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
 		return err
 	}
 
+	relatedPocs, err := i.driver.Poc().CountByFileReferenceID(id)
+	if err != nil {
+		return err
+	}
+	if relatedPocs > 1 {
+		return nil
+	}
+
 	err = i.driver.File().Delete(fileReference.File)
 	if err != nil {
 		return err
@@ -102,37 +132,4 @@ func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
 	}
 
 	return nil
-}
-
-func (i *FileReferenceIndex) Clone(fileID uuid.UUID) (uuid.UUID, error) {
-	fileReference, err := i.GetByID(fileID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	newFileID, err := i.driver.File().Clone(fileReference.File)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	id, err := uuid.NewRandom()
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	newFileReference := FileReference{
-		Model: Model{
-			ID:        id,
-			CreatedAt: time.Now(),
-		},
-		File: newFileID,
-	}
-	newFileReference.Model.UpdatedAt = newFileReference.Model.CreatedAt
-
-	_, err = i.collection.InsertOne(context.Background(), newFileReference)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	return id, nil
 }
