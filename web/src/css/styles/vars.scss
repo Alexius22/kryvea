@@ -44,11 +44,11 @@
   );
 
   /* Alerts */
-  $error: #ff0000;
+  $error: #ff4040;
   --error: #{$error};
   --error-rgb: #{color.channel($error, "red")}, #{color.channel($error, "green")}, #{color.channel($error, "blue")};
 
-  $warning: #fff702;
+  $warning: #fdc700;
   --warning: #{$warning};
   --warning-rgb:
     #{color.channel($warning, "red")}, #{color.channel($warning, "green")}, #{color.channel($warning, "blue")};
