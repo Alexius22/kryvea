@@ -15,6 +15,9 @@ const (
 	hasDigit   = 1 << 2
 	hasSpecial = 1 << 3
 	allSet     = hasUpper | hasLower | hasDigit | hasSpecial
+
+	KryveaSessionCookie = "kryvea"
+	KryveaShadowCookie  = "kryvea_shadow"
 )
 
 func IsValidPassword(password string) bool {
@@ -71,11 +74,34 @@ func IsValidRole(role string) bool {
 	return false
 }
 
-// ClearShadowCookie removes the cookie visible to the client,
-// meaning new login is required.
-func ClearShadowCookie(c *fiber.Ctx) {
+func SetSessionCookie(c *fiber.Ctx, token uuid.UUID, expires time.Time) {
 	c.Cookie(&fiber.Cookie{
-		Name:     "kryvea_shadow",
+		Name:     KryveaSessionCookie,
+		Value:    token.String(),
+		Secure:   true,
+		HTTPOnly: true,
+		SameSite: "Strict",
+		Expires:  expires,
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     KryveaShadowCookie,
+		Value:    "ok",
+		Secure:   true,
+		HTTPOnly: false,
+		SameSite: "Strict",
+		Expires:  expires,
+	})
+}
+
+func ClearCookies(c *fiber.Ctx) {
+	c.ClearCookie(KryveaSessionCookie)
+
+	// standard ClearCookie does not allow frontend
+	// to check cookie existence as quickly as
+	// the following approach does
+	c.Cookie(&fiber.Cookie{
+		Name:     KryveaShadowCookie,
 		Value:    "",
 		Secure:   true,
 		HTTPOnly: false,

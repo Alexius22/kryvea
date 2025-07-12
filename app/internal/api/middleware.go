@@ -16,7 +16,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	session := c.Cookies("kryvea")
 	token, err := util.ParseUUID(session)
 	if err != nil {
-		util.ClearShadowCookie(c)
+		util.ClearCookies(c)
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -25,12 +25,21 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 
 	user, err := d.mongo.User().GetByToken(token)
 	if err != nil || user.TokenExpiry.Before(time.Now()) || (!user.DisabledAt.IsZero() && user.DisabledAt.Before(time.Now())) {
-		util.ClearShadowCookie(c)
+		util.ClearCookies(c)
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
 		})
 	}
+
+	newToken, expires, err := d.mongo.User().RefreshUserToken(user.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to refresh session",
+		})
+	}
+	util.SetSessionCookie(c, newToken, expires)
 
 	c.Locals("user", user)
 
