@@ -17,7 +17,7 @@ export default function Textarea({
   id,
   label,
   helperSubtitle,
-  placeholder,
+  placeholder = "Enter text here...",
   value,
   onChange,
   rows = 6,
