@@ -211,6 +211,26 @@ func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, err
 	return token, expires, nil
 }
 
+func (ui *UserIndex) RefreshUserToken(userID uuid.UUID) (uuid.UUID, time.Time, error) {
+	token, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.UUID{}, time.Time{}, err
+	}
+
+	expires := time.Now().Add(9 * time.Hour)
+
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
+		"$set": bson.M{
+			"token":        token,
+			"token_expiry": expires,
+		}})
+	if err != nil {
+		return uuid.UUID{}, time.Time{}, err
+	}
+
+	return token, expires, nil
+}
+
 func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
