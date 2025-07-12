@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -259,7 +258,6 @@ func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
 	// map user assessments IDs
 	userAssessments := make([]uuid.UUID, len(user.Assessments))
 	for i, userAssessment := range user.Assessments {
-		fmt.Printf("i: %d, userAssessment: %+v\n", i, userAssessment)
 		userAssessments[i] = userAssessment.ID
 	}
 

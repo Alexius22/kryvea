@@ -1,9 +1,6 @@
 package api
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
@@ -283,7 +280,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// update poc in the database
 	err = d.mongo.Poc().Upsert(pocUpsert)
 	if err != nil {
-		log.Println("Failed to upsert PoCs:", err)
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Failed to update PoC",
@@ -379,7 +375,6 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 	// parse vulnerability param
 	poc, err := d.mongo.Poc().GetByVulnerabilityID(vulnerability.ID)
 	if err != nil && err != mongoV2.ErrNoDocuments {
-		fmt.Println("Failed to get PoCs: ", err)
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get PoCs",

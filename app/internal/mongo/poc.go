@@ -182,6 +182,26 @@ func (pi PocIndex) init() error {
 // }
 
 func (pi *PocIndex) Upsert(poc *Poc) error {
+	// retrieve existing POCs
+	oldPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+
+	// map new POC image IDs
+	newImageIDs := make(map[uuid.UUID]struct{}, len(poc.Pocs))
+	for _, newPocs := range poc.Pocs {
+		newImageIDs[newPocs.ImageID] = struct{}{}
+	}
+
+	// retrieve old POC images IDs that are not in the new POC
+	oldImageIDs := make(map[uuid.UUID]struct{}, len(oldPoc.Pocs))
+	for _, oldPocs := range oldPoc.Pocs {
+		if _, exists := newImageIDs[oldPocs.ImageID]; !exists {
+			oldImageIDs[oldPocs.ImageID] = struct{}{}
+		}
+	}
+
 	poc.UpdatedAt = time.Now()
 
 	// Serialize without _id
@@ -200,13 +220,27 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 		},
 	}
 
-	_, err := pi.collection.UpdateOne(
-		context.TODO(),
+	_, err = pi.collection.UpdateOne(
+		context.Background(),
 		filter,
 		update,
 		options.UpdateOne().SetUpsert(true),
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// delete old images that are not in the new POC
+	for imageID := range oldImageIDs {
+		if imageID != uuid.Nil {
+			err = pi.driver.FileReference().Delete(imageID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error) {
@@ -229,6 +263,14 @@ func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error
 	}
 
 	return &poc, nil
+}
+
+func (pi *PocIndex) CountByFileReferenceID(fileReferenceID uuid.UUID) (int64, error) {
+	count, err := pi.collection.CountDocuments(context.Background(), bson.M{"pocs.image_id": fileReferenceID})
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (pi *PocIndex) DeleteByVulnerabilityID(vulnerabilityID uuid.UUID) error {
