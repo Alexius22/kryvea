@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
@@ -9,22 +11,22 @@ import (
 	mongoV2 "go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-type pocRequestData struct {
-	VulnerabilityID string    `json:"vulnerability_id"`
-	Pocs            []pocData `json:"pocs"`
-}
+// type pocRequestData struct {
+// 	VulnerabilityID string    `json:"vulnerability_id"`
+// 	Pocs            []pocData `json:"pocs"`
+// }
 
 type pocData struct {
-	Index        int    `json:"index"`
-	Type         string `json:"type"`
-	Description  string `json:"description"`
-	URI          string `json:"uri"`
-	Request      string `json:"request"`
-	Response     string `json:"response"`
-	ImageData    []byte `json:"image_data"`
-	ImageCaption string `json:"image_caption"`
-	TextLanguage string `json:"text_language"`
-	TextData     string `json:"text_data"`
+	Index          int    `json:"index"`
+	Type           string `json:"type"`
+	Description    string `json:"description"`
+	URI            string `json:"uri"`
+	Request        string `json:"request"`
+	Response       string `json:"response"`
+	ImageReference string `json:"image_reference"`
+	ImageCaption   string `json:"image_caption"`
+	TextLanguage   string `json:"text_language"`
+	TextData       string `json:"text_data"`
 }
 
 // func (d *Driver) AddPocs(c *fiber.Ctx) error {
@@ -220,6 +222,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		})
 	}
 
+	// check if user can access the customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
@@ -229,7 +232,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 	// parse request body
 	pocsData := []pocData{}
-	if err := c.BodyParser(&pocsData); err != nil {
+	err = json.Unmarshal([]byte(c.FormValue("pocs_data")), &pocsData)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -254,8 +258,15 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
-		if pocData.Type == poc.POC_TYPE_IMAGE && len(pocData.ImageData) > 0 {
-			imageID, err = d.mongo.FileReference().Insert(pocData.ImageData)
+		if pocData.Type == poc.POC_TYPE_IMAGE {
+			dataBytes, err := util.ParseFormFile(c, pocData.ImageReference)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Cannot parse categories file",
+				})
+			}
+			imageID, err = d.mongo.FileReference().Insert(dataBytes)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
 				return c.JSON(fiber.Map{
