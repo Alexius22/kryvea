@@ -458,7 +458,7 @@ class Vulnerability:
         return "", jr.get("error")
 
 
-class POC:
+class PocData:
     def __init__(
         self,
         index=0,
@@ -471,7 +471,6 @@ class POC:
         image_caption="",
         text_language="",
         text_data="",
-        vulnerability_id="",
     ):
         self.index = index
         self.type = type
@@ -483,22 +482,52 @@ class POC:
         self.image_caption = image_caption
         self.text_language = text_language
         self.text_data = text_data
+
+
+class POC:
+    def __init__(
+        self,
+        pocData=[],
+        # index=0,
+        # type="exploit",
+        # description="",
+        # uri="",
+        # request="",
+        # response="",
+        # image_data="",
+        # image_caption="",
+        # text_language="",
+        # text_data="",
+        vulnerability_id="",
+    ):
+        self.pocData = pocData
+        # self.index = index
+        # self.type = type
+        # self.description = description
+        # self.uri = uri
+        # self.request = request
+        # self.response = response
+        # self.image_data = image_data
+        # self.image_caption = image_caption
+        # self.text_language = text_language
+        # self.text_data = text_data
         self.vulnerability_id = vulnerability_id
 
     def json(self):
         return [
             {
-                "index": self.index,
-                "type": self.type,
-                "description": self.description,
-                "uri": self.uri,
-                "request": self.request,
-                "response": self.response,
-                "image_data": self.image_data,
-                "image_caption": self.image_caption,
-                "text_language": self.text_language,
-                "text_data": self.text_data,
+                "index": pocData.index,
+                "type": pocData.type,
+                "description": pocData.description,
+                "uri": pocData.uri,
+                "request": pocData.request,
+                "response": pocData.response,
+                "image_data": pocData.image_data,
+                "image_caption": pocData.image_caption,
+                "text_language": pocData.text_language,
+                "text_data": pocData.text_data,
             }
+            for pocData in self.pocData
         ]
 
     def get(self):
@@ -519,8 +548,8 @@ class POC:
         return "", jr.get("error")
 
 
-def rand_poc_text() -> POC:
-    return POC(
+def rand_poc_text() -> PocData:
+    return PocData(
         index=0,
         type=POC_TYPE_TEXT,
         description=rand_string(),
@@ -537,11 +566,11 @@ image_paths = [
 ]
 
 
-def rand_poc_image() -> POC:
+def rand_poc_image() -> PocData:
     image = random.choice(image_paths)
     imageBytes = open(image, "rb").read()
     imageb64 = base64.b64encode(imageBytes).decode("utf-8")
-    return POC(
+    return PocData(
         index=0,
         type=POC_TYPE_IMAGE,
         description=rand_string(),
@@ -550,8 +579,8 @@ def rand_poc_image() -> POC:
     )
 
 
-def rand_poc_request() -> POC:
-    return POC(
+def rand_poc_request() -> PocData:
+    return PocData(
         index=0,
         type=POC_TYPE_REQUEST,
         description=rand_string(),
@@ -690,17 +719,21 @@ if __name__ == "__main__":
         )
 
     for vulnerability in vulnerabilities:
+        poc = POC(
+            pocData=[],
+            vulnerability_id=vulnerability.id,
+        )
         for i in range(7):
-            poc = None
             poc_type = rand_poc_type()
             if poc_type == POC_TYPE_TEXT:
-                poc = rand_poc_text()
+                pocData = rand_poc_text()
             elif poc_type == POC_TYPE_REQUEST:
-                poc = rand_poc_request()
+                pocData = rand_poc_request()
             elif poc_type == POC_TYPE_IMAGE:
-                poc = rand_poc_image()
+                pocData = rand_poc_image()
             poc.vulnerability_id = vulnerability.id
-            poc.index = i + 1
+            pocData.index = i + 1
+            poc.pocData.append(pocData)
             # print(poc.json())
             poc_id, error = poc.create()
             if error:
