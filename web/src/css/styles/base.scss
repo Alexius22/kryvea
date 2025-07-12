@@ -70,6 +70,10 @@ textarea:focus {
   box-shadow: 0 0 0 1px var(--border-primary);
   border-color: transparent;
 }
+textarea::placeholder {
+  color: var(--text-secondary);
+  font-style: normal;
+}
 
 .aside-menu-item-active {
   background-color: var(--bg-tertiary);
@@ -118,9 +122,8 @@ textarea:focus {
 }
 
 .rotateFadeIn {
-  animation: rotateFadeIn 0.5s cubic-bezier(0,0,0.6,1) forwards;
+  animation: rotateFadeIn 0.5s cubic-bezier(0, 0, 0.6, 1) forwards;
 }
-
 
 .clickable {
   &:hover {
@@ -144,10 +147,6 @@ textarea:focus {
 .glasscard {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  background-image: linear-gradient(
-    to top left,
-    rgba(var(--bg-primary-rgb), 0.5),
-    rgba(var(--bg-secondary-rgb), 0.5)
-  );
+  background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
   border: 1px solid var(--border-primary);
 }
