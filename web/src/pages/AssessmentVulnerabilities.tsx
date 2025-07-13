@@ -193,7 +193,7 @@ export default function AssessmentVulnerabilities() {
         data={vulnerabilities.map(vulnerability => ({
           Vulnerability: (
             <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
-              {vulnerability.category.index}: {vulnerability.category.name}{" "}
+              {vulnerability.category.index} - {vulnerability.category.name}{" "}
               {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
             </Link>
           ),

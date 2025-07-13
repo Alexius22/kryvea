@@ -1,7 +1,10 @@
 import { mdiImage } from "@mdi/js";
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import Grid from "../Composition/Grid";
+import Textarea from "../Form/Textarea";
 import UploadFile from "../Form/UploadFile";
+import { POC_TYPE_IMAGE } from "./Poc.consts";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -29,7 +32,7 @@ export default function PocImage({
   setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
-  const [filename, setFilename] = useState<string>();
+  const [filename, setFilename] = useState<string>((pocDoc as any)?.image_filename);
   const imageInput = useRef<HTMLInputElement>(null);
 
   const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
@@ -55,10 +58,20 @@ export default function PocImage({
   };
 
   useEffect(() => {
-    if (selectedPoc !== currentIndex) return;
+    if ((pocDoc as any).image_data) {
+      setImageUrl(`data:image/png;base64,${(pocDoc as any).image_data}`);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedPoc !== currentIndex) {
+      return;
+    }
     const handlePaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
-      if (!items) return;
+      if (!items) {
+        return;
+      }
 
       for (const item of items) {
         if (item.kind === "file") {
@@ -92,22 +105,37 @@ export default function PocImage({
   }, [imageUrl]);
 
   const onImageChangeWrapper = ({ target: { files } }) => {
+    const checkFilenameDuplicate = (pocs: PocDoc[]) =>
+      pocs.some((poc, i) => {
+        if (poc.type !== POC_TYPE_IMAGE || image_file.name !== poc?.image_file?.name) {
+          return false;
+        }
+
+        toast.error(`Image with name ${image_file.name} already exists in the list at index ${i + 1}.`);
+        return true;
+      });
+
     if (!files || !files[0]) {
       return;
     }
 
-    const image: File = files[0];
+    const image_file: File = files[0];
 
-    setFilename(image.name);
-    setImageUrl(URL.createObjectURL(image));
-    onImageChange(currentIndex, image);
+    if (checkFilenameDuplicate(pocList)) {
+      imageInput.current.value = ""; // clean implicit default input change behaviour
+      return;
+    }
+
+    setFilename(image_file.name);
+    setImageUrl(URL.createObjectURL(image_file));
+    onImageChange(currentIndex, image_file);
   };
 
   const clearImage = () => {
     imageInput.current.value = "";
-    setFilename("No file chosen");
-    setImageUrl(null);
-    onImageChange(currentIndex, null);
+    setFilename("");
+    setImageUrl(undefined);
+    onImageChange(currentIndex, undefined);
   };
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
@@ -131,7 +159,7 @@ export default function PocImage({
     >
       <div className="poc-image col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
-        <textarea
+        <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocImageDoc>(currentIndex, "description")}

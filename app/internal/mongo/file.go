@@ -19,8 +19,8 @@ func (d *Driver) File() *FileIndex {
 
 func (i *FileIndex) init() error { return nil }
 
-func (i *FileIndex) Insert(data []byte) (bson.ObjectID, error) {
-	id, err := i.driver.bucket.UploadFromStream(context.Background(), "", bytes.NewReader(data))
+func (i *FileIndex) Insert(data []byte, filename string) (bson.ObjectID, error) {
+	id, err := i.driver.bucket.UploadFromStream(context.Background(), filename, bytes.NewReader(data))
 	return id, err
 }
 
