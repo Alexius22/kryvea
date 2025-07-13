@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -18,16 +19,16 @@ type pocRequestData struct {
 }
 
 type pocData struct {
-	Index        int    `json:"index"`
-	Type         string `json:"type"`
-	Description  string `json:"description"`
-	URI          string `json:"uri"`
-	Request      string `json:"request"`
-	Response     string `json:"response"`
-	ImageData    []byte `json:"image_data"`
-	ImageCaption string `json:"image_caption"`
-	TextLanguage string `json:"text_language"`
-	TextData     string `json:"text_data"`
+	Index          int    `json:"index"`
+	Type           string `json:"type"`
+	Description    string `json:"description"`
+	URI            string `json:"uri"`
+	Request        string `json:"request"`
+	Response       string `json:"response"`
+	ImageReference string `json:"image_reference"`
+	ImageCaption   string `json:"image_caption"`
+	TextLanguage   string `json:"text_language"`
+	TextData       string `json:"text_data"`
 }
 
 // func (d *Driver) AddPocs(c *fiber.Ctx) error {
@@ -232,7 +233,9 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 	// parse request body
 	pocsData := []pocData{}
-	if err := c.BodyParser(&pocsData); err != nil {
+	pocsStr := c.FormValue("pocs")
+	err = json.Unmarshal([]byte(pocsStr), &pocsData)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -257,8 +260,17 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
-		if pocData.Type == poc.POC_TYPE_IMAGE && len(pocData.ImageData) > 0 {
-			imageID, err = d.mongo.FileReference().Insert(pocData.ImageData)
+		if pocData.Type == poc.POC_TYPE_IMAGE && pocData.ImageReference != "" {
+			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
+			if err != nil {
+				log.Printf("Failed to read image data for ImageReference '%s' : %v", pocData.ImageReference, err)
+				c.Status(fiber.StatusBadRequest)
+				return c.JSON(fiber.Map{
+					"error": "Cannot read image data",
+				})
+			}
+
+			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
 				return c.JSON(fiber.Map{

@@ -32,7 +32,7 @@ export default function PocImage({
   setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
-  const [filename, setFilename] = useState<string>();
+  const [filename, setFilename] = useState<string>((pocDoc as any)?.image_filename);
   const imageInput = useRef<HTMLInputElement>(null);
 
   const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
@@ -58,10 +58,20 @@ export default function PocImage({
   };
 
   useEffect(() => {
-    if (selectedPoc !== currentIndex) return;
+    if ((pocDoc as any).image_data) {
+      setImageUrl(`data:image/png;base64,${(pocDoc as any).image_data}`);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedPoc !== currentIndex) {
+      return;
+    }
     const handlePaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
-      if (!items) return;
+      if (!items) {
+        return;
+      }
 
       for (const item of items) {
         if (item.kind === "file") {
@@ -125,7 +135,7 @@ export default function PocImage({
     imageInput.current.value = "";
     setFilename("");
     setImageUrl(undefined);
-    onImageChange(currentIndex, null);
+    onImageChange(currentIndex, undefined);
   };
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
