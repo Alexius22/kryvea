@@ -1,5 +1,6 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
+import Textarea from "../Form/Textarea";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -45,8 +46,7 @@ export default function PocRequestResponse({
     >
       <div className="poc-request-response col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
-        <textarea
-          className=""
+        <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
@@ -66,8 +66,7 @@ export default function PocRequestResponse({
       <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <div className="grid">
           <label htmlFor={requestTextareaId}>Request</label>
-          <textarea
-            className="h-96"
+          <Textarea
             value={pocDoc.request}
             id={requestTextareaId}
             onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
@@ -76,8 +75,7 @@ export default function PocRequestResponse({
 
         <div className="grid">
           <label htmlFor={responseTextareaId}>Response</label>
-          <textarea
-            className="h-96"
+          <Textarea
             value={pocDoc.response}
             id={responseTextareaId}
             onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}

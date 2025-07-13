@@ -2,7 +2,10 @@ import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useMemo, useState } from "react";
 import { UnControlled as CodeMirror } from "react-codemirror2";
+import Grid from "../Composition/Grid";
+import Input from "../Form/Input";
 import SelectWrapper from "../Form/SelectWrapper";
+import Textarea from "../Form/Textarea";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -30,6 +33,7 @@ export default function PocText({
   // prettier-ignore
   const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [startingLineNumber, setStartingLineNumber] = useState(1);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
@@ -51,8 +55,7 @@ export default function PocText({
     >
       <div className="poc-text col-span-8 grid">
         <label htmlFor={descriptionTextareaId}>Description</label>
-        <textarea
-          className=""
+        <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
@@ -64,12 +67,24 @@ export default function PocText({
         <SelectWrapper
           className="max-w-64"
           options={languages.map(l => ({ label: l, value: l }))}
+          value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
           onChange={({ value }) => {
             setSelectedLanguage(value);
+            onTextChange<PocTextDoc>(
+              currentIndex,
+              "text_language"
+            )({
+              target: { value },
+            } as any);
           }}
           id={languageInputId}
         />
       </div>
+
+      <Grid className="gap-0">
+        <label htmlFor="">Starting line number</label>
+        <Input type="number" value={startingLineNumber} onChange={setStartingLineNumber} />
+      </Grid>
 
       <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
@@ -78,13 +93,14 @@ export default function PocText({
           style={{ width: "100%" }}
         >
           <CodeMirror
-            value="<p>Write your text here...</p>"
+            value={pocDoc.text_data}
             options={{
               mode: "htmlmixed",
               theme: "gruvbox-dark",
               lineNumbers: true,
-              // lineWrapping: true,
+              lineNumberFormatter: (lineNumber: number) => lineNumber + (startingLineNumber - 1),
             }}
+            // lineWrapping: true,
             onChange={(_, __, value) => {
               onTextChange<PocTextDoc>(
                 currentIndex,
@@ -95,12 +111,6 @@ export default function PocText({
             }}
           />
         </div>
-        {/* <textarea
-          id={textInputId}
-          className=""
-          value={pocDoc.text}
-          onChange={onTextChange<PocTextDoc>(currentIndex, "text")}
-        /> */}
       </div>
     </PocTemplate>
   );

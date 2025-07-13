@@ -151,7 +151,10 @@ export default function App() {
 
               {/* Vulnerabilities */}
               <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
-              <Route path="/vulnerabilities/:vulnerabilityId/pocs/edit" element={<EditPoc />} />
+              <Route
+                path="/customers/:customerId/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/pocs"
+                element={<EditPoc />}
+              />
 
               {/* Categories */}
               <Route path="/categories" element={<Categories />} />

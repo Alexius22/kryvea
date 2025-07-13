@@ -16,18 +16,19 @@ const (
 )
 
 type PocItem struct {
-	Index        int       `json:"index" bson:"index"`
-	Type         string    `json:"type" bson:"type"`
-	Description  string    `json:"description" bson:"description"`
-	URI          string    `json:"uri,omitempty" bson:"uri,omitempty"`
-	Request      string    `json:"request,omitempty" bson:"request,omitempty"`
-	Response     string    `json:"response,omitempty" bson:"response,omitempty"`
-	ImageID      uuid.UUID `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageData    []byte    `json:"image_data,omitempty" bson:"image_data,omitempty"`
-	ImageURL     string    `json:"image_url,omitempty" bson:"image_url,omitempty"`
-	ImageCaption string    `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
-	TextLanguage string    `json:"text_language,omitempty" bson:"text_language,omitempty"`
-	TextData     string    `json:"text_data,omitempty" bson:"text_data,omitempty"`
+	Index         int       `json:"index" bson:"index"`
+	Type          string    `json:"type" bson:"type"`
+	Description   string    `json:"description" bson:"description"`
+	URI           string    `json:"uri,omitempty" bson:"uri,omitempty"`
+	Request       string    `json:"request,omitempty" bson:"request,omitempty"`
+	Response      string    `json:"response,omitempty" bson:"response,omitempty"`
+	ImageID       uuid.UUID `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageData     []byte    `json:"image_data,omitempty" bson:"image_data,omitempty"`
+	ImageURL      string    `json:"image_url,omitempty" bson:"image_url,omitempty"`
+	ImageFilename string    `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageCaption  string    `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
+	TextLanguage  string    `json:"text_language,omitempty" bson:"text_language,omitempty"`
+	TextData      string    `json:"text_data,omitempty" bson:"text_data,omitempty"`
 }
 
 type Poc struct {
@@ -262,11 +263,12 @@ func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error
 
 	for i, item := range poc.Pocs {
 		if item.ImageID != uuid.Nil {
-			imageData, err := pi.driver.FileReference().ReadByID(item.ImageID)
+			imageData, filename, err := pi.driver.FileReference().ReadByID(item.ImageID)
 			if err != nil {
 				return nil, err
 			}
 			poc.Pocs[i].ImageData = imageData
+			poc.Pocs[i].ImageFilename = filename
 		}
 	}
 

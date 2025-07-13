@@ -16,8 +16,10 @@ export interface PocTextDoc extends PocBaseDoc {
 
 export interface PocImageDoc extends PocBaseDoc {
   type: typeof POC_TYPE_IMAGE;
-  image_data: string;
+  image_reference: string;
   image_caption: string;
+  /** consumed by FormData */
+  image_file?: File;
 }
 
 export interface PocRequestResponseDoc extends PocBaseDoc {

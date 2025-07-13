@@ -30,9 +30,9 @@ export default function EditPoc() {
     document.title = getPageTitle("Edit PoC");
   }, []);
   useEffect(() => {
-    getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs =>
-      setPocList(pocs.sort((a, b) => a.index - b.index).map((poc, i) => ({ ...poc, key: getPocKeyByType(poc.type) })))
-    );
+    getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs => {
+      setPocList(pocs.sort((a, b) => a.index - b.index).map(poc => ({ ...poc, key: getPocKeyByType(poc.type) })));
+    });
   }, []);
   useEffect(() => {
     const handleDragStart = () => {
@@ -66,13 +66,18 @@ export default function EditPoc() {
       });
     };
   }
-  async function onImageChange(currentIndex, file: File) {
-    const arrayBuffer = await file.arrayBuffer();
-    const image_data = btoa(Array.from(new Uint8Array(arrayBuffer)).toString());
-
+  async function onImageChange(currentIndex, image_file: File | null) {
     setPocList(prev => {
       const newPocList = [...prev];
-      newPocList[currentIndex] = { ...newPocList[currentIndex], image_data } as PocImageDoc;
+
+      const image_reference = image_file != null ? `poc-${currentIndex}-image` : undefined;
+
+      newPocList[currentIndex] = {
+        ...newPocList[currentIndex],
+        image_reference,
+        image_file,
+      } as PocImageDoc;
+
       return newPocList;
     });
   }
@@ -149,8 +154,7 @@ export default function EditPoc() {
             index: prev.length,
             description: "",
             image_caption: "",
-            image_data: null,
-            title: "",
+            image_reference: null,
           },
         ]);
         break;
@@ -236,13 +240,28 @@ export default function EditPoc() {
               text="Submit"
               icon={mdiSend}
               onClick={() => {
-                putData(
-                  `/api/vulnerabilities/${vulnerabilityId}/pocs`,
-                  pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
-                  () => {
-                    toast.success("PoCs updated successfully");
-                  }
+                const formData = new FormData();
+
+                formData.append(
+                  "pocs",
+                  JSON.stringify(
+                    pocList.map((poc, index) => {
+                      if (poc.type === POC_TYPE_IMAGE && poc.image_reference != null) {
+                        formData.append(poc.image_reference, poc.image_file, poc.image_file.name);
+                      }
+                      return {
+                        ...poc,
+                        index,
+                        image_file: undefined,
+                        key: undefined,
+                      };
+                    })
+                  )
                 );
+
+                putData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, formData, () => {
+                  toast.success("PoCs updated successfully");
+                });
               }}
             />
           </Buttons>

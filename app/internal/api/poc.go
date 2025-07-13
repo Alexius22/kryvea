@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
@@ -232,7 +233,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 	// parse request body
 	pocsData := []pocData{}
-	err = json.Unmarshal([]byte(c.FormValue("pocs_data")), &pocsData)
+	pocsStr := c.FormValue("pocs")
+	err = json.Unmarshal([]byte(pocsStr), &pocsData)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -258,15 +260,17 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
-		if pocData.Type == poc.POC_TYPE_IMAGE {
-			dataBytes, err := util.ParseFormFile(c, pocData.ImageReference)
+		if pocData.Type == poc.POC_TYPE_IMAGE && pocData.ImageReference != "" {
+			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
 			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
+				log.Printf("Failed to read image data for ImageReference '%s' : %v", pocData.ImageReference, err)
+				c.Status(fiber.StatusBadRequest)
 				return c.JSON(fiber.Map{
-					"error": "Cannot parse categories file",
+					"error": "Cannot read image data",
 				})
 			}
-			imageID, err = d.mongo.FileReference().Insert(dataBytes)
+
+			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
 				return c.JSON(fiber.Map{

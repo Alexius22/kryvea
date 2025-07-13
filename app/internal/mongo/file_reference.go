@@ -18,6 +18,7 @@ type FileReference struct {
 	Model    `bson:",inline"`
 	File     bson.ObjectID `json:"file" bson:"file"`
 	Checksum [16]byte      `json:"checksum" bson:"checksum"`
+	Filename string        `json:"filename" bson:"filename"`
 }
 
 type FileReferenceIndex struct {
@@ -40,7 +41,7 @@ func (fri FileReferenceIndex) init() error {
 	return err
 }
 
-func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
+func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, error) {
 	checksum := md5.Sum(data)
 	reference, err := i.GetByChecksum(checksum)
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -55,7 +56,7 @@ func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	fileID, err := i.driver.File().Insert(data)
+	fileID, err := i.driver.File().Insert(data, filename)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -67,6 +68,7 @@ func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
 		},
 		File:     fileID,
 		Checksum: checksum,
+		Filename: filename,
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
@@ -98,13 +100,18 @@ func (i *FileReferenceIndex) GetByChecksum(checksum [16]byte) (*FileReference, e
 	return &fileReference, nil
 }
 
-func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, error) {
+func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, string, error) {
 	fileReference, err := i.GetByID(id)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return i.driver.File().GetByID(fileReference.File)
+	data, err := i.driver.File().GetByID(fileReference.File)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return data, fileReference.Filename, nil
 }
 
 func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
