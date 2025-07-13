@@ -32,7 +32,7 @@ func (e *Engine) Serve() {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		// TODO: this is a temporary solution to allow large files
-		BodyLimit: 50 * 1024 * 1024,
+		BodyLimit: 10000 * 1024 * 1024,
 	})
 
 	app.Use(logger.New(logger.Config{
