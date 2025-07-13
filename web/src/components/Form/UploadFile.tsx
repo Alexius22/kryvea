@@ -28,7 +28,9 @@ export default function UploadFile({
         <span className="shrink-0 text-nowrap rounded-md border border-[color:--border-primary] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
           Choose File
         </span>
-        <span className="truncate before:empty:content-['No_file_chosen']">{filename}</span>
+        <span className="truncate before:empty:font-thin before:empty:text-[color:--text-secondary] before:empty:content-['No_file_chosen']">
+          {filename}
+        </span>
       </label>
       <input
         ref={inputRef}
