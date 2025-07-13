@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ type PocItem struct {
 	Response     string    `json:"response,omitempty" bson:"response,omitempty"`
 	ImageID      uuid.UUID `json:"image_id,omitempty" bson:"image_id,omitempty"`
 	ImageData    []byte    `json:"image_data,omitempty" bson:"image_data,omitempty"`
+	ImageURL     string    `json:"image_url,omitempty" bson:"image_url,omitempty"`
 	ImageCaption string    `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
 	TextLanguage string    `json:"text_language,omitempty" bson:"text_language,omitempty"`
 	TextData     string    `json:"text_data,omitempty" bson:"text_data,omitempty"`
@@ -190,8 +192,14 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 
 	// map new POC image IDs
 	newImageIDs := make(map[uuid.UUID]struct{}, len(poc.Pocs))
-	for _, newPocs := range poc.Pocs {
-		newImageIDs[newPocs.ImageID] = struct{}{}
+	for i, newPocs := range poc.Pocs {
+		if newPocs.ImageID != uuid.Nil {
+			newImageIDs[newPocs.ImageID] = struct{}{}
+
+			// set image url
+			poc.Pocs[i].ImageURL = fmt.Sprintf("/api/file/%s", newPocs.ImageID)
+		}
+
 	}
 
 	// retrieve old POC images IDs that are not in the new POC
@@ -263,6 +271,22 @@ func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error
 	}
 
 	return &poc, nil
+}
+
+func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
+	cursor, err := pi.collection.Find(context.Background(), bson.M{"pocs.image_id": imageID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	pocs := []Poc{}
+	err = cursor.All(context.Background(), &pocs)
+	if err != nil {
+		return []Poc{}, err
+	}
+
+	return pocs, nil
 }
 
 func (pi *PocIndex) CountByFileReferenceID(fileReferenceID uuid.UUID) (int64, error) {
