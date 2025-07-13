@@ -3,6 +3,7 @@ module github.com/Alexius22/kryvea
 go 1.23.4
 
 require (
+	github.com/gabriel-vasile/mimetype v1.4.9
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/google/uuid v1.6.0
 	github.com/pandatix/go-cvss v0.6.2

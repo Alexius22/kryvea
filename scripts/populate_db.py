@@ -1,4 +1,5 @@
 import base64
+import json
 import random
 import string
 from typing import Tuple
@@ -12,10 +13,10 @@ base_url = "https://kryvea.local/api"
 
 session = requests.Session()
 session.verify = False
-# session.proxies = {
-#     "http": "http://127.0.0.1:8080",
-#     "https": "http://127.0.0.1:8080",
-# }
+session.proxies = {
+    "http": "http://127.0.0.1:8080",
+    "https": "http://127.0.0.1:8080",
+}
 
 
 def rand_string(length: int = 8) -> str:
@@ -219,11 +220,12 @@ class User:
     def json(self) -> dict:
         return {"username": self.username, "password": self.password, "role": self.role}
 
-    def register(self) -> bool:
+    def register(self) -> Tuple[str, str]:
         response = session.post(base_url + "/users", json=self.json())
+        jr = response.json()
         if response.status_code == 201:
-            return True
-        return False
+            return jr.get("user_id"), ""
+        return "", jr.get("error")
 
     def login(self) -> bool:
         response = session.post(base_url + "/login", json=self.json())
@@ -300,7 +302,7 @@ class Assessment:
         targets=[],
         status="hold",
         assessment_type="WAPT",
-        cvss_version="4.0",
+        cvss_versions=["4.0"],
         environment="",
         testing_type="black box",
         osstmm_vector="",
@@ -313,7 +315,7 @@ class Assessment:
         self.targets = targets
         self.status = status
         self.assessment_type = assessment_type
-        self.cvss_version = cvss_version
+        self.cvss_versions = cvss_versions
         self.environment = environment
         self.testing_type = testing_type
         self.osstmm_vector = osstmm_vector
@@ -328,7 +330,7 @@ class Assessment:
             "targets": self.targets,
             "status": self.status,
             "assessment_type": self.assessment_type,
-            "cvss_version": self.cvss_version,
+            "cvss_versions": self.cvss_versions,
             "environment": self.environment,
             "testing_type": self.testing_type,
             "osstmm_vector": self.osstmm_vector,
@@ -522,7 +524,9 @@ class POC:
                 "uri": pocData.uri,
                 "request": pocData.request,
                 "response": pocData.response,
-                "image_data": pocData.image_data,
+                "image_reference": (
+                    f"image{pocData.index}" if pocData.type == POC_TYPE_IMAGE else ""
+                ),
                 "image_caption": pocData.image_caption,
                 "text_language": pocData.text_language,
                 "text_data": pocData.text_data,
@@ -537,8 +541,21 @@ class POC:
         return response.json()
 
     def create(self) -> Tuple[str, str]:
+        files = {
+            "pocs_data": (None, json.dumps(self.json()), "application/json"),
+        }
+        for pocData in self.pocData:
+            if pocData.type == POC_TYPE_IMAGE and pocData.image_data != "":
+                # Read file content as bytes
+                files[f"image{pocData.index}"] = (
+                    "example.jpg",
+                    base64.b64decode(pocData.image_data),
+                    "image/jpeg",
+                )
+
         response = session.put(
-            f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs", json=self.json()
+            f"{base_url}/vulnerabilities/{self.vulnerability_id}/pocs",
+            files=files,
         )
         jr = response.json()
         ids = jr.get("poc_ids")
@@ -599,11 +616,14 @@ if __name__ == "__main__":
     users = []
     for i in range(5):
         user = User(username=rand_string(8), password=rand_string(10) + "1!")
-        if not user.register():
-            print("Registration failed")
+        user_id, error = user.register()
+        if error:
+            print(f"{bcolors.FAIL}{error}{bcolors.ENDC}")
             exit(1)
         users.append(user)
-        print(f"{bcolors.OKGREEN}[*] Registered user {user.username}{bcolors.ENDC}")
+        print(
+            f"{bcolors.OKGREEN}[*] Registered user {user.username} {user.password} with ID {user_id}{bcolors.ENDC}"
+        )
 
     customer = Customer(name=rand_name(3), language=rand_language())
     # print(customer.json())
@@ -640,7 +660,7 @@ if __name__ == "__main__":
             targets=[x.id for x in random.choices(targets, k=random.randint(1, 6))],
             status=rand_status(),
             assessment_type=rand_assessment_type(),
-            cvss_version=rand_cvss_version(),
+            cvss_versions=[rand_cvss_version()],
             environment=rand_environment(),
             testing_type=rand_testing_type(),
             osstmm_vector=rand_osstmm_vector(),
@@ -689,7 +709,7 @@ if __name__ == "__main__":
     vulnerabilities = []
     for i in range(5):
         vuln_assessment = random.choice(assessments)
-        cvss_vector = rand_cvss(vuln_assessment.cvss_version)
+        cvss_vector = rand_cvss(vuln_assessment.cvss_versions[0])
         vulnerability = Vulnerability(
             category=random.choice(categories).id,
             detailed_title=rand_string(),
@@ -703,9 +723,9 @@ if __name__ == "__main__":
             target_id=random.choice(vuln_assessment.json().get("targets")),
             assessment_id=vuln_assessment.json().get("id"),
         )
-        if vuln_assessment.cvss_version == "3.1":
+        if vuln_assessment.cvss_versions[0] == "3.1":
             vulnerability.cvssv31_vector = cvss_vector
-        elif vuln_assessment.cvss_version == "4.0":
+        elif vuln_assessment.cvss_versions[0] == "4.0":
             vulnerability.cvssv4_vector = cvss_vector
         # print(vulnerability.json())
         vulnerability_id, error = vulnerability.create()
