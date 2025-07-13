@@ -61,7 +61,7 @@ func (d *Driver) GetFile(c *fiber.Ctx) error {
 		})
 	}
 
-	imageData, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	imageData, _, err := d.mongo.FileReference().ReadByID(imageRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
