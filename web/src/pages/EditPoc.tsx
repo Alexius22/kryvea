@@ -66,13 +66,15 @@ export default function EditPoc() {
       });
     };
   }
-  async function onImageChange(currentIndex, file: File) {
-    const arrayBuffer = await file.arrayBuffer();
-    const image_data = btoa(Array.from(new Uint8Array(arrayBuffer)).toString());
-
+  async function onImageChange(currentIndex, image_file: File | null) {
     setPocList(prev => {
       const newPocList = [...prev];
-      newPocList[currentIndex] = { ...newPocList[currentIndex], image_data } as PocImageDoc;
+      newPocList[currentIndex] = {
+        ...newPocList[currentIndex],
+        image_reference: `poc-${currentIndex}-image`,
+        image_file,
+      } as PocImageDoc;
+
       return newPocList;
     });
   }
@@ -149,8 +151,7 @@ export default function EditPoc() {
             index: prev.length,
             description: "",
             image_caption: "",
-            image_data: null,
-            title: "",
+            image_reference: null,
           },
         ]);
         break;
@@ -238,7 +239,25 @@ export default function EditPoc() {
               onClick={() => {
                 putData(
                   `/api/vulnerabilities/${vulnerabilityId}/pocs`,
-                  pocList.map((poc, index) => ({ ...poc, index, key: undefined })),
+                  () => {
+                    const formData = new FormData();
+                    formData.append(
+                      "pocs",
+                      JSON.stringify(
+                        pocList.map((poc, index) => {
+                          if (poc.type === POC_TYPE_IMAGE && poc.image_file != undefined) {
+                            formData.append(poc.image_reference, poc.image_file, poc.image_file.name);
+                          }
+                          return {
+                            ...poc,
+                            index,
+                            image_data: undefined,
+                            key: undefined,
+                          };
+                        })
+                      )
+                    );
+                  },
                   () => {
                     toast.success("PoCs updated successfully");
                   }
