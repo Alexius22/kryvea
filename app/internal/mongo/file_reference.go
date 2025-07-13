@@ -14,8 +14,9 @@ const (
 )
 
 type FileReference struct {
-	Model `bson:",inline"`
-	File  bson.ObjectID `json:"file" bson:"file"`
+	Model    `bson:",inline"`
+	File     bson.ObjectID `json:"file" bson:"file"`
+	Filename string        `json:"filename" bson:"filename"`
 }
 
 type FileReferenceIndex struct {
@@ -38,13 +39,13 @@ func (fri FileReferenceIndex) init() error {
 	return err
 }
 
-func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
+func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	fileID, err := i.driver.File().Insert(data)
+	fileID, err := i.driver.File().Insert(data, filename)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -54,7 +55,8 @@ func (i *FileReferenceIndex) Insert(data []byte) (uuid.UUID, error) {
 			ID:        id,
 			CreatedAt: time.Now(),
 		},
-		File: fileID,
+		File:     fileID,
+		Filename: filename,
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
@@ -76,13 +78,18 @@ func (i *FileReferenceIndex) GetByID(id uuid.UUID) (*FileReference, error) {
 	return &fileReference, nil
 }
 
-func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, error) {
+func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, string, error) {
 	fileReference, err := i.GetByID(id)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return i.driver.File().GetByID(fileReference.File)
+	data, err := i.driver.File().GetByID(fileReference.File)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return data, fileReference.Filename, nil
 }
 
 func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
@@ -110,7 +117,7 @@ func (i *FileReferenceIndex) Clone(fileID uuid.UUID) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	newFileID, err := i.driver.File().Clone(fileReference.File)
+	newFileID, err := i.driver.File().Clone(fileReference.File, fileReference.Filename)
 	if err != nil {
 		return uuid.Nil, err
 	}
