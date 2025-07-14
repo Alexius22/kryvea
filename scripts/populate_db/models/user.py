@@ -1,8 +1,10 @@
-from dataclasses import dataclass
-from typing import Tuple
+from dataclasses import dataclass, field
+from typing import List, Tuple
 
 import utils.utils as utils
+from models.assessment import Assessment
 from models.base import Base
+from models.customer import Customer
 
 
 @dataclass
@@ -11,8 +13,8 @@ class User(Base):
     password: str
     disabled_at: str = ""
     role: str = utils.ROLE_USER
-    customers: list = None
-    assessments: list = None
+    customers: List[Customer] = field(default_factory=list)
+    assessments: List[Assessment] = field(default_factory=list)
 
     def add(self) -> Tuple[str, str]:
         data = {

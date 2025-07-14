@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
 
 import utils.utils as utils
 from models.base import Base
@@ -10,16 +10,18 @@ class Assessment(Base):
     name: str
     start_date_time: str
     end_date_time: str
-    cvss_versions: list
+    cvss_versions: List[str]
     customer_id: str
-    targets: list = None
-    status: str = utils.rand_status()
-    assessment_type: str = utils.rand_assessment_type()
-    environment: str = utils.rand_environment()
-    testing_type: str = utils.rand_testing_type()
-    osstmm_vector: str = utils.rand_osstmm_vector()
+
+    targets: List[str] = field(default_factory=list)
+    status: str = field(default_factory=utils.rand_status)
+    assessment_type: str = field(default_factory=utils.rand_assessment_type)
+    environment: str = field(default_factory=utils.rand_environment)
+    testing_type: str = field(default_factory=utils.rand_testing_type)
+    osstmm_vector: str = field(default_factory=utils.rand_osstmm_vector)
+
     vulnerability_count: int = 0
-    customer: dict = None
+    customer: Dict = field(default_factory=dict)
     is_owned: bool = False
 
     def add(self) -> Tuple[str, str]:

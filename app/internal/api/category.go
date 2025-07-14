@@ -16,6 +16,7 @@ type categoryRequestData struct {
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
 	References         []string          `json:"references"`
+	Source             string            `json:"source"`
 }
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
@@ -54,6 +55,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
 		References:         data.References,
+		Source:             data.Source,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -114,6 +116,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
 		References:         data.References,
+		Source:             data.Source,
 	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -268,6 +271,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
 			References:         categoryData.References,
+			Source:             categoryData.Source,
 		}
 
 		categoryID, err := d.mongo.Category().Upsert(category, override == "true")
@@ -312,6 +316,10 @@ func (d *Driver) validateCategoryData(category *categoryRequestData) string {
 
 	if category.Name == "" {
 		return "Name is required"
+	}
+
+	if !util.IsValidSource(category.Source) {
+		return "Invalid source"
 	}
 
 	return ""

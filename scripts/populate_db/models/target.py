@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
 import utils.utils as utils
@@ -9,10 +9,10 @@ from models.base import Base
 class Target(Base):
     fqdn: str
     customer_id: str
-    ipv4: str = utils.rand_ipv4()
-    ipv6: str = utils.rand_ipv6()
-    port: int = utils.rand_port()
-    protocol: str = utils.rand_protocol()
+    ipv4: str = field(default_factory=utils.rand_ipv4)
+    ipv6: str = field(default_factory=utils.rand_ipv6)
+    port: int = field(default_factory=utils.rand_port)
+    protocol: str = field(default_factory=utils.rand_protocol)
 
     def add(self) -> Tuple[str, str]:
         data = {
