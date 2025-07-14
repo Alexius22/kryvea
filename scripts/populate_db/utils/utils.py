@@ -132,7 +132,7 @@ def rand_language() -> str:
     return random.choice(languages)
 
 
-def rand_generic_remediation_and_description() -> Tuple[dict, dict]:
+def rand_generic_remediation() -> dict:
     remediation = {
         "en": "Generic remediation text in English.",
         "it": "Testo di remediation generico in italiano.",
@@ -140,6 +140,10 @@ def rand_generic_remediation_and_description() -> Tuple[dict, dict]:
         "de": "Generischer Remediationstext auf Deutsch.",
         "es": "Texto de remediación genérico en español.",
     }
+    return remediation
+
+
+def rand_generic_description() -> dict:
     description = {
         "en": "Generic description text in English.",
         "it": "Testo di descrizione generico in italiano.",
@@ -147,7 +151,7 @@ def rand_generic_remediation_and_description() -> Tuple[dict, dict]:
         "de": "Generischer Beschreibungstext auf Deutsch.",
         "es": "Texto de descripción genérico en español.",
     }
-    return remediation, description
+    return description
 
 
 def rand_status() -> str:
@@ -198,6 +202,15 @@ def rand_urls(n=1) -> list:
         "https://example.us",
     ]
     return random.choices(urls, k=n)
+
+
+def rand_source() -> str:
+    sources = [
+        "nessus",
+        "burp",
+        "generic",
+    ]
+    return random.choice(sources)
 
 
 ROLE_ADMIN = "admin"

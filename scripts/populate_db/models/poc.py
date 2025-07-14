@@ -1,7 +1,7 @@
 import base64
 import json
-from dataclasses import dataclass
-from typing import Tuple
+from dataclasses import dataclass, field
+from typing import List, Tuple
 
 import utils.utils as utils
 from models.base import Base
@@ -11,20 +11,20 @@ from models.base import Base
 class PocData(Base):
     type: str
     index: int = 0
-    description: str = utils.rand_string(120)
-    uri: str = utils.rand_urls(1)[0]
-    request: str = utils.rand_string(120)
-    response: str = utils.rand_string(120)
+    description: str = field(default_factory=lambda: utils.rand_string(120))
+    uri: str = field(default_factory=lambda: utils.rand_urls(1)[0])
+    request: str = field(default_factory=lambda: utils.rand_string(120))
+    response: str = field(default_factory=lambda: utils.rand_string(120))
     image_data: str = ""
     image_reference: str = ""
-    image_caption: str = utils.rand_string(10)
-    text_language: str = utils.rand_language()
-    text_data: str = utils.rand_string(20)
+    image_caption: str = field(default_factory=lambda: utils.rand_string(10))
+    text_language: str = field(default_factory=utils.rand_language)
+    text_data: str = field(default_factory=lambda: utils.rand_string(20))
 
 
 @dataclass
 class Poc(Base):
-    poc_data: list[PocData]
+    poc_data: List[PocData]
     vulnerability_id: str
 
     def add(self) -> Tuple[str, str]:

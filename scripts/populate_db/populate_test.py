@@ -46,8 +46,8 @@ def populate_test(session: Session, base_url: str) -> str:
     for assessment in assessments:
         vulnerabilities = create_vulnerabilities(assessment, categories, 10)
 
-        # for vulnerability in vulnerabilities:
-        #     pocs = create_pocs(vulnerability, 11)
+        for vulnerability in vulnerabilities:
+            pocs = create_pocs(vulnerability, 11)
 
 
 def create_users(n: int) -> list:
