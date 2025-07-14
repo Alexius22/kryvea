@@ -18,6 +18,8 @@ export interface PocImageDoc extends PocBaseDoc {
   type: typeof POC_TYPE_IMAGE;
   image_reference: string;
   image_caption: string;
+  image_url?: string;
+  image_filename?: string;
   /** consumed by FormData */
   image_file?: File;
 }
