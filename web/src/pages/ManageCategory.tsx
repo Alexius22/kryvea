@@ -27,12 +27,19 @@ export default function ManageCategory() {
     .filter(([code]) => code !== "en")
     .map(([value, label]) => ({ value, label }));
 
+  const sourceOptions = [
+    { label: "Generic", value: "generic" },
+    { label: "Nessus", value: "nessus" },
+    { label: "Burp", value: "burp" },
+  ];
+
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [selectedLanguageOption, setSelectedLanguageOption] = useState<SelectOption | null>(null);
   const [additionalFields, setAdditionalFields] = useState<SelectOption[]>([]);
 
   const [identifier, setIdentifier] = useState("");
   const [name, setName] = useState("");
+  const [source, setSource] = useState<Category["source"]>();
   const [genericDescription, setGenericDescription] = useState("");
   const [genericRemediation, setGenericRemediation] = useState("");
   const [genericDescriptions, setGenericDescriptions] = useState<Record<string, string>>({});
@@ -53,6 +60,7 @@ export default function ManageCategory() {
 
         setIdentifier(category.index);
         setName(category.name);
+        setSource(category.source);
         setGenericDescription(category.generic_description?.en || "");
         setGenericRemediation(category.generic_remediation?.en || "");
         setReferences(category.references || []);
@@ -136,6 +144,7 @@ export default function ManageCategory() {
     const payload: Omit<Category, "id"> = {
       index: identifier.trim(),
       name: name.trim(),
+      source: source,
       generic_description: {
         en: genericDescription,
         ...genericDescriptions,
@@ -183,7 +192,7 @@ export default function ManageCategory() {
       </SectionTitleLineWithButton>
 
       <Card>
-        <Grid className="grid-cols-2 gap-4">
+        <Grid className="grid-cols-3 gap-4">
           <Input
             type="text"
             label="Identifier"
@@ -199,6 +208,13 @@ export default function ManageCategory() {
             placeholder="Vulnerability name"
             value={name}
             onChange={e => setName(e.target.value)}
+          />
+          <SelectWrapper
+            label="Source"
+            id="source"
+            options={sourceOptions}
+            value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
+            onChange={option => setSource(option.value)}
           />
         </Grid>
         <Divider />
