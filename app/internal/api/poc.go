@@ -260,6 +260,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
+		pocImageFilename := ""
 		if pocData.Type == poc.POC_TYPE_IMAGE && pocData.ImageReference != "" {
 			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
 			if err != nil {
@@ -270,6 +271,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 				})
 			}
 
+			pocImageFilename = filename
+
 			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
@@ -279,16 +282,17 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 			}
 		}
 		pocUpsert.Pocs = append(pocUpsert.Pocs, mongo.PocItem{
-			Index:        pocData.Index,
-			Type:         pocData.Type,
-			Description:  pocData.Description,
-			URI:          pocData.URI,
-			Request:      pocData.Request,
-			Response:     pocData.Response,
-			ImageID:      imageID,
-			ImageCaption: pocData.ImageCaption,
-			TextLanguage: pocData.TextLanguage,
-			TextData:     pocData.TextData,
+			Index:         pocData.Index,
+			Type:          pocData.Type,
+			Description:   pocData.Description,
+			URI:           pocData.URI,
+			Request:       pocData.Request,
+			Response:      pocData.Response,
+			ImageID:       imageID,
+			ImageFilename: pocImageFilename,
+			ImageCaption:  pocData.ImageCaption,
+			TextLanguage:  pocData.TextLanguage,
+			TextData:      pocData.TextData,
 		})
 	}
 
