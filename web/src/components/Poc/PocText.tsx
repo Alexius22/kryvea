@@ -2,8 +2,9 @@ import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useMemo, useState } from "react";
 import { UnControlled as CodeMirror } from "react-codemirror2";
-import Grid from "../Composition/Grid";
+import Flex from "../Composition/Flex";
 import Input from "../Form/Input";
+import Label from "../Form/Label";
 import SelectWrapper from "../Form/SelectWrapper";
 import Textarea from "../Form/Textarea";
 import { PocDoc, PocTextDoc } from "./Poc.types";
@@ -54,7 +55,7 @@ export default function PocText({
       }}
     >
       <div className="poc-text col-span-8 grid">
-        <label htmlFor={descriptionTextareaId}>Description</label>
+        <Label htmlFor={descriptionTextareaId} text="Description" />
         <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
@@ -62,29 +63,35 @@ export default function PocText({
         />
       </div>
 
-      <div className="col-span-4 grid">
-        <label htmlFor={languageInputId}>Language</label>
-        <SelectWrapper
-          className="max-w-64"
-          options={languages.map(l => ({ label: l, value: l }))}
-          value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
-          onChange={({ value }) => {
-            setSelectedLanguage(value);
-            onTextChange<PocTextDoc>(
-              currentIndex,
-              "text_language"
-            )({
-              target: { value },
-            } as any);
-          }}
-          id={languageInputId}
-        />
-      </div>
-
-      <Grid className="gap-0">
-        <label htmlFor="">Starting line number</label>
-        <Input type="number" value={startingLineNumber} onChange={setStartingLineNumber} />
-      </Grid>
+      <Flex className="items-center gap-4">
+        <div>
+          <Label htmlFor={languageInputId} text="Language" />
+          <SelectWrapper
+            className="w-64"
+            options={languages.map(l => ({ label: l, value: l }))}
+            value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
+            onChange={({ value }) => {
+              setSelectedLanguage(value);
+              onTextChange<PocTextDoc>(
+                currentIndex,
+                "text_language"
+              )({
+                target: { value },
+              } as any);
+            }}
+            id={languageInputId}
+          />
+        </div>
+        <div>
+          <Label htmlFor="" text="Starting line number" />
+          <Input
+            type="number"
+            value={startingLineNumber}
+            onChange={setStartingLineNumber}
+            className="input w-[55px] rounded text-center"
+          />
+        </div>
+      </Flex>
 
       <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
