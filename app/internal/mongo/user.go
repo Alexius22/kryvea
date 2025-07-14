@@ -23,6 +23,8 @@ const (
 
 	ROLE_ADMIN = "admin"
 	ROLE_USER  = "user"
+
+	TOKEN_EXPIRE_TIME = 9
 )
 
 var (
@@ -197,7 +199,7 @@ func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, err
 		return uuid.UUID{}, time.Time{}, err
 	}
 
-	expires := time.Now().Add(9 * time.Hour)
+	expires := time.Now().Add(TOKEN_EXPIRE_TIME * time.Hour)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
 		"$set": bson.M{
@@ -217,7 +219,7 @@ func (ui *UserIndex) RefreshUserToken(userID uuid.UUID) (uuid.UUID, time.Time, e
 		return uuid.UUID{}, time.Time{}, err
 	}
 
-	expires := time.Now().Add(9 * time.Hour)
+	expires := time.Now().Add(TOKEN_EXPIRE_TIME * time.Hour)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
 		"$set": bson.M{
