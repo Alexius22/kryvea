@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"strconv"
 	"time"
 
@@ -557,7 +556,6 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 			if item.ImageID != uuid.Nil {
 				imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
 				if err != nil {
-					log.Println("Failed to read image data for PoC:", item.ImageID, "Error:", err)
 					c.Status(fiber.StatusInternalServerError)
 					return c.JSON(fiber.Map{
 						"error": "Failed to read image data",
