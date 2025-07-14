@@ -92,7 +92,7 @@ func (e *Engine) Serve() {
 		// apiGroup.Patch("/pocs/:poc", api.UpdatePoc)
 		// apiGroup.Delete("/pocs/:poc", api.DeletePoc)
 
-		apiGroup.Get("/file/:file", api.GetFile)
+		apiGroup.Get("/files/:file", api.GetFile)
 
 		apiGroup.Post("/assessments/:assessment/upload/nessus", api.UploadNessus)
 

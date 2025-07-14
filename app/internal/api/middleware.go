@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -53,7 +52,6 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 func (d *Driver) ContentTypeMiddleware(c *fiber.Ctx) error {
 	if strings.Contains(c.Path(), "/upload/") && c.Method() == fiber.MethodPost {
 		if !strings.HasPrefix(c.Get("Content-Type"), "multipart/form-data") {
-			log.Println("Invalid Content-Type for upload:", c.Get("Content-Type"))
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Content-Type must be multipart/form-data",
@@ -64,7 +62,6 @@ func (d *Driver) ContentTypeMiddleware(c *fiber.Ctx) error {
 
 	if (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch) && c.Request().Header.ContentLength() > 0 {
 		if c.Get("Content-Type") != "application/json" {
-			log.Println("Invalid Content-Type for JSON request:", c.Get("Content-Type"))
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Content-Type must be application/json",
