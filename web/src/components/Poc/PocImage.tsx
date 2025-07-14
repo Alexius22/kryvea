@@ -1,5 +1,6 @@
 import { mdiImage } from "@mdi/js";
-import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Grid from "../Composition/Grid";
 import Textarea from "../Form/Textarea";
@@ -32,7 +33,7 @@ export default function PocImage({
   setSelectedPoc,
 }: PocImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
-  const [filename, setFilename] = useState<string>((pocDoc as any)?.image_filename);
+  const [filename, setFilename] = useState<string>(pocDoc?.image_filename);
   const imageInput = useRef<HTMLInputElement>(null);
 
   const handleDrop = pocTemplateRef => (e: React.DragEvent<HTMLDivElement>) => {
@@ -42,7 +43,6 @@ export default function PocImage({
     document.dispatchEvent(new MouseEvent("dragend", { bubbles: true }));
     pocTemplateRef.current?.classList.remove("dragged-over");
 
-    // onImageChangeWrapper(e as any);
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
@@ -57,10 +57,17 @@ export default function PocImage({
     }
   };
 
+  const blobToFile = useCallback((blob: Blob, filename: string): File => {
+    return new File([blob], filename, { type: blob.type });
+  }, []);
+
   useEffect(() => {
-    if ((pocDoc as any).image_data) {
-      setImageUrl(`data:image/png;base64,${(pocDoc as any).image_data}`);
+    if (!pocDoc.image_url) {
+      return;
     }
+    axios.get(pocDoc.image_url, { responseType: "blob" }).then(({ data }) => {
+      onImageChangeWrapper({ target: { files: [blobToFile(data, pocDoc.image_filename)] } });
+    });
   }, []);
 
   useEffect(() => {
