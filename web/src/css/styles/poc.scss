@@ -1,9 +1,9 @@
-.req-res-text {
+.req-res-body {
   @apply flex-1 overflow-x-auto rounded-md p-4 font-mono;
   background-color: var(--bg-quaternary);
 }
 
-.req-res {
+.req-res-header {
   @apply mb-3 border-b pb-1 text-lg font-semibold;
   border-color: var(--border-primary);
 }
@@ -22,7 +22,12 @@
 }
 
 .poc-img {
-  @apply max-h-[550px] max-w-[1/2] rounded-lg;
+  @apply max-h-[550px] max-w-[1/2];
+}
+
+.poc-text {
+  @apply flex-1 overflow-x-auto rounded-md p-4 font-mono;
+  background-color: var(--bg-quaternary);
 }
 
 .poc-template {
