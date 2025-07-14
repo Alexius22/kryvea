@@ -2,6 +2,7 @@ import { mdiImage } from "@mdi/js";
 import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { uuidZero } from "../../types/common.types";
 import Grid from "../Composition/Grid";
 import Textarea from "../Form/Textarea";
 import UploadFile from "../Form/UploadFile";
@@ -62,10 +63,10 @@ export default function PocImage({
   }, []);
 
   useEffect(() => {
-    if (!pocDoc.image_url) {
+    if (pocDoc.image_id === uuidZero) {
       return;
     }
-    axios.get(pocDoc.image_url, { responseType: "blob" }).then(({ data }) => {
+    axios.get(`/api/file/${pocDoc.image_id}`, { responseType: "blob" }).then(({ data }) => {
       onImageChangeWrapper({ target: { files: [blobToFile(data, pocDoc.image_filename)] } });
     });
   }, []);

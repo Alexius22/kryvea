@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +22,6 @@ type PocItem struct {
 	Request       string    `json:"request,omitempty" bson:"request,omitempty"`
 	Response      string    `json:"response,omitempty" bson:"response,omitempty"`
 	ImageID       uuid.UUID `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageURL      string    `json:"image_url,omitempty" bson:"image_url,omitempty"`
 	ImageFilename string    `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
 	ImageCaption  string    `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
 	TextLanguage  string    `json:"text_language,omitempty" bson:"text_language,omitempty"`
@@ -194,14 +192,12 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 
 	// map new POC image IDs
 	newImageIDs := make(map[uuid.UUID]struct{}, len(poc.Pocs))
-	for i, newPocs := range poc.Pocs {
-		if newPocs.ImageID != uuid.Nil {
-			newImageIDs[newPocs.ImageID] = struct{}{}
-
-			// set image url
-			poc.Pocs[i].ImageURL = fmt.Sprintf("/api/file/%s", newPocs.ImageID)
+	for _, newPocs := range poc.Pocs {
+		if newPocs.ImageID == uuid.Nil {
+			continue
 		}
 
+		newImageIDs[newPocs.ImageID] = struct{}{}
 	}
 
 	// retrieve old POC images IDs that are not in the new POC
@@ -220,20 +216,21 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 		"vulnerability_id": poc.VulnerabilityID,
 		"updated_at":       poc.UpdatedAt,
 	}
+	insertSet := bson.M{
+		"_id":        uuid.New(),
+		"created_at": time.Now(),
+	}
 
 	filter := bson.M{"vulnerability_id": poc.VulnerabilityID}
-	update := bson.M{
-		"$set": updateSet,
-		"$setOnInsert": bson.M{
-			"_id":        uuid.New(),
-			"created_at": time.Now(),
-		},
+	upsert := bson.M{
+		"$set":         updateSet,
+		"$setOnInsert": insertSet,
 	}
 
 	_, err = pi.collection.UpdateOne(
 		context.Background(),
 		filter,
-		update,
+		upsert,
 		options.UpdateOne().SetUpsert(true),
 	)
 	if err != nil {

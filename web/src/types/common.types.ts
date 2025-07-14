@@ -125,3 +125,5 @@ export type TemplateExport = {
   template_file: File | null;
   template_type: "docx" | "xlsx" | null;
 };
+
+export const uuidZero = "00000000-0000-0000-0000-000000000000";
