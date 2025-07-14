@@ -2,14 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	mongoV2 "go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // type pocRequestData struct {
@@ -264,7 +262,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		if pocData.Type == poc.POC_TYPE_IMAGE && pocData.ImageReference != "" {
 			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
 			if err != nil {
-				log.Printf("Failed to read image data for ImageReference '%s' : %v", pocData.ImageReference, err)
 				c.Status(fiber.StatusBadRequest)
 				return c.JSON(fiber.Map{
 					"error": "Cannot read image data",
@@ -393,7 +390,7 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 
 	// parse vulnerability param
 	poc, err := d.mongo.Poc().GetByVulnerabilityID(vulnerability.ID)
-	if err != nil && err != mongoV2.ErrNoDocuments {
+	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get PoCs",
