@@ -169,6 +169,8 @@ func (d *Driver) parse(data []byte, customer mongo.Customer, assessment mongo.As
 				GenericRemediation: map[string]string{
 					"en": item.Solution,
 				},
+				References: []string{},
+				Source:     mongo.SOURCE_NESSUS,
 			}
 
 			categoryID, isNew, err := d.mongo.Category().FirstOrInsert(category)

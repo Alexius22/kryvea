@@ -24,7 +24,9 @@ const (
 	ROLE_ADMIN = "admin"
 	ROLE_USER  = "user"
 
-	TOKEN_EXPIRE_TIME = 9
+	TOKEN_EXPIRE_TIME       = 9 * time.Hour
+	TOKEN_EXTEND_TIME       = 2 * time.Hour
+	TOKEN_REFRESH_THRESHOLD = 1 * time.Hour
 )
 
 var (
@@ -105,7 +107,7 @@ type User struct {
 	PasswordExpiry   time.Time        `json:"-" bson:"password_expiry"`
 	ResetToken       string           `json:"-" bson:"reset_token"`
 	ResetTokenExpiry time.Time        `json:"-" bson:"reset_token_expiry"`
-	Token            string           `json:"-" bson:"token"`
+	Token            uuid.UUID        `json:"-" bson:"token"`
 	TokenExpiry      time.Time        `json:"-" bson:"token_expiry"`
 	Role             string           `json:"role" bson:"role"`
 	Customers        []Customer       `json:"customers" bson:"customers"`
@@ -199,7 +201,7 @@ func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, err
 		return uuid.UUID{}, time.Time{}, err
 	}
 
-	expires := time.Now().Add(TOKEN_EXPIRE_TIME * time.Hour)
+	expires := time.Now().Add(TOKEN_EXPIRE_TIME)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
 		"$set": bson.M{
@@ -213,24 +215,18 @@ func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, err
 	return token, expires, nil
 }
 
-func (ui *UserIndex) RefreshUserToken(userID uuid.UUID) (uuid.UUID, time.Time, error) {
-	token, err := uuid.NewRandom()
-	if err != nil {
-		return uuid.UUID{}, time.Time{}, err
-	}
+func (ui *UserIndex) RefreshUserToken(user *User) (uuid.UUID, time.Time, error) {
+	expires := user.TokenExpiry.Add(TOKEN_EXTEND_TIME)
 
-	expires := time.Now().Add(TOKEN_EXPIRE_TIME * time.Hour)
-
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
+	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			"token":        token,
 			"token_expiry": expires,
 		}})
 	if err != nil {
 		return uuid.UUID{}, time.Time{}, err
 	}
 
-	return token, expires, nil
+	return user.Token, expires, nil
 }
 
 func (ui *UserIndex) Logout(ID uuid.UUID) error {

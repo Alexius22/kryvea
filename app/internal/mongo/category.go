@@ -13,6 +13,10 @@ import (
 
 const (
 	categoryCollection = "category"
+
+	SOURCE_GENERIC = "generic"
+	SOURCE_NESSUS  = "nessus"
+	SOURCE_BURP    = "burp"
 )
 
 type Category struct {
@@ -22,6 +26,7 @@ type Category struct {
 	GenericDescription map[string]string `json:"generic_description" bson:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation" bson:"generic_remediation"`
 	References         []string          `json:"references" bson:"references"`
+	Source             string            `json:"source" bson:"source"`
 }
 
 type CategoryIndex struct {
@@ -117,6 +122,7 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 			"generic_description": category.GenericDescription,
 			"generic_remediation": category.GenericRemediation,
 			"references":          category.References,
+			"source":              category.Source,
 		},
 	}
 
@@ -162,7 +168,7 @@ func (ci *CategoryIndex) GetAll() ([]Category, error) {
 	categories := []Category{}
 	cursor, err := ci.collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		return []Category{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
@@ -186,14 +192,14 @@ func (ci *CategoryIndex) Search(query string) ([]Category, error) {
 		{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 	}})
 	if err != nil {
-		return []Category{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	categories := []Category{}
 	err = cursor.All(context.Background(), &categories)
 	if err != nil {
-		return []Category{}, err
+		return nil, err
 	}
 
 	return categories, err

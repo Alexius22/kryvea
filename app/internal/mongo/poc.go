@@ -251,15 +251,25 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 }
 
 func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error) {
-	poc := Poc{}
-	err := pi.collection.FindOne(context.Background(), bson.M{"vulnerability_id": vulnerabilityID}).Decode(&poc)
+	filter := bson.M{"vulnerability_id": vulnerabilityID}
+	opts := options.Find().SetLimit(1)
+
+	cursor, err := pi.collection.Find(context.Background(), filter, opts)
 	if err != nil {
-		return &Poc{
-			Pocs: []PocItem{},
-		}, err
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	poc := &Poc{
+		Pocs: []PocItem{},
+	}
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(poc); err != nil {
+			return nil, err
+		}
 	}
 
-	return &poc, nil
+	return poc, nil
 }
 
 func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
