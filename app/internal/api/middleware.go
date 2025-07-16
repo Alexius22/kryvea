@@ -50,23 +50,25 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 }
 
 func (d *Driver) ContentTypeMiddleware(c *fiber.Ctx) error {
-	if strings.Contains(c.Path(), "/upload/") && c.Method() == fiber.MethodPost {
-		if !strings.HasPrefix(c.Get("Content-Type"), "multipart/form-data") {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
+	method := c.Method()
+	path := c.Path()
+	contentType := c.Get(fiber.HeaderContentType)
+
+	if strings.HasSuffix(path, "/upload") && method == fiber.MethodPost {
+		if !strings.HasPrefix(contentType, fiber.MIMEMultipartForm) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Content-Type must be multipart/form-data",
 			})
 		}
 		return c.Next()
 	}
 
-	if (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch) && c.Request().Header.ContentLength() > 0 {
-		if c.Get("Content-Type") != "application/json" {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Content-Type must be application/json",
-			})
-		}
+	if (method == fiber.MethodPost || method == fiber.MethodPatch) &&
+		c.Request().Header.ContentLength() > 0 &&
+		!strings.HasPrefix(contentType, fiber.MIMEApplicationJSON) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Content-Type must be application/json",
+		})
 	}
 
 	return c.Next()
