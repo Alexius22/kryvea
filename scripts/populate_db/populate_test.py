@@ -44,10 +44,10 @@ def populate_test(session: Session, base_url: str) -> str:
         assessments += create_assessments(customer, 3)
 
     for assessment in assessments:
-        vulnerabilities = create_vulnerabilities(assessment, categories, 10)
+        vulnerabilities = create_vulnerabilities(assessment, categories, 5)
 
         for vulnerability in vulnerabilities:
-            pocs = create_pocs(vulnerability, 11)
+            pocs = create_pocs(vulnerability, 7)
 
 
 def create_users(n: int) -> list:
@@ -158,7 +158,7 @@ def create_assessments(customer: Customer, n: int) -> list:
             name=utils.rand_name(2),
             start_date_time="2025-01-01T00:00:00.000Z",
             end_date_time="2025-01-10T00:00:00.000Z",
-            cvss_versions=[utils.rand_cvss_version()],
+            cvss_versions=utils.rand_cvss_versions(),
             customer_id=customer.id,
             targets=[
                 x["id"]
@@ -192,6 +192,7 @@ def create_vulnerabilities(assessment: Assessment, categories: list, n: int) -> 
             target_id=random.choice(assessment.targets),
             assessment_id=assessment.id,
             detailed_title=utils.rand_string(),
+            assessment=assessment,
         )
         id, error = vulnerability.add()
         if error != "":

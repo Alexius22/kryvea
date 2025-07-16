@@ -13,6 +13,7 @@ class Assessment(Base):
     cvss_versions: List[str]
     customer_id: str
 
+    id: str = ""
     targets: List[str] = field(default_factory=list)
     status: str = field(default_factory=utils.rand_status)
     assessment_type: str = field(default_factory=utils.rand_assessment_type)

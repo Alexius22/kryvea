@@ -25,9 +25,9 @@ def rand_username() -> str:
     return f"{random.choice(usernames)}_{rand_name(1).lower()}_{rand_name(1).lower()}"
 
 
-def rand_cvss_version() -> str:
+def rand_cvss_versions() -> list:
     versions = ["3.1", "4.0"]
-    return random.choice(versions)
+    return random.sample(versions, k=random.randint(1, len(versions)))
 
 
 def rand_cvss(version: str) -> str:
