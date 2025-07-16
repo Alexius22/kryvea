@@ -8,7 +8,7 @@ export type IdObject = {
 export type Vulnerability = {
   id: string;
   updated_at: string;
-  category: { id: string; index: string; name: string };
+  category: { id: string; index: string; name: string; source: Category["source"] };
   detailed_title: string;
   cvssv2: {
     cvss_version: string;
@@ -99,6 +99,7 @@ export type Category = {
   id: string;
   index: string;
   name: string;
+  source: "generic" | "nessus" | "burp";
   generic_description: Record<string, string>;
   generic_remediation: Record<string, string>;
   references: string[];

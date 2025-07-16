@@ -4,13 +4,13 @@
 }
 
 .layout-root {
-  @apply flex h-screen gap-4 p-4 transition-position lg:w-auto;
+  @apply flex h-screen gap-4 p-4 transition-all lg:w-auto;
   max-width: 1920px;
   width: 100%;
   justify-self: center;
 
   &.layout-fullscreen {
-    max-width: none;
+    max-width: 100vw;
   }
 }
 

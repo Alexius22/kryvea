@@ -155,6 +155,7 @@ export default function Categories() {
           data={categories.map(category => ({
             Identifier: category.index,
             Name: category.name,
+            Source: category.source.replace(/\b\w/g, char => char.toUpperCase()),
             Languages: Object.keys(category.generic_description || {})
               .join(" | ")
               .toUpperCase(),

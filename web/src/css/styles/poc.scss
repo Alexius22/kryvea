@@ -1,9 +1,9 @@
-.req-res-text {
+.vuln-detail-req-res-body {
   @apply flex-1 overflow-x-auto rounded-md p-4 font-mono;
   background-color: var(--bg-quaternary);
 }
 
-.req-res {
+.vuln-detail-req-res-header {
   @apply mb-3 border-b pb-1 text-lg font-semibold;
   border-color: var(--border-primary);
 }
@@ -21,8 +21,13 @@
   color: var(--text-secondary);
 }
 
-.poc-img {
-  @apply max-h-[550px] max-w-[1/2] rounded-lg;
+.vuln-detail-poc-img {
+  @apply max-h-[550px] max-w-[1/2];
+}
+
+.vuln-detail-poc-text {
+  @apply flex-1 overflow-x-auto rounded-md p-4 font-mono;
+  background-color: var(--bg-quaternary);
 }
 
 .poc-template {

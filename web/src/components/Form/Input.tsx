@@ -13,6 +13,7 @@ interface BaseInputProps {
   placeholder?: string;
   value?: string | number;
   autoFocus?: boolean;
+  disabled?: true;
 }
 
 interface InputProps extends BaseInputProps {
@@ -41,6 +42,7 @@ interface NumberInputProps extends BaseInputProps {
 
 export default function Input({
   className,
+  disabled,
   type,
   id,
   label,
@@ -66,7 +68,8 @@ export default function Input({
       <div className="grid">
         {type === "number" ? (
           <input
-            className={className}
+            disabled={disabled}
+            className={`${className} ${disabled ? "opacity-40" : ""}`}
             type={type}
             id={id}
             placeholder={placeholder}
@@ -107,7 +110,8 @@ export default function Input({
           <>
             <div className="relative w-full">
               <input
-                className={`${className} ${type === "password" ? "pr-10" : ""} w-full`}
+                disabled={disabled}
+                className={`${className} ${disabled ? "opacity-40" : ""} ${type === "password" ? "pr-10" : ""} w-full`}
                 type={type === "password" ? (showPassword ? "text" : "password") : type}
                 id={id}
                 placeholder={placeholder}
