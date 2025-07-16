@@ -17,7 +17,7 @@ import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
-import { Vulnerability } from "../types/common.types";
+import { Category, Vulnerability } from "../types/common.types";
 
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
@@ -32,6 +32,12 @@ export default function AssessmentVulnerabilities() {
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
+  const sourceOptions = [
+    { label: "Nessus", value: "nessus" },
+    { label: "Burp", value: "burp" },
+  ];
+
+  const [source, setSource] = useState<Category["source"]>();
   const [fileObj, setFileObj] = useState<File | null>(null);
 
   const [exportType, setExportType] = useState<SelectOption>({ value: "word", label: "Word (.docx)" });
@@ -41,11 +47,14 @@ export default function AssessmentVulnerabilities() {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [vulnerabilityToDelete, setVulnerabilityToDelete] = useState<Vulnerability | null>(null);
 
+  function fetchVulnerabilities() {
+    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
+  }
+
   useEffect(() => {
     document.title = getPageTitle("Assessment");
-
-    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
-  }, [assessmentId]);
+    fetchVulnerabilities();
+  }, []);
 
   const openExportModal = () => {
     setIsModalDownloadActive(true);
@@ -93,6 +102,31 @@ export default function AssessmentVulnerabilities() {
   };
 
   const clearFile = () => setFileObj(null);
+
+  const handleUploadBulk = () => {
+    if (!fileObj) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileObj);
+    formData.append("import_data", `{"source": "${source}"}`);
+
+    const toastId = toast.loading("Uploading...");
+    postData<{ message: string }>(`/api/assessments/${assessmentId}/upload`, formData, () => {
+      toast.update(toastId, {
+        render: "Vulnerabilities uploaded successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+      });
+      setIsModalUploadActive(false);
+      setFileObj(null);
+      fetchVulnerabilities();
+    });
+  };
 
   return (
     <div>
@@ -146,20 +180,27 @@ export default function AssessmentVulnerabilities() {
         buttonLabel="Confirm"
         isActive={isModalUploadActive}
         onConfirm={() => {
-          // TODO: Implement upload logic here
+          handleUploadBulk();
           setIsModalUploadActive(false);
-          toast.success("Upload confirmed (implement upload logic)");
         }}
         onCancel={() => setIsModalUploadActive(false)}
       >
         <Label text={"Choose bulk file"} />
         <UploadFile
-          inputId={"nessus_file"}
+          inputId={"file"}
           filename={fileObj?.name}
           name={"imagePoc"}
           accept={".nessus,text/xml"}
           onChange={changeFile}
           onButtonClick={clearFile}
+        />
+        <SelectWrapper
+          label="Source"
+          className="w-1/2"
+          id="source"
+          options={sourceOptions}
+          value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
+          onChange={option => setSource(option.value)}
         />
       </Modal>
 
