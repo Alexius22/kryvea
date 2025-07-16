@@ -18,7 +18,7 @@ class PocData(Base):
     image_data: str = ""
     image_reference: str = ""
     image_caption: str = field(default_factory=lambda: utils.rand_string(10))
-    text_language: str = field(default_factory=utils.rand_language)
+    text_language: str = field(default_factory=utils.rand_code_language)
     text_data: str = field(default_factory=lambda: utils.rand_string(20))
 
 
