@@ -256,7 +256,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateUserData(data)
+	errStr = d.validateUserUpdateData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -562,6 +562,22 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 	}
 
 	if !util.IsValidPassword(data.Password) {
+		return "Password does not meet policy requirements"
+	}
+
+	return ""
+}
+
+func (d *Driver) validateUserUpdateData(data *userRequestData) string {
+	if data.Username == "" {
+		return "Username is required"
+	}
+
+	if data.Role != "" && !util.IsValidRole(data.Role) {
+		return "Invalid role"
+	}
+
+	if data.Password != "" && !util.IsValidPassword(data.Password) {
 		return "Password does not meet policy requirements"
 	}
 
