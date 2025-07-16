@@ -78,7 +78,7 @@ export default function Categories() {
     formData.append("categories", fileObj);
     formData.append("override", overrideExisting ? "true" : "false");
 
-    postData<{ message: string }>("/api/categories/upload/bulk", formData, () => {
+    postData<{ message: string }>("/api/categories/upload", formData, () => {
       toast.success("Categories uploaded successfully");
       setIsModalManageActive(false);
       setFileObj(null);
