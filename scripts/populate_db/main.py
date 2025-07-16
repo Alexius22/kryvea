@@ -6,7 +6,7 @@ from populate_test import populate_test
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-BASE_URL = "https://kryvea.local/api"
+BASE_URL = "https://localhost/api"
 PROXY_URL = "http://127.0.0.1:8080"
 
 
