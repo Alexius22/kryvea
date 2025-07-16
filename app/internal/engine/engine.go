@@ -74,7 +74,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories", api.GetCategories)
 		apiGroup.Get("/categories/:category", api.GetCategory)
 		apiGroup.Post("/categories", api.AddCategory)
-		apiGroup.Post("/categories/upload/bulk", api.UploadCategories)
+		apiGroup.Post("/categories/upload", api.UploadCategories)
 		apiGroup.Patch("/categories/:category", api.UpdateCategory)
 		apiGroup.Delete("/categories/:category", api.DeleteCategory)
 
@@ -85,6 +85,7 @@ func (e *Engine) Serve() {
 		apiGroup.Post("/vulnerabilities", api.AddVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
 		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
+		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerbilities)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)
@@ -93,8 +94,6 @@ func (e *Engine) Serve() {
 		// apiGroup.Delete("/pocs/:poc", api.DeletePoc)
 
 		apiGroup.Get("/files/:file", api.GetFile)
-
-		apiGroup.Post("/assessments/:assessment/upload/nessus", api.UploadNessus)
 
 		apiGroup.Get("/users", api.GetUsers)
 		apiGroup.Get("/users/me", api.GetMe)
