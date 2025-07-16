@@ -66,7 +66,7 @@ export default function PocImage({
     if (pocDoc.image_id === uuidZero) {
       return;
     }
-    axios.get(`/api/file/${pocDoc.image_id}`, { responseType: "blob" }).then(({ data }) => {
+    axios.get(`/api/files/${pocDoc.image_id}`, { responseType: "blob" }).then(({ data }) => {
       onImageChangeWrapper({ target: { files: [blobToFile(data, pocDoc.image_filename)] } });
     });
   }, []);

@@ -1,11 +1,13 @@
 import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
-import React, { useMemo, useState } from "react";
-import { UnControlled as CodeMirror } from "react-codemirror2";
-import Grid from "../Composition/Grid";
+import React, { useState } from "react";
+import Flex from "../Composition/Flex";
 import Input from "../Form/Input";
+import Label from "../Form/Label";
 import SelectWrapper from "../Form/SelectWrapper";
+import { SelectOption } from "../Form/SelectWrapper.types";
 import Textarea from "../Form/Textarea";
+import MonacoCodeEditor from "./MonacoCodeEditor";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -31,9 +33,11 @@ export default function PocText({
   setSelectedPoc,
 }: PocTextProps) {
   // prettier-ignore
-  const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
+  // const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [startingLineNumber, setStartingLineNumber] = useState(1);
+  console.log("languages", languageOptions);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
@@ -54,7 +58,7 @@ export default function PocText({
       }}
     >
       <div className="poc-text col-span-8 grid">
-        <label htmlFor={descriptionTextareaId}>Description</label>
+        <Label htmlFor={descriptionTextareaId} text="Description" />
         <Textarea
           value={pocDoc.description}
           id={descriptionTextareaId}
@@ -62,29 +66,36 @@ export default function PocText({
         />
       </div>
 
-      <div className="col-span-4 grid">
-        <label htmlFor={languageInputId}>Language</label>
-        <SelectWrapper
-          className="max-w-64"
-          options={languages.map(l => ({ label: l, value: l }))}
-          value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
-          onChange={({ value }) => {
-            setSelectedLanguage(value);
-            onTextChange<PocTextDoc>(
-              currentIndex,
-              "text_language"
-            )({
-              target: { value },
-            } as any);
-          }}
-          id={languageInputId}
-        />
-      </div>
-
-      <Grid className="gap-0">
-        <label htmlFor="">Starting line number</label>
-        <Input type="number" value={startingLineNumber} onChange={setStartingLineNumber} />
-      </Grid>
+      <Flex className="items-center gap-4">
+        <div>
+          <Label htmlFor={languageInputId} text="Language" />
+          <SelectWrapper
+            className="w-64"
+            options={languageOptions.map(({ label, value }) => ({ label, value }))}
+            value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
+            onChange={({ value }) => {
+              setSelectedLanguage(value);
+              onTextChange<PocTextDoc>(
+                currentIndex,
+                "text_language"
+              )({
+                target: { value },
+              } as any);
+            }}
+            id={languageInputId}
+          />
+        </div>
+        <div>
+          <Label htmlFor="" text="Starting line number" />
+          <Input
+            disabled
+            type="number"
+            value={startingLineNumber}
+            onChange={setStartingLineNumber}
+            className="input w-[55px] rounded text-center"
+          />
+        </div>
+      </Flex>
 
       <div className="col-span-4 grid w-full max-w-full">
         <label htmlFor={textInputId}>Text</label>
@@ -92,13 +103,14 @@ export default function PocText({
           className="w-full max-w-full overflow-auto border border-[color:--border-primary]"
           style={{ width: "100%" }}
         >
-          <CodeMirror
+          {/* <CodeMirror
             value={pocDoc.text_data}
             options={{
               mode: "htmlmixed",
               theme: "gruvbox-dark",
               lineNumbers: true,
               lineNumberFormatter: (lineNumber: number) => lineNumber + (startingLineNumber - 1),
+              highlightActiveLine: true,
             }}
             // lineWrapping: true,
             onChange={(_, __, value) => {
@@ -109,7 +121,8 @@ export default function PocText({
                 target: { value },
               } as any);
             }}
-          />
+          /> */}
+          <MonacoCodeEditor language={selectedLanguage} setLanguageOptions={setLanguageOptions} />
         </div>
       </div>
     </PocTemplate>
