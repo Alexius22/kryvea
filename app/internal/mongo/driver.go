@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -9,9 +10,14 @@ type Driver struct {
 	client   *mongo.Client
 	database *mongo.Database
 	bucket   *mongo.GridFSBucket
+	logger   *zerolog.Logger
 }
 
-func NewDriver(uri, adminUser, adminPass string) (*Driver, error) {
+func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWriter) (*Driver, error) {
+	logger := zerolog.New(*levelWriter).With().
+		Str("source", "mongo-driver").
+		Timestamp().Logger()
+
 	client, err := mongo.Connect(options.Client().ApplyURI(uri))
 	if err != nil {
 		return nil, err
@@ -20,6 +26,7 @@ func NewDriver(uri, adminUser, adminPass string) (*Driver, error) {
 	d := &Driver{
 		client:   client,
 		database: client.Database("kryvea"),
+		logger:   &logger,
 	}
 
 	d.bucket = d.database.GridFSBucket()
@@ -53,21 +60,28 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
-	if user == nil {
-		userID, err := d.User().Insert(&User{
-			Username: adminUser,
-			Password: adminPass,
-		})
-		if err != nil {
-			return err
-		}
 
-		err = d.User().Update(userID, &User{
-			Role: ROLE_ADMIN,
-		})
-		if err != nil {
-			return err
-		}
+	// user already exists
+	if user != nil {
+		return nil
 	}
+
+	userID, err := d.User().Insert(&User{
+		Username: adminUser,
+		Password: adminPass,
+	})
+	if err != nil {
+		return err
+	}
+	d.logger.Debug().Msgf("Created admin user %s", adminUser)
+
+	err = d.User().Update(userID, &User{
+		Role: ROLE_ADMIN,
+	})
+	if err != nil {
+		return err
+	}
+	d.logger.Debug().Msgf("Updated %s role to %s", adminUser, ROLE_ADMIN)
+
 	return nil
 }
