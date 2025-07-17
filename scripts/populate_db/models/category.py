@@ -30,7 +30,7 @@ class Category(Base):
             "references": self.references,
             "source": self.source,
         }
-        response = self.session.post(self.base_url + "/categories", json=data)
+        response = self.session.post(self.base_url + "/admin/categories", json=data)
         json_response = response.json()
         if response.status_code == 201:
             self.id = json_response.get("category_id")

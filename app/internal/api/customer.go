@@ -13,16 +13,6 @@ type customerRequestData struct {
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse request body
 	data := &customerRequestData{}
 	if err := c.BodyParser(data); err != nil {
@@ -73,7 +63,7 @@ func (d *Driver) GetCustomer(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to the customer
-	if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, customer.ID) {
+	if !util.CanAccessCustomer(user, customer.ID) {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
@@ -110,16 +100,6 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 }
 
 func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse customer param
 	customer, errStr := d.customerFromParam(c.Params("customer"))
 	if errStr != "" {
@@ -166,16 +146,6 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 }
 
 func (d *Driver) DeleteCustomer(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse customer param
 	customer, errStr := d.customerFromParam(c.Params("customer"))
 	if errStr != "" {
