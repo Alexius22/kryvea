@@ -1,4 +1,12 @@
-import { mdiAccountMultiple, mdiListBox, mdiMagnify, mdiMonitor, mdiResponsive, mdiViewList } from "@mdi/js";
+import {
+  mdiAccountMultiple,
+  mdiListBox,
+  mdiMagnify,
+  mdiMonitor,
+  mdiResponsive,
+  mdiShapePlus,
+  mdiViewList,
+} from "@mdi/js";
 import { useContext } from "react";
 import { GlobalContext } from "../../App";
 import Item from "./Item";
@@ -41,8 +49,9 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
       label: "Administration",
       icon: mdiResponsive,
       menu: [
+        { href: "/categories", icon: mdiShapePlus, label: "Categories" },
         { href: "/users", icon: mdiAccountMultiple, label: "Users" },
-        { href: "/categories", icon: mdiAccountMultiple, label: "Categories" },
+        { href: "/logs", icon: mdiListBox, label: "Logs" },
       ],
     },
   ];

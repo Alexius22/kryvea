@@ -1,4 +1,4 @@
-import { mdiCogs, mdiDownload, mdiPencil, mdiPlus, mdiTabSearch, mdiTrashCan } from "@mdi/js";
+import { mdiCogs, mdiDownload, mdiPencil, mdiPlus, mdiShapePlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -143,7 +143,7 @@ export default function Categories() {
         </Grid>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiTabSearch} title="Categories">
+      <SectionTitleLineWithButton icon={mdiShapePlus} title="Categories">
         <Buttons>
           <Button icon={mdiPlus} text="New category" small onClick={() => navigate("/manage_category")} />
           <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
