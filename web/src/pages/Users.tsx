@@ -1,8 +1,8 @@
-import { mdiAccountEdit, mdiListBox, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiAccountEdit, mdiAccountMultiple, mdiLockReset, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { deleteData, getData, patchData } from "../api/api";
+import { deleteData, getData, patchData, postData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
@@ -24,7 +24,8 @@ export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const [isModalResetPswActive, setIsModalResetPswActive] = useState(false);
+  const [isModalEditActive, setIsModalEditActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -52,14 +53,19 @@ export default function Users() {
     setSelectedCustomers(selectedOptions ? selectedOptions.map(option => option.value) : []);
   };
 
-  // Open edit modal and populate form with user data
+  const openResetPswModal = (user: User) => {
+    setActiveUserId(user.id);
+    setUsername(user.username);
+    setIsModalResetPswActive(true);
+  };
+
   const openEditModal = (user: User) => {
     setActiveUserId(user.id);
     setUsername(user.username);
     setRole(user.role);
     setSelectedCustomers(user.customers.map(c => c.id));
     setUserDisabled(user.disabled_at);
-    setIsModalInfoActive(true);
+    setIsModalEditActive(true);
   };
 
   const openDeleteModal = (userId: string) => {
@@ -68,7 +74,8 @@ export default function Users() {
   };
 
   const handleModalAction = () => {
-    setIsModalInfoActive(false);
+    setIsModalResetPswActive(false);
+    setIsModalEditActive(false);
     setIsModalTrashActive(false);
     setActiveUserId(null);
   };
@@ -85,9 +92,18 @@ export default function Users() {
 
     patchData<User>(`/api/admin/users/${activeUserId}`, payload, updatedUser => {
       toast.success(`User ${payload.username} updated successfully`);
-      setIsModalInfoActive(false);
+      setIsModalEditActive(false);
       setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
       fetchUsers();
+    });
+  };
+
+  const handleResetPsw = () => {
+    if (!activeUserId) return;
+
+    postData(`/api/admin/users/${activeUserId}/reset-password`, {}, () => {
+      toast.success(`User ${username} password resetted`);
+      setIsModalResetPswActive(false);
     });
   };
 
@@ -108,7 +124,7 @@ export default function Users() {
       <Modal
         title="Edit user"
         buttonLabel="Confirm"
-        isActive={isModalInfoActive}
+        isActive={isModalEditActive}
         onConfirm={handleUpdateUser}
         onCancel={handleModalAction}
       >
@@ -153,6 +169,19 @@ export default function Users() {
         </Grid>
       </Modal>
 
+      {/* Password reset Confirmation Modal */}
+      <Modal
+        title="Please confirm: action irreversible"
+        buttonLabel="Confirm"
+        isActive={isModalResetPswActive}
+        onConfirm={handleResetPsw}
+        onCancel={handleModalAction}
+      >
+        <p>
+          Are you sure you want to reset the password for user '<strong>{username}</strong>'?
+        </p>
+      </Modal>
+
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
@@ -164,7 +193,7 @@ export default function Users() {
         <p>Are you sure you want to delete this user?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Users">
+      <SectionTitleLineWithButton icon={mdiAccountMultiple} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/users/new")} />
       </SectionTitleLineWithButton>
 
@@ -177,8 +206,15 @@ export default function Users() {
           Active: Date.parse(user.disabled_at) > Date.now() ? "Yes" : "No",
           buttons: (
             <Buttons noWrap key={user.id}>
-              <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small />
-              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(user.id)} small />
+              <Button icon={mdiLockReset} onClick={() => openResetPswModal(user)} small title="Reset password" />
+              <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small title="Edit user" />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                onClick={() => openDeleteModal(user.id)}
+                small
+                title="Delete user"
+              />
             </Buttons>
           ),
         }))}
