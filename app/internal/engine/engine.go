@@ -4,27 +4,30 @@ import (
 	"github.com/Alexius22/kryvea/internal/api"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/rs/zerolog/log"
+
+	"github.com/rs/zerolog"
 )
 
 type Engine struct {
-	addr     string
-	rootPath string
-	mongo    *mongo.Driver
+	addr        string
+	rootPath    string
+	mongo       *mongo.Driver
+	levelWriter *zerolog.LevelWriter
 }
 
-func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string) (*Engine, error) {
-	mongo, err := mongo.NewDriver(mongoURI, adminUser, adminPass)
+func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string, levelWriter *zerolog.LevelWriter) (*Engine, error) {
+	mongo, err := mongo.NewDriver(mongoURI, adminUser, adminPass, levelWriter)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Engine{
-		addr:     addr,
-		rootPath: rootPath,
-		mongo:    mongo,
+		addr:        addr,
+		rootPath:    rootPath,
+		mongo:       mongo,
+		levelWriter: levelWriter,
 	}, nil
 }
 
@@ -35,13 +38,15 @@ func (e *Engine) Serve() {
 		BodyLimit: 10000 * 1024 * 1024,
 	})
 
-	app.Use(logger.New(logger.Config{
-		Format:     "${time} ${status} - ${latency} ${method} ${path}\n",
-		TimeFormat: "02/01/2006 15:04:05",
-		TimeZone:   "CET",
+	logger := zerolog.New(*e.levelWriter).With().
+		Str("source", "fiber-engine").
+		Timestamp().Logger()
+
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: &logger,
 	}))
 
-	api := api.NewDriver(e.mongo)
+	api := api.NewDriver(e.mongo, e.levelWriter)
 
 	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"))
 	apiGroup.Use(api.SessionMiddleware)
@@ -114,6 +119,7 @@ func (e *Engine) Serve() {
 		adminGroup.Get("/users", api.GetUsers)
 		adminGroup.Get("/users/:user", api.GetUser)
 		adminGroup.Post("/users", api.AddUser)
+		// adminGroup.Post("/users/:user/reset-password", api.ResetUserPassword)
 		adminGroup.Patch("/users/:user", api.UpdateUser)
 		adminGroup.Delete("/users/:user", api.DeleteUser)
 	}
@@ -122,8 +128,8 @@ func (e *Engine) Serve() {
 		return c.Redirect(e.rootPath)
 	})
 
-	log.Info().Msg("Listening for connections on http://" + e.addr)
+	logger.Info().Msg("Listening for connections on http://" + e.addr)
 	if err := app.Listen(e.addr); err != nil {
-		log.Fatal().Err(err).Msg("Failed to start server")
+		logger.Fatal().Err(err).Msg("Failed to start server")
 	}
 }

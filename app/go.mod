@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.9
+	github.com/gofiber/contrib/fiberzerolog v1.0.3
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/google/uuid v1.6.0
 	github.com/pandatix/go-cvss v0.6.2
@@ -13,6 +14,7 @@ require (
 	golang.org/x/crypto v0.39.0
 	golang.org/x/net v0.41.0
 	golang.org/x/text v0.26.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
