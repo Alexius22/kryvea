@@ -56,7 +56,7 @@ export default function AddUser() {
 
   const handleSubmit = () => {
     postData(
-      "/api/users",
+      "/api/admin/users",
       {
         username,
         password,

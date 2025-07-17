@@ -73,7 +73,7 @@ export default function Customers() {
       language: formData.language,
     };
 
-    patchData<Customer>(`/api/customers/${selectedCustomer.id}`, payload, updatedCustomer => {
+    patchData<Customer>(`/api/admin/customers/${selectedCustomer.id}`, payload, updatedCustomer => {
       toast.success("Customer updated successfully");
       setIsModalCustomerActive(false);
       setCustomers(prev => prev.map(c => (c.id === updatedCustomer.id ? updatedCustomer : c)));
@@ -89,7 +89,7 @@ export default function Customers() {
   const handleDeleteConfirm = () => {
     if (!selectedCustomer) return;
 
-    deleteData<{ message: string }>(`/api/customers/${selectedCustomer.id}`, () => {
+    deleteData<{ message: string }>(`/api/admin/customers/${selectedCustomer.id}`, () => {
       toast.success("Customer deleted successfully");
       setIsModalTrashActive(false);
       setCustomers(prev => prev.filter(c => c.id !== selectedCustomer.id));

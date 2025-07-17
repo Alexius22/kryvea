@@ -105,7 +105,7 @@ export default function CustomerDetail() {
       language: formCustomer.language,
     };
 
-    patchData<Customer>(`/api/customers/${ctxCustomer.id}`, payload, updatedCustomer => {
+    patchData<Customer>(`/api/admin/customers/${ctxCustomer.id}`, payload, updatedCustomer => {
       toast.success("Customer updated successfully");
       setCtxCustomer(updatedCustomer);
     });
@@ -164,7 +164,7 @@ export default function CustomerDetail() {
     formData.append("template_type", templateCustomer.template_type);
     formData.append("template_file", templateCustomer.template_file);
 
-    postData(`/api/customers/${ctxCustomer.id}/templates`, formData, response => {
+    postData(`/api/customers/${ctxCustomer.id}/templates`, formData, () => {
       toast.success("Template uploaded successfully");
       setTemplateCustomer({
         template_name: "",

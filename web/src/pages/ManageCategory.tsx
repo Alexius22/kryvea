@@ -157,12 +157,12 @@ export default function ManageCategory() {
     };
 
     if (categoryId) {
-      patchData<Category>(`/api/categories/${categoryId}`, payload, () => {
+      patchData<Category>(`/api/admin/categories/${categoryId}`, payload, () => {
         toast.success("Category updated successfully");
         navigate("/categories");
       });
     } else {
-      postData<Category>("/api/categories", payload, () => {
+      postData<Category>("/api/admin/categories", payload, () => {
         toast.success("Category created successfully");
         navigate("/categories");
       });

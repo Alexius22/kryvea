@@ -98,7 +98,7 @@ export default function Users() {
       disabled_at: userDisabled,
     };
 
-    patchData<User>(`/api/users/${activeUserId}`, payload, updatedUser => {
+    patchData<User>(`/api/admin/users/${activeUserId}`, payload, updatedUser => {
       toast.success(`User ${payload.username} updated successfully`);
       setIsModalInfoActive(false);
       setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
