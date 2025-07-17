@@ -18,7 +18,7 @@ class Customer(Base):
             "name": self.name,
             "language": self.language,
         }
-        response = self.session.post(self.base_url + "/customers", json=data)
+        response = self.session.post(self.base_url + "/admin/customers", json=data)
         jr = response.json()
         if response.status_code == 201:
             self.id = jr.get("customer_id")

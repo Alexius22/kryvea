@@ -16,6 +16,8 @@ var (
 	ErrPasswordExpired    = errors.New("password expired")
 	ErrDisabledUser       = errors.New("user is disabled")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+
+	TimeNever = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 )
 
 const (
@@ -156,8 +158,8 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 		UpdatedAt: time.Now(),
 	}
 
-	user.DisabledAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
-	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
+	user.DisabledAt = TimeNever
+	user.PasswordExpiry = TimeNever
 
 	if user.Customers == nil {
 		user.Customers = []Customer{}
@@ -409,7 +411,7 @@ func (ui *UserIndex) ResetPassword(reset_token, password string) error {
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
 			"password":           hash,
-			"password_expiry":    time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC),
+			"password_expiry":    TimeNever,
 			"reset_token":        "",
 			"reset_token_expiry": time.Time{},
 		}})
