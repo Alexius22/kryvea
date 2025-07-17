@@ -56,11 +56,6 @@ export default function Assessments() {
   }, []);
 
   const handleOwnedToggle = assessment => () => {
-    //   patchData(
-    //     `/api/users/me/assessments`,
-    //     { assessment: assessment.id, is_owned: !assessment.is_owned },
-    //     autoUpdateArrState(setAssessmentsData)
-    //   );
     patchData(
       `/api/users/me/assessments`,
       { assessment: assessment.id, is_owned: !assessment.is_owned },

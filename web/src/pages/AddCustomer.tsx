@@ -40,7 +40,7 @@ export default function AddCustomer() {
       language,
     };
 
-    postData<Customer>("/api/customers", payload, () => {
+    postData<Customer>("/api/admin/customers", payload, () => {
       toast.success(`Customer "${payload.name}" added successfully`);
       navigate("/customers");
     });

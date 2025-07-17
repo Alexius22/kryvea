@@ -49,7 +49,7 @@ export default function Categories() {
   const confirmDeleteCategory = () => {
     if (!categoryToDelete) return;
 
-    deleteData<{ message: string }>(`/api/categories/${categoryToDelete.id}`, () => {
+    deleteData<{ message: string }>(`/api/admin/categories/${categoryToDelete.id}`, () => {
       toast.success(`Category "${categoryToDelete.name}" deleted successfully`);
       setIsModalTrashActive(false);
       setCategoryToDelete(null);
@@ -59,7 +59,7 @@ export default function Categories() {
 
   // Export categories file
   const handleExport = () => {
-    const url = "/api/categories?download=true";
+    const url = "/api/admin/categories?download=true";
     const link = document.createElement("a");
     link.href = url;
     document.body.appendChild(link);
@@ -78,7 +78,7 @@ export default function Categories() {
     formData.append("categories", fileObj);
     formData.append("override", overrideExisting ? "true" : "false");
 
-    postData<{ message: string }>("/api/categories/upload", formData, () => {
+    postData<{ message: string }>("/api/admin/categories/upload", formData, () => {
       toast.success("Categories uploaded successfully");
       setIsModalManageActive(false);
       setFileObj(null);
