@@ -18,16 +18,7 @@ type userRequestData struct {
 }
 
 func (d *Driver) AddUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
+	// parse request body
 	data := &userRequestData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -163,16 +154,6 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetUsers(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// get all users from database
 	users, err := d.mongo.User().GetAll()
 	if err != nil {
@@ -203,16 +184,6 @@ func (d *Driver) GetMe(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse user param
 	user, errStr := d.userFromParam(c.Params("user"))
 	if errStr != "" {
@@ -227,18 +198,8 @@ func (d *Driver) GetUser(c *fiber.Ctx) error {
 }
 
 func (d *Driver) UpdateUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse user param
-	oldUser, errStr := d.userFromParam(c.Params("user"))
+	user, errStr := d.userFromParam(c.Params("user"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -292,7 +253,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	// update user in database
-	err := d.mongo.User().Update(oldUser.ID, &mongo.User{
+	err := d.mongo.User().Update(user.ID, &mongo.User{
 		DisabledAt:     data.DisabledAt,
 		Username:       data.Username,
 		PasswordExpiry: data.PasswordExpiry,
@@ -436,16 +397,6 @@ func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
 }
 
 func (d *Driver) DeleteUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse user param
 	userID, err := util.ParseUUID(c.Params("user"))
 	if err != nil {
