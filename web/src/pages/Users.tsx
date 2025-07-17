@@ -9,6 +9,7 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
+import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import Table from "../components/Table";
 import { getPageTitle } from "../config";
@@ -22,7 +23,6 @@ export default function Users() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [error, setError] = useState("");
 
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -31,40 +31,25 @@ export default function Users() {
 
   const navigate = useNavigate();
 
+  const fetchUsers = () => {
+    getData<User[]>("/api/admin/users", setUsers);
+  };
+
   useEffect(() => {
     document.title = getPageTitle("Users");
-
-    getData<User[]>("/api/users", setUsers, err => {
-      const errorMessage = err.response.data.error;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    });
-
-    getData<Customer[]>("/api/customers", setCustomers, err => {
-      const errorMessage = err.response.data.error;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    });
+    fetchUsers();
+    getData<Customer[]>("/api/customers", setCustomers);
   }, []);
 
   // Prepare customer options for SelectWrapper
-  const customerOptions = customers.map(customer => ({
+  const customerOptions: SelectOption[] = customers.map(customer => ({
     label: customer.name,
     value: customer.id,
   }));
 
   // Handle changes in the customers multi-select
-  const handleSelectChange = (selectedOptions: { value: string; label: string }[] | null) => {
-    if (!selectedOptions) {
-      setSelectedCustomers([]);
-      return;
-    }
-
-    if (selectedOptions.some(option => option.value === "all")) {
-      setSelectedCustomers(customers.map(c => c.id));
-    } else {
-      setSelectedCustomers(selectedOptions.map(option => option.value));
-    }
+  const handleCustomerChange = (selectedOptions: { value: string; label: string }[] | null) => {
+    setSelectedCustomers(selectedOptions ? selectedOptions.map(option => option.value) : []);
   };
 
   // Open edit modal and populate form with user data
@@ -102,16 +87,18 @@ export default function Users() {
       toast.success(`User ${payload.username} updated successfully`);
       setIsModalInfoActive(false);
       setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
+      fetchUsers();
     });
   };
 
   const handleDeleteUser = () => {
     if (!activeUserId) return;
 
-    deleteData<{ message: string }>(`/api/users/${activeUserId}`, () => {
+    deleteData<{ message: string }>(`/api/admin/users/${activeUserId}`, () => {
       toast.success("User deleted successfully");
       setIsModalTrashActive(false);
       setUsers(prev => prev.filter(u => u.id !== activeUserId));
+      fetchUsers();
     });
   };
 
@@ -150,7 +137,7 @@ export default function Users() {
             options={customerOptions}
             isMulti
             value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
-            onChange={handleSelectChange}
+            onChange={handleCustomerChange}
             closeMenuOnSelect={false}
             id="customer-selection"
           />
