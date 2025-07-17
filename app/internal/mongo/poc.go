@@ -185,7 +185,7 @@ func (pi PocIndex) init() error {
 
 func (pi *PocIndex) Upsert(poc *Poc) error {
 	// retrieve existing POCs
-	oldPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
+	oldPoc, err := pi.GetByID(poc.ID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -248,6 +248,25 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	}
 
 	return nil
+}
+
+func (pi *PocIndex) GetByID(vulnerabilityID uuid.UUID) (*Poc, error) {
+	cursor, err := pi.collection.Find(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	poc := &Poc{
+		Pocs: []PocItem{},
+	}
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(poc); err != nil {
+			return nil, err
+		}
+	}
+
+	return poc, nil
 }
 
 func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error) {
