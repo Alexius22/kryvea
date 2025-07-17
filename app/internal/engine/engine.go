@@ -49,9 +49,6 @@ func (e *Engine) Serve() {
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
 		apiGroup.Get("/customers/:customer", api.GetCustomer)
-		apiGroup.Post("/customers", api.AddCustomer)
-		apiGroup.Patch("/customers/:customer", api.UpdateCustomer)
-		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
 
 		apiGroup.Get("/assessments", api.SearchAssessments)
 		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
@@ -73,10 +70,6 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetCategories)
 		apiGroup.Get("/categories/:category", api.GetCategory)
-		apiGroup.Post("/categories", api.AddCategory)
-		apiGroup.Post("/categories/upload", api.UploadCategories)
-		apiGroup.Patch("/categories/:category", api.UpdateCategory)
-		apiGroup.Delete("/categories/:category", api.DeleteCategory)
 
 		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
@@ -95,20 +88,34 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/files/:file", api.GetFile)
 
-		apiGroup.Get("/users", api.GetUsers)
 		apiGroup.Get("/users/me", api.GetMe)
-		apiGroup.Get("/users/:user", api.GetUser)
-		apiGroup.Post("/users", api.AddUser)
 		apiGroup.Patch("/users/me", api.UpdateMe)
 		apiGroup.Patch("/users/me/assessments", api.UpdateOwnedAssessment)
-		apiGroup.Patch("/users/:user", api.UpdateUser)
-		apiGroup.Delete("/users/:user", api.DeleteUser)
 
 		apiGroup.Post("/logout", api.Logout)
 
 		// endpoints that don't require authentication
 		apiGroup.Post("/login", api.Login)
 		apiGroup.Post("/password/reset", api.ResetPassword)
+	}
+
+	adminGroup := apiGroup.Group("/admin")
+	adminGroup.Use(api.AdminMiddleware)
+	{
+		adminGroup.Post("/customers", api.AddCustomer)
+		adminGroup.Patch("/customers/:customer", api.UpdateCustomer)
+		adminGroup.Delete("/customers/:customer", api.DeleteCustomer)
+
+		adminGroup.Post("/categories", api.AddCategory)
+		adminGroup.Post("/categories/upload", api.UploadCategories)
+		adminGroup.Patch("/categories/:category", api.UpdateCategory)
+		adminGroup.Delete("/categories/:category", api.DeleteCategory)
+
+		adminGroup.Get("/users", api.GetUsers)
+		adminGroup.Get("/users/:user", api.GetUser)
+		adminGroup.Post("/users", api.AddUser)
+		adminGroup.Patch("/users/:user", api.UpdateUser)
+		adminGroup.Delete("/users/:user", api.DeleteUser)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

@@ -20,16 +20,6 @@ type categoryRequestData struct {
 }
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse request body
 	data := &categoryRequestData{}
 	if err := c.BodyParser(data); err != nil {
@@ -72,16 +62,6 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse category param
 	category, errStr := d.categoryFromParam(c.Params("category"))
 	if errStr != "" {
@@ -132,16 +112,6 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse category param
 	category, errStr := d.categoryFromParam(c.Params("category"))
 	if errStr != "" {
@@ -220,16 +190,6 @@ func (d *Driver) GetCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) UploadCategories(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse override parameter
 	override := c.FormValue("override")
 

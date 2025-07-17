@@ -22,7 +22,7 @@ class User(Base):
             "password": self.password,
             "role": self.role,
         }
-        response = self.session.post(self.base_url + "/users", json=data)
+        response = self.session.post(self.base_url + "/admin/users", json=data)
         json_response = response.json()
         if response.status_code == 201:
             self.id = json_response.get("user_id")

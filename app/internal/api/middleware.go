@@ -49,6 +49,19 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
+func (d *Driver) AdminMiddleware(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if user.Role != mongo.ROLE_ADMIN {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	return c.Next()
+}
+
 func (d *Driver) ContentTypeMiddleware(c *fiber.Ctx) error {
 	method := c.Method()
 	path := c.Path()
