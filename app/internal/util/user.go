@@ -1,6 +1,9 @@
 package util
 
 import (
+	"crypto/rand"
+	"fmt"
+	"math/big"
 	"time"
 	"unicode"
 
@@ -16,12 +19,71 @@ const (
 	hasSpecial = 1 << 3
 	allSet     = hasUpper | hasLower | hasDigit | hasSpecial
 
+	minPasswordLength = 10
+
+	upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	lower   = "abcdefghijklmnopqrstuvwxyz"
+	digits  = "0123456789"
+	special = "!@#$%^&*()-_=+[]{}|;:,.<>?/`~ "
+
 	KryveaSessionCookie = "kryvea"
 	KryveaShadowCookie  = "kryvea_shadow"
 )
 
+var (
+	allChars = upper + lower + digits + special
+)
+
+func secureRandomInt(max int) (int, error) {
+	if max <= 0 {
+		return 0, nil
+	}
+
+	nBig, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
+	if err != nil {
+		return 0, fmt.Errorf("failed to generate secure random number: %w", err)
+	}
+
+	return int(nBig.Int64()), nil
+}
+
+func GenerateRandomPassword(length int) (string, error) {
+	if length < minPasswordLength {
+		return "", fmt.Errorf("password length must be at least %d characters", minPasswordLength)
+	}
+
+	password := make([]byte, length)
+
+	charSets := []string{upper, lower, digits, special}
+	for i, charset := range charSets {
+		idx, err := secureRandomInt(len(charset))
+		if err != nil {
+			return "", fmt.Errorf("failed to select character from charset: %w", err)
+		}
+		password[i] = charset[idx]
+	}
+
+	for i := len(charSets); i < length; i++ {
+		idx, err := secureRandomInt(len(allChars))
+		if err != nil {
+			return "", fmt.Errorf("failed to select random character: %w", err)
+		}
+		password[i] = allChars[idx]
+	}
+
+	for i := len(password) - 1; i > 0; i-- {
+		j, err := secureRandomInt(i + 1)
+		if err != nil {
+			return "", fmt.Errorf("failed to shuffle password: %w", err)
+		}
+		password[i], password[j] = password[j], password[i]
+	}
+
+	return string(password), nil
+}
+
 func IsValidPassword(password string) bool {
-	if len(password) < 10 {
+	if len(password) < minPasswordLength {
 		return false
 	}
 
