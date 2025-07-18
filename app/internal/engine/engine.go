@@ -123,7 +123,7 @@ func (e *Engine) Serve() {
 		adminGroup.Get("/users", api.GetUsers)
 		adminGroup.Get("/users/:user", api.GetUser)
 		adminGroup.Post("/users", api.AddUser)
-		// adminGroup.Post("/users/:user/reset-password", api.ResetUserPassword)
+		adminGroup.Post("/users/:user/reset-password", api.ResetUserPassword)
 		adminGroup.Patch("/users/:user", api.UpdateUser)
 		adminGroup.Delete("/users/:user", api.DeleteUser)
 	}

@@ -371,8 +371,8 @@ func (ui *UserIndex) Delete(ID uuid.UUID) error {
 	return err
 }
 
-func (ui *UserIndex) ForgotPassword(username string) (uuid.UUID, error) {
-	user, err := ui.GetByUsername(username)
+func (ui *UserIndex) ResetUserPassword(userID uuid.UUID, newPassword string) (uuid.UUID, error) {
+	hash, err := crypto.Encrypt(newPassword)
 	if err != nil {
 		return uuid.UUID{}, err
 	}
@@ -384,8 +384,11 @@ func (ui *UserIndex) ForgotPassword(username string) (uuid.UUID, error) {
 
 	expires := time.Now().Add(30 * time.Minute)
 
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
 		"$set": bson.M{
+			"updated_at":         time.Now(),
+			"password":           hash,
+			"password_expiry":    time.Now(),
 			"reset_token":        token,
 			"reset_token_expiry": expires,
 		}})
@@ -396,7 +399,7 @@ func (ui *UserIndex) ForgotPassword(username string) (uuid.UUID, error) {
 	return token, nil
 }
 
-func (ui *UserIndex) ResetPassword(reset_token, password string) error {
+func (ui *UserIndex) ResetPassword(reset_token uuid.UUID, password string) error {
 	var user User
 	err := ui.collection.FindOne(context.Background(), bson.M{"reset_token": reset_token}).Decode(&user)
 	if err != nil {
@@ -410,6 +413,7 @@ func (ui *UserIndex) ResetPassword(reset_token, password string) error {
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
+			"updated_at":         time.Now(),
 			"password":           hash,
 			"password_expiry":    TimeNever,
 			"reset_token":        "",

@@ -124,7 +124,23 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		}
 
 		if err == mongo.ErrPasswordExpired {
-			resetToken, err := d.mongo.User().ForgotPassword(data.Username)
+			newPassword, err := util.GenerateRandomPassword(10)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Cannot generate new password",
+				})
+			}
+
+			user, err := d.mongo.User().GetByUsername(data.Username)
+			if err != nil {
+				c.Status(fiber.StatusInternalServerError)
+				return c.JSON(fiber.Map{
+					"error": "Cannot get user",
+				})
+			}
+
+			resetToken, err := d.mongo.User().ResetUserPassword(user.ID, newPassword)
 			if err != nil {
 				c.Status(fiber.StatusInternalServerError)
 				return c.JSON(fiber.Map{
@@ -441,6 +457,39 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) ResetUserPassword(c *fiber.Ctx) error {
+	// parse user param
+	user, errStr := d.userFromParam(c.Params("user"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	newPassword, err := util.GenerateRandomPassword(10)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot generate new password",
+		})
+	}
+
+	_, err = d.mongo.User().ResetUserPassword(user.ID, newPassword)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Password expired, cannot generate reset token",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message":  "Password reset successfully",
+		"password": newPassword,
+	})
+}
+
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	// parse request body
 	type reqData struct {
@@ -456,10 +505,11 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.ResetToken == "" {
+	resetToken, err := util.ParseUUID(data.ResetToken)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Reset token is required",
+			"error": "Invalid reset token",
 		})
 	}
 
@@ -471,7 +521,7 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// reset password in database
-	err := d.mongo.User().ResetPassword(data.ResetToken, data.Password)
+	err = d.mongo.User().ResetPassword(resetToken, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
