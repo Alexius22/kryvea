@@ -27,11 +27,13 @@ export default function Table({
   const [filterText, setFilterText] = useState("");
   const [filteredData, setFilteredData] = useState(data ?? []);
 
+  const BUTTONS_KEY = useMemo(() => "buttons", []);
+
   useEffect(() => {
     setFilteredData(
       (data ?? []).filter(obj => {
         return Object.entries(obj)
-          .filter(([key]) => key !== "buttons")
+          .filter(([key]) => key !== BUTTONS_KEY)
           .some(([_, value]) => {
             if (isValidElement(value)) {
               value = (value as any).props.children;
@@ -125,7 +127,7 @@ export default function Table({
           <thead>
             <tr>
               {Object.keys(filteredData[0]).map(key =>
-                key === "buttons" ? (
+                key === BUTTONS_KEY ? (
                   <th
                     style={{
                       width: "1%",
@@ -185,7 +187,7 @@ export default function Table({
                   }
 
                   // Default rendering
-                  if (key === "buttons") {
+                  if (key === BUTTONS_KEY) {
                     return (
                       <td className="py-0" key={`${key}-value-${i}`}>
                         {value}
