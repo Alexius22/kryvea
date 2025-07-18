@@ -1,11 +1,10 @@
 package api
 
 import (
-	"encoding/json"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -232,7 +231,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	// parse request body
 	pocsData := []pocData{}
 	pocsStr := c.FormValue("pocs")
-	err = json.Unmarshal([]byte(pocsStr), &pocsData)
+	err = sonic.Unmarshal([]byte(pocsStr), &pocsData)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{

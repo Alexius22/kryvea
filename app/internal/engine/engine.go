@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog"
 )
 
@@ -36,6 +37,9 @@ func (e *Engine) Serve() {
 		DisableStartupMessage: true,
 		// TODO: this is a temporary solution to allow large files
 		BodyLimit: 10000 * 1024 * 1024,
+
+		JSONEncoder: sonic.Marshal,
+		JSONDecoder: sonic.Unmarshal,
 	})
 
 	logger := zerolog.New(*e.levelWriter).With().

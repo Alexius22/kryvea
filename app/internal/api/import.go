@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/nessus"
 	pocpkg "github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -65,7 +65,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 
 	// parse request body
 	importData := &importRequestData{}
-	err = json.Unmarshal([]byte(c.FormValue("import_data")), &importData)
+	err = sonic.Unmarshal([]byte(c.FormValue("import_data")), &importData)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{

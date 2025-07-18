@@ -1,10 +1,9 @@
 package api
 
 import (
-	"encoding/json"
-
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -203,7 +202,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	}
 
 	var data []categoryRequestData
-	err = json.Unmarshal(dataBytes, &data)
+	err = sonic.Unmarshal(dataBytes, &data)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
