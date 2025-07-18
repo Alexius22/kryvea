@@ -1,5 +1,6 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
-import { isValidElement, useEffect, useMemo, useState } from "react";
+import { isValidElement, useCallback, useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
 import Card from "./CardBox/Card";
 import Flex from "./Composition/Flex";
 import Button from "./Form/Button";
@@ -28,6 +29,7 @@ export default function Table({
   const [filteredData, setFilteredData] = useState(data ?? []);
 
   const BUTTONS_KEY = useMemo(() => "buttons", []);
+  const getTableElementKey = useCallback((element: string) => `table-${element}-${v4()}`, []);
 
   useEffect(() => {
     setFilteredData(
@@ -133,13 +135,13 @@ export default function Table({
                       width: "1%",
                       whiteSpace: "nowrap",
                     }}
-                    key={`header-${key}`}
+                    key={getTableElementKey(`header-${key}`)}
                   />
                 ) : (
                   <th
                     className="cursor-pointer align-middle hover:opacity-60"
                     onClick={onHeaderClick(key)}
-                    key={`header-${key}`}
+                    key={getTableElementKey(`header-${key}`)}
                   >
                     {key}
                     <Icon
@@ -165,12 +167,12 @@ export default function Table({
             </tr>
           ) : (
             itemPaginated(filteredData).map((obj, i) => (
-              <tr key={`row-${i}`}>
+              <tr key={getTableElementKey(`row-${i}`)}>
                 {Object.entries<any>(obj).map(([key, value]) => {
                   // If this column should have max-width and ellipsis
                   if (maxWidthColumns[key]) {
                     return (
-                      <td key={`${key}-value-${i}`}>
+                      <td key={getTableElementKey(`${key}-value-${i}`)}>
                         <div
                           style={{
                             maxWidth: maxWidthColumns[key],
@@ -189,13 +191,13 @@ export default function Table({
                   // Default rendering
                   if (key === BUTTONS_KEY) {
                     return (
-                      <td className="py-0" key={`${key}-value-${i}`}>
+                      <td className="py-0" key={getTableElementKey(`${key}-cell-${i}`)}>
                         {value}
                       </td>
                     );
                   }
 
-                  return <td key={`${key}-value-${i}`}>{value}</td>;
+                  return <td key={getTableElementKey(`${key}-value-${i}`)}>{value}</td>;
                 })}
               </tr>
             ))
@@ -208,7 +210,7 @@ export default function Table({
             {pagesList.map(page => (
               <Button
                 variant={currentPage === page ? "" : "secondary"}
-                key={page}
+                key={getTableElementKey(page)}
                 small
                 text={page + 1}
                 disabled={page === currentPage}
