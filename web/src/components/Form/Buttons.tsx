@@ -6,12 +6,20 @@ type Props = {
   noWrap?: boolean;
   className?: string;
   label?: string;
+  containerClassname?: string;
   children;
 };
 
-export default function Buttons({ type = "justify-start", noWrap = false, children, className, label }: Props) {
+export default function Buttons({
+  type = "justify-start",
+  noWrap = false,
+  children,
+  className,
+  label,
+  containerClassname,
+}: Props) {
   return (
-    <Grid>
+    <Grid className={containerClassname}>
       {label && <Label text={label} />}
       <div className={`flex items-center gap-2 ${type} ${noWrap ? "flex-nowrap" : "flex-wrap"} ${className}`}>
         {children}
