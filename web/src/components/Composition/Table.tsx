@@ -132,8 +132,6 @@ export default function Table({
                         style={{
                           width: "1%",
                           whiteSpace: "nowrap",
-                          position: "sticky",
-                          right: 0,
                         }}
                         key={getTableElementKey(`header-${key}`)}
                       />
