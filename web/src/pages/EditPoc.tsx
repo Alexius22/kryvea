@@ -66,6 +66,7 @@ export default function EditPoc() {
       });
     };
   }
+
   async function onImageChange(currentIndex, image_file: File | null) {
     setPocList(prev => {
       const newPocList = [...prev];
@@ -121,6 +122,7 @@ export default function EditPoc() {
     };
     setPocList(onPositionChangeMode === "shift" ? shift : swap);
   };
+
   const onRemovePoc = (currentIndex: number) => () => {
     setPocList(prev => {
       const newPocList = [...prev];
