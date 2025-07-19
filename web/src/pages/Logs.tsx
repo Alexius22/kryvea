@@ -1,8 +1,8 @@
 import { mdiListBox } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { getData } from "../api/api";
+import Table from "../components/Composition/Table";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import Table from "../components/Table";
 import { getPageTitle } from "../config";
 
 export default function Logs() {
