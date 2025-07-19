@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext, useMemo } from "react";
+import React, { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useResolvedPath } from "react-router";
 import { GlobalContext } from "../App";
 
@@ -16,6 +16,29 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
     useCtxVulnerability: [ctxVulnerability],
     useCtxCategory: [ctxCategory],
   } = useContext(GlobalContext);
+
+  const breadcrumbUl = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!breadcrumbUl.current) {
+      return;
+    }
+
+    // When user scroll wheel on the UL it converts to horizontal scroll
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      breadcrumbUl.current.scrollLeft += event.deltaY;
+    };
+    breadcrumbUl.current.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      if (!breadcrumbUl.current) {
+        return;
+      }
+
+      breadcrumbUl.current.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   const IdNameTuples = useMemo(
     () => [
       [ctxCustomer?.id, ctxCustomer?.name],
@@ -34,39 +57,42 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
     .filter(path => path);
 
   return (
-    <div className="align-middle">
-      <ul className="flex gap-2">
-        <li className={"hover:underline"}>
-          <Link to={"/"}>{homeElement}</Link>
-        </li>
-        {pathNames.length > 0 && separator}
-        {pathNames.map((link, index) => {
-          // Replace underscores with spaces
-          const displayName = link.replace(/_/g, " ");
-          // Capitalize links if required
-          let itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
-          for (const [id, name] of IdNameTuples) {
-            if (link === id) {
-              itemLink = name;
-              break;
-            }
+    <ul ref={breadcrumbUl} className="flex gap-1 overflow-x-auto scroll-smooth">
+      <li className={"hover:underline"}>
+        <Link to={"/"}>{homeElement}</Link>
+      </li>
+      {pathNames.map((link, index) => {
+        // Replace underscores with spaces
+        const displayName = link.replace(/_/g, " ");
+        // Capitalize links if required
+        let itemLink = capitalizeLinks ? displayName.replace(/\b\w/g, char => char.toUpperCase()) : displayName;
+        for (const [id, name] of IdNameTuples) {
+          if (link === id) {
+            itemLink = name;
+            break;
           }
+        }
 
-          // Generate the href
-          const href = `/${pathNames.slice(0, index + 1).join("/")}`;
+        // Generate the href
+        const href = `/${pathNames.slice(0, index + 1).join("/")}`;
 
-          const isLast = pathNames.length === index + 1;
+        const isLast = pathNames.length === index + 1;
 
-          return (
-            <React.Fragment key={index}>
-              <li className={`${!isLast && "hover:underline"}`}>
-                {isLast ? <span className="hover:no-underline">{itemLink}</span> : <Link to={href}>{itemLink}</Link>}
-              </li>
-              {pathNames.length !== index + 1 && separator}
-            </React.Fragment>
-          );
-        })}
-      </ul>
-    </div>
+        return (
+          <React.Fragment key={`breadcrumb-path-${index}`}>
+            <li>
+              {separator}
+              {isLast ? (
+                <span className="hover:no-underline">{itemLink}</span>
+              ) : (
+                <Link className="hover:underline" to={href}>
+                  {itemLink}
+                </Link>
+              )}
+            </li>
+          </React.Fragment>
+        );
+      })}
+    </ul>
   );
 }

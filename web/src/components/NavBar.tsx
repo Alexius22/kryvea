@@ -34,8 +34,8 @@ export default function NavBar({ children }: Props) {
 
   return (
     <nav className="navbar">
-      <div>{children}</div>
-      <Buttons>
+      {children}
+      <Buttons containerClassname="sticky right-0 !bg-[color:--bg-primary]" noWrap>
         <Button
           onClick={() => navigate("/profile")}
           icon={mdiAccount}

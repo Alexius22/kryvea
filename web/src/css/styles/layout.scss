@@ -1,6 +1,7 @@
 .navbar {
-  @apply flex items-center justify-between px-2 py-4;
+  @apply flex items-center justify-between overflow-x-clip text-nowrap px-2 py-4;
   color: var(--text-primary);
+  height: 3rem;
 }
 
 .layout-root {
@@ -20,7 +21,7 @@
 }
 
 .layout-content {
-  @apply flex w-[calc(100%-300px)] flex-col overflow-auto;
+  @apply flex w-full flex-col overflow-auto;
 }
 
 .layout-main {
