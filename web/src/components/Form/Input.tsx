@@ -78,11 +78,14 @@ export default function Input({
             autoFocus={autoFocus}
             onChange={e => setNumberPreview(e.target.value)}
             onKeyDown={e => {
-              if (e.key !== "Enter") {
-                return;
+              switch (e.key) {
+                case "Escape":
+                  setNumberPreview(value);
+                  break;
+                case "Enter":
+                  e.currentTarget.blur();
+                  break;
               }
-
-              e.currentTarget.blur();
             }}
             onBlur={e => {
               let value = e.currentTarget.value;
