@@ -1,6 +1,7 @@
 import React, { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useResolvedPath } from "react-router";
 import { GlobalContext } from "../App";
+import { scrollElementHorizontally } from "../hooks/useEffectCurries";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
@@ -19,25 +20,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
 
   const breadcrumbUl = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    if (!breadcrumbUl.current) {
-      return;
-    }
-
-    // When user scroll wheel on the UL it converts to horizontal scroll
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      breadcrumbUl.current.scrollLeft += event.deltaY;
-    };
-    breadcrumbUl.current.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      if (!breadcrumbUl.current) {
-        return;
-      }
-
-      breadcrumbUl.current.removeEventListener("wheel", handleWheel);
-    };
-  }, []);
+  useEffect(scrollElementHorizontally(breadcrumbUl), []);
 
   const IdNameTuples = useMemo(
     () => [
