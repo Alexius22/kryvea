@@ -3,9 +3,9 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getData } from "../api/api";
 import { GlobalContext } from "../App";
+import Table from "../components/Composition/Table";
 import { formatDate } from "../components/dateUtils";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Assessment } from "../types/common.types";
 

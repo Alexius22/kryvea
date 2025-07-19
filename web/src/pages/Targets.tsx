@@ -5,11 +5,11 @@ import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Target } from "../types/common.types";
 

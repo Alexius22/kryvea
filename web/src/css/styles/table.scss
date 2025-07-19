@@ -11,10 +11,18 @@ table th {
 table tr {
   @apply border-b;
   border-color: var(--border-primary);
+
+  td[data-buttons-cell] {
+    box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 1);
+  }
 }
 
 table tbody tr:hover {
   backdrop-filter: brightness(0.9);
+
+  td[data-buttons-cell] {
+    filter: brightness(0.9);
+  }
 }
 
 table td {

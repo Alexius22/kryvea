@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import Table from "../components/Composition/Table";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import Table from "../components/Table";
 import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
 
