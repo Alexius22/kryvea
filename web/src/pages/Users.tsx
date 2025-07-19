@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import Subtitle from "../components/Composition/Subtitle";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -20,11 +21,13 @@ export default function Users() {
   const [role, setRole] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [userDisabled, setUserDisabled] = useState<string | null>(null);
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
 
   const [users, setUsers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   const [isModalResetPswActive, setIsModalResetPswActive] = useState(false);
+  const [isModalTempPswActive, setIsModalTempPswActive] = useState(false);
   const [isModalEditActive, setIsModalEditActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
@@ -101,9 +104,11 @@ export default function Users() {
   const handleResetPsw = () => {
     if (!activeUserId) return;
 
-    postData(`/api/admin/users/${activeUserId}/reset-password`, {}, () => {
-      toast.success(`User ${username} password resetted`);
+    postData<{ password: string }>(`/api/admin/users/${activeUserId}/reset-password`, {}, response => {
+      toast.success(`User ${username} password reset successfully`);
       setIsModalResetPswActive(false);
+      setTemporaryPassword(response.password);
+      setIsModalTempPswActive(true);
     });
   };
 
@@ -180,6 +185,47 @@ export default function Users() {
         <p>
           Are you sure you want to reset the password for user '<strong>{username}</strong>'?
         </p>
+      </Modal>
+
+      {/* Modal to display the temporary password */}
+      <Modal
+        title="Temporary Password"
+        buttonLabel="Close"
+        isActive={isModalTempPswActive}
+        onConfirm={() => {
+          setIsModalTempPswActive(false);
+          setTemporaryPassword(null);
+          setActiveUserId(null);
+        }}
+        className="gap-4"
+      >
+        <div className="grid gap-4 text-center">
+          <div className="grid gap-4">
+            <p>
+              The user <strong>{username}</strong> has a new temporary password:
+            </p>
+            <div className="group relative w-1/2 justify-self-center">
+              <pre
+                className="clickable cursor-pointer select-all rounded-md bg-[color:--bg-quaternary] p-3 font-mono"
+                onClick={() => {
+                  if (temporaryPassword) {
+                    navigator.clipboard.writeText(temporaryPassword);
+                    toast.success("Temporary password copied to clipboard");
+                  }
+                }}
+              >
+                {temporaryPassword}
+              </pre>
+              <Subtitle className="select-none text-[color:--text-secondary]" text="Click to copy" />
+            </div>
+          </div>
+
+          <p>
+            Please share this temporary password securely with the user.
+            <br />
+            Once you close this modal, the <strong>password will no longer be accessible</strong>.
+          </p>
+        </div>
       </Modal>
 
       {/* Delete Confirmation Modal */}
