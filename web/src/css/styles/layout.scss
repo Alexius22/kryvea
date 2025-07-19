@@ -6,7 +6,7 @@
 
 .layout-root {
   @apply flex h-screen gap-4 p-4 transition-all lg:w-auto;
-  max-width: 1920px;
+  max-width: var(--main-max-width);
   width: 100%;
   justify-self: center;
 

@@ -1,8 +1,12 @@
 // Variables for Light and Dark Themes
 @use "sass:color";
 
+$main-max-width: 1550px !default;
+
 // Light Theme
 :root {
+  --main-max-width: #{$main-max-width};
+
   /* Palette */
   $bg-primary: #c7c7c7;
   $text-primary: #121212;
