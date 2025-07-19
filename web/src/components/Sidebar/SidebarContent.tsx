@@ -32,7 +32,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
   const defaultMenu = [
     { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
     { href: "/customers", icon: mdiListBox, label: "Customers" },
-    ...(ctxCustomer
+    ...(ctxCustomer != null
       ? [
           {
             label: ctxCustomer.name,
