@@ -13,6 +13,7 @@
   "dependencies": {
     "@mdi/js": "^7.0.96",
     "@monaco-editor/react": "^4.7.0",
+    "@tailwindcss/container-queries": "^0.1.1",
     "axios": "^1.9.0",
     "chart.js": "^4.4.7",
     "codemirror": "^5.65.19",
