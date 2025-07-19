@@ -1,6 +1,10 @@
 .vuln-detail-req-res-body {
   @apply max-h-[calc(100vh-200px)] flex-1 overflow-x-auto rounded-md p-4;
   background-color: var(--bg-quaternary);
+
+  code {
+    letter-spacing: 0.025rem;
+  }
 }
 
 .vuln-detail-req-res-header {
