@@ -21,7 +21,9 @@ export default function Buttons({
   return (
     <Grid className={containerClassname}>
       {label && <Label text={label} />}
-      <div className={`flex items-center gap-2 ${type} ${noWrap ? "flex-nowrap" : "flex-wrap"} ${className}`}>
+      <div
+        className={`flex items-center gap-2 text-nowrap ${type} ${noWrap ? "flex-nowrap" : "flex-wrap"} ${className}`}
+      >
         {children}
       </div>
     </Grid>
