@@ -4,7 +4,12 @@ table thead {
 }
 
 table th {
-  @apply text-nowrap px-4 py-2 text-left font-semibold;
+  @apply text-nowrap border-none px-4 py-2 text-left;
+}
+
+table tbody {
+  border-top: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--border-primary);
 }
 
 /* Table body */
@@ -12,8 +17,8 @@ table tr {
   @apply border-b;
   border-color: var(--border-primary);
 
-  td[data-buttons-cell] {
-    box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 1);
+  &:last-child:not(:first-child) {
+    border-bottom: none;
   }
 }
 
