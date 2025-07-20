@@ -11,7 +11,7 @@ a:hover {
 }
 
 button {
-  @apply rounded border-none px-4 py-2;
+  @apply rounded border border-white/0 px-4 py-2;
   background-color: var(--button-bg);
 }
 button[disabled] {
@@ -83,6 +83,14 @@ textarea::placeholder {
   @apply rounded-3xl p-4;
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
+
+  .cardbox {
+    background-color: rgba(var(--bg-quaternary-rgb), 0.35);
+
+    .cardbox {
+      background-color: rgba(var(--bg-quaternary-rgb), 0.7);
+    }
+  }
 }
 
 .card-modal {
