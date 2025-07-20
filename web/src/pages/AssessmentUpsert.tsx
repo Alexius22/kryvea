@@ -112,6 +112,14 @@ export default function AssessmentUpsert() {
   }));
 
   const handleChange = (field: keyof typeof form, value: any) => {
+    if (
+      (field === "start_date_time" || field === "end_date_time") &&
+      typeof value === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ) {
+      const isoString = new Date(value).toISOString();
+      return setForm(f => ({ ...f, [field]: isoString }));
+    }
     setForm(f => ({ ...f, [field]: value }));
   };
 
@@ -153,7 +161,8 @@ export default function AssessmentUpsert() {
 
     const apiCall = isEdit ? patchData : postData;
 
-    apiCall(endpoint, payload, () => {
+    apiCall(endpoint, payload, data => {
+      toast.success((data as any)?.message);
       navigate(`/customers/${customerId}/assessments`);
     });
   };
@@ -204,12 +213,7 @@ export default function AssessmentUpsert() {
               onChange={handleTargetsChange}
               closeMenuOnSelect={false}
             />
-            <Button
-              className="h-[42px]"
-              icon={mdiPlus}
-              text="New Target"
-              onClick={() => navigate(`/customers/${customerId}/targets/new`)}
-            />
+            <Button icon={mdiPlus} text="New Target" onClick={() => navigate(`/customers/${customerId}/targets/new`)} />
           </Grid>
           <Grid>
             <Label text="CVSS Versions" />
