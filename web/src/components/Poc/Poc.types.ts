@@ -1,6 +1,10 @@
-import { POC_TYPE_IMAGE, POC_TYPE_REQUEST_RESPONSE, POC_TYPE_TEXT } from "./Poc.consts";
+import { POC_TYPE_IMAGE, POC_TYPE_REQUEST_RESPONSE, POC_TYPE_RICH_TEXT, POC_TYPE_TEXT } from "./Poc.consts";
 
-export type PocType = typeof POC_TYPE_TEXT | typeof POC_TYPE_IMAGE | typeof POC_TYPE_REQUEST_RESPONSE;
+export type PocType =
+  | typeof POC_TYPE_TEXT
+  | typeof POC_TYPE_IMAGE
+  | typeof POC_TYPE_REQUEST_RESPONSE
+  | typeof POC_TYPE_RICH_TEXT;
 
 type PocBaseDoc = {
   key: string;
@@ -32,4 +36,9 @@ export interface PocRequestResponseDoc extends PocBaseDoc {
   response: string;
 }
 
-export type PocDoc = PocTextDoc | PocImageDoc | PocRequestResponseDoc;
+export interface PocRichTextDoc extends PocBaseDoc {
+  type: typeof POC_TYPE_RICH_TEXT;
+  rich_text_data: string;
+}
+
+export type PocDoc = PocTextDoc | PocImageDoc | PocRequestResponseDoc | PocRichTextDoc;
