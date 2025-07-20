@@ -11,7 +11,54 @@ export default function MonacoCodeEditor({
 }) {
   const editorRef = useRef(null);
 
-  const handleEditorWillMount = (monaco: Monaco) => {
+  const handleBeforeMount = (monaco: Monaco) => {
+    monaco.languages.register({ id: "http" });
+
+    monaco.languages.setMonarchTokensProvider("http", {
+      tokenizer: {
+        root: [
+          // Request methods
+          [/^(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)\b/, "keyword"],
+
+          // URLs
+          [/https?:\/\/\S+/, "string"],
+
+          // Headers
+          [/^[\w-]+(?=:)/, "type.identifier"],
+
+          // JSON-like keys
+          [/"[^"]*"\s*:/, "attribute.name"],
+
+          // Strings
+          [/"[^"]*"/, "string"],
+
+          // Numbers
+          [/\b\d+(\.\d+)?\b/, "number"],
+
+          // Booleans and null
+          [/\b(true|false|null)\b/, "keyword"],
+
+          // Comments
+          [/^#.*$/, "comment"],
+
+          // Brackets
+          [/[{}[\]]/, "delimiter.bracket"],
+        ],
+      },
+    });
+
+    monaco.languages.setLanguageConfiguration("http", {
+      brackets: [
+        ["{", "}"],
+        ["[", "]"],
+      ],
+      autoClosingPairs: [
+        { open: "{", close: "}" },
+        { open: "[", close: "]" },
+        { open: '"', close: '"' },
+      ],
+    });
+
     const languages = monaco.languages.getLanguages();
     setLanguageOptions(
       languages.map(lang => ({
@@ -49,7 +96,7 @@ export default function MonacoCodeEditor({
       value={value}
       theme={theme}
       onChange={val => onChange(val || "")}
-      beforeMount={handleEditorWillMount}
+      beforeMount={handleBeforeMount}
       onMount={handleEditorMount}
       options={{
         scrollBeyondLastLine: false,
