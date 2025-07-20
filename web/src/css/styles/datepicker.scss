@@ -1,0 +1,56 @@
+.react-datepicker {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px var(--bg-secondary);
+}
+
+.react-datepicker__header {
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-primary);
+  font-weight: bold;
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name,
+.react-datepicker__current-month,
+.react-datepicker__time-name {
+  color: var(--text-primary);
+}
+
+.react-datepicker__day {
+  border-radius: 0.375rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  border: 1px solid var(--border-secondary);
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply clickable;
+  background-color: var(--button-bg);
+  color: var(--text-primary);
+  border-radius: 0.375rem;
+}
+
+.datepicker-input,
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__day--in-range {
+  @apply clickable;
+  color: var(--bg-primary);
+  background-color: var(--link);
+  border: 1px solid var(--border-secondary);
+}
+.react-datepicker__day--in-selecting-range[aria-disabled=false] {
+  color: var(--bg-primary);
+  background-color: var(--link-hover);
+}
+
+.react-datepicker__day[aria-disabled=false]:hover {
+  color: var(--bg-primary);
+  background-color: var(--link-hover);
+}
