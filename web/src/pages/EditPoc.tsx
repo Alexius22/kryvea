@@ -7,10 +7,16 @@ import { getData, putData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import { POC_TYPE_IMAGE, POC_TYPE_REQUEST_RESPONSE, POC_TYPE_TEXT } from "../components/Poc/Poc.consts";
+import {
+  POC_TYPE_IMAGE,
+  POC_TYPE_REQUEST_RESPONSE,
+  POC_TYPE_RICH_TEXT,
+  POC_TYPE_TEXT,
+} from "../components/Poc/Poc.consts";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
+import PocRichText from "../components/Poc/PocRichText";
 import PocText from "../components/Poc/PocText";
 import { getPageTitle } from "../config";
 
@@ -174,6 +180,18 @@ export default function EditPoc() {
           },
         ]);
         break;
+      case POC_TYPE_RICH_TEXT:
+        setPocList(prev => [
+          ...prev,
+          {
+            key,
+            type,
+            index: prev.length,
+            description: "",
+            rich_text_data: "",
+          },
+        ]);
+        break;
     }
     setGoToBottom(prev => !prev);
   };
@@ -225,6 +243,22 @@ export default function EditPoc() {
             key={pocDoc.key}
           />
         );
+      case POC_TYPE_RICH_TEXT:
+        return (
+          <PocRichText
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+              selectedPoc,
+              setSelectedPoc,
+            }}
+            key={pocDoc.key}
+          />
+        );
     }
   };
 
@@ -237,6 +271,7 @@ export default function EditPoc() {
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
             <Button text="Image" icon={mdiPlus} onClick={addPoc(POC_TYPE_IMAGE)} small />
             <Button text="Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_TEXT)} small />
+            <Button text="Rich Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_RICH_TEXT)} small />
             <Button
               className="ml-auto"
               text="Submit"
