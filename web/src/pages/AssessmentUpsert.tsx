@@ -4,11 +4,13 @@ import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
+import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -112,14 +114,6 @@ export default function AssessmentUpsert() {
   }));
 
   const handleChange = (field: keyof typeof form, value: any) => {
-    if (
-      (field === "start_date_time" || field === "end_date_time") &&
-      typeof value === "string" &&
-      /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ) {
-      const isoString = new Date(value).toISOString();
-      return setForm(f => ({ ...f, [field]: isoString }));
-    }
     setForm(f => ({ ...f, [field]: value }));
   };
 
@@ -172,36 +166,51 @@ export default function AssessmentUpsert() {
       <form onSubmit={handleSubmit}>
         <Grid>
           <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
-          <SelectWrapper
-            label="Assessment Type"
-            id="assessment_type"
-            options={ASSESSMENT_TYPE}
-            value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
-            closeMenuOnSelect
-            onChange={option => handleSelectChange("assessment_type", option)}
-          />
-          <Input
-            type="text"
-            label="Name"
-            id="name"
-            value={form.name}
-            onChange={e => handleChange("name", e.target.value)}
-            placeholder="Insert a name"
-          />
-          <Grid className="grid-cols-2 gap-4">
+          <Grid className="grid-cols-2 !items-start">
             <Input
-              type="date"
-              label="Activity period"
-              id="start_date_time"
-              value={form.start_date_time.slice(0, 10)}
-              onChange={e => handleChange("start_date_time", e.target.value)}
+              type="text"
+              label="Name"
+              id="name"
+              value={form.name}
+              onChange={e => handleChange("name", e.target.value)}
+              placeholder="Insert a name"
             />
-            <Input
-              type="date"
-              id="end_date_time"
-              value={form.end_date_time.slice(0, 10)}
-              onChange={e => handleChange("end_date_time", e.target.value)}
+            <SelectWrapper
+              label="Assessment Type"
+              id="assessment_type"
+              options={ASSESSMENT_TYPE}
+              value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
+              closeMenuOnSelect
+              onChange={option => handleSelectChange("assessment_type", option)}
             />
+            <DateCalendar
+              idStart="start_date_time"
+              idEnd="end_date_time"
+              label="Activity Period"
+              isRange={true}
+              value={{ start: form.start_date_time, end: form.end_date_time }}
+              onChange={val => {
+                const { start, end } = val as { start: string; end: string };
+                handleChange("start_date_time", start);
+                handleChange("end_date_time", end);
+              }}
+              placeholder={{ start: "Start date", end: "End date" }}
+            />
+            <Grid>
+              <Label text="CVSS Versions" />
+              <Flex className="gap-4">
+                {CVSS_VERSIONS.map(({ value, label }) => (
+                  <Checkbox
+                    key={value}
+                    id={`cvss_${value}`}
+                    htmlFor={`cvss_${value}`}
+                    label={label}
+                    checked={form.cvss_versions.includes(value)}
+                    onChange={() => toggleCvssVersion(value)}
+                  />
+                ))}
+              </Flex>
+            </Grid>
           </Grid>
           <Grid className="grid-cols-[1fr_auto]">
             <SelectWrapper
@@ -214,19 +223,6 @@ export default function AssessmentUpsert() {
               closeMenuOnSelect={false}
             />
             <Button icon={mdiPlus} text="New Target" onClick={() => navigate(`/customers/${customerId}/targets/new`)} />
-          </Grid>
-          <Grid>
-            <Label text="CVSS Versions" />
-            {CVSS_VERSIONS.map(({ value, label }) => (
-              <Checkbox
-                key={value}
-                id={`cvss_${value}`}
-                htmlFor={`cvss_${value}`}
-                label={label}
-                checked={form.cvss_versions.includes(value)}
-                onChange={() => toggleCvssVersion(value)}
-              />
-            ))}
           </Grid>
           <SelectWrapper
             label="Environment"
