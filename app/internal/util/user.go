@@ -26,8 +26,9 @@ const (
 	digits  = "0123456789"
 	special = "!@#$%^&*()-_=+[]{}|;:,.<>?/`~ "
 
-	KryveaSessionCookie = "kryvea"
-	KryveaShadowCookie  = "kryvea_shadow"
+	KryveaSessionCookie   = "kryvea"
+	KryveaShadowCookie    = "kryvea_shadow"
+	CookiePasswordExpired = "password_expired"
 )
 
 var (
@@ -110,7 +111,7 @@ func IsValidPassword(password string) bool {
 }
 
 func CanAccessCustomer(user *mongo.User, customer uuid.UUID) bool {
-	if user.Role == mongo.ROLE_ADMIN {
+	if user.Role == mongo.RoleAdmin {
 		return true
 	}
 
@@ -127,7 +128,7 @@ func IsValidRole(role string) bool {
 		return false
 	}
 
-	for _, r := range mongo.ROLES {
+	for _, r := range mongo.Roles {
 		if r == role {
 			return true
 		}
@@ -136,19 +137,26 @@ func IsValidRole(role string) bool {
 	return false
 }
 
-func SetSessionCookie(c *fiber.Ctx, token uuid.UUID, expires time.Time) {
+func SetSessionCookies(c *fiber.Ctx, token uuid.UUID, expires time.Time) {
+	SetKryveaCookie(c, token.String(), expires)
+	SetKryveaShadowCookie(c, "ok", expires)
+}
+
+func SetKryveaCookie(c *fiber.Ctx, value string, expires time.Time) {
 	c.Cookie(&fiber.Cookie{
 		Name:     KryveaSessionCookie,
-		Value:    token.String(),
+		Value:    value,
 		Secure:   true,
 		HTTPOnly: true,
 		SameSite: "Strict",
 		Expires:  expires,
 	})
+}
 
+func SetKryveaShadowCookie(c *fiber.Ctx, value string, expires time.Time) {
 	c.Cookie(&fiber.Cookie{
 		Name:     KryveaShadowCookie,
-		Value:    "ok",
+		Value:    value,
 		Secure:   true,
 		HTTPOnly: false,
 		SameSite: "Strict",

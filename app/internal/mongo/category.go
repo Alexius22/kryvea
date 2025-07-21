@@ -14,9 +14,9 @@ import (
 const (
 	categoryCollection = "category"
 
-	SOURCE_GENERIC = "generic"
-	SOURCE_NESSUS  = "nessus"
-	SOURCE_BURP    = "burp"
+	SourceGeneric = "generic"
+	SourceNessus  = "nessus"
+	SourceBurp    = "burp"
 )
 
 type Category struct {

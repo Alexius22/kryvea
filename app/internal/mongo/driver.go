@@ -76,12 +76,12 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 	d.logger.Debug().Msgf("Created admin user %s", adminUser)
 
 	err = d.User().Update(userID, &User{
-		Role: ROLE_ADMIN,
+		Role: RoleAdmin,
 	})
 	if err != nil {
 		return err
 	}
-	d.logger.Debug().Msgf("Updated %s role to %s", adminUser, ROLE_ADMIN)
+	d.logger.Debug().Msgf("Updated %s role to %s", adminUser, RoleAdmin)
 
 	return nil
 }

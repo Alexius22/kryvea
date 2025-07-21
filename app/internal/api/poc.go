@@ -258,7 +258,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
 		pocImageFilename := ""
-		if pocData.Type == poc.POC_TYPE_IMAGE && pocData.ImageReference != "" {
+		if pocData.Type == poc.PocTypeImage && pocData.ImageReference != "" {
 			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)

@@ -140,7 +140,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	for _, uc := range user.Customers {
 		customers = append(customers, uc.ID)
 	}
-	if user.Role == mongo.ROLE_ADMIN {
+	if user.Role == mongo.RoleAdmin {
 		customers = nil
 	}
 
@@ -528,16 +528,16 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 			if cvssVersionInt > cvssReportVersion {
 				switch version {
-				case cvss.CVSS4:
+				case cvss.Cvss4:
 					v.CVSSReport = v.CVSSv4
 					cvssReportVersion = cvssVersionInt
-				case cvss.CVSS31:
+				case cvss.Cvss31:
 					v.CVSSReport = v.CVSSv31
 					cvssReportVersion = cvssVersionInt
-				case cvss.CVSS3:
+				case cvss.Cvss3:
 					v.CVSSReport = v.CVSSv3
 					cvssReportVersion = cvssVersionInt
-				case cvss.CVSS2:
+				case cvss.Cvss2:
 					v.CVSSReport = v.CVSSv2
 					cvssReportVersion = cvssVersionInt
 				}
