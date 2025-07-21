@@ -82,7 +82,7 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	for _, uc := range user.Customers {
 		userCustomers = append(userCustomers, uc.ID)
 	}
-	if user.Role == mongo.ROLE_ADMIN {
+	if user.Role == mongo.RoleAdmin {
 		userCustomers = nil
 	}
 

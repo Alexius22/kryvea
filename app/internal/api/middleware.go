@@ -10,7 +10,7 @@ import (
 )
 
 func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
-	if (c.Path() == "/api/login" || c.Path() == "/api/password/reset") && c.Method() == fiber.MethodPost {
+	if c.Path() == "/api/login" && c.Method() == fiber.MethodPost {
 		return c.Next()
 	}
 
@@ -33,15 +33,27 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 		})
 	}
 
-	if time.Until(user.TokenExpiry) < mongo.TOKEN_REFRESH_THRESHOLD {
-		newToken, expires, err := d.mongo.User().RefreshUserToken(user)
+	if user.PasswordExpiry.Before(time.Now()) {
+		if c.Path() == "/api/password/reset" && c.Method() == fiber.MethodPost {
+			c.Locals("user", user)
+			return c.Next()
+		}
+
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Password expired",
+		})
+	}
+
+	if time.Until(user.TokenExpiry) < mongo.TokenRefreshThreshold {
+		err := d.mongo.User().RefreshUserToken(user)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
 				"error": "Failed to refresh session",
 			})
 		}
-		util.SetSessionCookie(c, newToken, expires)
+		util.SetSessionCookies(c, user.Token, user.TokenExpiry)
 	}
 
 	c.Locals("user", user)
@@ -52,7 +64,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 func (d *Driver) AdminMiddleware(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	if user.Role != mongo.ROLE_ADMIN {
+	if user.Role != mongo.RoleAdmin {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"error": "Unauthorized",
