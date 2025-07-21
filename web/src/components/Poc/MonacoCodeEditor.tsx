@@ -28,8 +28,35 @@ export default function MonacoCodeEditor({
           // Headers
           [/^[\w-]+(?=:)/, "type.identifier"],
 
-          // JSON-like keys
-          [/"[^"]*"\s*:/, "attribute.name"],
+          // JSON key:value pairs inside payloads
+          [/"(\w+)"\s*:/, "attribute.name"],
+
+          // JSON strings
+          [/"([^"\\]|\\.)*"/, "string"],
+
+          // JSON numbers
+          [/\b-?\d+(\.\d+)?([eE][+-]?\d+)?\b/, "number"],
+
+          // JSON booleans and null
+          [/\b(true|false|null)\b/, "keyword"],
+
+          // XML tags (start or end)
+          [/<\/?[\w-]+(\s+[\w-]+(\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*\s*\/?>/, "tag"],
+
+          // XML attribute names and values inside tags
+          [/(\w+)(=)(".*?"|'.*?')/, ["attribute.name", "delimiter", "string"]],
+
+          // URL encoded key=value pairs (application/x-www-form-urlencoded)
+          [/\b[\w%.-]+=[\w%.-]*\b/, "string"],
+
+          // Multipart boundaries (e.g. --boundary12345)
+          [/^--[\w-]+$/, "delimiter"],
+
+          // HTTP status line (response)
+          [/^(HTTP\/\d\.\d)\s+(\d{3})\s+([^\r\n]+)/, ["keyword", "number", "string"]],
+
+          // HTTP request line (already have methods, but matching full line)
+          [/^(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)\s+\S+\s+HTTP\/\d\.\d/, "keyword"],
 
           // Strings
           [/"[^"]*"/, "string"],
