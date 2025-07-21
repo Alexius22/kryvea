@@ -1,4 +1,5 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
 import { useRef } from "react";
 
 export default function MonacoCodeEditor({
@@ -7,7 +8,8 @@ export default function MonacoCodeEditor({
   language,
   height = "400px",
   theme = "vs-dark",
-  setLanguageOptions,
+  setLanguageOptions = x => {},
+  options = {} as monaco.editor.IStandaloneEditorConstructionOptions,
 }) {
   const editorRef = useRef(null);
 
@@ -111,6 +113,7 @@ export default function MonacoCodeEditor({
         minimap: { enabled: true, renderCharacters: true },
         tabSize: 2,
         "semanticHighlighting.enabled": false,
+        ...options,
       }}
     />
   );
