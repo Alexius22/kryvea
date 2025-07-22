@@ -8,7 +8,7 @@
 }
 
 .vuln-detail-req-res-header {
-  @apply mb-3 border-b pb-1 text-lg font-semibold;
+  @apply mb-3 flex gap-8 border-b pb-1 text-lg font-semibold;
   border-color: var(--border-primary);
 }
 

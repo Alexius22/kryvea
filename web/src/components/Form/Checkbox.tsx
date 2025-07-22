@@ -1,12 +1,13 @@
+import Label from "./Label";
+
 interface CheckboxProps {
   id: string;
   checked?;
   onChange?;
-  htmlFor;
   label: string;
 }
 
-export default function Checkbox({ id, checked, onChange, htmlFor, label }: CheckboxProps) {
+export default function Checkbox({ id, checked, onChange, label }: CheckboxProps) {
   return (
     <div className="inline-flex items-center gap-2">
       <input
@@ -16,9 +17,7 @@ export default function Checkbox({ id, checked, onChange, htmlFor, label }: Chec
         onChange={onChange}
         className="checkbox h-5 w-5 cursor-pointer"
       />
-      <label htmlFor={htmlFor} className="cursor-pointer text-sm">
-        {label}
-      </label>
+      <Label text={label} htmlFor={id} className="cursor-pointer text-sm" />
     </div>
   );
 }

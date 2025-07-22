@@ -19,6 +19,8 @@ export default function MonacoCodeEditor({
     monaco.languages.setMonarchTokensProvider("http", {
       tokenizer: {
         root: [
+          [/^HTTP\/\d\.\d \d{3} .*/, "keyword"],
+
           // Request methods
           [/^(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)\b/, "keyword"],
 
@@ -102,11 +104,13 @@ export default function MonacoCodeEditor({
 
     // Optional: log on selection change
     editor.onDidChangeCursorSelection(e => {
-      console.log("Cursor selection changed:", e);
       const selectedText = editor.getModel()?.getValueInRange(e.selection);
-      console.log("Text selected:\n", selectedText);
     });
 
+    editor
+      .getAction("editor.action.formatDocument")
+      .run()
+      .finally(() => console.log("Document formatted"));
     // Optional: detect actual drag
     // editor.onMouseDown(e => {
     //   const disposable = editor.onMouseUp(() => {
