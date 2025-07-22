@@ -37,7 +37,6 @@ export default function PocText({
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [startingLineNumber, setStartingLineNumber] = useState(1);
-  console.log("languages", languageOptions);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;

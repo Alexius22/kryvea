@@ -203,7 +203,6 @@ export default function AssessmentUpsert() {
                   <Checkbox
                     key={value}
                     id={`cvss_${value}`}
-                    htmlFor={`cvss_${value}`}
                     label={label}
                     checked={form.cvss_versions.includes(value)}
                     onChange={() => toggleCvssVersion(value)}
