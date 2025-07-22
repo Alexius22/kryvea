@@ -68,12 +68,7 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               value={password}
             />
-            <Checkbox
-              id={"remember_me"}
-              onChange={e => setRemember(e.target.checked)}
-              htmlFor={"remember_me"}
-              label={"Remember me"}
-            />
+            <Checkbox id={"remember_me"} onChange={e => setRemember(e.target.checked)} label={"Remember me"} />
             <Subtitle className="text-[color:--error]" text={error} />
             <Button text="Login" className="justify-center" formSubmit />
           </Grid>
