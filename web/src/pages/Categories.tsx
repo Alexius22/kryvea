@@ -135,7 +135,6 @@ export default function Categories() {
           />
           <Checkbox
             id="override_categories"
-            htmlFor="override_categories"
             label="Override existing categories"
             checked={overrideExisting}
             onChange={e => setOverrideExisting(e.target.checked)}
