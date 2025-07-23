@@ -90,11 +90,13 @@ export default function PocText({
           />
         </div>
         <Button
+          className="text-nowrap"
           variant="warning"
           text="Save text highlight"
           onClick={() => onSetCodeSelection(currentIndex, selectedText)}
         />
         <Button
+          className="text-nowrap"
           variant="danger"
           text="Clear text highlight"
           onClick={() => {
