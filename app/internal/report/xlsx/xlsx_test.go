@@ -53,7 +53,7 @@ func randAssessmentType() string {
 }
 
 func randCVSSVersion() string {
-	return cvss.CVSSVersions[rand.Intn(len(cvss.CVSSVersions))]
+	return cvss.CvssVersions[rand.Intn(len(cvss.CvssVersions))]
 }
 
 func randEnvironment() string {
@@ -73,7 +73,7 @@ func randOSSTMMVector() string {
 
 func randCVSSVector(version string) string {
 	switch version {
-	case cvss.CVSS2:
+	case cvss.Cvss2:
 		vectors := []string{
 			"AV:N/AC:L/Au:N/C:N/I:N/A:C",
 			"AV:N/AC:L/Au:N/C:P/I:N/A:C",
@@ -89,7 +89,7 @@ func randCVSSVector(version string) string {
 			"AV:N/AC:L/Au:N/C:N/I:P/A:N",
 		}
 		return vectors[rand.Intn(len(vectors))]
-	case cvss.CVSS3:
+	case cvss.Cvss3:
 		vectors := []string{
 			"CVSS:3.0/AV:A/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L",
 			"CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:H",
@@ -103,7 +103,7 @@ func randCVSSVector(version string) string {
 			"CVSS:3.0/AV:A/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
 		}
 		return vectors[rand.Intn(len(vectors))]
-	case cvss.CVSS31:
+	case cvss.Cvss31:
 		vectors := []string{
 			"CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L",
 			"CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:H",
@@ -117,7 +117,7 @@ func randCVSSVector(version string) string {
 			"CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
 		}
 		return vectors[rand.Intn(len(vectors))]
-	case cvss.CVSS4:
+	case cvss.Cvss4:
 		vectors := []string{
 			"CVSS:4.0/AV:A/AC:H/AT:P/PR:L/UI:P/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L",
 			"CVSS:4.0/AV:A/AC:H/AT:N/PR:L/UI:P/VC:H/VI:H/VA:L/SC:L/SI:L/SA:L",

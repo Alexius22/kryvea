@@ -9,10 +9,10 @@ import (
 
 func TestCanAccessCustomer(t *testing.T) {
 	adminUser := &mongo.User{
-		Role: mongo.ROLE_ADMIN,
+		Role: mongo.RoleAdmin,
 	}
 	regularUser := &mongo.User{
-		Role: mongo.ROLE_USER,
+		Role: mongo.RoleUser,
 		Customers: []mongo.Customer{
 			{Model: mongo.Model{ID: uuid.New()}},
 			{Model: mongo.Model{ID: uuid.New()}},
@@ -47,7 +47,7 @@ func TestIsValidRole(t *testing.T) {
 		role string
 		want bool
 	}{
-		{"Valid role", mongo.ROLE_ADMIN, true},
+		{"Valid role", mongo.RoleAdmin, true},
 		{"Invalid role", "invalid_role", false},
 	}
 

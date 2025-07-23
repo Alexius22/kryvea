@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	ErrPasswordExpired    = errors.New("password expired")
 	ErrDisabledUser       = errors.New("user is disabled")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 
@@ -23,16 +22,17 @@ var (
 const (
 	userCollection = "user"
 
-	ROLE_ADMIN = "admin"
-	ROLE_USER  = "user"
+	RoleAdmin = "admin"
+	RoleUser  = "user"
 
-	TOKEN_EXPIRE_TIME       = 9 * time.Hour
-	TOKEN_EXTEND_TIME       = 2 * time.Hour
-	TOKEN_REFRESH_THRESHOLD = 1 * time.Hour
+	TokenExpireTime         = 9 * time.Hour
+	TokenExpireTimePwdReset = 15 * time.Minute
+	TokenExtendTime         = 2 * time.Hour
+	TokenRefreshThreshold   = 1 * time.Hour
 )
 
 var (
-	ROLES = []string{ROLE_ADMIN, ROLE_USER}
+	Roles = []string{RoleAdmin, RoleUser}
 )
 
 var UserPipeline = mongo.Pipeline{
@@ -102,18 +102,16 @@ var UserPipeline = mongo.Pipeline{
 }
 
 type User struct {
-	Model            `bson:",inline"`
-	DisabledAt       time.Time        `json:"disabled_at" bson:"disabled_at"`
-	Username         string           `json:"username" bson:"username"`
-	Password         string           `json:"-" bson:"password"`
-	PasswordExpiry   time.Time        `json:"-" bson:"password_expiry"`
-	ResetToken       string           `json:"-" bson:"reset_token"`
-	ResetTokenExpiry time.Time        `json:"-" bson:"reset_token_expiry"`
-	Token            uuid.UUID        `json:"-" bson:"token"`
-	TokenExpiry      time.Time        `json:"-" bson:"token_expiry"`
-	Role             string           `json:"role" bson:"role"`
-	Customers        []Customer       `json:"customers" bson:"customers"`
-	Assessments      []UserAssessment `json:"assessments" bson:"assessments"`
+	Model          `bson:",inline"`
+	DisabledAt     time.Time        `json:"disabled_at" bson:"disabled_at"`
+	Username       string           `json:"username" bson:"username"`
+	Password       string           `json:"-" bson:"password"`
+	PasswordExpiry time.Time        `json:"-" bson:"password_expiry"`
+	Token          uuid.UUID        `json:"-" bson:"token"`
+	TokenExpiry    time.Time        `json:"-" bson:"token_expiry"`
+	Role           string           `json:"role" bson:"role"`
+	Customers      []Customer       `json:"customers" bson:"customers"`
+	Assessments    []UserAssessment `json:"assessments" bson:"assessments"`
 }
 
 type UserAssessment struct {
@@ -179,62 +177,61 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 	return user.ID, err
 }
 
-func (ui *UserIndex) Login(username, password string) (uuid.UUID, time.Time, error) {
+func (ui *UserIndex) Login(username, password string) (*User, error) {
 	var user User
 	err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
 	if err != nil {
-		return uuid.UUID{}, time.Time{}, err
+		return nil, err
 	}
 
 	if !crypto.Compare(password, user.Password) {
-		return uuid.UUID{}, time.Time{}, ErrInvalidCredentials
+		return nil, ErrInvalidCredentials
 	}
 
 	if user.DisabledAt.Before(time.Now()) {
-		return uuid.UUID{}, time.Time{}, ErrDisabledUser
+		return nil, ErrDisabledUser
 	}
 
-	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
-		return uuid.UUID{}, time.Time{}, ErrPasswordExpired
-	}
-
-	token, err := uuid.NewRandom()
+	user.Token, err = uuid.NewRandom()
 	if err != nil {
-		return uuid.UUID{}, time.Time{}, err
+		return nil, err
 	}
 
-	expires := time.Now().Add(TOKEN_EXPIRE_TIME)
+	user.TokenExpiry = time.Now().Add(TokenExpireTime)
+	if user.PasswordExpiry.Before(time.Now()) {
+		user.TokenExpiry = time.Now().Add(TokenExpireTimePwdReset)
+	}
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
 		"$set": bson.M{
-			"token":        token,
-			"token_expiry": expires,
+			"token":        user.Token,
+			"token_expiry": user.TokenExpiry,
 		}})
 	if err != nil {
-		return uuid.UUID{}, time.Time{}, err
+		return nil, err
 	}
 
-	return token, expires, nil
+	return &user, nil
 }
 
-func (ui *UserIndex) RefreshUserToken(user *User) (uuid.UUID, time.Time, error) {
-	expires := user.TokenExpiry.Add(TOKEN_EXTEND_TIME)
+func (ui *UserIndex) RefreshUserToken(user *User) error {
+	user.TokenExpiry = user.TokenExpiry.Add(TokenExtendTime)
 
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			"token_expiry": expires,
+			"token_expiry": user.TokenExpiry,
 		}})
 	if err != nil {
-		return uuid.UUID{}, time.Time{}, err
+		return err
 	}
 
-	return user.Token, expires, nil
+	return nil
 }
 
 func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
-			"token":        "",
+			"token":        uuid.Nil,
 			"token_expiry": time.Time{},
 		}})
 	return err
@@ -371,49 +368,47 @@ func (ui *UserIndex) Delete(ID uuid.UUID) error {
 	return err
 }
 
-func (ui *UserIndex) ForgotPassword(username string) (uuid.UUID, error) {
-	user, err := ui.GetByUsername(username)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	token, err := uuid.NewRandom()
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	expires := time.Now().Add(30 * time.Minute)
-
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
-		"$set": bson.M{
-			"reset_token":        token,
-			"reset_token_expiry": expires,
-		}})
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	return token, nil
-}
-
-func (ui *UserIndex) ResetPassword(reset_token, password string) error {
-	var user User
-	err := ui.collection.FindOne(context.Background(), bson.M{"reset_token": reset_token}).Decode(&user)
+func (ui *UserIndex) ResetUserPassword(userID uuid.UUID, newPassword string) error {
+	hash, err := crypto.Encrypt(newPassword)
 	if err != nil {
 		return err
 	}
 
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
+		"$set": bson.M{
+			"updated_at":      time.Now(),
+			"password":        hash,
+			"password_expiry": time.Now(),
+		}})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ui *UserIndex) ResetPassword(user *User, password string) error {
 	hash, err := crypto.Encrypt(password)
 	if err != nil {
 		return err
 	}
 
+	user.UpdatedAt = time.Now()
+	user.PasswordExpiry = TimeNever
+
+	user.Token, err = uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	user.TokenExpiry = time.Now().Add(TokenExpireTime)
+
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			"password":           hash,
-			"password_expiry":    TimeNever,
-			"reset_token":        "",
-			"reset_token_expiry": time.Time{},
+			"updated_at":      user.UpdatedAt,
+			"password":        hash,
+			"password_expiry": user.PasswordExpiry,
+			"token":           user.Token,
+			"token_expiry":    user.TokenExpiry,
 		}})
 	return err
 }
