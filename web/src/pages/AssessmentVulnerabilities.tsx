@@ -11,7 +11,6 @@ import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
-import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
@@ -185,8 +184,8 @@ export default function AssessmentVulnerabilities() {
         }}
         onCancel={() => setIsModalUploadActive(false)}
       >
-        <Label text={"Choose bulk file"} />
         <UploadFile
+          label="Choose bulk file"
           inputId={"file"}
           filename={fileObj?.name}
           name={"imagePoc"}

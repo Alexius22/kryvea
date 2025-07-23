@@ -5,25 +5,27 @@ import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
 
 interface MonacoCodeEditorProps {
-  defaultValue?: string;
-  onChange?: (value: string) => void;
   language?: string;
-  height?: string;
+  label?: string;
+  value?: string;
   theme?: string;
+  startingLineNumber?: number;
+  height?: string;
+  stopLineNumberAt?: number;
+  options?: monaco.editor.IStandaloneEditorConstructionOptions;
+  onChange?: (value: string) => void;
   setLanguageOptions?;
   onTextSelection?;
-  startingLineNumber?: number;
-  label?: string;
-  options?: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
 export default function MonacoCodeEditor({
   language,
   label = "",
-  defaultValue,
+  value,
   theme = "vs-dark",
   startingLineNumber = 0,
   height = "400px",
+  stopLineNumberAt,
   options,
   onChange = () => {},
   setLanguageOptions = () => {},
@@ -59,6 +61,11 @@ export default function MonacoCodeEditor({
 
           // JSON booleans and null
           [/\b(true|false|null)\b/, "keyword"],
+
+          [
+            /(<\?)(xml)(\s+version\s*=\s*)("\d\.\d")(\s*\?>)/,
+            ["metatag", "metatag", "attribute.name", "string", "metatag"],
+          ],
 
           // XML tags (start or end)
           [/<\/?[\w-]+(\s+[\w-]+(\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*\s*\/?>/, "tag"],
@@ -138,13 +145,13 @@ export default function MonacoCodeEditor({
         <Editor
           height={height}
           language={language}
-          defaultValue={defaultValue}
+          value={value}
           theme={theme}
           onChange={val => onChange(val || "")}
           beforeMount={handleBeforeMount}
           onMount={handleEditorMount}
           options={{
-            lineNumbers: i => `${i + startingLineNumber}`,
+            lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i + startingLineNumber}`),
             lineNumbersMinChars: 2,
             lineDecorationsWidth: 0,
             glyphMargin: false,

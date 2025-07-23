@@ -65,14 +65,14 @@ export default function PocRequestResponse({
         <MonacoCodeEditor
           language="http"
           label="Request"
-          defaultValue={pocDoc.request}
+          value={pocDoc.request}
           onChange={value => onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value } } as any)}
         />
 
         <MonacoCodeEditor
           language="http"
           label="Response"
-          defaultValue={pocDoc.response}
+          value={pocDoc.response}
           onChange={value =>
             onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value } } as any)
           }

@@ -3,7 +3,7 @@ import Button from "./Button";
 import Label from "./Label";
 
 type UploadFileProps = {
-  label;
+  label?: string;
   inputId;
   filename;
   inputRef?;
