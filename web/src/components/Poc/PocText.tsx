@@ -94,6 +94,14 @@ export default function PocText({
           text="Save text highlight"
           onClick={() => onSetCodeSelection(currentIndex, selectedText)}
         />
+        <Button
+          variant="danger"
+          text="Clear text highlight"
+          onClick={() => {
+            setSelectedText(undefined);
+            onSetCodeSelection(currentIndex, undefined);
+          }}
+        />
       </Flex>
 
       <div className="col-span-4 grid w-full max-w-full">
