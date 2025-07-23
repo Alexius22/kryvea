@@ -1,4 +1,4 @@
-import { mdiPencil } from "@mdi/js";
+import { mdiBroom, mdiFloppy, mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useState } from "react";
 import Flex from "../Composition/Flex";
@@ -100,15 +100,19 @@ export default function PocText({
               onChange={e => setStartingLineNumber(e - 1)}
               id={startingLineNumberId}
             />
-            <Buttons>
+            <Buttons containerClassname="flex-grow" className="justify-between">
               <Button
                 variant="warning"
-                text="Save text highlight"
+                title="Save text highlight"
+                icon={mdiFloppy}
+                iconSize={24}
                 onClick={() => onSetCodeSelection(currentIndex, selectedText)}
               />
               <Button
                 variant="danger"
-                text="Clear text highlight"
+                title="Clear text highlight"
+                icon={mdiBroom}
+                iconSize={24}
                 onClick={() => {
                   setSelectedText(undefined);
                   onSetCodeSelection(currentIndex, undefined);
@@ -118,7 +122,7 @@ export default function PocText({
           </Flex>
 
           <MonacoCodeEditor
-            defaultValue={pocDoc.text_data}
+            value={pocDoc.text_data}
             startingLineNumber={startingLineNumber}
             onTextSelection={setSelectedText}
             language={selectedLanguage}

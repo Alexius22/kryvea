@@ -11,7 +11,6 @@ import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
-import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
@@ -251,8 +250,8 @@ export default function CustomerDetail() {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <Label text={"Upload a new template file"} />
             <UploadFile
+              label="Upload a new template file"
               inputId={"template_file"}
               filename={fileObj?.name}
               name={"template_file"}
