@@ -1,17 +1,34 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import { useRef } from "react";
+import Grid from "../Composition/Grid";
+import Label from "../Form/Label";
+
+interface MonacoCodeEditorProps {
+  defaultValue?: string;
+  onChange?: (value: string) => void;
+  language?: string;
+  height?: string;
+  theme?: string;
+  setLanguageOptions?;
+  onTextSelection?;
+  startingLineNumber?: number;
+  label?: string;
+  options?: monaco.editor.IStandaloneEditorConstructionOptions;
+}
 
 export default function MonacoCodeEditor({
-  value = "",
-  onChange = x => {},
   language,
-  height = "400px",
+  label = "",
+  defaultValue,
   theme = "vs-dark",
-  setLanguageOptions = x => {},
-  onTextSelection = x => {},
-  options = {} as monaco.editor.IStandaloneEditorConstructionOptions,
-}) {
+  startingLineNumber = 0,
+  height = "400px",
+  options,
+  onChange = () => {},
+  setLanguageOptions = () => {},
+  onTextSelection = () => {},
+}: MonacoCodeEditorProps) {
   const editorRef = useRef(null);
 
   const handleBeforeMount = (monaco: Monaco) => {
@@ -112,42 +129,41 @@ export default function MonacoCodeEditor({
       });
       const selectedText = editor.getModel()?.getValueInRange(e.selection);
     });
-
-    // Optional: detect actual drag
-    // editor.onMouseDown(e => {
-    //   const disposable = editor.onMouseUp(() => {
-    //     const selection = editor.getSelection();
-    //     const selectedText = editor.getModel()?.getValueInRange(selection);
-    //     console.log("Mouse drag selected text:", selectedText);
-    //     disposable.dispose(); // Remove the one-time listener
-    //   });
-    // });
   };
 
   return (
-    <Editor
-      height={height}
-      language={language}
-      value={value}
-      theme={theme}
-      onChange={val => onChange(val || "")}
-      beforeMount={handleBeforeMount}
-      onMount={handleEditorMount}
-      options={{
-        scrollBeyondLastLine: false,
-        selectOnLineNumbers: true,
-        roundedSelection: true,
-        readOnly: false,
-        cursorStyle: "line",
-        automaticLayout: true,
-        wordWrap: "on",
-        formatOnType: true,
-        formatOnPaste: true,
-        minimap: { enabled: true, renderCharacters: true },
-        tabSize: 2,
-        "semanticHighlighting.enabled": false,
-        ...options,
-      }}
-    />
+    <Grid>
+      {label && <Label text={label} />}
+      <div className="w-full max-w-full overflow-auto border border-[color:--border-primary]" style={{ width: "100%" }}>
+        <Editor
+          height={height}
+          language={language}
+          defaultValue={defaultValue}
+          theme={theme}
+          onChange={val => onChange(val || "")}
+          beforeMount={handleBeforeMount}
+          onMount={handleEditorMount}
+          options={{
+            lineNumbers: i => `${i + startingLineNumber}`,
+            lineNumbersMinChars: 2,
+            lineDecorationsWidth: 0,
+            glyphMargin: false,
+            scrollBeyondLastLine: false,
+            selectOnLineNumbers: true,
+            roundedSelection: true,
+            readOnly: false,
+            cursorStyle: "line",
+            automaticLayout: true,
+            wordWrap: "on",
+            formatOnType: true,
+            formatOnPaste: true,
+            minimap: { enabled: true, renderCharacters: true },
+            tabSize: 2,
+            "semanticHighlighting.enabled": false,
+            ...options,
+          }}
+        />
+      </div>
+    </Grid>
   );
 }

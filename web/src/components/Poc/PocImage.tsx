@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { uuidZero } from "../../types/common.types";
 import Grid from "../Composition/Grid";
+import Input from "../Form/Input";
 import Textarea from "../Form/Textarea";
 import UploadFile from "../Form/UploadFile";
 import { POC_TYPE_IMAGE } from "./Poc.consts";
@@ -139,7 +140,8 @@ export default function PocImage({
     onImageChange(currentIndex, image_file);
   };
 
-  const clearImage = () => {
+  const clearImage = e => {
+    e.preventDefault();
     imageInput.current.value = "";
     setFilename("");
     setImageUrl(undefined);
@@ -165,25 +167,16 @@ export default function PocImage({
         title: "Image",
       }}
     >
-      <div className="poc-image col-span-8 grid">
-        <label htmlFor={descriptionTextareaId}>Description</label>
-        <Textarea
-          value={pocDoc.description}
-          id={descriptionTextareaId}
-          onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
-        />
-      </div>
+      <Textarea
+        label="Description"
+        value={pocDoc.description}
+        id={descriptionTextareaId}
+        onChange={onTextChange<PocImageDoc>(currentIndex, "description")}
+      />
 
       <Grid>
-        <label
-          htmlFor={imageInputId}
-          onClick={e => {
-            e.preventDefault();
-          }}
-        >
-          Choose Image
-        </label>
         <UploadFile
+          label="Choose Image"
           inputId={imageInputId}
           filename={filename}
           inputRef={imageInput}
@@ -195,14 +188,13 @@ export default function PocImage({
         {imageUrl && <img src={imageUrl} alt="Selected image preview" className="max-h-[550px] w-fit object-contain" />}
       </Grid>
 
-      <div className="grid">
-        <label htmlFor={captionTextareaId}>Caption</label>
-        <input
-          value={pocDoc.image_caption}
-          id={captionTextareaId}
-          onChange={onTextChange<PocImageDoc>(currentIndex, "image_caption")}
-        />
-      </div>
+      <Input
+        type="text"
+        label="Caption"
+        value={pocDoc.image_caption}
+        id={captionTextareaId}
+        onChange={onTextChange<PocImageDoc>(currentIndex, "image_caption")}
+      />
     </PocTemplate>
   );
 }

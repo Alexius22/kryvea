@@ -35,7 +35,7 @@
 }
 
 .poc-template {
-  @apply cardbox relative flex flex-col border p-6;
+  @apply cardbox relative flex flex-col gap-4 border p-6;
   border-color: var(--border-primary);
   background-color: var(--bg-tertiary);
 

@@ -1,6 +1,8 @@
 import { mdiDelete } from "@mdi/js";
 import { useRef } from "react";
+import Flex from "../Composition/Flex";
 import Button from "../Form/Button";
+import Buttons from "../Form/Buttons";
 import Input from "../Form/Input";
 import Icon from "../Icon";
 
@@ -62,55 +64,48 @@ export default function PocTemplate({
         <br />
         Drop image here
       </div>
-      <div className="mb-4 flex items-center gap-4">
-        <h1 className="flex items-center gap-2 rounded px-2 text-xl uppercase">
+      <Flex className="gap-4" items="center">
+        <h1 className="flex items-center gap-2 rounded text-xl uppercase">
           <Icon path={icon} size={25} />
           {title}
         </h1>
         <Button variant="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
-      </div>
-      <div className="flex flex-col gap-3">
+      </Flex>
+      <Flex col className="gap-2">
         <div className="poc-template-children-sibling flex gap-6">
-          <div className="col-span-1 col-start-12 grid">
-            <label htmlFor={positionInputId}>Index</label>
-            <Input
-              type="number"
-              className="input h-8 w-[55px] rounded text-center"
-              id={positionInputId}
-              value={currentIndex + 1}
-              min={1}
-              max={pocList.length}
-              onChange={e => onPositionChange(currentIndex)(e - 1)}
-            />
-          </div>
+          <Input
+            label="Index"
+            type="number"
+            className="input h-8 w-[55px] rounded text-center"
+            id={positionInputId}
+            value={currentIndex + 1}
+            min={1}
+            max={pocList.length}
+            onChange={e => onPositionChange(currentIndex)(e - 1)}
+          />
 
-          <div>
-            <div>
-              <span>&nbsp;</span>
-              <div className="flex h-full gap-2">
-                <Button
-                  text="Move Up"
-                  small
-                  className="h-8"
-                  disabled={currentIndex === 0}
-                  onClick={() => onPositionChange(currentIndex)(currentIndex <= 0 ? 0 : currentIndex - 1)}
-                />
-                <Button
-                  text="Move Down"
-                  small
-                  disabled={currentIndex === pocList.length - 1}
-                  onClick={() =>
-                    onPositionChange(currentIndex)(
-                      currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1
-                    )
-                  }
-                />
-              </div>
-            </div>
-          </div>
+          <Buttons>
+            <Button
+              text="Move Up"
+              small
+              className="h-8"
+              disabled={currentIndex === 0}
+              onClick={() => onPositionChange(currentIndex)(currentIndex <= 0 ? 0 : currentIndex - 1)}
+            />
+            <Button
+              text="Move Down"
+              small
+              disabled={currentIndex === pocList.length - 1}
+              onClick={() =>
+                onPositionChange(currentIndex)(
+                  currentIndex >= pocList.length - 1 ? pocList.length - 1 : currentIndex + 1
+                )
+              }
+            />
+          </Buttons>
         </div>
         {children}
-      </div>
+      </Flex>
     </div>
   );
 }
