@@ -82,13 +82,14 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	for _, uc := range user.Customers {
 		userCustomers = append(userCustomers, uc.ID)
 	}
-	if user.Role == mongo.ROLE_ADMIN {
+	if user.Role == mongo.RoleAdmin {
 		userCustomers = nil
 	}
 
 	// get customers from database
 	customers, err := d.mongo.Customer().GetAll(userCustomers)
 	if err != nil {
+		d.logger.Error().Err(err).Msg("Cannot get customers")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot get customers",
@@ -133,6 +134,7 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		Language: data.Language,
 	})
 	if err != nil {
+		d.logger.Error().Err(err).Msg("Cannot update customer")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot update customer",
@@ -157,6 +159,7 @@ func (d *Driver) DeleteCustomer(c *fiber.Ctx) error {
 
 	err := d.mongo.Customer().Delete(customer.ID)
 	if err != nil {
+		d.logger.Error().Err(err).Msg("Cannot delete customer")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot delete customer",

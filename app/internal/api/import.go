@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/nessus"
 	pocpkg "github.com/Alexius22/kryvea/internal/poc"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -65,7 +65,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 
 	// parse request body
 	importData := &importRequestData{}
-	err = json.Unmarshal([]byte(c.FormValue("import_data")), &importData)
+	err = sonic.Unmarshal([]byte(c.FormValue("import_data")), &importData)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -90,9 +90,9 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 
 	var parseErr error
 	switch importData.Source {
-	case mongo.SOURCE_BURP:
+	case mongo.SourceBurp:
 		parseErr = d.ParseBurp(data, *customer, *assessment, user.ID)
-	case mongo.SOURCE_NESSUS:
+	case mongo.SourceNessus:
 		parseErr = d.ParseNessus(data, *customer, *assessment, user.ID)
 	default:
 		c.Status(fiber.StatusBadRequest)
@@ -166,7 +166,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			GenericDescription: map[string]string{"en": issue.IssueBackground},
 			GenericRemediation: map[string]string{"en": issue.RemediationBackground},
 			References:         []string{},
-			Source:             mongo.SOURCE_BURP,
+			Source:             mongo.SourceBurp,
 		}
 		categoryID, isNew, err := d.mongo.Category().FirstOrInsert(category)
 		if err != nil {
@@ -230,7 +230,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 
 			poc.Pocs = append(poc.Pocs, mongo.PocItem{
 				Index:    i,
-				Type:     pocpkg.POC_TYPE_REQUEST,
+				Type:     pocpkg.PocTypeRequest,
 				Request:  string(request),
 				Response: string(response),
 			})
@@ -256,7 +256,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 
 			poc.Pocs = append(poc.Pocs, mongo.PocItem{
 				Index: i,
-				Type:  pocpkg.POC_TYPE_TEXT,
+				Type:  pocpkg.PocTypeText,
 				TextData: fmt.Sprintf(`Interaction Type: %s
 Origin IP: %s
 Time: %s
@@ -277,7 +277,7 @@ Lookup Host: %s`,
 		for _, infiltratorEvent := range issue.InfiltratorEvents {
 			poc.Pocs = append(poc.Pocs, mongo.PocItem{
 				Index: i,
-				Type:  pocpkg.POC_TYPE_TEXT,
+				Type:  pocpkg.PocTypeText,
 				TextData: fmt.Sprintf(`Parameter Name: %s
 Platform: %s
 Signature: %s
@@ -394,7 +394,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 					"en": item.Solution,
 				},
 				References: []string{},
-				Source:     mongo.SOURCE_NESSUS,
+				Source:     mongo.SourceNessus,
 			}
 
 			categoryID, isNew, err := d.mongo.Category().FirstOrInsert(category)
@@ -434,25 +434,25 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if len(vectorParts) > 1 {
 					vector = vectorParts[1]
 				}
-				cvssScore, cvssSeverity, err := cvss.ParseVector(vector, cvss.CVSS2)
+				cvssScore, cvssSeverity, err := cvss.ParseVector(vector, cvss.Cvss2)
 				if err != nil {
 					return err
 				}
 				vulnerability.CVSSv2.CVSSVector = vector
 				vulnerability.CVSSv2.CVSSScore = cvssScore
 				vulnerability.CVSSv2.CVSSSeverity = cvssSeverity
-				vulnerability.CVSSv2.CVSSDescription = cvss.GenerateDescription(vector, cvss.CVSS2, customer.Language)
+				vulnerability.CVSSv2.CVSSDescription = cvss.GenerateDescription(vector, cvss.Cvss2, customer.Language)
 			}
 
 			if item.Cvss3Vector != "" {
-				cvssScore, cvssSeverity, err := cvss.ParseVector(item.Cvss3Vector, cvss.CVSS3)
+				cvssScore, cvssSeverity, err := cvss.ParseVector(item.Cvss3Vector, cvss.Cvss3)
 				if err != nil {
 					return err
 				}
 				vulnerability.CVSSv3.CVSSVector = item.Cvss3Vector
 				vulnerability.CVSSv3.CVSSScore = cvssScore
 				vulnerability.CVSSv3.CVSSSeverity = cvssSeverity
-				vulnerability.CVSSv3.CVSSDescription = cvss.GenerateDescription(item.Cvss3Vector, cvss.CVSS3, customer.Language)
+				vulnerability.CVSSv3.CVSSDescription = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
 			}
 
 			vulnerabilityID, err := d.mongo.Vulnerability().Insert(vulnerability)

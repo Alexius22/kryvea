@@ -114,28 +114,12 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	}
 
 	// get session token from database
-	token, expires, err := d.mongo.User().Login(data.Username, data.Password)
+	user, err := d.mongo.User().Login(data.Username, data.Password)
 	if err != nil {
 		if err == mongo.ErrDisabledUser {
 			c.Status(fiber.StatusUnauthorized)
 			return c.JSON(fiber.Map{
 				"error": "User is disabled",
-			})
-		}
-
-		if err == mongo.ErrPasswordExpired {
-			resetToken, err := d.mongo.User().ForgotPassword(data.Username)
-			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
-				return c.JSON(fiber.Map{
-					"error": "Password expired, cannot generate reset token",
-				})
-			}
-
-			c.Status(fiber.StatusUnauthorized)
-			return c.JSON(fiber.Map{
-				"error":       "Password expired",
-				"reset_token": resetToken,
 			})
 		}
 
@@ -145,7 +129,17 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	util.SetSessionCookie(c, token, expires)
+	if user.PasswordExpiry.Before(time.Now()) {
+		util.SetKryveaCookie(c, user.Token.String(), user.TokenExpiry)
+		util.SetKryveaShadowCookie(c, util.CookiePasswordExpired, user.TokenExpiry)
+
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Password expired",
+		})
+	}
+
+	util.SetSessionCookies(c, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -441,11 +435,45 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) ResetUserPassword(c *fiber.Ctx) error {
+	// parse user param
+	user, errStr := d.userFromParam(c.Params("user"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	newPassword, err := util.GenerateRandomPassword(10)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot generate new password",
+		})
+	}
+
+	err = d.mongo.User().ResetUserPassword(user.ID, newPassword)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Password expired, cannot generate reset token",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message":  "Password reset successfully",
+		"password": newPassword,
+	})
+}
+
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	// parse request body
 	type reqData struct {
-		ResetToken string `json:"reset_token"`
-		Password   string `json:"password"`
+		Password string `json:"password"`
 	}
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
@@ -456,10 +484,10 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.ResetToken == "" {
+	if data.Password == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Reset token is required",
+			"error": "Password is required",
 		})
 	}
 
@@ -471,13 +499,15 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// reset password in database
-	err := d.mongo.User().ResetPassword(data.ResetToken, data.Password)
+	err := d.mongo.User().ResetPassword(user, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot reset password",
 		})
 	}
+
+	util.SetSessionCookies(c, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{

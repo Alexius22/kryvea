@@ -92,7 +92,7 @@ const (
 )
 
 var cvssMap = map[string]map[string]map[string]string{
-	CVSS31: {
+	Cvss31: {
 		language.Italian.String(): {
 			AV_N: "Network",
 			AV_A: "Adiacente alla rete",
@@ -142,7 +142,7 @@ var cvssMap = map[string]map[string]map[string]string{
 			A_N:  "no impact",
 		},
 	},
-	CVSS4: {
+	Cvss4: {
 		language.Italian.String(): {
 			AV_N: "Network",
 			AV_A: "Adiacente",
@@ -215,19 +215,19 @@ var cvssMap = map[string]map[string]map[string]string{
 }
 
 var descriptions = map[string]map[string]string{
-	CVSS31: {
+	Cvss31: {
 		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
 		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
 	},
-	CVSS4: {
+	Cvss4: {
 		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s %s. Gli attacchi %s. L'impatto risultante è %s sulla confidenzialità, %s sull'integrità, %s sulla disponibilità. Impatto successivo: %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità.",
 		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks with %s requirements. The attacks %s. The resulting impact is %s on confidentiality, %s on integrity, %s on availability. Subsequent impact: %s on confidentiality, %s on integrity, and %s on availability.",
 	},
 }
 
 func GenerateDescription(vector, version, lang string) string {
-	if version == CVSS3 {
-		version = CVSS31
+	if version == Cvss3 {
+		version = Cvss31
 	}
 
 	if _, exists := cvssMap[version][lang]; !exists {
@@ -244,12 +244,12 @@ func GenerateDescription(vector, version, lang string) string {
 	}
 
 	switch version {
-	case CVSS31:
+	case Cvss31:
 		return fmt.Sprintf(
 			descriptions[version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[C], vector_map[I], vector_map[A], vector_map[UI], vector_map[S],
 		)
-	case CVSS4:
+	case Cvss4:
 		return fmt.Sprintf(
 			descriptions[version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[AT], vector_map[UI], vector_map[VC], vector_map[VI], vector_map[VA], vector_map[SC], vector_map[SI], vector_map[SA],

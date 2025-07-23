@@ -33,31 +33,31 @@ func ParseVector(vector string, version string) (float64, string, error) {
 
 func calculateScore(vector string, version string) (float64, error) {
 	switch version {
-	case CVSS2:
+	case Cvss2:
 		cvss, err := gocvss20.ParseVector(vector)
 		if err != nil {
 			return 0, err
 		}
 		return cvss.EnvironmentalScore(), nil
-	case CVSS3:
+	case Cvss3:
 		cvss, err := gocvss30.ParseVector(vector)
 		if err != nil {
 			return 0, err
 		}
 		return cvss.EnvironmentalScore(), nil
-	case CVSS31:
+	case Cvss31:
 		cvss, err := gocvss31.ParseVector(vector)
 		if err != nil {
 			return 0, err
 		}
 		return cvss.EnvironmentalScore(), nil
-	case CVSS4:
+	case Cvss4:
 		cvss, err := gocvss40.ParseVector(vector)
 		if err != nil {
 			return 0, err
 		}
 		return cvss.Score(), nil
 	default:
-		return 0, errors.New("Invalid CVSS version")
+		return 0, errors.New("invalid CVSS version")
 	}
 }
