@@ -231,7 +231,7 @@ func (ui *UserIndex) RefreshUserToken(user *User) error {
 func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
-			"token":        "",
+			"token":        uuid.Nil,
 			"token_expiry": time.Time{},
 		}})
 	return err
