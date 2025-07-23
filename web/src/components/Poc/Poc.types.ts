@@ -1,3 +1,4 @@
+import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { POC_TYPE_IMAGE, POC_TYPE_REQUEST_RESPONSE, POC_TYPE_RICH_TEXT, POC_TYPE_TEXT } from "./Poc.consts";
 
 export type PocType =
@@ -16,6 +17,7 @@ export interface PocTextDoc extends PocBaseDoc {
   type: typeof POC_TYPE_TEXT;
   text_language: string;
   text_data: string;
+  text_highlight?: MonacoTextSelection;
 }
 
 export interface PocImageDoc extends PocBaseDoc {

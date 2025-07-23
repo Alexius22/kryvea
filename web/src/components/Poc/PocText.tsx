@@ -2,12 +2,13 @@ import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useState } from "react";
 import Flex from "../Composition/Flex";
-import Input from "../Form/Input";
+import Button from "../Form/Button";
 import Label from "../Form/Label";
 import SelectWrapper from "../Form/SelectWrapper";
 import { SelectOption } from "../Form/SelectWrapper.types";
 import Textarea from "../Form/Textarea";
 import MonacoCodeEditor from "./MonacoCodeEditor";
+import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { PocDoc, PocTextDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -18,6 +19,7 @@ type PocTextProps = {
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
+  onSetCodeSelection: (currentIndex: number, textSelection: MonacoTextSelection) => void;
   selectedPoc: number;
   setSelectedPoc: (index: number) => void;
 };
@@ -29,6 +31,7 @@ export default function PocText({
   onPositionChange,
   onTextChange,
   onRemovePoc,
+  onSetCodeSelection,
   selectedPoc,
   setSelectedPoc,
 }: PocTextProps) {
@@ -36,11 +39,13 @@ export default function PocText({
   // const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
-  const [startingLineNumber, setStartingLineNumber] = useState(1);
+  const [selectedText, setSelectedText] = useState<MonacoTextSelection>();
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
+
+  const setHighlightedText = () => {};
 
   return (
     <PocTemplate
@@ -65,7 +70,7 @@ export default function PocText({
         />
       </div>
 
-      <Flex className="items-center gap-4">
+      <Flex className="items-end gap-4">
         <div>
           <Label htmlFor={languageInputId} text="Language" />
           <SelectWrapper
@@ -84,16 +89,11 @@ export default function PocText({
             id={languageInputId}
           />
         </div>
-        <div>
-          <Label htmlFor="" text="Starting line number" />
-          <Input
-            disabled
-            type="number"
-            value={startingLineNumber}
-            onChange={setStartingLineNumber}
-            className="input w-[55px] rounded text-center"
-          />
-        </div>
+        <Button
+          variant="warning"
+          text="Save text highlight"
+          onClick={() => onSetCodeSelection(currentIndex, selectedText)}
+        />
       </Flex>
 
       <div className="col-span-4 grid w-full max-w-full">
@@ -102,26 +102,11 @@ export default function PocText({
           className="w-full max-w-full overflow-auto border border-[color:--border-primary]"
           style={{ width: "100%" }}
         >
-          {/* <CodeMirror
-            value={pocDoc.text_data}
-            options={{
-              mode: "htmlmixed",
-              theme: "gruvbox-dark",
-              lineNumbers: true,
-              lineNumberFormatter: (lineNumber: number) => lineNumber + (startingLineNumber - 1),
-              highlightActiveLine: true,
-            }}
-            // lineWrapping: true,
-            onChange={(_, __, value) => {
-              onTextChange<PocTextDoc>(
-                currentIndex,
-                "text_data"
-              )({
-                target: { value },
-              } as any);
-            }}
-          /> */}
-          <MonacoCodeEditor language={selectedLanguage} setLanguageOptions={setLanguageOptions} />
+          <MonacoCodeEditor
+            onTextSelection={setSelectedText}
+            language={selectedLanguage}
+            setLanguageOptions={setLanguageOptions}
+          />
         </div>
       </div>
     </PocTemplate>

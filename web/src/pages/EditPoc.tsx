@@ -7,13 +7,14 @@ import { getData, putData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import { MonacoTextSelection } from "../components/Poc/MonacoCodeEditor.types";
 import {
   POC_TYPE_IMAGE,
   POC_TYPE_REQUEST_RESPONSE,
   POC_TYPE_RICH_TEXT,
   POC_TYPE_TEXT,
 } from "../components/Poc/Poc.consts";
-import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
+import { PocDoc, PocImageDoc, PocTextDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocRichText from "../components/Poc/PocRichText";
@@ -61,6 +62,17 @@ export default function EditPoc() {
     }
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
   }, [goToBottom]);
+
+  function onSetCodeSelection(currentIndex, textSelection: MonacoTextSelection) {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList[currentIndex] = {
+        ...newPocList[currentIndex],
+        text_highlight: textSelection,
+      } as PocTextDoc;
+      return newPocList;
+    });
+  }
 
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
@@ -208,6 +220,7 @@ export default function EditPoc() {
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              onSetCodeSelection,
               selectedPoc,
               setSelectedPoc,
             }}

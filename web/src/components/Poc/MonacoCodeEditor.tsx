@@ -9,6 +9,7 @@ export default function MonacoCodeEditor({
   height = "400px",
   theme = "vs-dark",
   setLanguageOptions = x => {},
+  onTextSelection = x => {},
   options = {} as monaco.editor.IStandaloneEditorConstructionOptions,
 }) {
   const editorRef = useRef(null);
@@ -104,13 +105,14 @@ export default function MonacoCodeEditor({
 
     // Optional: log on selection change
     editor.onDidChangeCursorSelection(e => {
+      const { startLineNumber, startColumn, endLineNumber, endColumn } = e.selection;
+      onTextSelection({
+        start: { line: startLineNumber, col: startColumn },
+        end: { line: endLineNumber, col: endColumn },
+      });
       const selectedText = editor.getModel()?.getValueInRange(e.selection);
     });
 
-    editor
-      .getAction("editor.action.formatDocument")
-      .run()
-      .finally(() => console.log("Document formatted"));
     // Optional: detect actual drag
     // editor.onMouseDown(e => {
     //   const disposable = editor.onMouseUp(() => {
