@@ -2,8 +2,10 @@ import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useState } from "react";
 import Flex from "../Composition/Flex";
+import Grid from "../Composition/Grid";
 import Button from "../Form/Button";
-import Label from "../Form/Label";
+import Buttons from "../Form/Buttons";
+import Input from "../Form/Input";
 import SelectWrapper from "../Form/SelectWrapper";
 import { SelectOption } from "../Form/SelectWrapper.types";
 import Textarea from "../Form/Textarea";
@@ -37,15 +39,15 @@ export default function PocText({
 }: PocTextProps) {
   // prettier-ignore
   // const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
-  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState(pocDoc.text_language || "Plaintext");
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [selectedText, setSelectedText] = useState<MonacoTextSelection>();
+  const [startingLineNumber, setStartingLineNumber] = useState(pocDoc?.starting_line_number || 0);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
-
-  const setHighlightedText = () => {};
+  const startingLineNumberId = `poc-starting-line-number-${currentIndex}-${pocDoc.key}`;
 
   return (
     <PocTemplate
@@ -61,64 +63,77 @@ export default function PocText({
         title: "Text",
       }}
     >
-      <div className="poc-text col-span-8 grid">
-        <Label htmlFor={descriptionTextareaId} text="Description" />
+      <Grid className="poc-text">
         <Textarea
+          label="Description"
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
         />
-      </div>
+        <Grid className="gap-4">
+          <Flex className="gap-4">
+            <SelectWrapper
+              label="Language"
+              className="w-64"
+              options={languageOptions.map(({ label, value }) => ({ label, value }))}
+              value={{
+                label: selectedLanguage || pocDoc.text_language,
+                value: selectedLanguage || pocDoc.text_language,
+              }}
+              onChange={({ value }) => {
+                setSelectedLanguage(value);
+                onTextChange<PocTextDoc>(
+                  currentIndex,
+                  "text_language"
+                )({
+                  target: { value },
+                } as any);
+              }}
+              id={languageInputId}
+            />
+            <Input
+              className="w-[55px] rounded text-center"
+              label="Start"
+              type="number"
+              value={startingLineNumber + 1}
+              min={1}
+              onChange={e => setStartingLineNumber(e - 1)}
+              id={startingLineNumberId}
+            />
+            <Buttons>
+              <Button
+                variant="warning"
+                text="Save text highlight"
+                onClick={() => onSetCodeSelection(currentIndex, selectedText)}
+              />
+              <Button
+                variant="danger"
+                text="Clear text highlight"
+                onClick={() => {
+                  setSelectedText(undefined);
+                  onSetCodeSelection(currentIndex, undefined);
+                }}
+              />
+            </Buttons>
+          </Flex>
 
-      <Flex className="items-end gap-4">
-        <div>
-          <Label htmlFor={languageInputId} text="Language" />
-          <SelectWrapper
-            className="w-64"
-            options={languageOptions.map(({ label, value }) => ({ label, value }))}
-            value={{ label: selectedLanguage || pocDoc.text_language, value: selectedLanguage || pocDoc.text_language }}
-            onChange={({ value }) => {
-              setSelectedLanguage(value);
-              onTextChange<PocTextDoc>(
-                currentIndex,
-                "text_language"
-              )({
-                target: { value },
-              } as any);
-            }}
-            id={languageInputId}
-          />
-        </div>
-        <Button
-          className="text-nowrap"
-          variant="warning"
-          text="Save text highlight"
-          onClick={() => onSetCodeSelection(currentIndex, selectedText)}
-        />
-        <Button
-          className="text-nowrap"
-          variant="danger"
-          text="Clear text highlight"
-          onClick={() => {
-            setSelectedText(undefined);
-            onSetCodeSelection(currentIndex, undefined);
-          }}
-        />
-      </Flex>
-
-      <div className="col-span-4 grid w-full max-w-full">
-        <label htmlFor={textInputId}>Text</label>
-        <div
-          className="w-full max-w-full overflow-auto border border-[color:--border-primary]"
-          style={{ width: "100%" }}
-        >
           <MonacoCodeEditor
+            defaultValue={pocDoc.text_data}
+            startingLineNumber={startingLineNumber}
             onTextSelection={setSelectedText}
             language={selectedLanguage}
             setLanguageOptions={setLanguageOptions}
+            onChange={code =>
+              onTextChange<PocTextDoc>(
+                currentIndex,
+                "text_data"
+              )({
+                target: { value: code },
+              } as any)
+            }
           />
-        </div>
-      </div>
+        </Grid>
+      </Grid>
     </PocTemplate>
   );
 }

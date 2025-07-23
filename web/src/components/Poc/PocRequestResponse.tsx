@@ -1,6 +1,8 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
+import Input from "../Form/Input";
 import Textarea from "../Form/Textarea";
+import MonacoCodeEditor from "./MonacoCodeEditor";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -44,43 +46,37 @@ export default function PocRequestResponse({
         title: "Request/Response",
       }}
     >
-      <div className="poc-request-response col-span-8 grid">
-        <label htmlFor={descriptionTextareaId}>Description</label>
-        <Textarea
-          value={pocDoc.description}
-          id={descriptionTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
-        />
-      </div>
+      <Textarea
+        label="Description"
+        value={pocDoc.description}
+        id={descriptionTextareaId}
+        onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
+      />
 
-      <div className="col-span-4 grid">
-        <label htmlFor={urlInputId}>URL</label>
-        <input
-          id={urlInputId}
-          className=""
-          value={pocDoc.uri}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "uri")}
-        />
-      </div>
+      <Input
+        type="text"
+        label="URL"
+        id={urlInputId}
+        value={pocDoc.uri}
+        onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "uri")}
+      />
 
       <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
-        <div className="grid">
-          <label htmlFor={requestTextareaId}>Request</label>
-          <Textarea
-            value={pocDoc.request}
-            id={requestTextareaId}
-            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
-          />
-        </div>
+        <MonacoCodeEditor
+          language="http"
+          label="Request"
+          defaultValue={pocDoc.request}
+          onChange={value => onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value } } as any)}
+        />
 
-        <div className="grid">
-          <label htmlFor={responseTextareaId}>Response</label>
-          <Textarea
-            value={pocDoc.response}
-            id={responseTextareaId}
-            onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}
-          />
-        </div>
+        <MonacoCodeEditor
+          language="http"
+          label="Response"
+          defaultValue={pocDoc.response}
+          onChange={value =>
+            onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value } } as any)
+          }
+        />
       </div>
     </PocTemplate>
   );

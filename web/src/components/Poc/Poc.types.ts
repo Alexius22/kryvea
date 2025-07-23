@@ -18,6 +18,7 @@ export interface PocTextDoc extends PocBaseDoc {
   text_language: string;
   text_data: string;
   text_highlight?: MonacoTextSelection;
+  starting_line_number?: number;
 }
 
 export interface PocImageDoc extends PocBaseDoc {
