@@ -1,6 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
+import { getKryveaShadow } from "./api/cookie";
 import Button from "./components/Form/Button";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
@@ -50,6 +51,11 @@ export default function App() {
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
+
+  const USER_ROLE_ADMIN = "admin";
+  const USER_ROLE_USER = "user";
+
+  const userRole = getKryveaShadow();
 
   useLayoutEffect(() => {
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");

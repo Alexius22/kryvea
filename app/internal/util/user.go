@@ -138,8 +138,9 @@ func IsValidRole(role string) bool {
 }
 
 func SetSessionCookies(c *fiber.Ctx, token uuid.UUID, expires time.Time) {
+	user := c.Locals("user").(*mongo.User)
 	SetKryveaCookie(c, token.String(), expires)
-	SetKryveaShadowCookie(c, "ok", expires)
+	SetKryveaShadowCookie(c, user.Role, expires)
 }
 
 func SetKryveaCookie(c *fiber.Ctx, value string, expires time.Time) {

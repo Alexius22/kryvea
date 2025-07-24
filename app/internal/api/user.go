@@ -139,6 +139,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		})
 	}
 
+	c.Locals("user", user)
 	util.SetSessionCookies(c, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
