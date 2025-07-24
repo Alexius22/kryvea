@@ -8,6 +8,7 @@ import {
   mdiViewList,
 } from "@mdi/js";
 import { useContext } from "react";
+import { getKryveaShadow } from "../../api/cookie";
 import { GlobalContext } from "../../App";
 import Item from "./Item";
 
@@ -45,7 +46,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
         ]
       : []),
     { href: "/vulnerability_search", icon: mdiMagnify, label: "Vulnerability Search" },
-    {
+    getKryveaShadow() === "admin" && {
       label: "Administration",
       icon: mdiResponsive,
       menu: [
