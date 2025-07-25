@@ -32,8 +32,8 @@ export default function CustomerDetail() {
   });
 
   const [formCustomer, setFormCustomer] = useState({
-    name: ctxCustomer.name,
-    language: ctxCustomer.language,
+    name: ctxCustomer?.name,
+    language: ctxCustomer?.language,
   });
 
   const navigate = useNavigate();
@@ -104,7 +104,7 @@ export default function CustomerDetail() {
       language: formCustomer.language,
     };
 
-    patchData<Customer>(`/api/admin/customers/${ctxCustomer.id}`, payload, updatedCustomer => {
+    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, payload, updatedCustomer => {
       toast.success("Customer updated successfully");
       setCtxCustomer(updatedCustomer);
     });
@@ -163,7 +163,7 @@ export default function CustomerDetail() {
     formData.append("template_type", templateCustomer.template_type);
     formData.append("template_file", templateCustomer.template_file);
 
-    postData(`/api/customers/${ctxCustomer.id}/templates`, formData, () => {
+    postData(`/api/customers/${ctxCustomer?.id}/templates`, formData, () => {
       toast.success("Template uploaded successfully");
       setTemplateCustomer({
         template_name: "",
@@ -184,19 +184,19 @@ export default function CustomerDetail() {
 
   return (
     <div>
-      <SectionTitleLineWithButton icon={mdiAccountEdit} title={`Customer: ${ctxCustomer.name}`}>
+      <SectionTitleLineWithButton icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
         <Buttons>
           <Button
             small
             text="Assessments"
             icon={mdiListBox}
-            onClick={() => navigate(`/customers/${ctxCustomer.id}/assessments`)}
+            onClick={() => navigate(`/customers/${ctxCustomer?.id}/assessments`)}
           />
           <Button
             small
             text="Targets"
             icon={mdiTarget}
-            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets`)}
+            onClick={() => navigate(`/customers/${ctxCustomer?.id}/targets`)}
           />
         </Buttons>
       </SectionTitleLineWithButton>
