@@ -68,9 +68,9 @@ export default function Login() {
 
     postData(
       "/api/password/reset",
-      { password: password },
+      { password },
       () => {
-        toast.success("Password reset successful! Now you can log in.");
+        toast.success("Password change successful");
         navigate(from, { replace: true });
       },
       err => {
