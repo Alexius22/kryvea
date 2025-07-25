@@ -1,6 +1,6 @@
 export type ObjectKey = string | number | symbol;
 
-export type IdObject = {
+export type ObjectWithId = {
   id: string;
   [k: ObjectKey]: any;
 };

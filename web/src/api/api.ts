@@ -1,6 +1,7 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, HttpStatusCode } from "axios";
+import { NavigateFunction } from "react-router";
 import { toast } from "react-toastify";
-import { IdObject } from "../types/common.types";
+import { ObjectWithId } from "../types/common.types";
 
 type OnThenCallback<T> = (response: T) => any;
 type OnCatchCallback<T> = (error: T) => any;
@@ -9,10 +10,34 @@ type HttpErrorData = {
   error: string;
 };
 
+let navigateFn;
+
+// Need to be called asap to populate export the navigate function for the APIs closures
+export const setNavigate = (fn: typeof navigateFn) => {
+  navigateFn = fn;
+};
+
+export const navigate: NavigateFunction = (...rest) => {
+  if (navigateFn) {
+    navigateFn(...rest);
+  }
+};
+
 const UNKNOWN_HTTP_ERROR_CAUSE = "Unknown error";
 
-const defaultHandleCatch: OnCatchCallback<AxiosError<HttpErrorData>> = err =>
-  toast.error(err.response?.data.error || UNKNOWN_HTTP_ERROR_CAUSE);
+//prettier-ignore
+const defaultHandleCatch: OnCatchCallback<AxiosError<HttpErrorData>> = err => toast.error(err.response?.data.error || UNKNOWN_HTTP_ERROR_CAUSE);
+
+const onCatchClosure = (onCatch: OnCatchCallback<AxiosError<HttpErrorData>>) => (err: AxiosError<HttpErrorData>) => {
+  switch (err.response?.status) {
+    case HttpStatusCode.Unauthorized:
+      toast.error("Session expired, please log in again");
+      navigate("/login", { replace: false, state: { from: window.location.pathname } });
+      break;
+  }
+
+  return onCatch(err);
+};
 
 export function getData<TResponseData>(
   endpoint: string,
@@ -23,7 +48,7 @@ export function getData<TResponseData>(
   axios
     .get<TResponseData>(endpoint)
     .then(({ data }) => onThen(data))
-    .catch(onCatch)
+    .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
 
@@ -37,7 +62,7 @@ export function postData<TResponseData>(
   axios
     .post<TResponseData>(endpoint, data)
     .then(({ data }) => onThen(data))
-    .catch(onCatch)
+    .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
 
@@ -51,7 +76,7 @@ export function patchData<TResponseData>(
   axios
     .patch<TResponseData>(endpoint, data)
     .then(({ data }) => onThen(data))
-    .catch(onCatch)
+    .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
 
@@ -65,7 +90,7 @@ export function putData<TResponseData>(
   axios
     .put<TResponseData>(endpoint, data)
     .then(({ data }) => onThen(data))
-    .catch(onCatch)
+    .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
 
@@ -78,13 +103,13 @@ export function deleteData<TResponseData>(
   axios
     .delete<TResponseData>(endpoint)
     .then(({ data }) => onThen(data))
-    .catch(onCatch)
+    .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
 
 export function autoUpdateArrState(setState) {
-  return (data: IdObject) => {
-    setState((prev: IdObject[]) => {
+  return (data: ObjectWithId) => {
+    setState((prev: ObjectWithId[]) => {
       if (!Array.isArray(prev)) {
         console.error("Expected previous state to be an array");
         return prev;
