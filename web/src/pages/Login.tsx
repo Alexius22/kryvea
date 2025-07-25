@@ -72,8 +72,6 @@ export default function Login() {
       () => {
         toast.success("Password reset successful! Now you can log in.");
         navigate(from, { replace: true });
-        // setPassword("");
-        // setConfirmPassword("");
       },
       err => {
         setError(err.response?.data?.error || "Failed to reset password");

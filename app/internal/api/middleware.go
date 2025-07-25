@@ -40,6 +40,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 		}
 
 		c.Status(fiber.StatusUnauthorized)
+		util.ClearCookies(c)
 		return c.JSON(fiber.Map{
 			"error": "Password expired",
 		})
