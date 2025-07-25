@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { GlobalContext } from "../App";
 import { getData, setNavigate } from "../api/api";
-import { kryveaShadow } from "../config";
+import { getKryveaShadow } from "../api/cookie";
+import { GlobalContext } from "../App";
 import { Assessment, Category, Customer, Vulnerability } from "../types/common.types";
 
 export default function RouteWatcher() {
@@ -45,6 +45,7 @@ export default function RouteWatcher() {
   }, [customerId, assessmentId, vulnerabilityId, categoryId]);
 
   useEffect(() => {
+    const kryveaShadow = getKryveaShadow();
     if ((!kryveaShadow || kryveaShadow === "password_expired") && location.pathname !== "/login") {
       navigate("/login", { replace: true });
       return;
