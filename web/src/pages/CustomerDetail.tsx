@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
+import CardTitle from "../components/CardBox/CardTitle";
 import Grid from "../components/Composition/Grid";
 import Table from "../components/Composition/Table";
 import Divider from "../components/Divider";
@@ -77,7 +78,7 @@ export default function CustomerDetail() {
       "mock-template2.xlsx",
       { type: "xlsx" }
     );
-    setUploadedTemplates([mockFile1, mockFile2]);
+    setUploadedTemplates([mockFile1, mockFile2, mockFile1, mockFile2]);
   }, []);
 
   const handleCustomerName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -200,9 +201,9 @@ export default function CustomerDetail() {
           />
         </Buttons>
       </SectionTitleLineWithButton>
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="w-full">
-          <h2 className="text-2xl">General</h2>
+      <Grid className="grid-cols-2">
+        <Card>
+          <CardTitle title={"Customer details"} />
           <Grid className="gap-4">
             <Input
               type="text"
@@ -228,59 +229,58 @@ export default function CustomerDetail() {
             <Button variant="secondary" text="Cancel" onClick={() => navigate("/customers")} />
           </Buttons>
         </Card>
-        <Card className="w-full">
-          <h2 className="text-2xl">Template</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-4">
-              <Input
-                type="text"
-                label="Name"
-                placeholder="Template name"
-                id="template_name"
-                value={templateCustomer.template_name}
-                onChange={handleCustomerName}
-              />
-              <SelectWrapper
-                label="Type"
-                id="template_type"
-                options={templateTypeOptions}
-                value={selectedTemplateTypeOption}
-                onChange={option => setTemplateCustomer(prev => ({ ...prev, template_type: option.value }))}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <UploadFile
-              label="Upload a new template file"
-              inputId={"template_file"}
-              filename={fileObj?.name}
-              name={"template_file"}
-              accept=".docx,.xlsx"
-              onChange={changeFile}
-              onButtonClick={clearFile}
+        <Card>
+          <CardTitle title={"Upload new template"} />
+          <Grid className="grid-cols-2">
+            <Input
+              type="text"
+              label="Name"
+              placeholder="Template name"
+              id="template_name"
+              value={templateCustomer.template_name}
+              onChange={handleCustomerName}
             />
-          </div>
+            <SelectWrapper
+              label="Type"
+              id="template_type"
+              options={templateTypeOptions}
+              value={selectedTemplateTypeOption}
+              onChange={option => setTemplateCustomer(prev => ({ ...prev, template_type: option.value }))}
+            />
+          </Grid>
+          <UploadFile
+            label="Upload a new template file"
+            inputId={"template_file"}
+            filename={fileObj?.name}
+            name={"template_file"}
+            accept=".docx,.xlsx"
+            onChange={changeFile}
+            onButtonClick={clearFile}
+          />
           <Divider />
           <Buttons>
             <Button text="Upload" onClick={handleUploadTemplate} />
           </Buttons>
         </Card>
         {uploadedTemplates && (
-          <Table
-            data={uploadedTemplates.map((file, index) => ({
-              Name: file.name,
-              Type: file.type,
-              buttons: (
-                <Buttons noWrap>
-                  <Button icon={mdiDownload} onClick={() => downloadUploadedTemplate(index)} variant="secondary" />
-                  <Button icon={mdiTrashCan} onClick={() => deleteUploadedTemplate(index)} variant="danger" />
-                </Buttons>
-              ),
-            }))}
-            perPageCustom={5}
-          />
+          <Card>
+            <CardTitle title={"Templates"} />
+            <Table
+              data={uploadedTemplates.map((file, index) => ({
+                Name: file.name,
+                Type: file.type,
+                buttons: (
+                  <Buttons noWrap>
+                    <Button icon={mdiDownload} onClick={() => downloadUploadedTemplate(index)} variant="secondary" />
+                    <Button icon={mdiTrashCan} onClick={() => deleteUploadedTemplate(index)} variant="danger" />
+                  </Buttons>
+                ),
+              }))}
+              perPageCustom={4}
+            />
+          </Card>
         )}
-      </div>
+      </Grid>
     </div>
   );
 }
