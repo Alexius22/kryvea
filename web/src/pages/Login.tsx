@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { postData } from "../api/api";
+import { getKryveaShadow } from "../api/cookie";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import { getPageTitle, kryveaShadow } from "../config";
+import { getPageTitle } from "../config";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -23,6 +24,8 @@ export default function Login() {
   const from = useMemo(() => location.state?.from || "/dashboard", []);
 
   useEffect(() => {
+    const kryveaShadow = getKryveaShadow();
+
     if (kryveaShadow && kryveaShadow !== "password_expired") {
       navigate(from, { replace: true });
       return;
@@ -80,7 +83,7 @@ export default function Login() {
   return (
     <div className="card-modal fixed flex min-h-screen w-screen items-center justify-center">
       <Card className="glasscard">
-        {kryveaShadow !== "password_expired" ? (
+        {getKryveaShadow() !== "password_expired" ? (
           // LOGIN FORM
           <form
             onSubmit={e => {
