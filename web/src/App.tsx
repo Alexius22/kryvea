@@ -33,6 +33,7 @@ import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
@@ -45,6 +46,7 @@ export const GlobalContext = createContext<GlobalContextType>(null);
 export default function App() {
   const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
   const [darkTheme] = useDarkTheme;
+  const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
@@ -80,6 +82,7 @@ export default function App() {
     <GlobalContext.Provider
       value={{
         useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useUsername: bindToLocalStorage(useUsername, "useUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
