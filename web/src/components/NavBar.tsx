@@ -28,7 +28,7 @@ export default function NavBar({ children }: Props) {
 
   const handleLogout = () => {
     postData("/api/logout", undefined, () => {
-      navigate("/login");
+      navigate("/login", { replace: false, state: { from: window.location.pathname } });
     });
   };
 
