@@ -6,10 +6,11 @@ import {
   mdiWeatherNight,
   mdiWhiteBalanceSunny,
 } from "@mdi/js";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { postData } from "../api/api";
+import { getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
+import { User } from "../types/common.types";
 import Button from "./Form/Button";
 import Buttons from "./Form/Buttons";
 import Icon from "./Icon";
@@ -20,11 +21,16 @@ type Props = {
 
 export default function NavBar({ children }: Props) {
   const {
+    useUsername: [username, setUsername],
     useDarkTheme: [darkTheme, setDarkTheme],
     useFullscreen: [fullscreen, setFullScreen],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getData<User>("/api/users/me", user => setUsername(user.username));
+  }, []);
 
   const handleLogout = () => {
     postData("/api/logout", undefined, () => {
@@ -35,11 +41,11 @@ export default function NavBar({ children }: Props) {
   return (
     <nav className="navbar">
       {children}
-      <Buttons containerClassname="sticky right-0 !bg-[color:--bg-primary]" noWrap>
+      <Buttons className="p-2">
         <Button
           onClick={() => navigate("/profile")}
           icon={mdiAccount}
-          text="Profile"
+          text={username}
           className="gap-2 bg-transparent text-[color:--link]"
         />
 
@@ -63,7 +69,7 @@ export default function NavBar({ children }: Props) {
           onClick={handleLogout}
           icon={mdiLogout}
           text="Logout"
-          className="gap-2 bg-transparent text-[color:--link]"
+          className="gap-2 bg-transparent p-0 text-[color:--link]"
         />
       </Buttons>
     </nav>
