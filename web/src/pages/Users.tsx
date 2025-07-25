@@ -252,8 +252,8 @@ export default function Users() {
           Active: Date.parse(user.disabled_at) > Date.now() ? "Yes" : "No",
           buttons: (
             <Buttons noWrap key={user.id}>
-              <Button icon={mdiLockReset} onClick={() => openResetPswModal(user)} small title="Reset password" />
               <Button icon={mdiAccountEdit} onClick={() => openEditModal(user)} small title="Edit user" />
+              <Button icon={mdiLockReset} onClick={() => openResetPswModal(user)} small title="Reset password" />
               <Button
                 variant="danger"
                 icon={mdiTrashCan}
