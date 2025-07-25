@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { GlobalContext } from "../App";
 import { getData, setNavigate } from "../api/api";
-import { getKryveaShadow } from "../api/cookie";
+import { kryveaShadow } from "../config";
 import { Assessment, Category, Customer, Vulnerability } from "../types/common.types";
 
 export default function RouteWatcher() {
@@ -45,8 +45,7 @@ export default function RouteWatcher() {
   }, [customerId, assessmentId, vulnerabilityId, categoryId]);
 
   useEffect(() => {
-    const kryvea_shadow = getKryveaShadow();
-    if ((!kryvea_shadow || kryvea_shadow === "password_expired") && location.pathname !== "/login") {
+    if ((!kryveaShadow || kryveaShadow === "password_expired") && location.pathname !== "/login") {
       navigate("/login", { replace: true });
       return;
     }
