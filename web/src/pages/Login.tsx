@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { postData } from "../api/api";
@@ -21,7 +21,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/dashboard";
+  const from = useMemo(() => location.state?.from || "/dashboard", []);
 
   useEffect(() => {
     const kryvea_shadow = getKryveaShadow();
@@ -37,9 +37,7 @@ export default function Login() {
     postData(
       "/api/login",
       { username, password, remember },
-      () => {
-        navigate(from, { replace: true });
-      },
+      () => navigate(from, { replace: true }),
       err => {
         // Check for password expired case
         const data = err.response?.data as { error: string };
@@ -73,8 +71,9 @@ export default function Login() {
       { password: password },
       () => {
         toast.success("Password reset successful! Now you can log in.");
-        setPassword("");
-        setConfirmPassword("");
+        navigate(from, { replace: true });
+        // setPassword("");
+        // setConfirmPassword("");
       },
       err => {
         setError(err.response?.data?.error || "Failed to reset password");
