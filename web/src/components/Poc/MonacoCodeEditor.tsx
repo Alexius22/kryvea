@@ -163,7 +163,6 @@ export default function MonacoCodeEditor({
           options={{
             lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i + ideStartingLineNumber}`),
             lineNumbersMinChars: 2,
-            lineDecorationsWidth: 0,
             glyphMargin: false,
             scrollBeyondLastLine: false,
             selectOnLineNumbers: true,
