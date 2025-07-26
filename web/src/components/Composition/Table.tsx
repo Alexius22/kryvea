@@ -190,7 +190,7 @@ export default function Table({
                       if (key === BUTTONS_KEY) {
                         return (
                           <td
-                            className="sticky right-0 bg-transparent"
+                            className="sticky right-0 bg-[color:--bg-tertiary]"
                             data-buttons-cell
                             key={getTableElementKey(`${key}-cell-${i}`)}
                           >
