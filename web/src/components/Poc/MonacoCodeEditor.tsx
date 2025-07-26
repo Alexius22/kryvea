@@ -3,13 +3,14 @@ import * as monaco from "monaco-editor";
 import { useRef } from "react";
 import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
+import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 
 interface MonacoCodeEditorProps {
   language?: string;
   label?: string;
   value?: string;
   theme?: string;
-  startingLineNumber?: number;
+  ideStartingLineNumber?: number;
   height?: string;
   stopLineNumberAt?: number;
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
@@ -23,13 +24,13 @@ export default function MonacoCodeEditor({
   label = "",
   value,
   theme = "vs-dark",
-  startingLineNumber = 0,
+  ideStartingLineNumber = 0,
   height = "400px",
   stopLineNumberAt,
   options,
   onChange = () => {},
   onLanguageOptionsInit = () => {},
-  onTextSelection = () => {},
+  onTextSelection = (x: MonacoTextSelection) => {},
 }: MonacoCodeEditorProps) {
   const editorRef = useRef(null);
 
@@ -127,14 +128,23 @@ export default function MonacoCodeEditor({
   const handleEditorMount: OnMount = editor => {
     editorRef.current = editor;
 
-    // Optional: log on selection change
     editor.onDidChangeCursorSelection(e => {
-      const { startLineNumber, startColumn, endLineNumber, endColumn } = e.selection;
-      onTextSelection({
-        start: { line: startLineNumber, col: startColumn },
-        end: { line: endLineNumber, col: endColumn },
+      const { selection, secondarySelections } = e;
+      const selectedText = editor.getModel()?.getValueInRange(selection);
+      if (selectedText === "") {
+        return;
+      }
+
+      const toMonacoTextSelection = (sel: monaco.Selection): MonacoTextSelection => ({
+        start: { line: sel.startLineNumber, col: sel.startColumn },
+        end: { line: sel.endLineNumber, col: sel.endColumn },
+        selectionPreview: `${sel.startLineNumber}:${sel.startColumn}:${editor.getModel()?.getValueInRange(sel)}`,
       });
-      const selectedText = editor.getModel()?.getValueInRange(e.selection);
+
+      const secondaryTextSelections = secondarySelections.map(toMonacoTextSelection);
+      const allSelections = [...secondaryTextSelections, toMonacoTextSelection(selection)];
+
+      onTextSelection(allSelections);
     });
   };
 
@@ -151,7 +161,7 @@ export default function MonacoCodeEditor({
           beforeMount={handleBeforeMount}
           onMount={handleEditorMount}
           options={{
-            lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i + startingLineNumber}`),
+            lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i + ideStartingLineNumber}`),
             lineNumbersMinChars: 2,
             lineDecorationsWidth: 0,
             glyphMargin: false,

@@ -132,7 +132,7 @@ export default function AssessmentVulnerabilities() {
       {/* Download Modal */}
       <Modal
         title="Download report"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={exportAssessment}
         onCancel={() => setIsModalDownloadActive(false)}
@@ -176,7 +176,7 @@ export default function AssessmentVulnerabilities() {
       {/* Upload Modal */}
       <Modal
         title="Upload file"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalUploadActive}
         onConfirm={() => {
           handleUploadBulk();
@@ -206,7 +206,7 @@ export default function AssessmentVulnerabilities() {
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={confirmDelete}
         onCancel={() => setIsModalTrashActive(false)}

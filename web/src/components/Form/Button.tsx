@@ -8,6 +8,7 @@ interface BaseButtonCoreProps {
   text?: string;
   title?: string;
   formSubmit?: boolean;
+  children?;
 }
 interface WithIcon {
   icon: string;
@@ -42,6 +43,7 @@ export default function Button({
   title = "",
   formSubmit,
   onClick = () => {},
+  children,
 }: ButtonProps) {
   return (
     <button
@@ -59,6 +61,7 @@ export default function Button({
     >
       {icon && <Icon path={icon} size={iconSize} />}
       {text}
+      {children}
     </button>
   );
 }
