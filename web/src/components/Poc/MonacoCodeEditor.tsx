@@ -14,7 +14,7 @@ interface MonacoCodeEditorProps {
   stopLineNumberAt?: number;
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
   onChange?: (value: string) => void;
-  setLanguageOptions?;
+  onLanguageOptionsInit?;
   onTextSelection?;
 }
 
@@ -28,7 +28,7 @@ export default function MonacoCodeEditor({
   stopLineNumberAt,
   options,
   onChange = () => {},
-  setLanguageOptions = () => {},
+  onLanguageOptionsInit = () => {},
   onTextSelection = () => {},
 }: MonacoCodeEditorProps) {
   const editorRef = useRef(null);
@@ -116,7 +116,7 @@ export default function MonacoCodeEditor({
     });
 
     const languages = monaco.languages.getLanguages();
-    setLanguageOptions(
+    onLanguageOptionsInit(
       languages.map(lang => ({
         label: lang.aliases?.[0] || lang.id,
         value: lang.id,
