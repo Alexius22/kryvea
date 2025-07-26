@@ -37,10 +37,11 @@ export default function PocText({
   selectedPoc,
   setSelectedPoc,
 }: PocTextProps) {
-  // prettier-ignore
-  // const languages = useMemo(() => ["Plaintext","Bash","C","C++","C#","CSS","Dart","Dockerfile","F#","Go","HTML","Java","JavaScript","JSON","Julia","LaTeX","Less","Lua","Makefile","Markdown","MSSQL","Pearl","PHP","PowerShell","Python","R","Ruby","Rust","SCSS","SQL","Swift","TypeScript","VisualBasic","XML","YAML"], []);
-  const [selectedLanguage, setSelectedLanguage] = useState(pocDoc.text_language || "Plaintext");
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<SelectOption>({
+    label: pocDoc.text_language || "Plaintext",
+    value: pocDoc.text_language || "plaintext",
+  });
   const [selectedText, setSelectedText] = useState<MonacoTextSelection>();
   const [startingLineNumber, setStartingLineNumber] = useState(pocDoc?.starting_line_number || 0);
 
@@ -48,6 +49,15 @@ export default function PocText({
   const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
   const startingLineNumberId = `poc-starting-line-number-${currentIndex}-${pocDoc.key}`;
+
+  // Should only be called once when the MonacoEditor initializes
+  const onLanguageOptionsInit = options => {
+    setLanguageOptions(options);
+    setSelectedLanguage({
+      label: options.find(option => option.value === pocDoc.text_language)?.label,
+      value: pocDoc.text_language || "plaintext",
+    });
+  };
 
   return (
     <PocTemplate
@@ -77,16 +87,16 @@ export default function PocText({
               className="w-64"
               options={languageOptions.map(({ label, value }) => ({ label, value }))}
               value={{
-                label: selectedLanguage || pocDoc.text_language,
-                value: selectedLanguage || pocDoc.text_language,
+                label: selectedLanguage.label || pocDoc.text_language,
+                value: selectedLanguage.value || pocDoc.text_language,
               }}
-              onChange={({ value }) => {
-                setSelectedLanguage(value);
+              onChange={selected => {
+                setSelectedLanguage(selected);
                 onTextChange<PocTextDoc>(
                   currentIndex,
                   "text_language"
                 )({
-                  target: { value },
+                  target: { value: selected.value },
                 } as any);
               }}
               id={languageInputId}
@@ -103,14 +113,14 @@ export default function PocText({
             <Buttons containerClassname="flex-grow" className="justify-between">
               <Button
                 variant="warning"
-                title="Save text highlight"
+                title="Add highlight"
                 icon={mdiFloppy}
                 iconSize={24}
                 onClick={() => onSetCodeSelection(currentIndex, selectedText)}
               />
               <Button
                 variant="danger"
-                title="Clear text highlight"
+                title="Clear highlights"
                 icon={mdiBroom}
                 iconSize={24}
                 onClick={() => {
@@ -125,8 +135,8 @@ export default function PocText({
             value={pocDoc.text_data}
             startingLineNumber={startingLineNumber}
             onTextSelection={setSelectedText}
-            language={selectedLanguage}
-            setLanguageOptions={setLanguageOptions}
+            language={selectedLanguage.value}
+            onLanguageOptionsInit={onLanguageOptionsInit}
             onChange={code =>
               onTextChange<PocTextDoc>(
                 currentIndex,
