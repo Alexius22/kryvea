@@ -128,7 +128,7 @@ export default function Users() {
       {/* Edit User Modal */}
       <Modal
         title="Edit user"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalEditActive}
         onConfirm={handleUpdateUser}
         onCancel={handleModalAction}
@@ -177,7 +177,7 @@ export default function Users() {
       {/* Password reset Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalResetPswActive}
         onConfirm={handleResetPsw}
         onCancel={handleModalAction}
@@ -190,7 +190,7 @@ export default function Users() {
       {/* Modal to display the temporary password */}
       <Modal
         title="Temporary Password"
-        buttonLabel="Close"
+        confirmButtonLabel="Close"
         isActive={isModalTempPswActive}
         onConfirm={() => {
           setIsModalTempPswActive(false);
@@ -231,7 +231,7 @@ export default function Users() {
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleDeleteUser}
         onCancel={handleModalAction}

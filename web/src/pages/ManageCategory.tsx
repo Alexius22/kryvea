@@ -173,7 +173,7 @@ export default function ManageCategory() {
     <div>
       <Modal
         title="Add language"
-        buttonLabel="Add"
+        confirmButtonLabel="Add"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
         onCancel={() => setIsModalInfoActive(false)}
