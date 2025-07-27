@@ -64,11 +64,11 @@ input.checkbox {
 textarea {
   @apply rounded-md p-1 px-2;
   background-color: var(--bg-quaternary);
+  border: 1px solid #00000000;
 }
 textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 1px var(--border-primary);
-  border-color: transparent;
+  border: 1px solid var(--border-primary);
 }
 textarea::placeholder {
   color: var(--text-secondary);
