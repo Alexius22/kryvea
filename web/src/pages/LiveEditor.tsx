@@ -87,7 +87,7 @@ export default function LiveEditor() {
     <div>
       <Modal
         title="Recalculate CVSS"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalInfoActive}
         onConfirm={handleModalAction}
         onCancel={handleModalAction}

@@ -24,8 +24,9 @@ export default function Login() {
   const from = useMemo(() => location.state?.from || "/dashboard", []);
 
   useEffect(() => {
-    const kryvea_shadow = getKryveaShadow();
-    if (kryvea_shadow && kryvea_shadow !== "password_expired") {
+    const kryveaShadow = getKryveaShadow();
+
+    if (kryveaShadow && kryveaShadow !== "password_expired") {
       navigate(from, { replace: true });
       return;
     }

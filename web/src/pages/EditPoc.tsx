@@ -63,12 +63,12 @@ export default function EditPoc() {
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
   }, [goToBottom]);
 
-  function onSetCodeSelection(currentIndex, textSelection: MonacoTextSelection) {
+  function onSetCodeSelection(currentIndex, text_highlights: MonacoTextSelection[]) {
     setPocList(prev => {
       const newPocList = [...prev];
       newPocList[currentIndex] = {
         ...newPocList[currentIndex],
-        text_highlight: textSelection,
+        text_highlights,
       } as PocTextDoc;
       return newPocList;
     });
@@ -162,6 +162,7 @@ export default function EditPoc() {
             description: "",
             text_language: "",
             text_data: "",
+            text_highlights: [],
           },
         ]);
         break;
@@ -302,6 +303,10 @@ export default function EditPoc() {
                       return {
                         ...poc,
                         index,
+                        text_highlights: (poc as PocTextDoc).text_highlights?.map(highlight => ({
+                          ...highlight,
+                          selectionPreview: undefined,
+                        })),
                         image_file: undefined,
                         key: undefined,
                       };

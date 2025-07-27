@@ -1,7 +1,6 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
-import { getKryveaShadow } from "./api/cookie";
 import Button from "./components/Form/Button";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
@@ -34,6 +33,7 @@ import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
@@ -46,16 +46,12 @@ export const GlobalContext = createContext<GlobalContextType>(null);
 export default function App() {
   const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
   const [darkTheme] = useDarkTheme;
+  const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
-
-  const USER_ROLE_ADMIN = "admin";
-  const USER_ROLE_USER = "user";
-
-  const userRole = getKryveaShadow();
 
   useLayoutEffect(() => {
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
@@ -86,6 +82,7 @@ export default function App() {
     <GlobalContext.Provider
       value={{
         useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useUsername: bindToLocalStorage(useUsername, "useUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),

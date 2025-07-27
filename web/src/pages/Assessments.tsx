@@ -131,7 +131,7 @@ export default function Assessments() {
       {/* Clone Modal */}
       <Modal
         title="Clone assessment"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalCloneActive}
         onConfirm={confirmClone}
         onCancel={() => setIsModalCloneActive(false)}
@@ -149,7 +149,7 @@ export default function Assessments() {
       {/* Download Modal */}
       <Modal
         title="Download report"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalDownloadActive}
         onConfirm={exportAssessment}
         onCancel={() => setIsModalDownloadActive(false)}
@@ -193,7 +193,7 @@ export default function Assessments() {
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={confirmDelete}
         onCancel={() => setIsModalTrashActive(false)}
