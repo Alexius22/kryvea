@@ -21,30 +21,31 @@ type Poc struct {
 }
 
 type PocItem struct {
-	Index         int             `json:"index" bson:"index"`
-	Type          string          `json:"type" bson:"type"`
-	Description   string          `json:"description" bson:"description"`
-	URI           string          `json:"uri,omitempty" bson:"uri,omitempty"`
-	Request       string          `json:"request,omitempty" bson:"request,omitempty"`
-	Response      string          `json:"response,omitempty" bson:"response,omitempty"`
-	ImageID       uuid.UUID       `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageFilename string          `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
-	ImageCaption  string          `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
-	TextLanguage  string          `json:"text_language,omitempty" bson:"text_language,omitempty"`
-	TextData      string          `json:"text_data,omitempty" bson:"text_data,omitempty"`
-	TextHighlight HighlightedText `json:"text_highlight,omitempty" bson:"text_highlight,omitempty"`
+	Index          int               `json:"index" bson:"index"`
+	Type           string            `json:"type" bson:"type"`
+	Description    string            `json:"description" bson:"description"`
+	URI            string            `json:"uri,omitempty" bson:"uri,omitempty"`
+	Request        string            `json:"request,omitempty" bson:"request,omitempty"`
+	Response       string            `json:"response,omitempty" bson:"response,omitempty"`
+	ImageID        uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageFilename  string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageCaption   string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
+	TextLanguage   string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
+	TextData       string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
+	TextHighlights []HighlightedText `json:"text_highlights,omitempty" bson:"text_highlights,omitempty"`
 	// Only populated on report generation
 	ImageData []byte `json:"-" bson:"-"`
 }
 
 type HighlightedText struct {
-	Start LineCol `json:"start"`
-	End   LineCol `json:"end"`
+	Start           LineCol `json:"start" bson:"start"`
+	End             LineCol `json:"end" bson:"end"`
+	SelectedPreview string  `json:"selectionPreview" bson:"selection_preview"`
 }
 
 type LineCol struct {
-	Line uint `json:"line"`
-	Col  uint `json:"col"`
+	Line uint `json:"line" bson:"line"`
+	Col  uint `json:"col" bson:"col"`
 }
 
 type PocIndex struct {

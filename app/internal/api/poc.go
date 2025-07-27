@@ -15,17 +15,17 @@ import (
 // }
 
 type pocData struct {
-	Index          int                   `json:"index"`
-	Type           string                `json:"type"`
-	Description    string                `json:"description"`
-	URI            string                `json:"uri"`
-	Request        string                `json:"request"`
-	Response       string                `json:"response"`
-	ImageReference string                `json:"image_reference"`
-	ImageCaption   string                `json:"image_caption"`
-	TextLanguage   string                `json:"text_language"`
-	TextData       string                `json:"text_data"`
-	TextHighlight  mongo.HighlightedText `json:"text_highlight"`
+	Index          int                     `json:"index"`
+	Type           string                  `json:"type"`
+	Description    string                  `json:"description"`
+	URI            string                  `json:"uri"`
+	Request        string                  `json:"request"`
+	Response       string                  `json:"response"`
+	ImageReference string                  `json:"image_reference"`
+	ImageCaption   string                  `json:"image_caption"`
+	TextLanguage   string                  `json:"text_language"`
+	TextData       string                  `json:"text_data"`
+	TextHighlights []mongo.HighlightedText `json:"text_highlights"`
 }
 
 // func (d *Driver) AddPocs(c *fiber.Ctx) error {
@@ -279,18 +279,18 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 			}
 		}
 		pocUpsert.Pocs = append(pocUpsert.Pocs, mongo.PocItem{
-			Index:         pocData.Index,
-			Type:          pocData.Type,
-			Description:   pocData.Description,
-			URI:           pocData.URI,
-			Request:       pocData.Request,
-			Response:      pocData.Response,
-			ImageID:       imageID,
-			ImageFilename: pocImageFilename,
-			ImageCaption:  pocData.ImageCaption,
-			TextLanguage:  pocData.TextLanguage,
-			TextData:      pocData.TextData,
-			TextHighlight: pocData.TextHighlight,
+			Index:          pocData.Index,
+			Type:           pocData.Type,
+			Description:    pocData.Description,
+			URI:            pocData.URI,
+			Request:        pocData.Request,
+			Response:       pocData.Response,
+			ImageID:        imageID,
+			ImageFilename:  pocImageFilename,
+			ImageCaption:   pocData.ImageCaption,
+			TextLanguage:   pocData.TextLanguage,
+			TextData:       pocData.TextData,
+			TextHighlights: pocData.TextHighlights,
 		})
 	}
 
