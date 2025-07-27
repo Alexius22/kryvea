@@ -303,10 +303,6 @@ export default function EditPoc() {
                       return {
                         ...poc,
                         index,
-                        text_highlights: (poc as PocTextDoc).text_highlights?.map(highlight => ({
-                          ...highlight,
-                          selectionPreview: undefined,
-                        })),
                         image_file: undefined,
                         key: undefined,
                       };
