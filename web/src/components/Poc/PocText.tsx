@@ -49,7 +49,6 @@ export default function PocText({
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
-  const textInputId = `poc-text-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
   const startingLineNumberId = `poc-starting-line-number-${currentIndex}-${pocDoc.key}`;
 
@@ -60,16 +59,6 @@ export default function PocText({
       label: options.find(option => option.value === pocDoc.text_language)?.label,
       value: pocDoc.text_language || "plaintext",
     });
-  };
-
-  const showHighlightedModal = () => {
-    const highlights = pocDoc.text_highlights || [];
-    if (highlights.length === 0) {
-      alert("No highlights to show");
-      return;
-    }
-    const highlightedText = highlights.map(highlight => highlight.selectionPreview).join("\n");
-    alert(`Highlighted Text:\n${highlightedText}`);
   };
 
   return (
@@ -97,6 +86,7 @@ export default function PocText({
         <Grid>
           {pocDoc.text_highlights?.map((highlight, i) => {
             const [line, col, text] = highlight?.selectionPreview.split(":");
+            const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
             return (
               <Button
                 className="hover:bg-red-400/20"
@@ -104,9 +94,10 @@ export default function PocText({
                 onClick={() =>
                   onSetCodeSelection(
                     currentIndex,
-                    pocDoc.text_highlights.flatMap((el, j) => (i !== j ? el : []))
+                    pocDoc.text_highlights.filter((_, j) => i !== j)
                   )
                 }
+                key={codeSelectionKey}
               >
                 <DescribedCode subtitle={`line ${line} col ${col}`} text={text} />
               </Button>
@@ -177,7 +168,7 @@ export default function PocText({
                 iconSize={24}
                 onClick={() => {
                   setSelectedText(undefined);
-                  onSetCodeSelection(currentIndex, undefined);
+                  onSetCodeSelection(currentIndex, []);
                 }}
               />
             </Buttons>
