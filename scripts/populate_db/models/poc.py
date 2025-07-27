@@ -8,6 +8,18 @@ from models.base import Base
 
 
 @dataclass
+class LineCol:
+    line: int
+    col: int
+
+
+@dataclass
+class HighlightedText:
+    start: LineCol
+    end: LineCol
+
+
+@dataclass
 class PocData(Base):
     type: str
     index: int = 0
@@ -20,6 +32,11 @@ class PocData(Base):
     image_caption: str = field(default_factory=lambda: utils.rand_string(10))
     text_language: str = field(default_factory=utils.rand_code_language)
     text_data: str = field(default_factory=lambda: utils.rand_string(20))
+    text_highlight: HighlightedText = field(
+        default_factory=lambda: HighlightedText(
+            start=LineCol(line=0, col=1), end=LineCol(line=0, col=10)
+        )
+    )
 
 
 @dataclass
@@ -40,6 +57,16 @@ class Poc(Base):
                 "image_caption": poc_data.image_caption,
                 "text_language": poc_data.text_language,
                 "text_data": poc_data.text_data,
+                "text_highlight": {
+                    "start": {
+                        "line": poc_data.text_highlight.start.line,
+                        "col": poc_data.text_highlight.start.col,
+                    },
+                    "end": {
+                        "line": poc_data.text_highlight.end.line,
+                        "col": poc_data.text_highlight.end.col,
+                    },
+                },
             }
             for poc_data in self.poc_data
         ]
