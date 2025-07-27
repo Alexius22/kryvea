@@ -14,7 +14,7 @@ import {
   POC_TYPE_RICH_TEXT,
   POC_TYPE_TEXT,
 } from "../components/Poc/Poc.consts";
-import { PocDoc, PocImageDoc, PocTextDoc, PocType } from "../components/Poc/Poc.types";
+import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocRichText from "../components/Poc/PocRichText";
@@ -63,13 +63,13 @@ export default function EditPoc() {
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
   }, [goToBottom]);
 
-  function onSetCodeSelection(currentIndex, text_highlights: MonacoTextSelection[]) {
+  function onSetCodeSelection<T>(currentIndex, property: keyof Omit<T, "key">, highlights: MonacoTextSelection[]) {
     setPocList(prev => {
       const newPocList = [...prev];
       newPocList[currentIndex] = {
         ...newPocList[currentIndex],
-        text_highlights,
-      } as PocTextDoc;
+        [property]: highlights,
+      };
       return newPocList;
     });
   }

@@ -23,7 +23,11 @@ type PocTextProps = {
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
-  onSetCodeSelection: (currentIndex: number, textSelection: MonacoTextSelection[]) => void;
+  onSetCodeSelection: <T>(
+    currentIndex: number,
+    property: keyof Omit<T, "key">,
+    textSelection: MonacoTextSelection[]
+  ) => void;
   selectedPoc: number;
   setSelectedPoc: (index: number) => void;
 };
@@ -92,8 +96,9 @@ export default function PocText({
                 className="hover:bg-red-400/20"
                 variant="outline-only"
                 onClick={() =>
-                  onSetCodeSelection(
+                  onSetCodeSelection<PocTextDoc>(
                     currentIndex,
+                    "text_highlights",
                     pocDoc.text_highlights.filter((_, j) => i !== j)
                   )
                 }
@@ -149,7 +154,12 @@ export default function PocText({
                   title="Add highlight"
                   icon={mdiFormatColorHighlight}
                   iconSize={24}
-                  onClick={() => onSetCodeSelection(currentIndex, [...(pocDoc.text_highlights ?? []), ...selectedText])}
+                  onClick={() =>
+                    onSetCodeSelection<PocTextDoc>(currentIndex, "text_highlights", [
+                      ...(pocDoc.text_highlights ?? []),
+                      ...selectedText,
+                    ])
+                  }
                 />
                 <Button
                   disabled={!pocDoc.text_highlights?.length}
@@ -168,7 +178,7 @@ export default function PocText({
                 iconSize={24}
                 onClick={() => {
                   setSelectedText(undefined);
-                  onSetCodeSelection(currentIndex, []);
+                  onSetCodeSelection<PocTextDoc>(currentIndex, "text_highlights", []);
                 }}
               />
             </Buttons>
