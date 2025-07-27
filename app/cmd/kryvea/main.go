@@ -7,10 +7,8 @@ import (
 )
 
 func main() {
-	levelWriter := log.NewLogger(
-		config.GetLogFilePath(),
-		config.GetErrorLogFilePath(),
-		config.GetDebugLogFilePath(),
+	levelWriter := log.NewLevelWriter(
+		config.GetLogDirectory(),
 		config.GetLogMaxSizeMB(),
 		config.GetLogMaxBackups(),
 		config.GetLogMaxAgeDays(),
@@ -26,12 +24,8 @@ func main() {
 		levelWriter,
 	)
 	if err != nil {
-		// fmt.Println("Unable to create engine:", err)
-		// logger.Logger.Error().Err(err).Msg("Unable to create engine")
 		return
 	}
-
-	// logger.Logger.Info().Msgf("Starting Kryvea on %s", config.GetListeningAddr())
 
 	engine.Serve()
 }

@@ -3,9 +3,15 @@ package log
 import (
 	"io"
 	"os"
+	"path/filepath"
 
+	"github.com/Alexius22/kryvea/internal/config"
 	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+const (
+	logFileName = "kryvea.log"
 )
 
 type levelWriter struct {
@@ -25,37 +31,23 @@ func (lw levelWriter) WriteLevel(level zerolog.Level, p []byte) (n int, err erro
 	return len(p), nil
 }
 
-func NewLogger(logFilePath, errorLogFilePath, debugLogFilePath string, maxSizeMB, maxBackups, maxAgeDays int, compress bool) *zerolog.LevelWriter {
-	infoLogWriter := &lumberjack.Logger{
-		Filename:   logFilePath,
+func NewLevelWriter(logPath string, maxSizeMB, maxBackups, maxAgeDays int, compress bool) *zerolog.LevelWriter {
+	logWriter := &lumberjack.Logger{
+		Filename:   filepath.Join(logPath, logFileName),
 		MaxSize:    maxSizeMB,
 		MaxBackups: maxBackups,
 		MaxAge:     maxAgeDays,
 		Compress:   compress,
 	}
 
-	errorLogWriter := &lumberjack.Logger{
-		Filename:   errorLogFilePath,
-		MaxSize:    maxSizeMB,
-		MaxBackups: maxBackups,
-		MaxAge:     maxAgeDays,
-		Compress:   compress,
-	}
-
-	debugLogWriter := &lumberjack.Logger{
-		Filename:   debugLogFilePath,
-		MaxSize:    maxSizeMB,
-		MaxBackups: maxBackups,
-		MaxAge:     maxAgeDays,
-		Compress:   compress,
-	}
-
-	logWriter := zerolog.MultiLevelWriter(
-		levelWriter{writer: os.Stdout, minLevel: zerolog.InfoLevel, maxLevel: zerolog.FatalLevel},
-		levelWriter{writer: infoLogWriter, minLevel: zerolog.InfoLevel, maxLevel: zerolog.InfoLevel},
-		levelWriter{writer: errorLogWriter, minLevel: zerolog.ErrorLevel, maxLevel: zerolog.FatalLevel},
-		levelWriter{writer: debugLogWriter, minLevel: zerolog.DebugLevel, maxLevel: zerolog.DebugLevel},
+	levelWriter := zerolog.MultiLevelWriter(
+		levelWriter{writer: os.Stdout, minLevel: zerolog.DebugLevel, maxLevel: zerolog.PanicLevel},
+		levelWriter{writer: logWriter, minLevel: zerolog.DebugLevel, maxLevel: zerolog.PanicLevel},
 	)
 
-	return &logWriter
+	return &levelWriter
+}
+
+func GetLogPath() string {
+	return filepath.Join(config.GetLogDirectory(), logFileName)
 }

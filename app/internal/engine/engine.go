@@ -101,11 +101,12 @@ func (e *Engine) Serve() {
 		apiGroup.Patch("/users/me", api.UpdateMe)
 		apiGroup.Patch("/users/me/assessments", api.UpdateOwnedAssessment)
 
+		apiGroup.Post("/password/reset", api.ResetPassword)
+
 		apiGroup.Post("/logout", api.Logout)
 
 		// endpoints that don't require authentication
 		apiGroup.Post("/login", api.Login)
-		apiGroup.Post("/password/reset", api.ResetPassword)
 	}
 
 	adminGroup := apiGroup.Group("/admin")
@@ -126,6 +127,8 @@ func (e *Engine) Serve() {
 		adminGroup.Post("/users/:user/reset-password", api.ResetUserPassword)
 		adminGroup.Patch("/users/:user", api.UpdateUser)
 		adminGroup.Delete("/users/:user", api.DeleteUser)
+
+		adminGroup.Get("/logs", api.GetLog)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
