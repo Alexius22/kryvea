@@ -14,26 +14,37 @@ const (
 	pocCollection = "poc"
 )
 
-type PocItem struct {
-	Index         int       `json:"index" bson:"index"`
-	Type          string    `json:"type" bson:"type"`
-	Description   string    `json:"description" bson:"description"`
-	URI           string    `json:"uri,omitempty" bson:"uri,omitempty"`
-	Request       string    `json:"request,omitempty" bson:"request,omitempty"`
-	Response      string    `json:"response,omitempty" bson:"response,omitempty"`
-	ImageID       uuid.UUID `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageFilename string    `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
-	ImageCaption  string    `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
-	TextLanguage  string    `json:"text_language,omitempty" bson:"text_language,omitempty"`
-	TextData      string    `json:"text_data,omitempty" bson:"text_data,omitempty"`
-	// Only populated on report generation
-	ImageData []byte `json:"-" bson:"-"`
-}
-
 type Poc struct {
 	Model           `bson:",inline"`
 	Pocs            []PocItem `json:"pocs" bson:"pocs"`
 	VulnerabilityID uuid.UUID `json:"vulnerability_id" bson:"vulnerability_id"`
+}
+
+type PocItem struct {
+	Index         int             `json:"index" bson:"index"`
+	Type          string          `json:"type" bson:"type"`
+	Description   string          `json:"description" bson:"description"`
+	URI           string          `json:"uri,omitempty" bson:"uri,omitempty"`
+	Request       string          `json:"request,omitempty" bson:"request,omitempty"`
+	Response      string          `json:"response,omitempty" bson:"response,omitempty"`
+	ImageID       uuid.UUID       `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageFilename string          `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageCaption  string          `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
+	TextLanguage  string          `json:"text_language,omitempty" bson:"text_language,omitempty"`
+	TextData      string          `json:"text_data,omitempty" bson:"text_data,omitempty"`
+	TextHighlight HighlightedText `json:"text_highlight,omitempty" bson:"text_highlight,omitempty"`
+	// Only populated on report generation
+	ImageData []byte `json:"-" bson:"-"`
+}
+
+type HighlightedText struct {
+	Start LineCol `json:"start"`
+	End   LineCol `json:"end"`
+}
+
+type LineCol struct {
+	Line uint `json:"line"`
+	Col  uint `json:"col"`
 }
 
 type PocIndex struct {
