@@ -99,7 +99,7 @@ export default function Categories() {
       {/* Delete single category modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleModalTrashConfirm}
         onCancel={() => {
@@ -115,7 +115,7 @@ export default function Categories() {
       {/* Manage categories modal */}
       <Modal
         title="Categories management"
-        buttonLabel="Upload"
+        confirmButtonLabel="Upload"
         isActive={isModalManageActive}
         onConfirm={handleModalManageConfirm}
         onCancel={() => setIsModalManageActive(false)}

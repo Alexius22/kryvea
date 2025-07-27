@@ -5,35 +5,28 @@ import Grid from "../Composition/Grid";
 import Label from "./Label";
 import { SelectOption } from "./SelectWrapper.types";
 
-type SelectWrapperProps = {
+interface CommonProps {
   label?: string;
   className?: string;
   options: SelectOption[];
+  defaultValue?: SelectOption | SelectOption[];
+  widthFixed?: boolean;
+  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  closeMenuOnSelect?: boolean;
+  id?: string;
+  small?: boolean;
+}
+interface SelectWrapperSingleProps extends CommonProps {
+  isMulti?: false | undefined;
+  value?: SelectOption;
   onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
-  value?: SelectOption | SelectOption[];
-  defaultValue?;
-  isMulti?: false;
-  widthFixed?: boolean;
-  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
-  closeMenuOnSelect?: boolean;
-  id?: string;
-  small?: boolean;
-};
-type SelectWrapperMultiProps = {
-  label?: string;
-  className?: string;
-  options: SelectOption[];
-  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
-  value?: SelectOption | SelectOption[];
-  defaultValue?;
-  isMulti?: true;
-  widthFixed?: boolean;
-  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
-  closeMenuOnSelect?: boolean;
-  id?: string;
-  small?: boolean;
-};
+}
 
+interface SelectWrapperMultiProps extends CommonProps {
+  isMulti: true;
+  value?: SelectOption[];
+  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
+}
 export default function SelectWrapper({
   className,
   options,
@@ -47,7 +40,7 @@ export default function SelectWrapper({
   id,
   label,
   small,
-}: SelectWrapperProps | SelectWrapperMultiProps) {
+}: SelectWrapperSingleProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
   const [width, setWidth] = useState<number>(0);
   const measureRef = useRef<HTMLSpanElement>(null);
@@ -65,7 +58,7 @@ export default function SelectWrapper({
     }
   };
 
-  const onChangeWrapper = (newValue, actionMeta: ActionMeta<any>) => {
+  const onChangeWrapper = (newValue: any, actionMeta: ActionMeta<any>) => {
     if (isMulti && newValue.some(option => option.value === "all")) {
       newValue = options.filter(option => option.value !== "all");
       onChange(newValue, actionMeta);

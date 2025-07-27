@@ -85,7 +85,7 @@ export default function Targets() {
       {/* Edit Target Modal */}
       <Modal
         title="Edit Target"
-        buttonLabel="Save"
+        confirmButtonLabel="Save"
         isActive={isModalEditActive}
         onConfirm={handleEditConfirm}
         onCancel={() => setIsModalEditActive(false)}
@@ -129,7 +129,7 @@ export default function Targets() {
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setIsModalTrashActive(false)}

@@ -1,25 +1,44 @@
-import { mdiAccount } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { patchData } from "../api/api";
+import { getData, patchData } from "../api/api";
+import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
+import CardTitle from "../components/CardBox/CardTitle";
 import Grid from "../components/Composition/Grid";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
+import { User } from "../types/common.types";
 
 export default function Profile() {
+  const {
+    useUsername: [username, setUsername],
+  } = useContext(GlobalContext);
+
+  const [user, setUser] = useState<User | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     document.title = getPageTitle("Profile");
+    getData<User>("/api/users/me", setUser);
   }, []);
 
-  const handleSubmit = () => {
+  const handleUsernameSubmit = () => {
+    if (!user) {
+      toast.error("Username is required");
+      return;
+    }
+
+    patchData<{ message: string }>("/api/users/me", { username: user.username }, () => {
+      toast.success("Username updated successfully");
+      setUsername(user.username);
+    });
+  };
+
+  const handlePasswordSubmit = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill in all required fields");
       return;
@@ -44,45 +63,77 @@ export default function Profile() {
 
   return (
     <div>
-      <SectionTitleLineWithButton icon={mdiAccount} title="Profile" />
-      <Card className="w-1/3 max-w-full">
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
-          <Grid className="gap-4 p-1">
-            <Input
-              type={"password"}
-              id="current_password"
-              label="Current password"
-              helperSubtitle="Required"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-            />
-
-            <Input
-              type={"password"}
-              id="new_password"
-              label="New password"
-              helperSubtitle="Required"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-            />
-            <Input
-              type="password"
-              id="confirm_password"
-              label="Confirm password"
-              helperSubtitle="Required"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-            />
-          </Grid>
-          <Divider />
-          <Button text="Update" formSubmit />
-        </form>
-      </Card>
+      <Grid className="grid-cols-2 !items-start gap-4">
+        <Card>
+          <CardTitle title={"Change username"} />
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handleUsernameSubmit();
+            }}
+          >
+            <Grid>
+              <Input
+                type="text"
+                id="username"
+                label="Username"
+                value={user?.username}
+                helperSubtitle="Required"
+                onChange={e => setUser({ ...user, username: e.target.value })}
+              />
+              <Input
+                disabled
+                type="datetime-local"
+                id="disable_date"
+                label="Account will be disabled on"
+                value={user?.disabled_at.substring(0, 16)}
+                helperSubtitle=""
+              />
+              <Input disabled type="text" id="role" label="Role" value={user?.role} helperSubtitle="" />
+              <Divider />
+            </Grid>
+            <Button text="Update" formSubmit />
+          </form>
+        </Card>
+        <Card>
+          <CardTitle title={"Change password"} />
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handlePasswordSubmit();
+            }}
+          >
+            <Grid>
+              <Input
+                type="password"
+                id="current_password"
+                label="Current password"
+                helperSubtitle="Required"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                id="new_password"
+                label="New password"
+                helperSubtitle="Required"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                id="confirm_password"
+                label="Confirm password"
+                helperSubtitle="Required"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+              />
+              <Divider />
+            </Grid>
+            <Button text="Update" formSubmit />
+          </form>
+        </Card>
+      </Grid>
     </div>
   );
 }

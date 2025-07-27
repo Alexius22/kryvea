@@ -107,7 +107,7 @@ export default function Customers() {
       {/* Edit Customer Modal */}
       <Modal
         title="Edit customer"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalCustomerActive}
         onConfirm={handleEditConfirm}
         onCancel={handleModalClose}
@@ -136,7 +136,7 @@ export default function Customers() {
       {/* Delete Confirmation Modal */}
       <Modal
         title="Please confirm: action irreversible"
-        buttonLabel="Confirm"
+        confirmButtonLabel="Confirm"
         isActive={isModalTrashActive}
         onConfirm={handleDeleteConfirm}
         onCancel={handleModalClose}

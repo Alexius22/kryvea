@@ -105,22 +105,6 @@ export type Category = {
   references: string[];
 };
 
-export type Poc = {
-  id: string;
-  index: number;
-  type: string;
-  description: string;
-  uri: string;
-  request: string;
-  response: string;
-  image_id: string;
-  image_data: string;
-  image_caption: string;
-  text_language: string;
-  text_data: string;
-  vulnerability_id: string;
-};
-
 export type TemplateExport = {
   template_name: string;
   template_file: File | null;
