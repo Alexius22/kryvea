@@ -36,10 +36,6 @@ export default function PocRequestResponse({
 }: PocRequestResponseProps) {
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const urlInputId = `poc-url-${currentIndex}-${pocDoc.key}`;
-  const requestTextareaId = `poc-request-${currentIndex}-${pocDoc.key}`;
-  const responseTextareaId = `poc-response-${currentIndex}-${pocDoc.key}`;
-
-  console.log(pocDoc.request_highlights?.length <= 0);
 
   return (
     <PocTemplate
@@ -79,6 +75,7 @@ export default function PocRequestResponse({
           code={pocDoc.request}
           selectedLanguage="http"
           ideStartingLineNumber={0}
+          textHighlights={pocDoc.request_highlights}
           onChange={code =>
             onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value: code } } as any)
           }
@@ -93,6 +90,7 @@ export default function PocRequestResponse({
           code={pocDoc.response}
           selectedLanguage="http"
           ideStartingLineNumber={0}
+          textHighlights={pocDoc.response_highlights}
           onChange={code =>
             onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value: code } } as any)
           }

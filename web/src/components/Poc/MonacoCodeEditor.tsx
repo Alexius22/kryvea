@@ -1,6 +1,6 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
 import { MonacoTextSelection } from "./MonacoCodeEditor.types";
@@ -13,6 +13,7 @@ interface MonacoCodeEditorProps {
   ideStartingLineNumber?: number;
   height?: string;
   stopLineNumberAt?: number;
+  textHighlights?: MonacoTextSelection[];
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
   onChange?: (value: string) => void;
   onLanguageOptionsInit?;
@@ -27,12 +28,38 @@ export default function MonacoCodeEditor({
   ideStartingLineNumber = 0,
   height = "400px",
   stopLineNumberAt,
+  textHighlights = [],
   options,
   onChange = () => {},
   onLanguageOptionsInit = () => {},
   onTextSelection = (x: MonacoTextSelection) => {},
 }: MonacoCodeEditorProps) {
-  const editorRef = useRef(null);
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+  const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
+
+  const highlightCode = (className = "bg-neutral-700/50") => {
+    if (!editor) {
+      return;
+    }
+
+    const decorations: monaco.editor.IModelDeltaDecoration[] = textHighlights.map(({ start, end }) => ({
+      range: new monaco.Range(start.line, start.col, end.line, end.col),
+      options: {
+        className,
+        isWholeLine: false,
+      },
+    }));
+
+    if (!decorationsRef.current) {
+      decorationsRef.current = editor.createDecorationsCollection(decorations);
+    } else {
+      decorationsRef.current.set(decorations);
+    }
+  };
+
+  useEffect(() => {
+    highlightCode();
+  }, [textHighlights, editor]);
 
   const handleBeforeMount = (monaco: Monaco) => {
     monaco.languages.register({ id: "http" });
@@ -126,7 +153,7 @@ export default function MonacoCodeEditor({
   };
 
   const handleEditorMount: OnMount = editor => {
-    editorRef.current = editor;
+    setEditor(editor);
 
     editor.onDidChangeCursorSelection(e => {
       const { selection, secondarySelections } = e;
