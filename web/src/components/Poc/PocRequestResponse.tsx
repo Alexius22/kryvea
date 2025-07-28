@@ -1,6 +1,8 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
+import Grid from "../Composition/Grid";
 import Input from "../Form/Input";
+import Label from "../Form/Label";
 import Textarea from "../Form/Textarea";
 import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
@@ -66,37 +68,43 @@ export default function PocRequestResponse({
         onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "uri")}
       />
 
-      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
-        <PocCodeEditor
-          pocDoc={pocDoc}
-          disableViewHighlights={(pocDoc?.request_highlights ?? []).length <= 0}
-          currentIndex={currentIndex}
-          highlightsProperty="request_highlights"
-          code={pocDoc.request}
-          selectedLanguage="http"
-          ideStartingLineNumber={0}
-          textHighlights={pocDoc.request_highlights}
-          onChange={code =>
-            onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value: code } } as any)
-          }
-          onSetCodeSelection={onSetCodeSelection}
-        />
+      <Grid className="grid-cols-1 gap-4 2xl:grid-cols-2">
+        <Grid>
+          <Label text="Request" />
+          <PocCodeEditor
+            pocDoc={pocDoc}
+            disableViewHighlights={(pocDoc?.request_highlights ?? []).length <= 0}
+            currentIndex={currentIndex}
+            highlightsProperty="request_highlights"
+            code={pocDoc.request}
+            selectedLanguage="http"
+            ideStartingLineNumber={0}
+            textHighlights={pocDoc.request_highlights}
+            onChange={code =>
+              onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value: code } } as any)
+            }
+            onSetCodeSelection={onSetCodeSelection}
+          />
+        </Grid>
 
-        <PocCodeEditor
-          pocDoc={pocDoc}
-          disableViewHighlights={(pocDoc?.response_highlights ?? []).length <= 0}
-          currentIndex={currentIndex}
-          highlightsProperty="response_highlights"
-          code={pocDoc.response}
-          selectedLanguage="http"
-          ideStartingLineNumber={0}
-          textHighlights={pocDoc.response_highlights}
-          onChange={code =>
-            onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value: code } } as any)
-          }
-          onSetCodeSelection={onSetCodeSelection}
-        />
-      </div>
+        <Grid>
+          <Label text="Response" />
+          <PocCodeEditor
+            pocDoc={pocDoc}
+            disableViewHighlights={(pocDoc?.response_highlights ?? []).length <= 0}
+            currentIndex={currentIndex}
+            highlightsProperty="response_highlights"
+            code={pocDoc.response}
+            selectedLanguage="http"
+            ideStartingLineNumber={0}
+            textHighlights={pocDoc.response_highlights}
+            onChange={code =>
+              onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value: code } } as any)
+            }
+            onSetCodeSelection={onSetCodeSelection}
+          />
+        </Grid>
+      </Grid>
     </PocTemplate>
   );
 }
