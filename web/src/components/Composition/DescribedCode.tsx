@@ -11,8 +11,8 @@ type DescribedCodeProps = {
 export default function DescribedCode({ className, subtitle, text, children }: DescribedCodeProps) {
   return (
     <Grid className={className}>
-      <Subtitle className="ml-2 opacity-50" text={subtitle} />
-      {text && <code>{text}</code>}
+      <Subtitle className="opacity-50" text={subtitle} />
+      {text && <code className="whitespace-pre text-justify">{text}</code>}
       {children}
     </Grid>
   );
