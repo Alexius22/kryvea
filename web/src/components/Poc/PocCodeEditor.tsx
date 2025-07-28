@@ -19,6 +19,7 @@ type PocCodeEditorProps = {
   disableViewHighlights: boolean;
   selectedLanguage: string;
   ideStartingLineNumber?: number;
+  textHighlights?: MonacoTextSelection[];
   onChange?: (value: string) => void;
   onSetCodeSelection?: (currentIndex: number, property: string, textSelection: MonacoTextSelection[]) => void;
   onLanguageOptionsInit?: (options: SelectOption[]) => void;
@@ -34,6 +35,7 @@ export default function PocCodeEditor({
   code,
   disableViewHighlights,
   ideStartingLineNumber,
+  textHighlights = [],
   onChange = () => {},
   onSetCodeSelection = () => {},
   onLanguageOptionsInit = () => {},
@@ -113,6 +115,7 @@ export default function PocCodeEditor({
       <MonacoCodeEditor
         value={code}
         ideStartingLineNumber={ideStartingLineNumber}
+        textHighlights={textHighlights}
         onTextSelection={setSelectedText}
         language={selectedLanguage}
         onLanguageOptionsInit={onLanguageOptionsInit}

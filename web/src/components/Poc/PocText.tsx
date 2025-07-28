@@ -117,6 +117,7 @@ export default function PocText({
             pocDoc={pocDoc}
             selectedLanguage={selectedLanguage.value}
             ideStartingLineNumber={ideStartingLineNumber}
+            textHighlights={pocDoc.text_highlights}
             code={pocDoc.text_data}
             disableViewHighlights={(pocDoc?.text_highlights ?? []).length <= 0}
             currentIndex={currentIndex}
