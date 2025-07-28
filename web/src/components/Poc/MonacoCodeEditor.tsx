@@ -14,6 +14,7 @@ interface MonacoCodeEditorProps {
   height?: string;
   stopLineNumberAt?: number;
   textHighlights?: MonacoTextSelection[];
+  removeDisappearedHighlights: (indexes: number[]) => void;
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
   onChange?: (value: string) => void;
   onLanguageOptionsInit?;
@@ -29,6 +30,7 @@ export default function MonacoCodeEditor({
   height = "400px",
   stopLineNumberAt,
   textHighlights = [],
+  removeDisappearedHighlights = () => {},
   options,
   onChange = () => {},
   onLanguageOptionsInit = () => {},
@@ -41,14 +43,26 @@ export default function MonacoCodeEditor({
     if (!editor) {
       return;
     }
+    const model = editor.getModel();
+    if (!model) {
+      return;
+    }
 
-    const decorations: monaco.editor.IModelDeltaDecoration[] = textHighlights.map(({ start, end }) => ({
-      range: new monaco.Range(start.line, start.col, end.line, end.col),
-      options: {
-        className,
-        isWholeLine: false,
-      },
-    }));
+    const decorations: monaco.editor.IModelDeltaDecoration[] = textHighlights
+      .filter(({ start, end, selectionPreview }, i) => {
+        const range = new monaco.Range(start.line, start.col, end.line, end.col);
+        const actualText = model.getValueInRange(range);
+        const textHighlightMatches = actualText === selectionPreview;
+
+        return textHighlightMatches;
+      })
+      .map(({ start, end }) => ({
+        range: new monaco.Range(start.line, start.col, end.line, end.col),
+        options: {
+          className,
+          isWholeLine: false,
+        },
+      }));
 
     if (!decorationsRef.current) {
       decorationsRef.current = editor.createDecorationsCollection(decorations);
@@ -57,9 +71,41 @@ export default function MonacoCodeEditor({
     }
   };
 
+  const checkDisappearedHighlights = () => {
+    const model = editor.getModel();
+    if (!model) {
+      return;
+    }
+    const disappearedHighlightsIndexes = textHighlights.flatMap(({ start, end, selectionPreview }, i) => {
+      const range = new monaco.Range(start.line, start.col, end.line, end.col);
+      const actualText = model.getValueInRange(range);
+      const textHighlightMatches = actualText === selectionPreview;
+
+      if (!textHighlightMatches) {
+        return i;
+      }
+
+      return [];
+    });
+
+    if (disappearedHighlightsIndexes.length > 0) {
+      removeDisappearedHighlights(disappearedHighlightsIndexes);
+    }
+  };
+
   useEffect(() => {
     highlightCode();
   }, [textHighlights, editor]);
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const defuseDisapparedHighlights = setTimeout(checkDisappearedHighlights, 500);
+    return () => {
+      clearTimeout(defuseDisapparedHighlights);
+    };
+  }, [value]);
 
   const handleBeforeMount = (monaco: Monaco) => {
     monaco.languages.register({ id: "http" });
@@ -165,7 +211,7 @@ export default function MonacoCodeEditor({
       const toMonacoTextSelection = (sel: monaco.Selection): MonacoTextSelection => ({
         start: { line: sel.startLineNumber, col: sel.startColumn },
         end: { line: sel.endLineNumber, col: sel.endColumn },
-        selectionPreview: `${sel.startLineNumber}:${sel.startColumn}:${editor.getModel()?.getValueInRange(sel)}`,
+        selectionPreview: `${editor.getModel()?.getValueInRange(sel)}`,
       });
 
       const secondaryTextSelections = secondarySelections.map(toMonacoTextSelection);

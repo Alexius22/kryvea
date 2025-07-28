@@ -56,8 +56,11 @@ export default function PocCodeEditor({
         onCancel={() => setShowHighlightedTextModal(false)}
       >
         <Grid>
-          {pocDoc[highlightsProperty]?.map((highlight, i) => {
-            const [line, col, text] = highlight?.selectionPreview.split(":");
+          {pocDoc[highlightsProperty]?.map((highlight: MonacoTextSelection, i) => {
+            const {
+              start: { line, col },
+              selectionPreview: text,
+            } = highlight;
             const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
             return (
               <Button
@@ -122,6 +125,10 @@ export default function PocCodeEditor({
         value={code}
         ideStartingLineNumber={ideStartingLineNumber}
         textHighlights={textHighlights}
+        removeDisappearedHighlights={indexes => {
+          const filteredHighlights = pocDoc[highlightsProperty]?.filter((_, i) => !indexes.includes(i));
+          onSetCodeSelection(currentIndex, highlightsProperty, filteredHighlights);
+        }}
         onTextSelection={setSelectedText}
         language={selectedLanguage}
         onLanguageOptionsInit={onLanguageOptionsInit}
