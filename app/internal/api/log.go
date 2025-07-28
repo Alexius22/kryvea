@@ -35,8 +35,10 @@ func (d *Driver) GetLog(c *fiber.Ctx) error {
 	for _, level := range strings.Split(levels, ",") {
 		level = strings.ToLower(strings.TrimSpace(level))
 		if parsedLevel, err := zerolog.ParseLevel(level); err == nil {
-			levelsMap[parsedLevel.String()] = true
-			i++
+			if _, exists := levelsMap[parsedLevel.String()]; exists {
+				levelsMap[parsedLevel.String()] = true
+				i++
+			}
 		}
 	}
 
