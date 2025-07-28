@@ -37,7 +37,7 @@ export default function MonacoCodeEditor({
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
 
-  const highlightCode = (className = "bg-neutral-700/50") => {
+  const highlightCode = (className = "bg-green-900") => {
     if (!editor) {
       return;
     }
