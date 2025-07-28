@@ -12,6 +12,7 @@ import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { PocDoc } from "./Poc.types";
 
 type PocCodeEditorProps = {
+  label?: string;
   pocDoc: PocDoc;
   currentIndex;
   highlightsProperty;
@@ -28,6 +29,7 @@ type PocCodeEditorProps = {
 
 /** @warning This component could probably be better, for instance it is not fully and properly typed, probably it is best to not be used outside of the pocs */
 export default function PocCodeEditor({
+  label = "",
   pocDoc,
   currentIndex,
   selectedLanguage,
@@ -70,7 +72,7 @@ export default function PocCodeEditor({
                 }
                 key={codeSelectionKey}
               >
-                <DescribedCode subtitle={`line ${line} col ${col}`} text={text} />
+                <DescribedCode className="p-2" subtitle={`line ${line} col ${col}`} text={text} />
               </Button>
             );
           })}
@@ -80,6 +82,7 @@ export default function PocCodeEditor({
       <Buttons containerClassname="flex-grow" className="justify-between">
         <Buttons>
           <Button
+            small
             variant="warning"
             title="Add highlight"
             icon={mdiFormatColorHighlight}
@@ -92,6 +95,7 @@ export default function PocCodeEditor({
             }
           />
           <Button
+            small
             disabled={disableViewHighlights}
             variant="outline-only"
             title="Show all selections"
@@ -102,6 +106,7 @@ export default function PocCodeEditor({
         </Buttons>
 
         <Button
+          small
           variant="danger"
           title="Clear highlights"
           icon={mdiBroom}
@@ -113,6 +118,7 @@ export default function PocCodeEditor({
       </Buttons>
 
       <MonacoCodeEditor
+        label={label}
         value={code}
         ideStartingLineNumber={ideStartingLineNumber}
         textHighlights={textHighlights}
