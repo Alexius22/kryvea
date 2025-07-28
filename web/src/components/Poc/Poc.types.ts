@@ -36,7 +36,9 @@ export interface PocRequestResponseDoc extends PocBaseDoc {
   type: typeof POC_TYPE_REQUEST_RESPONSE;
   uri: string;
   request: string;
+  request_highlights?: MonacoTextSelection[];
   response: string;
+  response_highlights?: MonacoTextSelection[];
 }
 
 export interface PocRichTextDoc extends PocBaseDoc {

@@ -1,25 +1,24 @@
-import { mdiBroom, mdiClipboardText, mdiFormatColorHighlight, mdiPencil } from "@mdi/js";
+import { mdiPencil } from "@mdi/js";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import React, { useState } from "react";
-import DescribedCode from "../Composition/DescribedCode";
+import { Keys } from "../../types/utils.types";
 import Flex from "../Composition/Flex";
 import Grid from "../Composition/Grid";
-import Modal from "../Composition/Modal";
-import Button from "../Form/Button";
-import Buttons from "../Form/Buttons";
 import Input from "../Form/Input";
 import SelectWrapper from "../Form/SelectWrapper";
 import { SelectOption } from "../Form/SelectWrapper.types";
 import Textarea from "../Form/Textarea";
-import MonacoCodeEditor from "./MonacoCodeEditor";
 import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { PocDoc, PocTextDoc } from "./Poc.types";
+import PocCodeEditor from "./PocCodeEditor";
 import PocTemplate from "./PocTemplate";
 
 type PocTextProps = {
   pocDoc: PocTextDoc;
   currentIndex;
   pocList: PocDoc[];
+  selectedPoc: number;
+  setSelectedPoc: (index: number) => void;
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
@@ -28,29 +27,25 @@ type PocTextProps = {
     property: keyof Omit<T, "key">,
     textSelection: MonacoTextSelection[]
   ) => void;
-  selectedPoc: number;
-  setSelectedPoc: (index: number) => void;
 };
 
 export default function PocText({
   pocDoc,
   currentIndex,
   pocList,
+  selectedPoc,
+  setSelectedPoc,
   onPositionChange,
   onTextChange,
   onRemovePoc,
   onSetCodeSelection,
-  selectedPoc,
-  setSelectedPoc,
 }: PocTextProps) {
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<SelectOption>({
     label: pocDoc.text_language || "Plaintext",
     value: pocDoc.text_language || "plaintext",
   });
-  const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [ideStartingLineNumber, setIdeStartingLineNumber] = useState(pocDoc?.starting_line_number || 0);
-  const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
@@ -79,37 +74,6 @@ export default function PocText({
         title: "Text",
       }}
     >
-      <Modal
-        className="overflow-auto"
-        isActive={showHighligtedTextModal}
-        title="Code that will be highlighted"
-        subtitle="Click on a selected text to remove it"
-        confirmButtonLabel="Close"
-        onCancel={() => setShowHighlightedTextModal(false)}
-      >
-        <Grid>
-          {pocDoc.text_highlights?.map((highlight, i) => {
-            const [line, col, text] = highlight?.selectionPreview.split(":");
-            const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
-            return (
-              <Button
-                className="hover:bg-red-400/20"
-                variant="outline-only"
-                onClick={() =>
-                  onSetCodeSelection<PocTextDoc>(
-                    currentIndex,
-                    "text_highlights",
-                    pocDoc.text_highlights.filter((_, j) => i !== j)
-                  )
-                }
-                key={codeSelectionKey}
-              >
-                <DescribedCode subtitle={`line ${line} col ${col}`} text={text} />
-              </Button>
-            );
-          })}
-        </Grid>
-      </Modal>
       <Grid className="poc-text">
         <Textarea
           label="Description"
@@ -147,49 +111,17 @@ export default function PocText({
               onChange={e => setIdeStartingLineNumber(e - 1)}
               id={startingLineNumberId}
             />
-            <Buttons containerClassname="flex-grow" className="justify-between">
-              <Buttons>
-                <Button
-                  variant="warning"
-                  title="Add highlight"
-                  icon={mdiFormatColorHighlight}
-                  iconSize={24}
-                  onClick={() =>
-                    onSetCodeSelection<PocTextDoc>(currentIndex, "text_highlights", [
-                      ...(pocDoc.text_highlights ?? []),
-                      ...selectedText,
-                    ])
-                  }
-                />
-                <Button
-                  disabled={!pocDoc.text_highlights?.length}
-                  variant="outline-only"
-                  title="Show all selections"
-                  icon={mdiClipboardText}
-                  iconSize={24}
-                  onClick={() => setShowHighlightedTextModal(true)}
-                />
-              </Buttons>
-
-              <Button
-                variant="danger"
-                title="Clear highlights"
-                icon={mdiBroom}
-                iconSize={24}
-                onClick={() => {
-                  setSelectedText(undefined);
-                  onSetCodeSelection<PocTextDoc>(currentIndex, "text_highlights", []);
-                }}
-              />
-            </Buttons>
           </Flex>
 
-          <MonacoCodeEditor
-            value={pocDoc.text_data}
+          <PocCodeEditor
+            pocDoc={pocDoc}
+            selectedLanguage={selectedLanguage.value}
             ideStartingLineNumber={ideStartingLineNumber}
-            onTextSelection={setSelectedText}
-            language={selectedLanguage.value}
-            onLanguageOptionsInit={onLanguageOptionsInit}
+            code={pocDoc.text_data}
+            disableViewHighlights={pocDoc?.text_highlights?.length <= 0}
+            currentIndex={currentIndex}
+            highlightsProperty={"text_highlights" as Keys<PocTextDoc>}
+            onSetCodeSelection={onSetCodeSelection}
             onChange={code =>
               onTextChange<PocTextDoc>(
                 currentIndex,
@@ -198,6 +130,7 @@ export default function PocText({
                 target: { value: code },
               } as any)
             }
+            onLanguageOptionsInit={onLanguageOptionsInit}
           />
         </Grid>
       </Grid>

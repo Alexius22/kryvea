@@ -190,6 +190,8 @@ export default function EditPoc() {
             request: "",
             response: "",
             uri: "",
+            request_highlights: [],
+            response_highlights: [],
           },
         ]);
         break;
@@ -218,12 +220,12 @@ export default function EditPoc() {
               currentIndex: i,
               pocDoc,
               pocList,
+              selectedPoc,
+              setSelectedPoc,
               onPositionChange,
               onTextChange,
               onRemovePoc,
               onSetCodeSelection,
-              selectedPoc,
-              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
@@ -233,12 +235,12 @@ export default function EditPoc() {
           currentIndex: i,
           pocDoc,
           pocList,
+          selectedPoc,
+          setSelectedPoc,
           onPositionChange,
           onTextChange,
           onRemovePoc,
           onImageChange,
-          selectedPoc,
-          setSelectedPoc,
         };
         return <PocImage {...pocImageProps} key={pocDoc.key} />;
       case POC_TYPE_REQUEST_RESPONSE:
@@ -248,11 +250,12 @@ export default function EditPoc() {
               currentIndex: i,
               pocDoc,
               pocList,
+              selectedPoc,
+              setSelectedPoc,
               onPositionChange,
               onTextChange,
               onRemovePoc,
-              selectedPoc,
-              setSelectedPoc,
+              onSetCodeSelection,
             }}
             key={pocDoc.key}
           />
@@ -264,11 +267,11 @@ export default function EditPoc() {
               currentIndex: i,
               pocDoc,
               pocList,
+              selectedPoc,
+              setSelectedPoc,
               onPositionChange,
               onTextChange,
               onRemovePoc,
-              selectedPoc,
-              setSelectedPoc,
             }}
             key={pocDoc.key}
           />
