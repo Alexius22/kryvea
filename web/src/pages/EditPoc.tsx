@@ -1,4 +1,4 @@
-import { mdiPlus, mdiSend } from "@mdi/js";
+import { mdiFloppy, mdiPlus } from "@mdi/js";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -290,9 +290,9 @@ export default function EditPoc() {
             <Button text="Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_TEXT)} small />
             <Button text="Rich Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_RICH_TEXT)} small />
             <Button
-              className="ml-auto"
-              text="Submit"
-              icon={mdiSend}
+              className="ml-auto gap-2"
+              text="Save"
+              icon={mdiFloppy}
               onClick={() => {
                 const formData = new FormData();
 
