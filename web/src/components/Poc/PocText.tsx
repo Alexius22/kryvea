@@ -118,7 +118,7 @@ export default function PocText({
             selectedLanguage={selectedLanguage.value}
             ideStartingLineNumber={ideStartingLineNumber}
             code={pocDoc.text_data}
-            disableViewHighlights={pocDoc?.text_highlights?.length <= 0}
+            disableViewHighlights={(pocDoc?.text_highlights ?? []).length <= 0}
             currentIndex={currentIndex}
             highlightsProperty={"text_highlights" as Keys<PocTextDoc>}
             onSetCodeSelection={onSetCodeSelection}
