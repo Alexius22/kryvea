@@ -14,7 +14,7 @@ interface MonacoCodeEditorProps {
   height?: string;
   stopLineNumberAt?: number;
   textHighlights?: MonacoTextSelection[];
-  removeDisappearedHighlights: (indexes: number[]) => void;
+  removeDisappearedHighlights?: (indexes: number[]) => void;
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
   onChange?: (value: string) => void;
   onLanguageOptionsInit?;
