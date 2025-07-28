@@ -73,7 +73,7 @@ export default function PocRequestResponse({
       <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <PocCodeEditor
           pocDoc={pocDoc}
-          disableViewHighlights={pocDoc?.request_highlights?.length <= 0}
+          disableViewHighlights={(pocDoc?.request_highlights ?? []).length <= 0}
           currentIndex={currentIndex}
           highlightsProperty="request_highlights"
           code={pocDoc.request}
@@ -87,7 +87,7 @@ export default function PocRequestResponse({
 
         <PocCodeEditor
           pocDoc={pocDoc}
-          disableViewHighlights={pocDoc?.response_highlights?.length <= 0}
+          disableViewHighlights={(pocDoc?.response_highlights ?? []).length <= 0}
           currentIndex={currentIndex}
           highlightsProperty="response_highlights"
           code={pocDoc.response}
