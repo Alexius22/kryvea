@@ -80,6 +80,10 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories", api.GetCategories)
 		apiGroup.Get("/categories/:category", api.GetCategory)
 
+		apiGroup.Get("/templates", api.GetTemplates)
+		apiGroup.Get("/templates/:template", api.GetTemplate)
+		// apiGroup.Get("/customers/:customer/templates", api.GetCustomerTemplates)
+
 		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
 		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
@@ -117,6 +121,10 @@ func (e *Engine) Serve() {
 		adminGroup.Post("/categories/upload", api.UploadCategories)
 		adminGroup.Patch("/categories/:category", api.UpdateCategory)
 		adminGroup.Delete("/categories/:category", api.DeleteCategory)
+
+		adminGroup.Post("/templates/upload", api.AddTemplate)
+		// adminGroup.Patch("/templates/:template", api.UpdateTemplate)
+		// adminGroup.Delete("/templates/:template", api.DeleteTemplate)
 
 		adminGroup.Get("/users", api.GetUsers)
 		adminGroup.Get("/users/:user", api.GetUser)
