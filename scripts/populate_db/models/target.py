@@ -7,8 +7,9 @@ from models.base import Base
 
 @dataclass
 class Target(Base):
-    fqdn: str
     customer_id: str
+
+    fqdn: str = field(default_factory=utils.rand_hostname)
     ipv4: str = field(default_factory=utils.rand_ipv4)
     ipv6: str = field(default_factory=utils.rand_ipv6)
     port: int = field(default_factory=utils.rand_port)
