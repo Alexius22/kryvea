@@ -6,6 +6,7 @@ import { getData, patchData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
 import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -21,10 +22,11 @@ import { Assessment, Target } from "../types/common.types";
 const ASSESSMENT_TYPE: SelectOption[] = [
   { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
   { value: "WAPT", label: "Web Application Penetration Test" },
+  { value: "API PT", label: "API Penetration Test" },
   { value: "MAPT", label: "Mobile Application Penetration Test" },
   { value: "NPT", label: "Network Penetration Test" },
-  { value: "Red Team Assessment", label: "Red Team Assessment" },
-  { value: "IoT", label: "IoT" },
+  { value: "RT", label: "Red Team Assessment" },
+  { value: "IoT", label: "IoT Device Penetration Test" },
 ];
 
 const CVSS_VERSIONS: SelectOption[] = [
@@ -59,6 +61,12 @@ export default function AssessmentUpsert() {
   const { customerId, assessmentId } = useParams<{ customerId: string; assessmentId?: string }>();
   const [targets, setTargets] = useState<Target[]>([]);
   const isEdit = Boolean(assessmentId);
+  const [isModalTargetActive, setIsModalTargetActive] = useState(false);
+
+  const [ipv4, setIpv4] = useState("");
+  const [ipv6, setIpv6] = useState("");
+  const [fqdn, setFqdn] = useState("");
+  const [hostName, setHostName] = useState("");
 
   const [form, setForm] = useState<
     Omit<Assessment, "id" | "created_at" | "updated_at" | "status" | "vulnerability_count" | "customer" | "is_owned">
@@ -76,9 +84,13 @@ export default function AssessmentUpsert() {
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
 
+  const fetchTargets = () => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+  };
+
   useEffect(() => {
     document.title = getPageTitle(isEdit ? "Edit Assessment" : "Add Assessment");
-    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+    fetchTargets();
 
     if (isEdit) {
       getData<Assessment>(
@@ -161,7 +173,75 @@ export default function AssessmentUpsert() {
     });
   };
 
+  const openTargetModal = () => {
+    setIsModalTargetActive(true);
+  };
+
+  const handleModalConfirm = () => {
+    const payload = {
+      ipv4: ipv4.trim(),
+      ipv6: ipv6.trim(),
+      fqdn: fqdn.trim(),
+      name: hostName.trim(),
+      customer_id: customerId,
+    };
+
+    postData<Target>(`/api/targets`, payload, () => {
+      toast.success("Target added successfully");
+      setIsModalTargetActive(false);
+      setIpv4("");
+      setIpv6("");
+      setFqdn("");
+      setHostName("");
+      fetchTargets();
+    });
+  };
+
   return (
+    <>
+      <Modal
+        title="New Target"
+        confirmButtonLabel="Save"
+        isActive={isModalTargetActive}
+        onConfirm={handleModalConfirm}
+        onCancel={() => setIsModalTargetActive(false)}
+      >
+        <Grid className="grid-cols-1 gap-4">
+          <Input
+            type="text"
+            id="ipv4"
+            label="IPv4"
+            placeholder="IPv4 address"
+            value={ipv4}
+            onChange={e => setIpv4(e.target.value)}
+          />
+          <Input
+            type="text"
+            id="ipv6"
+            label="IPv6"
+            placeholder="IPv6 address"
+            value={ipv6}
+            onChange={e => setIpv6(e.target.value)}
+          />
+          <Input
+            type="text"
+            id="fqdn"
+            label="FQDN"
+            placeholder="Fully Qualified Domain Name"
+            value={fqdn}
+            onChange={e => setFqdn(e.target.value)}
+          />
+          <Input
+            type="text"
+            id="name"
+            label="Name"
+            placeholder="This name is used to differentiate between duplicate entries"
+            value={hostName}
+            onChange={e => setHostName(e.target.value)}
+          />
+        </Grid>
+      </Modal>
+
     <Card>
       <form onSubmit={handleSubmit}>
         <Grid>
@@ -221,7 +301,7 @@ export default function AssessmentUpsert() {
               onChange={handleTargetsChange}
               closeMenuOnSelect={false}
             />
-            <Button icon={mdiPlus} text="New Target" onClick={() => navigate(`/customers/${customerId}/targets/new`)} />
+              <Button icon={mdiPlus} text="New Target" onClick={() => openTargetModal()} />
           </Grid>
           <SelectWrapper
             label="Environment"
@@ -255,5 +335,6 @@ export default function AssessmentUpsert() {
         </Grid>
       </form>
     </Card>
+    </>
   );
 }
