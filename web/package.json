@@ -44,6 +44,7 @@
     "react-toastify": "^11.0.5",
     "sass": "^1.89.2",
     "swr": "^2.2.0",
+    "tiptap-extension-resize-image": "^1.2.3",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
