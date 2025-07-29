@@ -38,7 +38,6 @@ import {
 } from "@mdi/js";
 import Color from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
-import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -48,26 +47,27 @@ import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import ImageResize from "tiptap-extension-resize-image";
 import Card from "../CardBox/Card";
+import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Button from "../Form/Button";
 import ColorPicker from "../Form/ColorPicker";
 import Input from "../Form/Input";
+import UploadFile from "../Form/UploadFile";
 
 const extensions = [
-  StarterKit.configure({
-    heading: { levels: [1, 2, 3, 4, 5, 6] },
-  }),
+  StarterKit.configure({ heading: { levels: [1, 2, 3, 4, 5, 6] } }),
   Placeholder.configure({ placeholder: "Start typing..." }),
   TextStyle,
   Color,
-  Image,
+  Highlight.configure({ multicolor: true }),
+  ImageResize,
   Table.configure({ resizable: true }),
   TableRow,
   TableHeader,
   TableCell,
-  Highlight,
   TextAlign.configure({ types: ["heading", "paragraph"] }),
 ];
 
@@ -82,32 +82,72 @@ const headingIcons = {
 
 function MenuBar({ editor }: { editor: Editor | null }) {
   const [, setState] = useState(0);
-
   const [showModal, setShowModal] = useState<false | "link" | "image">(false);
   const [inputValue, setInputValue] = useState("");
 
-  if (!editor) return null;
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [filename, setFilename] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const imageInputId = useId();
 
-  editor.on("transaction", () => setState(v => v + 1));
+  useEffect(() => {
+    if (!editor) return;
+
+    const callback = () => setState(v => v + 1);
+    editor.on("transaction", callback);
+
+    return () => {
+      editor.off("transaction", callback);
+    };
+  }, [editor]);
+
+  if (!editor) return null;
 
   const is = (name: string, attrs?: any) => editor.isActive(name, attrs);
   const can = (command: () => boolean) => command();
   const isAlign = (value: "left" | "center" | "right" | "justify") => {
     const paraAlign = editor.getAttributes("paragraph")?.textAlign;
     const headingAlign = editor.getAttributes("heading")?.textAlign;
-
-    const effective = paraAlign ?? headingAlign ?? "left";
-    return effective === value;
+    return (paraAlign ?? headingAlign ?? "left") === value;
   };
 
   const handleModalConfirm = () => {
     if (showModal === "link") {
-      editor.chain().focus().extendMarkRange("link").setLink({ href: inputValue }).run();
+      editor.chain().focus().setLink({ href: inputValue }).run();
     } else if (showModal === "image") {
       editor.chain().focus().setImage({ src: inputValue }).run();
     }
     setShowModal(false);
+    setInputValue("");
+    clearImage();
   };
+
+  const onImageChangeWrapper = ({ target: { files } }) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    if (file.type !== "image/png" && file.type !== "image/jpeg") return;
+
+    const objectUrl = URL.createObjectURL(file);
+    setFilename(file.name);
+    setImageUrl(objectUrl);
+    setInputValue(objectUrl);
+  };
+
+  const clearImage = () => {
+    imageInputRef.current.value = "";
+    setFilename("");
+    setImageUrl("");
+    setInputValue("");
+  };
+
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -117,19 +157,31 @@ function MenuBar({ editor }: { editor: Editor | null }) {
         onConfirm={handleModalConfirm}
         onCancel={() => setShowModal(false)}
       >
-        {(showModal === "link" || showModal === "image") && (
-          <Input
-            type="text"
-            label={showModal === "link" ? "URL" : "Image URL"}
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            autoFocus
-          />
+        {showModal === "link" && (
+          <Input type="text" label="URL" value={inputValue} onChange={e => setInputValue(e.target.value)} autoFocus />
+        )}
+
+        {showModal === "image" && (
+          <Grid>
+            <UploadFile
+              label="Choose Image"
+              inputId={imageInputId}
+              filename={filename}
+              inputRef={imageInputRef}
+              name="imagePoc"
+              accept="image/png, image/jpeg"
+              onChange={onImageChangeWrapper}
+              onButtonClick={clearImage}
+            />
+            {imageUrl && (
+              <img src={imageUrl} alt="Selected image preview" className="max-h-[550px] w-fit object-contain" />
+            )}
+          </Grid>
         )}
       </Modal>
 
-      <div className="RichText-buttons" style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-        {/** Formatting Buttons */}
+      <div className="RichText-buttons">
+        {/** Formatting */}
         <Button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!can(() => editor.can().chain().focus().toggleBold().run())}
@@ -173,7 +225,6 @@ function MenuBar({ editor }: { editor: Editor | null }) {
           title="Code Block"
         />
 
-        {/** Heading Buttons */}
         {([1, 2, 3, 4, 5, 6] as const).map(level => (
           <Button
             key={level}
@@ -193,37 +244,23 @@ function MenuBar({ editor }: { editor: Editor | null }) {
         />
 
         {/** Alignment */}
-        <Button
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          disabled={!can(() => editor.can().chain().focus().setTextAlign("left").run())}
-          className={isAlign("left") ? "" : "secondary"}
-          icon={mdiFormatAlignLeft}
-          title="Align Left"
-        />
-
-        <Button
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          disabled={!can(() => editor.can().chain().focus().setTextAlign("center").run())}
-          className={isAlign("center") ? "" : "secondary"}
-          icon={mdiFormatAlignCenter}
-          title="Align Center"
-        />
-
-        <Button
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          disabled={!can(() => editor.can().chain().focus().setTextAlign("right").run())}
-          className={isAlign("right") ? "" : "secondary"}
-          icon={mdiFormatAlignRight}
-          title="Align Right"
-        />
-
-        <Button
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          disabled={!can(() => editor.can().chain().focus().setTextAlign("justify").run())}
-          className={isAlign("justify") ? "" : "secondary"}
-          icon={mdiFormatAlignJustify}
-          title="Justify"
-        />
+        {["left", "center", "right", "justify"].map(value => (
+          <Button
+            key={value}
+            onClick={() => editor.chain().focus().setTextAlign(value).run()}
+            disabled={!can(() => editor.can().chain().focus().setTextAlign(value).run())}
+            className={isAlign(value as any) ? "" : "secondary"}
+            icon={
+              {
+                left: mdiFormatAlignLeft,
+                center: mdiFormatAlignCenter,
+                right: mdiFormatAlignRight,
+                justify: mdiFormatAlignJustify,
+              }[value]
+            }
+            title={`Align ${value.charAt(0).toUpperCase() + value.slice(1)}`}
+          />
+        ))}
 
         {/** Lists */}
         <Button
@@ -241,7 +278,6 @@ function MenuBar({ editor }: { editor: Editor | null }) {
           title="Ordered List"
         />
 
-        {/** Quote */}
         <Button
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           disabled={!can(() => editor.can().chain().focus().toggleBlockquote().run())}
@@ -250,7 +286,6 @@ function MenuBar({ editor }: { editor: Editor | null }) {
           title="Blockquote"
         />
 
-        {/* Link buttons */}
         {!is("link") ? (
           <Button
             icon={mdiLink}
@@ -264,15 +299,14 @@ function MenuBar({ editor }: { editor: Editor | null }) {
           <Button icon={mdiLinkOff} title="Remove Link" onClick={() => editor.chain().focus().unsetLink().run()} />
         )}
 
-        {/* Image button */}
         <Button
-          onClick={() => {
-            setInputValue("https://via.placeholder.com/150");
-            setShowModal("image");
-          }}
-          disabled={!can(() => editor.can().chain().focus().setImage({ src: "https://via.placeholder.com/150" }).run())}
+          disabled={!can(() => editor.can().chain().focus().setImage({ src: "https://" }).run())}
           icon={mdiImage}
           title="Insert Image"
+          onClick={() => {
+            setShowModal("image");
+            imageInputRef.current?.click();
+          }}
         />
 
         {/** Table */}
@@ -304,26 +338,20 @@ function MenuBar({ editor }: { editor: Editor | null }) {
         <Button icon={mdiTableRowRemove} title="Delete Row" onClick={() => editor.chain().focus().deleteRow().run()} />
         <Button icon={mdiTableRemove} title="Delete Table" onClick={() => editor.chain().focus().deleteTable().run()} />
 
-        {/** Colors */}
         <ColorPicker
           icon={mdiFormatColorText}
           title="Text Color"
-          value={editor.getAttributes("textStyle").color || "#000000"}
-          onChange={color => {
-            editor.chain().focus().setColor(color).run();
-          }}
+          value={editor.getAttributes("textStyle")?.color || "#000000"}
+          onChange={color => editor.chain().focus().setColor(color).run()}
         />
 
         <ColorPicker
           icon={mdiFormatColorHighlight}
           title="Highlight"
-          value={editor.getAttributes("highlight").color}
-          onChange={color => {
-            editor.chain().focus().setHighlight({ color }).run();
-          }}
+          value={editor.getAttributes("highlight")?.color || "#FFFF00"}
+          onChange={color => editor.chain().focus().setHighlight({ color }).run()}
         />
 
-        {/** Undo / Redo */}
         <Button
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!can(() => editor.can().undo())}
@@ -342,9 +370,7 @@ function MenuBar({ editor }: { editor: Editor | null }) {
 }
 
 export default function RichTextEditor() {
-  const editor = useEditor({
-    extensions,
-  });
+  const editor = useEditor({ extensions });
 
   return (
     <Card className="RichText">
