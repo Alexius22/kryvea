@@ -60,11 +60,7 @@ def create_users(n: int) -> list:
 
     users = []
     for _ in range(n):
-        user = User(
-            username=utils.rand_username(),
-            password="Kryveapassword1!",
-            role=utils.ROLE_USER,
-        )
+        user = User()
 
         id, error = user.add()
         if error != "":
@@ -73,6 +69,8 @@ def create_users(n: int) -> list:
         utils.print_success(
             f"Registered user {user.username} {user.password} with id {id}"
         )
+
+    return users
 
 
 def create_categories(n: int) -> list:
@@ -85,10 +83,7 @@ def create_categories(n: int) -> list:
 
     categories = []
     for _ in range(n):
-        category = Category(
-            index=utils.rand_string(),
-            name=utils.rand_name(3),
-        )
+        category = Category()
         id, error = category.add()
         if error != "":
             raise Exception(f"Failed to register category {category.name}: {error}")
@@ -108,7 +103,7 @@ def create_customers(n: int) -> list:
 
     customers = []
     for _ in range(n):
-        customer = Customer(name=utils.rand_name(3), language=utils.rand_language())
+        customer = Customer()
         id, error = customer.add()
         if error != "":
             raise Exception(f"Failed to register customer {customer.name}: {error}")
@@ -130,7 +125,6 @@ def create_targets(customer_id: str, n: int) -> list:
     targets = []
     for _ in range(n):
         target = Target(
-            fqdn=utils.rand_hostname(),
             customer_id=customer_id,
         )
         id, error = target.add()
@@ -155,10 +149,6 @@ def create_assessments(customer: Customer, n: int) -> list:
     for _ in range(n):
         targets = customer.getTargets()
         assessment = Assessment(
-            name=utils.rand_name(2),
-            start_date_time="2025-01-01T00:00:00.000Z",
-            end_date_time="2025-01-10T00:00:00.000Z",
-            cvss_versions=utils.rand_cvss_versions(),
             customer_id=customer.id,
             targets=[
                 x["id"]
@@ -188,10 +178,8 @@ def create_vulnerabilities(assessment: Assessment, categories: list, n: int) -> 
     for _ in range(n):
         category = random.choice(categories)
         vulnerability = Vulnerability(
-            category_id=category.id,
+            category=category,
             target_id=random.choice(assessment.targets),
-            assessment_id=assessment.id,
-            detailed_title=utils.rand_string(),
             assessment=assessment,
         )
         id, error = vulnerability.add()
@@ -221,21 +209,16 @@ def create_pocs(vulnerability: Vulnerability, n: int) -> list:
         pocs_data = []
         for i in range(7):
             poc_data = PocData(
-                type=utils.rand_poc_type(),
                 index=i,
             )
-
-            if poc_data.type == utils.POC_TYPE_IMAGE:
-                image = utils.rand_image()
-                imageBytes = open(image, "rb").read()
-                poc_data.image_data = base64.b64encode(imageBytes).decode("utf-8")
-
             pocs_data.append(poc_data)
         poc = Poc(poc_data=pocs_data, vulnerability_id=vulnerability.id)
         id, error = poc.add()
         if error != "":
             raise Exception(f"Failed to register POC: {error}")
         pocs.append(poc)
-        utils.print_success(f"Registered POC with id {id}")
+        utils.print_success(
+            f"Registered POC for Vulnerability with id {vulnerability.id}"
+        )
 
     return pocs

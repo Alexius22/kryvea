@@ -9,10 +9,10 @@ from models.customer import Customer
 
 @dataclass
 class User(Base):
-    username: str
-    password: str
-    disabled_at: str = ""
-    role: str = utils.ROLE_USER
+    username: str = field(default_factory=utils.rand_username)
+    password: str = field(default="Kryveapassword1!")
+    disabled_at: str = field(default="")
+    role: str = field(default=utils.ROLE_USER)
     customers: List[Customer] = field(default_factory=list)
     assessments: List[Assessment] = field(default_factory=list)
 
