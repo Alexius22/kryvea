@@ -32,6 +32,7 @@ export default function Assessments() {
   const [cloneName, setCloneName] = useState("");
 
   const [exportType, setExportType] = useState<SelectOption>({ value: "word", label: "Word (.docx)" });
+  const [exportTemplate, setExportTemplate] = useState<SelectOption>({ value: "default", label: "Default" });
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
 
@@ -107,6 +108,7 @@ export default function Assessments() {
   const exportAssessment = () => {
     const payload = {
       type: exportType.value,
+      template: exportTemplate.value,
       encryption: exportEncryption.value,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
     };
@@ -154,7 +156,7 @@ export default function Assessments() {
         onConfirm={exportAssessment}
         onCancel={() => setIsModalDownloadActive(false)}
       >
-        <Grid>
+        <Grid className="grid-cols-2">
           <SelectWrapper
             label="Type"
             id="type"
@@ -166,27 +168,35 @@ export default function Assessments() {
             value={exportType}
             onChange={option => setExportType(option)}
           />
-          <Grid className="grid-cols-2">
-            <SelectWrapper
-              label="Encryption"
-              id="encryption"
-              options={[
-                { value: "none", label: "None" },
-                { value: "password", label: "Password" },
-              ]}
-              value={exportEncryption}
-              onChange={option => setExportEncryption(option)}
+          <SelectWrapper
+            label="Template"
+            id="template"
+            options={[
+              { value: "default", label: "Default" },
+              { value: "template", label: "Template custom" },
+            ]}
+            value={exportTemplate}
+            onChange={option => setExportTemplate(option)}
+          />
+          <SelectWrapper
+            label="Encryption"
+            id="encryption"
+            options={[
+              { value: "none", label: "None" },
+              { value: "password", label: "Password" },
+            ]}
+            value={exportEncryption}
+            onChange={option => setExportEncryption(option)}
+          />
+          {exportEncryption.value === "password" && (
+            <Input
+              type="password"
+              id="password"
+              placeholder="Insert password"
+              value={exportPassword}
+              onChange={e => setExportPassword(e.target.value)}
             />
-            {exportEncryption.value === "password" && (
-              <Input
-                type="password"
-                id="password"
-                placeholder="Insert password"
-                value={exportPassword}
-                onChange={e => setExportPassword(e.target.value)}
-              />
-            )}
-          </Grid>
+          )}
         </Grid>
       </Modal>
 
