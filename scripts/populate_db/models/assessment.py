@@ -7,14 +7,13 @@ from models.base import Base
 
 @dataclass
 class Assessment(Base):
-    name: str
-    start_date_time: str
-    end_date_time: str
-    cvss_versions: List[str]
     customer_id: str
+    targets: List[str]
 
-    id: str = ""
-    targets: List[str] = field(default_factory=list)
+    name: str = field(default_factory=utils.rand_assessment_name)
+    start_date_time: str = field(default_factory=utils.rand_date_decade)
+    end_date_time: str = field(default_factory=utils.rand_date_future)
+    cvss_versions: List[str] = field(default_factory=utils.rand_cvss_versions)
     status: str = field(default_factory=utils.rand_status)
     assessment_type: str = field(default_factory=utils.rand_assessment_type)
     environment: str = field(default_factory=utils.rand_environment)
@@ -22,7 +21,6 @@ class Assessment(Base):
     osstmm_vector: str = field(default_factory=utils.rand_osstmm_vector)
 
     vulnerability_count: int = 0
-    customer: Dict = field(default_factory=dict)
     is_owned: bool = False
 
     def add(self) -> Tuple[str, str]:
