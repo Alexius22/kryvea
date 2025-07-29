@@ -51,7 +51,7 @@ export default function AssessmentVulnerabilities() {
   }
 
   useEffect(() => {
-    document.title = getPageTitle("Assessment");
+    document.title = getPageTitle("Assessment Vulnerabilities");
     fetchVulnerabilities();
   }, []);
 
@@ -238,11 +238,14 @@ export default function AssessmentVulnerabilities() {
             </Link>
           ),
           Target: (() => {
-            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6;
+            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
+            const fqdn = vulnerability.target.fqdn || "";
+            const name = vulnerability.target.name ? ` (${vulnerability.target.name})` : "";
+
             if (ip) {
-              return ip + (vulnerability.target.fqdn ? ` - ${vulnerability.target.fqdn}` : "");
+              return `${ip}${fqdn ? ` - ${fqdn}` : ""}${name}`;
             }
-            return vulnerability.target.fqdn;
+            return `${fqdn}${name}`;
           })(),
           "CVSSv3.1 Score": vulnerability.cvssv31.cvss_score,
           "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
@@ -255,6 +258,7 @@ export default function AssessmentVulnerabilities() {
           ),
         }))}
         perPageCustom={10}
+        maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
       />
     </div>
   );

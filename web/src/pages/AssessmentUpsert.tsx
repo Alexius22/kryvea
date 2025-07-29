@@ -121,8 +121,8 @@ export default function AssessmentUpsert() {
     value: target.id,
     label:
       target.fqdn && (target.ipv4 || target.ipv6)
-        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}`
-        : target.fqdn || target.ipv4 || target.ipv6,
+        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.name ? ` (${target.name})` : ""}`
+        : (target.fqdn || target.ipv4 || target.ipv6) + (target.name ? ` (${target.name})` : ""),
   }));
 
   const handleChange = (field: keyof typeof form, value: any) => {
@@ -242,99 +242,99 @@ export default function AssessmentUpsert() {
         </Grid>
       </Modal>
 
-    <Card>
-      <form onSubmit={handleSubmit}>
-        <Grid>
-          <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
-          <Grid className="grid-cols-2 !items-start">
-            <Input
-              type="text"
-              label="Name"
-              id="name"
-              value={form.name}
-              onChange={e => handleChange("name", e.target.value)}
-              placeholder="Insert a name"
-            />
-            <SelectWrapper
-              label="Assessment Type"
-              id="assessment_type"
-              options={ASSESSMENT_TYPE}
-              value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
-              closeMenuOnSelect
-              onChange={option => handleSelectChange("assessment_type", option)}
-            />
-            <DateCalendar
-              idStart="start_date_time"
-              idEnd="end_date_time"
-              label="Activity Period"
-              isRange={true}
-              value={{ start: form.start_date_time, end: form.end_date_time }}
-              onChange={val => {
-                const { start, end } = val as { start: string; end: string };
-                handleChange("start_date_time", start);
-                handleChange("end_date_time", end);
-              }}
-              placeholder={{ start: "Start date", end: "End date" }}
-            />
-            <Grid>
-              <Label text="CVSS Versions" />
-              <Flex className="gap-4">
-                {CVSS_VERSIONS.map(({ value, label }) => (
-                  <Checkbox
-                    key={value}
-                    id={`cvss_${value}`}
-                    label={label}
-                    checked={form.cvss_versions.includes(value)}
-                    onChange={() => toggleCvssVersion(value)}
-                  />
-                ))}
-              </Flex>
+      <Card>
+        <form onSubmit={handleSubmit}>
+          <Grid>
+            <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
+            <Grid className="grid-cols-2 !items-start">
+              <Input
+                type="text"
+                label="Name"
+                id="name"
+                value={form.name}
+                onChange={e => handleChange("name", e.target.value)}
+                placeholder="Insert a name"
+              />
+              <SelectWrapper
+                label="Assessment Type"
+                id="assessment_type"
+                options={ASSESSMENT_TYPE}
+                value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
+                closeMenuOnSelect
+                onChange={option => handleSelectChange("assessment_type", option)}
+              />
+              <DateCalendar
+                idStart="start_date_time"
+                idEnd="end_date_time"
+                label="Activity Period"
+                isRange={true}
+                value={{ start: form.start_date_time, end: form.end_date_time }}
+                onChange={val => {
+                  const { start, end } = val as { start: string; end: string };
+                  handleChange("start_date_time", start);
+                  handleChange("end_date_time", end);
+                }}
+                placeholder={{ start: "Start date", end: "End date" }}
+              />
+              <Grid>
+                <Label text="CVSS Versions" />
+                <Flex className="gap-4">
+                  {CVSS_VERSIONS.map(({ value, label }) => (
+                    <Checkbox
+                      key={value}
+                      id={`cvss_${value}`}
+                      label={label}
+                      checked={form.cvss_versions.includes(value)}
+                      onChange={() => toggleCvssVersion(value)}
+                    />
+                  ))}
+                </Flex>
+              </Grid>
             </Grid>
-          </Grid>
-          <Grid className="grid-cols-[1fr_auto]">
-            <SelectWrapper
-              label="Session targets"
-              id="targets"
-              options={targetOptions}
-              isMulti
-              value={targetOptions.filter(opt => form.targets.some(t => t.id === opt.value))}
-              onChange={handleTargetsChange}
-              closeMenuOnSelect={false}
-            />
+            <Grid className="grid-cols-[1fr_auto]">
+              <SelectWrapper
+                label="Session targets"
+                id="targets"
+                options={targetOptions}
+                isMulti
+                value={targetOptions.filter(opt => form.targets.some(t => t.id === opt.value))}
+                onChange={handleTargetsChange}
+                closeMenuOnSelect={false}
+              />
               <Button icon={mdiPlus} text="New Target" onClick={() => openTargetModal()} />
+            </Grid>
+            <SelectWrapper
+              label="Environment"
+              id="environment"
+              options={ENVIRONMENT}
+              value={getOption(ENVIRONMENT, form.environment) || null}
+              closeMenuOnSelect
+              onChange={option => handleSelectChange("environment", option)}
+            />
+            <SelectWrapper
+              label="Testing type"
+              id="testing_type"
+              options={TESTING_TYPE}
+              value={getOption(TESTING_TYPE, form.testing_type) || null}
+              closeMenuOnSelect
+              onChange={option => handleSelectChange("testing_type", option)}
+            />
+            <SelectWrapper
+              label="OSSTMM Vector"
+              id="osstmm_vector"
+              options={OSSTMM_VECTOR}
+              value={getOption(OSSTMM_VECTOR, form.osstmm_vector) || null}
+              closeMenuOnSelect
+              onChange={option => handleSelectChange("osstmm_vector", option)}
+            />
+            <Divider />
+            <Buttons>
+              <Button text="Submit" onClick={() => {}} formSubmit />
+              <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
+            </Buttons>
           </Grid>
-          <SelectWrapper
-            label="Environment"
-            id="environment"
-            options={ENVIRONMENT}
-            value={getOption(ENVIRONMENT, form.environment) || null}
-            closeMenuOnSelect
-            onChange={option => handleSelectChange("environment", option)}
-          />
-          <SelectWrapper
-            label="Testing type"
-            id="testing_type"
-            options={TESTING_TYPE}
-            value={getOption(TESTING_TYPE, form.testing_type) || null}
-            closeMenuOnSelect
-            onChange={option => handleSelectChange("testing_type", option)}
-          />
-          <SelectWrapper
-            label="OSSTMM Vector"
-            id="osstmm_vector"
-            options={OSSTMM_VECTOR}
-            value={getOption(OSSTMM_VECTOR, form.osstmm_vector) || null}
-            closeMenuOnSelect
-            onChange={option => handleSelectChange("osstmm_vector", option)}
-          />
-          <Divider />
-          <Buttons>
-            <Button text="Submit" onClick={() => {}} formSubmit />
-            <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
-          </Buttons>
-        </Grid>
-      </form>
-    </Card>
+        </form>
+      </Card>
     </>
   );
 }
