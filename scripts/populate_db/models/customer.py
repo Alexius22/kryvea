@@ -1,13 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
+import utils.utils as utils
 from models.base import Base
 
 
 @dataclass
 class Customer(Base):
-    name: str
-    language: str
+    name: str = field(default_factory=utils.rand_company)
+    language: str = field(default_factory=utils.rand_language)
 
     def getAll(self) -> list:
         response = self.session.get(self.base_url + "/customers")

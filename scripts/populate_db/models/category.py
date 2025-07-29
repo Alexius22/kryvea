@@ -8,18 +8,16 @@ from models.base import Base
 
 @dataclass
 class Category(Base):
-    index: str
-    name: str
-    generic_remediation: dict = field(
-        default_factory=lambda: utils.rand_generic_remediation()
-    )
-    generic_description: dict = field(
-        default_factory=lambda: utils.rand_generic_description()
-    )
-    references: list = field(
-        default_factory=lambda: utils.rand_urls(random.randint(1, 3))
-    )
+    index: str = field(default_factory=utils.rand_category_index)
+
+    name: str = field(default_factory=utils.rand_category_name)
+    generic_remediation: dict = field(default_factory=utils.rand_generic_remediation)
+    generic_description: dict = field(default_factory=utils.rand_generic_description)
+    references: list = field(default_factory=utils.rand_urls)
     source: str = field(default_factory=utils.rand_source)
+
+    def __post_init__(self):
+        self.name = utils.rand_category_name(self.index)
 
     def add(self) -> Tuple[str, str]:
         data = {
