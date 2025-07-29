@@ -35,7 +35,7 @@ export default function AddTarget() {
 
     postData<Target>(`/api/targets`, payload, () => {
       toast.success("Target added successfully");
-      navigate(`/customers/${customerId}/targets`);
+      navigate(-1);
     });
   };
 
