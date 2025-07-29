@@ -1,4 +1,4 @@
-import "./rich_text.scss";
+import "../../css/styles/richtext.scss";
 
 import {
   mdiCodeBraces,
