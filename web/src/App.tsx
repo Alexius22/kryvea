@@ -1,7 +1,6 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import { toast, ToastContainer } from "react-toastify";
-import Button from "./components/Form/Button";
+import { ToastContainer } from "react-toastify";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
 import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
 import RouteWatcher from "./layouts/RouteWatcher";
@@ -101,23 +100,8 @@ export default function App() {
         <Routes>
           <Route element={<RouteWatcher />}>
             <Route element={<LayoutAuthenticated />}>
-              <Route // remove after testing
-                path="/toast"
-                element={
-                  <Button
-                    text="test"
-                    onClick={() => {
-                      toast.error("error");
-                      toast.success("success");
-                      toast.loading("loading");
-                      toast.warning("warning");
-                    }}
-                  />
-                }
-              />
-              <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
-
               {/* Dashboard and Profile */}
+              <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
 
