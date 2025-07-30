@@ -28,6 +28,7 @@ import {
 } from "./pages";
 import LiveEditor from "./pages/LiveEditor";
 import Logs from "./pages/Logs";
+import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
 
 export type GlobalContextType = {
@@ -153,6 +154,7 @@ export default function App() {
               <Route path="/edit_report" element={<EditReport />} />
               <Route path="/live_editor" element={<LiveEditor />} />
               <Route path="/logs" element={<Logs />} />
+              <Route path="/templates" element={<Templates />} />
             </Route>
             <Route path="/login" element={<Login />} />
           </Route>
