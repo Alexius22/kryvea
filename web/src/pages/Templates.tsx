@@ -1,0 +1,198 @@
+import { mdiDownload, mdiFileChart, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import { deleteData, getData, postData } from "../api/api";
+import Grid from "../components/Composition/Grid";
+import Modal from "../components/Composition/Modal";
+import Table from "../components/Composition/Table";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
+import { SelectOption } from "../components/Form/SelectWrapper.types";
+import UploadFile from "../components/Form/UploadFile";
+import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import { Template } from "../types/common.types";
+import { languageMapping } from "../types/languages";
+
+export default function Templates() {
+  const [uploadedTemplates, setUploadedTemplates] = useState<Template[]>([]);
+  const [templateToDelete, setTemplateToDelete] = useState<Template | null>(null);
+  const [isModalUploadActive, setIsModalUploadActive] = useState(false);
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+
+  const [fileObj, setFileObj] = useState<File | null>(null);
+  const [nameTemplate, setNameTemplate] = useState("");
+  const [templateType, setTemplateType] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState<SelectOption | null>(null);
+
+  const templateInputRef = useRef<HTMLInputElement | null>(null);
+
+  const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([code, label]) => ({
+    value: code,
+    label,
+  }));
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  function fetchTemplates() {
+    getData<Template[]>("/api/templates", setUploadedTemplates);
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setFileObj(file);
+  };
+
+  const clearFileInput = () => {
+    setFileObj(null);
+    if (templateInputRef.current) templateInputRef.current.value = "";
+  };
+
+  const resetUploadForm = () => {
+    setFileObj(null);
+    setNameTemplate("");
+    setTemplateType("");
+    setSelectedLanguage(null);
+    if (templateInputRef.current) templateInputRef.current.value = "";
+  };
+
+  const handleUpload = () => {
+    if (!fileObj) {
+      toast.error("Please select a file to upload.");
+      return;
+    }
+    if (!nameTemplate.trim()) {
+      toast.error("Please provide a name for the template.");
+      return;
+    }
+    if (!selectedLanguage) {
+      toast.error("Please select a language for the template.");
+      return;
+    }
+
+    const dataTemplate = {
+      name: nameTemplate,
+      language: selectedLanguage.value,
+      file_type: templateType,
+    };
+
+    const formData = new FormData();
+    formData.append("template", fileObj, fileObj.name);
+    formData.append("data", JSON.stringify(dataTemplate));
+
+    postData("/api/admin/templates/upload", formData, () => {
+      toast.success("Template uploaded successfully");
+      setIsModalUploadActive(false);
+      resetUploadForm();
+      fetchTemplates();
+    });
+  };
+
+  const downloadTemplate = (template: Template) => {
+    const a = document.createElement("a");
+    a.href = `/api/files/templates/${template.file_id}`;
+    a.download = template.name || template.filename;
+    a.click();
+  };
+
+  const handleDeleteTemplate = () => {
+    if (!templateToDelete) return;
+
+    deleteData(`/api/templates/${templateToDelete.id}`, () => {
+      toast.success("Template deleted successfully");
+      setUploadedTemplates(prev => prev.filter(t => t.id !== templateToDelete.id));
+      setIsModalTrashActive(false);
+      setTemplateToDelete(null);
+    });
+  };
+
+  return (
+    <div>
+      {/* Upload Modal */}
+      <Modal
+        title="Upload Template"
+        isActive={isModalUploadActive}
+        onConfirm={handleUpload}
+        onCancel={() => setIsModalUploadActive(false)}
+      >
+        <Grid>
+          <UploadFile
+            label="Choose template file"
+            inputId="template-upload"
+            inputRef={templateInputRef}
+            name="templateFile"
+            filename={fileObj?.name}
+            accept=".docx,.xlsx"
+            onChange={handleFileChange}
+            onButtonClick={clearFileInput}
+          />
+          <Grid className="grid-cols-2">
+            <Input
+              type="text"
+              label="Template Name"
+              value={nameTemplate}
+              onChange={e => setNameTemplate(e.target.value)}
+              placeholder="Insert name for the template"
+            />
+            <SelectWrapper
+              label="Language"
+              options={languageOptions}
+              value={selectedLanguage}
+              onChange={setSelectedLanguage}
+            />
+          </Grid>
+          <Input
+            type="text"
+            label="Template Type"
+            placeholder="e.g., Template for assessments"
+            id="type"
+            value={templateType}
+            onChange={e => setTemplateType(e.target.value)}
+          />
+        </Grid>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        title="Please confirm: action irreversible"
+        confirmButtonLabel="Confirm"
+        isActive={isModalTrashActive}
+        onConfirm={handleDeleteTemplate}
+        onCancel={() => setIsModalTrashActive(false)}
+      >
+        <p>Are you sure you want to delete this template?</p>
+      </Modal>
+
+      <SectionTitleLineWithButton icon={mdiFileChart} title="Default templates">
+        <Button icon={mdiPlus} text="New template" small onClick={() => setIsModalUploadActive(true)} />
+      </SectionTitleLineWithButton>
+
+      <Table
+        data={uploadedTemplates.map(template => ({
+          Name: template.name,
+          Filename: template.filename,
+          Language: languageMapping[template.language] || template.language,
+          "File Type": template.file_type,
+          "Template Type": template.type,
+          buttons: (
+            <Buttons noWrap>
+              <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
+              <Button
+                icon={mdiTrashCan}
+                onClick={() => {
+                  setTemplateToDelete(template);
+                  setIsModalTrashActive(true);
+                }}
+                variant="danger"
+              />
+            </Buttons>
+          ),
+        }))}
+        perPageCustom={10}
+      />
+    </div>
+  );
+}

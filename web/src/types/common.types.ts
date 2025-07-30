@@ -93,6 +93,7 @@ export type Customer = {
   language: string;
   updated_at: Date;
   created_at: Date;
+  templates: Template[];
 };
 
 export type Category = {
@@ -105,10 +106,15 @@ export type Category = {
   references: string[];
 };
 
-export type TemplateExport = {
-  template_name: string;
-  template_file: File | null;
-  template_type: "docx" | "xlsx" | null;
+export type Template = {
+  id: string;
+  name: string;
+  filename: string;
+  language: string;
+  type: string;
+  file_type: string;
+  file_id: string;
+  customer: Customer;
 };
 
 export const ASSESSMENT_TYPE = [

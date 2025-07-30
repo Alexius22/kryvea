@@ -1,5 +1,6 @@
 import {
   mdiAccountMultiple,
+  mdiFileChart,
   mdiListBox,
   mdiMagnify,
   mdiMonitor,
@@ -54,6 +55,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
         { href: "/categories", icon: mdiShapePlus, label: "Categories" },
         { href: "/users", icon: mdiAccountMultiple, label: "Users" },
         { href: "/logs", icon: mdiListBox, label: "Logs" },
+        { href: "/templates", icon: mdiFileChart, label: "Templates" },
       ],
     },
   ];
