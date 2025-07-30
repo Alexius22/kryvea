@@ -24,7 +24,7 @@ const (
 	upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	lower   = "abcdefghijklmnopqrstuvwxyz"
 	digits  = "0123456789"
-	special = "!@#$%^&*()-_=+[]{}|;:,.<>?/`~ "
+	special = "!@#$%^&*()-_=+[]{}|;:,.<>?/`~"
 
 	KryveaSessionCookie   = "kryvea"
 	KryveaShadowCookie    = "kryvea_shadow"
