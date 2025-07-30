@@ -60,7 +60,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 		FileType: templateType,
 		Type:     data.Type,
 		FileID:   fileID,
-		Customer: mongo.Customer{
+		Customer: &mongo.Customer{
 			Model: mongo.Model{
 				ID: uuid.Nil,
 			},

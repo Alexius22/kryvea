@@ -57,8 +57,7 @@ type Template struct {
 	FileType string    `json:"file_type" bson:"file_type"`
 	Type     string    `json:"type" bson:"type"`
 	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
-	Data     []byte    `json:"data" bson:"data"`
-	Customer Customer  `json:"customer" bson:"customer"`
+	Customer *Customer `json:"customer,omitempty" bson:"customer"`
 }
 
 type TemplateIndex struct {
@@ -154,12 +153,14 @@ func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
 func (ti *TemplateIndex) GetAll() ([]Template, error) {
 	cursor, err := ti.collection.Aggregate(context.Background(), TemplatePipeline)
 	if err != nil {
+		ti.driver.logger.Error().Err(err).Msg("Failed to aggregate templates")
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	var templates []Template
 	if err = cursor.All(context.Background(), &templates); err != nil {
+		ti.driver.logger.Error().Err(err).Msg("Failed to decode templates")
 		return nil, err
 	}
 

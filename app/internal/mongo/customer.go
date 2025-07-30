@@ -14,10 +14,25 @@ const (
 	customerCollection = "customer"
 )
 
+var CustomerPipeline = mongo.Pipeline{
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "template"},
+			{Key: "localField", Value: "_id"},
+			{Key: "foreignField", Value: "customer._id"},
+			{Key: "as", Value: "templates"},
+		}},
+	},
+	bson.D{
+		{Key: "$unset", Value: "templates.customer"},
+	},
+}
+
 type Customer struct {
-	Model    `bson:",inline"`
-	Name     string `json:"name" bson:"name"`
-	Language string `json:"language" bson:"language"`
+	Model     `bson:",inline"`
+	Name      string     `json:"name" bson:"name"`
+	Language  string     `json:"language" bson:"language"`
+	Templates []Template `json:"templates" bson:"templates"`
 }
 
 type CustomerIndex struct {
@@ -123,6 +138,32 @@ func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 		return nil, err
 	}
 	return &customer, nil
+}
+
+func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
+	pipeline := append(CustomerPipeline,
+		bson.D{{Key: "$match", Value: bson.M{"_id": customerID}}},
+		bson.D{{Key: "$limit", Value: 1}},
+	)
+
+	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		ci.driver.logger.Error().Err(err).Msg("Failed to aggregate customer by ID")
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var customer Customer
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(&customer); err != nil {
+			ci.driver.logger.Error().Err(err).Msg("Failed to decode customer")
+			return nil, err
+		}
+
+		return &customer, nil
+	}
+
+	return nil, mongo.ErrNoDocuments
 }
 
 func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
