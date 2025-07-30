@@ -114,9 +114,6 @@ func (ti *TemplateIndex) GetByID(id uuid.UUID) (*Template, error) {
 	var template Template
 	err := ti.collection.FindOne(context.Background(), bson.D{{Key: "_id", Value: id}}).Decode(&template)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -167,4 +164,9 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 	}
 
 	return templates, nil
+}
+
+func (ti *TemplateIndex) Delete(id uuid.UUID) error {
+	_, err := ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
+	return err
 }

@@ -446,7 +446,7 @@ func (d *Driver) ResetUserPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	newPassword, err := util.GenerateRandomPassword(10)
+	newPassword, err := util.GenerateRandomPassword(20)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
