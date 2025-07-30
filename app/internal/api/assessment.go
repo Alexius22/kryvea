@@ -518,6 +518,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	for _, v := range vulnerabilities {
 		var cvssReportVersion int
 		for _, version := range assessment.CVSSVersions {
+			// TODO: fix
 			cvssVersionInt, err := strconv.Atoi(version)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)

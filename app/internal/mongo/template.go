@@ -50,15 +50,15 @@ var TemplatePipeline = mongo.Pipeline{
 }
 
 type Template struct {
-	Model          `bson:",inline"`
-	Name           string    `json:"name" bson:"name"`
-	Filename       string    `json:"filename" bson:"filename"`
-	Language       string    `json:"language" bson:"language"`
-	Type           string    `json:"type" bson:"type"`
-	AssessmentType string    `json:"assessment_type" bson:"assessment_type"`
-	FileID         uuid.UUID `json:"file_id" bson:"file_id"`
-	Data           []byte    `json:"data" bson:"data"`
-	Customer       Customer  `json:"customer" bson:"customer"`
+	Model    `bson:",inline"`
+	Name     string    `json:"name" bson:"name"`
+	Filename string    `json:"filename" bson:"filename"`
+	Language string    `json:"language" bson:"language"`
+	FileType string    `json:"file_type" bson:"file_type"`
+	Type     string    `json:"type" bson:"type"`
+	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
+	Data     []byte    `json:"data" bson:"data"`
+	Customer Customer  `json:"customer" bson:"customer"`
 }
 
 type TemplateIndex struct {
@@ -81,8 +81,8 @@ func (ti TemplateIndex) init() error {
 				{Key: "name", Value: 1},
 				{Key: "filename", Value: 1},
 				{Key: "language", Value: 1},
+				{Key: "file_type", Value: 1},
 				{Key: "type", Value: 1},
-				{Key: "assessment_type", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
@@ -139,6 +139,19 @@ func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, erro
 	}
 
 	return templates, nil
+}
+
+func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
+	var template Template
+	err := ti.collection.FindOne(context.Background(), bson.D{{Key: "file_id", Value: fileID}}).Decode(&template)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &template, nil
 }
 
 func (ti *TemplateIndex) GetAll() ([]Template, error) {
