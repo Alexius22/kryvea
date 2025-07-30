@@ -199,8 +199,8 @@ export default function Users() {
         }}
         className="gap-4"
       >
-        <div className="grid gap-4 text-center">
-          <div className="grid gap-4">
+        <Grid className="text-center">
+          <Grid>
             <p>
               The user <strong>{username}</strong> has a new temporary password:
             </p>
@@ -218,14 +218,14 @@ export default function Users() {
               </pre>
               <Subtitle className="select-none text-[color:--text-secondary]" text="Click to copy" />
             </div>
-          </div>
+          </Grid>
 
           <p>
             Please share this temporary password securely with the user.
             <br />
             Once you close this modal, the <strong>password will no longer be accessible</strong>.
           </p>
-        </div>
+        </Grid>
       </Modal>
 
       {/* Delete Confirmation Modal */}
