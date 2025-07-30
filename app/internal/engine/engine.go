@@ -96,7 +96,8 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)
 
-		apiGroup.Get("/files/:file", api.GetFile)
+		apiGroup.Get("/files/image/:file", api.GetImage)
+		apiGroup.Get("/files/template/:file", api.GetTemplateFile)
 
 		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Patch("/users/me", api.UpdateMe)

@@ -10,10 +10,10 @@ import (
 )
 
 type templateRequestData struct {
-	Name           string `json:"name"`
-	Language       string `json:"language"`
-	AssessmentType string `json:"assessment_type"`
-	CustomerID     string `json:"customer_id"`
+	Name       string `json:"name"`
+	Language   string `json:"language"`
+	Type       string `json:"type"`
+	CustomerID string `json:"customer_id"`
 }
 
 func (d *Driver) AddTemplate(c *fiber.Ctx) error {
@@ -98,13 +98,13 @@ func (d *Driver) AddTemplate(c *fiber.Ctx) error {
 
 	// create a new template
 	template := &mongo.Template{
-		Name:           data.Name,
-		Filename:       filename,
-		Language:       data.Language,
-		Type:           templateType,
-		AssessmentType: data.AssessmentType,
-		FileID:         fileID,
-		Customer:       customerTemplate,
+		Name:     data.Name,
+		Filename: filename,
+		Language: data.Language,
+		FileType: templateType,
+		Type:     data.Type,
+		FileID:   fileID,
+		Customer: customerTemplate,
 	}
 
 	// insert the template into the database
@@ -180,7 +180,7 @@ func (d *Driver) validateTemplateData(data *templateRequestData) string {
 		return "Language is required"
 	}
 
-	if data.AssessmentType == "" {
+	if data.Type == "" {
 		return "Assessment type is required"
 	}
 
