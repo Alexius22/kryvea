@@ -58,6 +58,7 @@ func (e *Engine) Serve() {
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
 		apiGroup.Get("/customers/:customer", api.GetCustomer)
+		apiGroup.Post("/customers/:customer/templates/upload", api.AddCustomerTemplate)
 
 		apiGroup.Get("/assessments", api.SearchAssessments)
 		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
@@ -82,7 +83,7 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/templates", api.GetTemplates)
 		apiGroup.Get("/templates/:template", api.GetTemplate)
-		// apiGroup.Get("/customers/:customer/templates", api.GetCustomerTemplates)
+		apiGroup.Delete("/templates/:template", api.DeleteTemplate)
 
 		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
@@ -123,9 +124,7 @@ func (e *Engine) Serve() {
 		adminGroup.Patch("/categories/:category", api.UpdateCategory)
 		adminGroup.Delete("/categories/:category", api.DeleteCategory)
 
-		adminGroup.Post("/templates/upload", api.AddTemplate)
-		// adminGroup.Patch("/templates/:template", api.UpdateTemplate)
-		// adminGroup.Delete("/templates/:template", api.DeleteTemplate)
+		adminGroup.Post("/templates/upload", api.AddGlobalTemplate)
 
 		adminGroup.Get("/users", api.GetUsers)
 		adminGroup.Get("/users/:user", api.GetUser)
