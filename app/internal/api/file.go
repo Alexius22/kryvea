@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func (d *Driver) GetFile(c *fiber.Ctx) error {
+func (d *Driver) GetImage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse image param
-	imageRef, errStr := d.imageFromParam(c.Params("file"))
+	imageRef, errStr := d.fileFromParam(c.Params("file"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -76,20 +76,61 @@ func (d *Driver) GetFile(c *fiber.Ctx) error {
 	return c.SendStream(bytes.NewReader(imageData))
 }
 
-func (d *Driver) imageFromParam(param string) (*mongo.FileReference, string) {
+func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse image param
+	fileRef, errStr := d.fileFromParam(c.Params("file"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	template, err := d.mongo.Template().GetByFileID(fileRef.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot retrieve template",
+		})
+	}
+
+	if template.Customer.ID != uuid.Nil && !util.CanAccessCustomer(user, template.Customer.ID) {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	fileData, _, err := d.mongo.FileReference().ReadByID(fileRef.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot retrieve file",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	c.Set("Content-Type", mongo.SupportedTemplateMimeTypes[template.FileType])
+	c.Set("Content-Disposition", "attachment; filename="+template.Filename)
+	return c.SendStream(bytes.NewReader(fileData))
+}
+
+func (d *Driver) fileFromParam(param string) (*mongo.FileReference, string) {
 	if param == "" {
-		return nil, "Image ID is required"
+		return nil, "File ID is required"
 	}
 
-	imageID, err := uuid.Parse(param)
+	fileID, err := uuid.Parse(param)
 	if err != nil {
-		return nil, "Invalid image ID"
+		return nil, "Invalid file ID"
 	}
 
-	image, err := d.mongo.FileReference().GetByID(imageID)
+	file, err := d.mongo.FileReference().GetByID(fileID)
 	if err != nil {
-		return nil, "Invalid image ID"
+		return nil, "Invalid file ID"
 	}
 
-	return image, ""
+	return file, ""
 }
