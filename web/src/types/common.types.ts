@@ -117,14 +117,4 @@ export type Template = {
   customer: Customer;
 };
 
-export const ASSESSMENT_TYPE = [
-  { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
-  { value: "WAPT", label: "Web Application Penetration Test" },
-  { value: "API PT", label: "API Penetration Test" },
-  { value: "MAPT", label: "Mobile Application Penetration Test" },
-  { value: "NPT", label: "Network Penetration Test" },
-  { value: "Red Team Assessment", label: "Red Team Assessment" },
-  { value: "IoT PT", label: "IoT Device Penetration Test" },
-];
-
 export const uuidZero = "00000000-0000-0000-0000-000000000000";
