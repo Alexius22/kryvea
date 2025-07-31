@@ -7,7 +7,7 @@ import ScoreBar from "../ScoreBar";
 import { calculateCVSSFromMetrics, calculateCVSSFromVector } from "./CVSS31";
 import CVSS31Render from "./CVSS31Render";
 
-export default function CVSS31Wrapper({ value }) {
+export default function CVSS31Wrapper({ value, onChange }) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [selectedValues, setSelectedValues] = useState({
     AttackVector: "N",
@@ -65,6 +65,7 @@ export default function CVSS31Wrapper({ value }) {
       return;
     }
     setCvssString(cvssInfo.vectorString);
+    onChange?.(cvssInfo.vectorString);
     setSelectedValues(cvssInfo.metrics);
     setError("");
   };
@@ -80,6 +81,7 @@ export default function CVSS31Wrapper({ value }) {
       }
 
       setCvssString(updatedVectorString.vectorString);
+      onChange?.(updatedVectorString.vectorString);
       return updatedValues;
     });
   };

@@ -59,7 +59,7 @@ type Metrics = {
   ProviderUrgency: XClearGreenAmberRed;
 };
 
-export default function CVSS40Wrapper({ value }) {
+export default function CVSS40Wrapper({ value, onChange }) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [metrics, setMetrics] = useState({
     AttackVector: "N",
@@ -171,6 +171,7 @@ export default function CVSS40Wrapper({ value }) {
     const newCvssValue = e.target.value;
     const prefixedCvss = newCvssValue.startsWith("CVSS:4.0/") ? newCvssValue : "CVSS:4.0/" + newCvssValue;
     setCvssString(prefixedCvss);
+    onChange?.(prefixedCvss);
     if (!validateCvssVector(prefixedCvss)) {
       return;
     }
@@ -219,6 +220,7 @@ export default function CVSS40Wrapper({ value }) {
     setMetrics(prev => {
       const updatedMetrics = { ...prev, [key]: value };
       setCvssString(calculateRaw(updatedMetrics));
+      onChange?.(calculateRaw(updatedMetrics));
       return updatedMetrics;
     });
   };
