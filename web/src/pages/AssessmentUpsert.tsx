@@ -17,7 +17,17 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
-import { Assessment, ASSESSMENT_TYPE, Target } from "../types/common.types";
+import { Assessment, Target } from "../types/common.types";
+
+export const ASSESSMENT_TYPE = [
+  { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
+  { value: "WAPT", label: "Web Application Penetration Test" },
+  { value: "API PT", label: "API Penetration Test" },
+  { value: "MAPT", label: "Mobile Application Penetration Test" },
+  { value: "NPT", label: "Network Penetration Test" },
+  { value: "Red Team Assessment", label: "Red Team Assessment" },
+  { value: "IoT PT", label: "IoT Device Penetration Test" },
+];
 
 const CVSS_VERSIONS: SelectOption[] = [
   { value: "3.1", label: "3.1" },
