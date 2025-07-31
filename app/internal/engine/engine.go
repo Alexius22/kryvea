@@ -58,6 +58,7 @@ func (e *Engine) Serve() {
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
 		apiGroup.Get("/customers/:customer", api.GetCustomer)
+		apiGroup.Post("/customers/:customer/templates/upload", api.AddCustomerTemplate)
 
 		apiGroup.Get("/assessments", api.SearchAssessments)
 		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
@@ -80,6 +81,10 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/categories", api.GetCategories)
 		apiGroup.Get("/categories/:category", api.GetCategory)
 
+		apiGroup.Get("/templates", api.GetTemplates)
+		apiGroup.Get("/templates/:template", api.GetTemplate)
+		apiGroup.Delete("/templates/:template", api.DeleteTemplate)
+
 		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
 		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
@@ -92,7 +97,8 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)
 
-		apiGroup.Get("/files/:file", api.GetFile)
+		apiGroup.Get("/files/images/:file", api.GetImage)
+		apiGroup.Get("/files/templates/:file", api.GetTemplateFile)
 
 		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Patch("/users/me", api.UpdateMe)
@@ -118,6 +124,8 @@ func (e *Engine) Serve() {
 		adminGroup.Patch("/categories/:category", api.UpdateCategory)
 		adminGroup.Delete("/categories/:category", api.DeleteCategory)
 
+		adminGroup.Post("/templates/upload", api.AddGlobalTemplate)
+
 		adminGroup.Get("/users", api.GetUsers)
 		adminGroup.Get("/users/:user", api.GetUser)
 		adminGroup.Post("/users", api.AddUser)
@@ -129,7 +137,9 @@ func (e *Engine) Serve() {
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Redirect(e.rootPath)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Not Found",
+		})
 	})
 
 	logger.Info().Msg("Listening for connections on http://" + e.addr)

@@ -182,7 +182,7 @@ func (d *Driver) customerFromParam(customerParam string) (*mongo.Customer, strin
 		return nil, "Invalid customer ID"
 	}
 
-	customer, err := d.mongo.Customer().GetByID(customerID)
+	customer, err := d.mongo.Customer().GetByIDPipeline(customerID)
 	if err != nil {
 		return nil, "Invalid customer ID"
 	}
