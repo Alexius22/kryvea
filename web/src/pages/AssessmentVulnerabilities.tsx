@@ -16,7 +16,7 @@ import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
-import { Category, Customer, Template, Vulnerability } from "../types/common.types";
+import { Category, Customer, exportTypes, Template, Vulnerability } from "../types/common.types";
 
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
@@ -35,13 +35,6 @@ export default function AssessmentVulnerabilities() {
     { label: "Nessus", value: "nessus" },
     { label: "Burp", value: "burp" },
   ];
-
-  const exportTypes: SelectOption[] = [
-    { value: "docx", label: "Word (.docx)" },
-    { value: "xlsx", label: "Excel (.xlsx)" },
-    { value: "zip", label: "Zip Archive (.zip)" },
-  ];
-
   const [source, setSource] = useState<Category["source"]>();
   const [fileObj, setFileObj] = useState<File | null>(null);
 
