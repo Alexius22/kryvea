@@ -23,9 +23,6 @@ var CustomerPipeline = mongo.Pipeline{
 			{Key: "as", Value: "templates"},
 		}},
 	},
-	bson.D{
-		{Key: "$unset", Value: "templates.customer"},
-	},
 }
 
 type Customer struct {
