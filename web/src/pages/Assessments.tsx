@@ -1,5 +1,5 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
@@ -15,7 +15,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
-import { Assessment } from "../types/common.types";
+import { Assessment, Customer, exportTypes, Template } from "../types/common.types";
 
 export default function Assessments() {
   const navigate = useNavigate();
@@ -31,8 +31,11 @@ export default function Assessments() {
 
   const [cloneName, setCloneName] = useState("");
 
-  const [exportType, setExportType] = useState<SelectOption>({ value: "word", label: "Word (.docx)" });
-  const [exportTemplate, setExportTemplate] = useState<SelectOption>({ value: "default", label: "Default" });
+  const [exportType, setExportType] = useState<SelectOption>(exportTypes[0]);
+  const [exportTemplateOptions, setExportTemplateOptions] = useState<Template[]>([]);
+  const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
+  const allTemplatesRef = useRef<Template[]>([]);
+
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
 
@@ -51,9 +54,28 @@ export default function Assessments() {
     getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
   };
 
+  function filterTemplatesByType(type: string) {
+    const matches = allTemplatesRef.current.filter(t => t.file_type === type);
+    setExportTemplateOptions(matches);
+    setSelectedExportTemplate(matches[0] || null);
+  }
+
+  function fetchTemplates() {
+    getData<Customer>(`/api/customers/${customerId}`, customerData => {
+      getData<Template[]>("/api/templates", allTemplates => {
+        const all = [...customerData.templates, ...allTemplates];
+        const uniqueTemplates = Array.from(new Map(all.map(t => [t.file_id, t])).values());
+
+        allTemplatesRef.current = uniqueTemplates;
+        filterTemplatesByType(exportType.value);
+      });
+    });
+  }
+
   useEffect(() => {
     document.title = getPageTitle("Assessments");
     fetchAssessments();
+    fetchTemplates();
   }, []);
 
   const handleOwnedToggle = assessment => () => {
@@ -108,10 +130,11 @@ export default function Assessments() {
   const exportAssessment = () => {
     const payload = {
       type: exportType.value,
-      template: exportTemplate.value,
+      template: selectedExportTemplate.file_id,
       encryption: exportEncryption.value,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
     };
+
     // TODO properly with docx-go-template
     postData<Blob>(`/api/assessments/${selectedAssessmentId}/export`, payload, data => {
       const url = window.URL.createObjectURL(new Blob([data]));
@@ -160,24 +183,33 @@ export default function Assessments() {
           <SelectWrapper
             label="Type"
             id="type"
-            options={[
-              { value: "word", label: "Word (.docx)" },
-              { value: "excel", label: "Excel (.xlsx)" },
-              { value: "zip", label: "Archive (.zip)" },
-            ]}
+            options={exportTypes}
             value={exportType}
             onChange={option => setExportType(option)}
           />
           <SelectWrapper
-            label="Template"
+            label="Template Type"
             id="template"
-            options={[
-              { value: "default", label: "Default" },
-              { value: "template", label: "Template custom" },
-            ]}
-            value={exportTemplate}
-            onChange={option => setExportTemplate(option)}
+            options={exportTemplateOptions.map(t => ({
+              value: t.file_id,
+              label: t.type ? `${t.name} (${t.type})` : t.name,
+            }))}
+            value={
+              selectedExportTemplate
+                ? {
+                    value: selectedExportTemplate.file_id,
+                    label: selectedExportTemplate.type
+                      ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
+                      : selectedExportTemplate.name,
+                  }
+                : null
+            }
+            onChange={option => {
+              const selected = exportTemplateOptions.find(t => t.id === option.value) || null;
+              setSelectedExportTemplate(selected);
+            }}
           />
+
           <SelectWrapper
             label="Encryption"
             id="encryption"
