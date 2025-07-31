@@ -30,9 +30,18 @@ var CustomerPipeline = mongo.Pipeline{
 
 type Customer struct {
 	Model     `bson:",inline"`
-	Name      string     `json:"name" bson:"name"`
-	Language  string     `json:"language" bson:"language"`
-	Templates []Template `json:"templates" bson:"templates"`
+	Name      string             `json:"name" bson:"name"`
+	Language  string             `json:"language" bson:"language"`
+	Templates []CustomerTemplate `json:"templates" bson:"templates"`
+}
+
+type CustomerTemplate struct {
+	Name     string    `json:"name" bson:"name"`
+	Filename string    `json:"filename" bson:"filename"`
+	Language string    `json:"language" bson:"language"`
+	FileType string    `json:"file_type" bson:"file_type"`
+	Type     string    `json:"type" bson:"type"`
+	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
 }
 
 type CustomerIndex struct {
