@@ -2,7 +2,7 @@ import { mdiAccountEdit, mdiDownload, mdiListBox, mdiTarget, mdiTrashCan } from 
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { patchData, postData } from "../api/api";
+import { deleteData, getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
 import CardTitle from "../components/CardBox/CardTitle";
@@ -16,79 +16,52 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
-import { Customer, TemplateExport } from "../types/common.types";
+import { Customer, Template } from "../types/common.types";
 import { languageMapping } from "../types/languages";
 
 export default function CustomerDetail() {
   const {
     useCtxCustomer: [ctxCustomer, setCtxCustomer],
   } = useContext(GlobalContext);
+  const navigate = useNavigate();
 
   const [fileObj, setFileObj] = useState<File | null>(null);
-  const [uploadedTemplates, setUploadedTemplates] = useState<File[]>([]);
-  const [templateCustomer, setTemplateCustomer] = useState<TemplateExport>({
-    template_name: "",
-    template_file: null,
-    template_type: null,
-  });
+  const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
 
   const [formCustomer, setFormCustomer] = useState({
-    name: ctxCustomer?.name,
-    language: ctxCustomer?.language,
+    name: ctxCustomer?.name || "",
+    language: ctxCustomer?.language || "",
   });
 
-  const navigate = useNavigate();
+  const [newTemplateData, setNewTemplateData] = useState({
+    name: "",
+    type: "",
+    file: null as File | null,
+  });
 
   const languageOptions = Object.entries(languageMapping).map(([code, label]) => ({
     value: code,
     label,
   }));
 
-  const templateTypeOptions = [
-    { value: "docx", label: "Word Document (docx)" },
-    { value: "xlsx", label: "Excel Spreadsheet (xlsx)" },
-  ];
-
-  const selectedTemplateTypeOption =
-    templateTypeOptions.find(opt => opt.value === templateCustomer.template_type) || null;
-
   const selectedLanguageOption = languageOptions.find(opt => opt.value === formCustomer.language);
 
   useEffect(() => {
     document.title = getPageTitle("Customer detail");
-  }, []);
+    if (ctxCustomer?.id) {
+      fetchTemplates();
+    }
+  }, [ctxCustomer?.id]);
 
-  useEffect(() => {
-    const mockFile1 = new File(
-      [
-        new Blob(["Mock Word document content"], {
-          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        }),
-      ],
-      "mock-template1.docx",
-      { type: "docx" }
-    );
+  function fetchTemplates() {
+    getData<Customer>(`/api/customers/${ctxCustomer?.id}`, data => setCustomerTemplates(data.templates));
+  }
 
-    const mockFile2 = new File(
-      [
-        new Blob(["Mock Excel spreadsheet content"], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        }),
-      ],
-      "mock-template2.xlsx",
-      { type: "xlsx" }
-    );
-    setUploadedTemplates([mockFile1, mockFile2, mockFile1, mockFile2]);
-  }, []);
-
-  const handleCustomerName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleCustomerFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
 
-    if (id === "template_name" || id === "template_type") {
-      setTemplateCustomer(prev => ({
-        ...prev,
-        [id]: id === "template_type" ? (value as "docx" | "xlsx") : value,
-      }));
+    if (id === "name" || id === "type" || id === "file_type") {
+      setNewTemplateData(prev => ({ ...prev, [id]: value }));
     } else {
       setFormCustomer(prev => ({ ...prev, [id]: value }));
     }
@@ -100,88 +73,66 @@ export default function CustomerDetail() {
       return;
     }
 
-    const payload = {
-      name: formCustomer.name,
-      language: formCustomer.language,
-    };
-
-    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, payload, updatedCustomer => {
+    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, formCustomer, updated => {
       toast.success("Customer updated successfully");
-      setCtxCustomer(updatedCustomer);
+      setCtxCustomer(updated);
     });
   };
 
   const changeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !files[0]) return;
-    setUploadedTemplates(prev => [...prev, files[0]]);
-    setFileObj(null);
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileObj(file);
+      setNewTemplateData(prev => ({ ...prev, file }));
+    }
   };
 
   const clearFile = () => {
     setFileObj(null);
-    setTemplateCustomer(prev => ({ ...prev, template_file: null }));
-  };
-
-  const downloadUploadedTemplate = (index: number) => {
-    const file = uploadedTemplates[index];
-    if (!file) return;
-
-    const url = URL.createObjectURL(file);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const deleteUploadedTemplate = (index: number) => {
-    setUploadedTemplates(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const deleteTemplateFile = () => {
-    setFileObj(null);
+    setNewTemplateData(prev => ({ ...prev, file: null }));
   };
 
   const handleUploadTemplate = () => {
-    if (!templateCustomer.template_name.trim()) {
+    if (!newTemplateData.name.trim()) {
       toast.error("Template name is required");
       return;
     }
-    if (!templateCustomer.template_type) {
-      toast.error("Template type is required");
+    if (!fileObj) {
+      toast.error("Template file is required");
       return;
     }
-    if (!templateCustomer.template_file) {
-      toast.error("Please select a template file to upload");
-      return;
-    }
+
+    const dataTemplate = {
+      name: newTemplateData.name,
+      language: selectedLanguageOption?.value,
+      type: newTemplateData.type,
+    };
 
     const formData = new FormData();
-    formData.append("template_name", templateCustomer.template_name);
-    formData.append("template_type", templateCustomer.template_type);
-    formData.append("template_file", templateCustomer.template_file);
+    formData.append("template", fileObj, fileObj.name);
+    formData.append("data", JSON.stringify(dataTemplate));
 
-    postData(`/api/customers/${ctxCustomer?.id}/templates`, formData, () => {
+    postData(`/api/customers/${ctxCustomer?.id}/templates/upload`, formData, () => {
       toast.success("Template uploaded successfully");
-      setTemplateCustomer({
-        template_name: "",
-        template_file: null,
-        template_type: null,
-      });
       setFileObj(null);
+      setNewTemplateData({ name: "", type: "", file: null });
+      fetchTemplates();
     });
   };
 
-  // Dynamically set accept attribute based on template type
-  const fileAccept =
-    templateCustomer.template_type === "xlsx"
-      ? ".xlsx"
-      : templateCustomer.template_type === "docx"
-        ? ".docx"
-        : ".docx,.xlsx";
+  const deleteTemplate = (templateId: string) => {
+    deleteData(`/api/templates/${templateId}`, () => {
+      toast.success("Template deleted successfully");
+      setCustomerTemplates(prev => prev.filter(t => t.id !== templateId));
+    });
+  };
+
+  const downloadTemplate = (template: Template) => {
+    const a = document.createElement("a");
+    a.href = `/api/files/templates/${template.file_id}`;
+    a.download = template.name || template.filename;
+    a.click();
+  };
 
   return (
     <div>
@@ -201,9 +152,10 @@ export default function CustomerDetail() {
           />
         </Buttons>
       </SectionTitleLineWithButton>
+
       <Grid className="grid-cols-2">
         <Card>
-          <CardTitle title={"Customer details"} />
+          <CardTitle title="Customer details" />
           <Grid className="gap-4">
             <Input
               type="text"
@@ -212,9 +164,8 @@ export default function CustomerDetail() {
               placeholder="Company name"
               id="name"
               value={formCustomer.name}
-              onChange={handleCustomerName}
+              onChange={handleCustomerFormChange}
             />
-
             <SelectWrapper
               label="Language"
               id="language"
@@ -229,56 +180,60 @@ export default function CustomerDetail() {
             <Button variant="secondary" text="Cancel" onClick={() => navigate("/customers")} />
           </Buttons>
         </Card>
+
         <Card>
-          <CardTitle title={"Upload new template"} />
-          <Grid className="grid-cols-2">
-            <Input
-              type="text"
-              label="Name"
-              placeholder="Template name"
-              id="template_name"
-              value={templateCustomer.template_name}
-              onChange={handleCustomerName}
+          <CardTitle title="Upload new custom template" />
+          <Grid className="gap-4">
+            <Grid className="grid-cols-2">
+              <Input
+                type="text"
+                label="Template Name"
+                placeholder="Insert name for the template"
+                id="name"
+                value={newTemplateData.name || ""}
+                onChange={handleCustomerFormChange}
+              />
+              <Input
+                type="text"
+                label="Template Type"
+                placeholder="e.g., Template for assessments"
+                id="type"
+                value={newTemplateData.type}
+                onChange={handleCustomerFormChange}
+              />
+            </Grid>
+            <UploadFile
+              label="Choose template file"
+              inputId="file"
+              filename={fileObj?.name}
+              name="templateFile"
+              accept=".docx,.xlsx"
+              onChange={changeFile}
+              onButtonClick={clearFile}
             />
-            <SelectWrapper
-              label="Type"
-              id="template_type"
-              options={templateTypeOptions}
-              value={selectedTemplateTypeOption}
-              onChange={option => setTemplateCustomer(prev => ({ ...prev, template_type: option.value }))}
-            />
+            <Divider />
+            <Buttons>
+              <Button text="Upload" onClick={handleUploadTemplate} />
+            </Buttons>
           </Grid>
-          <UploadFile
-            label="Upload a new template file"
-            inputId={"template_file"}
-            filename={fileObj?.name}
-            name={"template_file"}
-            accept=".docx,.xlsx"
-            onChange={changeFile}
-            onButtonClick={clearFile}
-          />
-          <Divider />
-          <Buttons>
-            <Button text="Upload" onClick={handleUploadTemplate} />
-          </Buttons>
         </Card>
-        {uploadedTemplates && (
-          <Card>
-            <CardTitle title={"Templates"} />
-            <Table
-              data={uploadedTemplates.map((file, index) => ({
-                Name: file.name,
-                Type: file.type,
-                buttons: (
-                  <Buttons noWrap>
-                    <Button icon={mdiDownload} onClick={() => downloadUploadedTemplate(index)} variant="secondary" />
-                    <Button icon={mdiTrashCan} onClick={() => deleteUploadedTemplate(index)} variant="danger" />
-                  </Buttons>
-                ),
-              }))}
-              perPageCustom={4}
-            />
-          </Card>
+
+        {customerTemplates.length > 0 && (
+          <Table
+            data={customerTemplates.map(template => ({
+              Name: template.name,
+              Filename: template.filename,
+              "File Type": template.file_type,
+              "Template Type": template.type,
+              buttons: (
+                <Buttons noWrap>
+                  <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
+                  <Button icon={mdiTrashCan} onClick={() => deleteTemplate(template.id)} variant="danger" />
+                </Buttons>
+              ),
+            }))}
+            perPageCustom={5}
+          />
         )}
       </Grid>
     </div>
