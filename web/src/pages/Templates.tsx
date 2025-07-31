@@ -76,7 +76,7 @@ export default function Templates() {
     const dataTemplate = {
       name: nameTemplate,
       language: selectedLanguage.value,
-      file_type: templateType,
+      type: templateType,
     };
 
     const formData = new FormData();
@@ -133,6 +133,7 @@ export default function Templates() {
             <Input
               type="text"
               label="Template Name"
+              id="template_name"
               value={nameTemplate}
               onChange={e => setNameTemplate(e.target.value)}
               placeholder="Insert name for the template"
@@ -148,7 +149,7 @@ export default function Templates() {
             type="text"
             label="Template Type"
             placeholder="e.g., Template for assessments"
-            id="type"
+            id="template_type"
             value={templateType}
             onChange={e => setTemplateType(e.target.value)}
           />
