@@ -57,7 +57,7 @@ type Template struct {
 	FileType string    `json:"file_type" bson:"file_type"`
 	Type     string    `json:"type" bson:"type"`
 	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
-	Customer *Customer `json:"customer,omitempty" bson:"customer"`
+	Customer Customer  `json:"customer,omitempty" bson:"customer"`
 }
 
 type TemplateIndex struct {

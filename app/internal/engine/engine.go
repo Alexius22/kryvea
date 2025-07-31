@@ -137,7 +137,9 @@ func (e *Engine) Serve() {
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Redirect(e.rootPath)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Not Found",
+		})
 	})
 
 	logger.Info().Msg("Listening for connections on http://" + e.addr)

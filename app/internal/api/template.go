@@ -60,7 +60,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 		FileType: templateType,
 		Type:     data.Type,
 		FileID:   fileID,
-		Customer: &mongo.Customer{
+		Customer: mongo.Customer{
 			Model: mongo.Model{
 				ID: uuid.Nil,
 			},
@@ -176,7 +176,7 @@ func (d *Driver) GetTemplates(c *fiber.Ctx) error {
 	}
 
 	// filter templates by user access
-	filteredTemplates := make([]mongo.Template, 0)
+	filteredTemplates := []mongo.Template{}
 	for _, template := range templates {
 		if template.Customer.ID == uuid.Nil || util.CanAccessCustomer(user, template.Customer.ID) {
 			filteredTemplates = append(filteredTemplates, template)
