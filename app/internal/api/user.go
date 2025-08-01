@@ -192,6 +192,13 @@ func (d *Driver) GetUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+type updateUserRequestData struct {
+	DisabledAt time.Time `json:"disabled_at"`
+	Username   string    `json:"username"`
+	Role       string    `json:"role"`
+	Customers  []string  `json:"customers"`
+}
+
 func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	// parse user param
 	user, errStr := d.userFromParam(c.Params("user"))
@@ -203,7 +210,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	// parse request body
-	data := &userRequestData{}
+	data := &updateUserRequestData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -224,36 +231,27 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	// parse customer IDs
 	customers := make([]mongo.Customer, len(data.Customers))
 	for i, customerID := range data.Customers {
-		parsedCustomerID, err := util.ParseUUID(customerID)
-		if err != nil {
+		customer, errStr := d.customerFromParam(customerID)
+		if errStr != "" {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
-				"error": "Invalid customer ID",
-			})
-		}
-
-		_, err = d.mongo.Customer().GetByID(parsedCustomerID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid customer ID",
+				"error": errStr,
 			})
 		}
 
 		customers[i] = mongo.Customer{
 			Model: mongo.Model{
-				ID: parsedCustomerID,
+				ID: customer.ID,
 			},
 		}
 	}
 
 	// update user in database
 	err := d.mongo.User().Update(user.ID, &mongo.User{
-		DisabledAt:     data.DisabledAt,
-		Username:       data.Username,
-		PasswordExpiry: data.PasswordExpiry,
-		Role:           data.Role,
-		Customers:      customers,
+		DisabledAt: data.DisabledAt,
+		Username:   data.Username,
+		Role:       data.Role,
+		Customers:  customers,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -269,10 +267,9 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 }
 
 type updateMeData struct {
-	Username        string   `json:"username"`
-	CurrentPassword string   `json:"current_password"`
-	NewPassword     string   `json:"new_password"`
-	Assessments     []string `json:"assessments"`
+	Username        string `json:"username"`
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
 }
 
 func (d *Driver) UpdateMe(c *fiber.Ctx) error {
@@ -296,40 +293,10 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 		})
 	}
 
-	// parse assessment IDs
-	assessments := make([]mongo.UserAssessment, len(data.Assessments))
-	for i, assessmentID := range data.Assessments {
-		parsedAssessmentID, err := util.ParseUUID(assessmentID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid assessment ID",
-			})
-		}
-
-		assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid assessment ID",
-			})
-		}
-
-		if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-			c.Status(fiber.StatusUnauthorized)
-			return c.JSON(fiber.Map{
-				"error": "Unauthorized",
-			})
-		}
-
-		assessments[i] = mongo.UserAssessment{ID: parsedAssessmentID}
-	}
-
 	// update user in database
-	err := d.mongo.User().Update(user.ID, &mongo.User{
-		Username:    data.Username,
-		Password:    data.NewPassword,
-		Assessments: assessments,
+	err := d.mongo.User().UpdateMe(user.ID, &mongo.User{
+		Username: data.Username,
+		Password: data.NewPassword,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -539,7 +506,7 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 		return "Username is required"
 	}
 
-	if data.Role != "" && !util.IsValidRole(data.Role) {
+	if !util.IsValidRole(data.Role) {
 		return "Invalid role"
 	}
 
@@ -550,24 +517,16 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 	return ""
 }
 
-func (d *Driver) validateUserUpdateData(data *userRequestData) string {
-	if data.Username == "" {
-		return "Username is required"
-	}
-
-	if data.Role != "" && !util.IsValidRole(data.Role) {
+func (d *Driver) validateUserUpdateData(data *updateUserRequestData) string {
+	if !util.IsValidRole(data.Role) {
 		return "Invalid role"
-	}
-
-	if data.Password != "" && !util.IsValidPassword(data.Password) {
-		return "Password does not meet policy requirements"
 	}
 
 	return ""
 }
 
 func (d *Driver) validateUpdateMeData(data *updateMeData, user *mongo.User) string {
-	if data.Username == "" && data.NewPassword == "" && data.Assessments == nil {
+	if data.Username == "" && data.NewPassword == "" {
 		return "No data to update"
 	}
 
