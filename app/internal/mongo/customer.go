@@ -28,6 +28,14 @@ var CustomerPipeline = mongo.Pipeline{
 	},
 }
 
+var AllCustomerPipeline = mongo.Pipeline{
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "templates", Value: []bson.A{}},
+		}},
+	},
+}
+
 type Customer struct {
 	Model     `bson:",inline"`
 	Name      string     `json:"name" bson:"name"`
@@ -167,13 +175,16 @@ func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error
 }
 
 func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
-	filter := bson.M{}
-
+	pipeline := AllCustomerPipeline
 	if customerIDs != nil {
-		filter["_id"] = bson.M{"$in": customerIDs}
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.M{
+				"_id": bson.M{"$in": customerIDs},
+			}},
+		})
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return []Customer{}, err
 	}
