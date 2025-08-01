@@ -55,7 +55,7 @@ export default function MonacoCodeEditor({
         const actualText = model.getValueInRange(range);
         return actualText === selectionPreview;
       })
-      .map(({ start, end, color = "bg-green-900" }) => ({
+      .map(({ start, end, color }) => ({
         range: new monaco.Range(start.line, start.col, end.line, end.col),
         options: {
           inlineClassName: color,
