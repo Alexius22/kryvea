@@ -10,6 +10,7 @@ type MenuAsideItem = {
   label: string;
   menu?: MenuAsideItem[];
   color?: string;
+  onClick?: () => void;
 };
 
 type Props = {
@@ -27,10 +28,21 @@ export default function Item({ item, isDropdownList = false }: Props) {
   }, [pathname, item.href]);
 
   const toggleDropdown = () => setIsDropdownActive(prev => !prev);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (item.onClick) {
+      item.onClick();
+    }
+
+    if (item.menu) {
+      toggleDropdown();
+    }
+  };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      toggleDropdown();
+      handleClick(e as any); // fake event
     }
   };
 
@@ -48,12 +60,12 @@ export default function Item({ item, isDropdownList = false }: Props) {
 
   return (
     <li className={`rounded p-1 ${isLinkActive ? "aside-menu-item-active" : ""}`}>
-      {item.href ? (
+      {item.href && !item.onClick ? (
         <Link to={item.href}>{content}</Link>
       ) : (
         <div
-          className={baseClasses}
-          onClick={toggleDropdown}
+          className={`${baseClasses} cursor-pointer`}
+          onClick={handleClick}
           role="button"
           tabIndex={0}
           onKeyDown={handleKeyDown}

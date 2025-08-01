@@ -9,6 +9,7 @@ import {
   mdiViewList,
 } from "@mdi/js";
 import { useContext } from "react";
+import { navigate } from "../../api/api";
 import { getKryveaShadow } from "../../api/cookie";
 import { GlobalContext } from "../../App";
 import { USER_ROLE_ADMIN } from "../../config";
@@ -40,6 +41,7 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
           {
             label: ctxCustomer.name,
             icon: mdiViewList,
+            onClick: () => navigate(`/customers/${ctxCustomer.id}`),
             menu: [
               { href: `/customers/${ctxCustomer.id}/assessments`, label: "Assessments" },
               { href: `/customers/${ctxCustomer.id}/targets`, label: "Targets" },
