@@ -153,7 +153,7 @@ export default function CustomerDetail() {
         </Buttons>
       </SectionTitleLineWithButton>
 
-      <Grid className="grid-cols-2">
+      <Grid className="grid-cols-2 !items-start">
         <Card>
           <CardTitle title="Customer details" />
           <Grid className="gap-4">
@@ -182,7 +182,7 @@ export default function CustomerDetail() {
         </Card>
 
         <Card>
-          <CardTitle title="Upload new custom template" />
+          <CardTitle title="Custom templates" />
           <Grid className="gap-4">
             <Grid className="grid-cols-2">
               <Input
@@ -211,30 +211,27 @@ export default function CustomerDetail() {
               onChange={changeFile}
               onButtonClick={clearFile}
             />
-            <Divider />
             <Buttons>
               <Button text="Upload" onClick={handleUploadTemplate} />
             </Buttons>
+            <Divider />
+            <Table
+              data={customerTemplates.map(template => ({
+                Name: template.name,
+                Filename: template.filename,
+                "File Type": template.file_type,
+                "Template Type": template.type,
+                buttons: (
+                  <Buttons noWrap>
+                    <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
+                    <Button icon={mdiTrashCan} onClick={() => deleteTemplate(template.id)} variant="danger" />
+                  </Buttons>
+                ),
+              }))}
+              perPageCustom={5}
+            />
           </Grid>
         </Card>
-
-        {customerTemplates.length > 0 && (
-          <Table
-            data={customerTemplates.map(template => ({
-              Name: template.name,
-              Filename: template.filename,
-              "File Type": template.file_type,
-              "Template Type": template.type,
-              buttons: (
-                <Buttons noWrap>
-                  <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
-                  <Button icon={mdiTrashCan} onClick={() => deleteTemplate(template.id)} variant="danger" />
-                </Buttons>
-              ),
-            }))}
-            perPageCustom={5}
-          />
-        )}
       </Grid>
     </div>
   );
