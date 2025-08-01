@@ -1,4 +1,4 @@
-import { mdiBroom, mdiClipboardText, mdiFormatColorHighlight } from "@mdi/js";
+import { mdiBroom, mdiClipboardText, mdiMarker, mdiPalette } from "@mdi/js";
 import * as monaco from "monaco-editor";
 import { useState } from "react";
 import DescribedCode from "../Composition/DescribedCode";
@@ -6,6 +6,7 @@ import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
+import ColorPicker from "../Form/ColorPicker";
 import { SelectOption } from "../Form/SelectWrapper.types";
 import MonacoCodeEditor from "./MonacoCodeEditor";
 import { MonacoTextSelection } from "./MonacoCodeEditor.types";
@@ -45,6 +46,27 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
+  const [highlightColor, setHighlightColor] = useState<string>("bg-green-900");
+
+  function getOrCreateHighlightClass(rgbaValue: string): string {
+    const className = `highlight-${rgbaValue
+      .replace(/[^a-zA-Z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/(^-|-$)/g, "")}`;
+
+    if (!document.querySelector(`.${className}`)) {
+      const style = document.createElement("style");
+      style.innerHTML = `
+      .${className} {
+        background-color: ${rgbaValue} !important;
+      }
+    `;
+      document.head.appendChild(style);
+    }
+
+    return className;
+  }
+
   return (
     <Grid className="gap-4">
       <Modal
@@ -88,14 +110,25 @@ export default function PocCodeEditor({
             small
             variant="warning"
             title="Add highlight"
-            icon={mdiFormatColorHighlight}
+            icon={mdiMarker}
             iconSize={24}
-            onClick={() =>
+            onClick={() => {
+              const className = getOrCreateHighlightClass(highlightColor);
+              const coloredSelection = selectedText.map(sel => ({
+                ...sel,
+                color: className,
+              }));
               onSetCodeSelection(currentIndex, highlightsProperty, [
                 ...(pocDoc[highlightsProperty] ?? []),
-                ...selectedText,
-              ])
-            }
+                ...coloredSelection,
+              ]);
+            }}
+          />
+          <ColorPicker
+            icon={mdiPalette}
+            title="Highlight color"
+            value={highlightColor}
+            onChange={color => setHighlightColor(color)}
           />
           <Button
             small
