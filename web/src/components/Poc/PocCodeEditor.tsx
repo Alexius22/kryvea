@@ -46,7 +46,7 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
-  const [highlightColor, setHighlightColor] = useState<string>("bg-green-900");
+  const [highlightColor, setHighlightColor] = useState<string>("#0d542b");
 
   function getOrCreateHighlightClass(rgbaValue: string): string {
     const className = `highlight-${rgbaValue
