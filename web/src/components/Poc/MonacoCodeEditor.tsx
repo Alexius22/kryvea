@@ -19,6 +19,7 @@ interface MonacoCodeEditorProps {
   onChange?: (value: string) => void;
   onLanguageOptionsInit?;
   onTextSelection?;
+  color?: string;
 }
 
 export default function MonacoCodeEditor({
@@ -39,7 +40,7 @@ export default function MonacoCodeEditor({
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
 
-  const highlightCode = (className = "bg-green-900") => {
+  const highlightCode = () => {
     if (!editor) {
       return;
     }
@@ -49,17 +50,15 @@ export default function MonacoCodeEditor({
     }
 
     const decorations: monaco.editor.IModelDeltaDecoration[] = textHighlights
-      .filter(({ start, end, selectionPreview }, i) => {
+      .filter(({ start, end, selectionPreview }) => {
         const range = new monaco.Range(start.line, start.col, end.line, end.col);
         const actualText = model.getValueInRange(range);
-        const textHighlightMatches = actualText === selectionPreview;
-
-        return textHighlightMatches;
+        return actualText === selectionPreview;
       })
-      .map(({ start, end }) => ({
+      .map(({ start, end, color = "bg-green-900" }) => ({
         range: new monaco.Range(start.line, start.col, end.line, end.col),
         options: {
-          className,
+          inlineClassName: color,
           isWholeLine: false,
         },
       }));
