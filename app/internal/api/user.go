@@ -200,12 +200,21 @@ type updateUserRequestData struct {
 }
 
 func (d *Driver) UpdateUser(c *fiber.Ctx) error {
+	currentUser := c.Locals("user").(*mongo.User)
+
 	// parse user param
 	user, errStr := d.userFromParam(c.Params("user"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": errStr,
+		})
+	}
+
+	if currentUser.ID == user.ID {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update self, use dedicated endpoint",
 		})
 	}
 
