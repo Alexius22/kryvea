@@ -301,53 +301,49 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
-		"$set": bson.M{},
+		"$set": bson.M{
+			"updated_at":  time.Now(),
+			"disabled_at": user.DisabledAt,
+			"username":    user.Username,
+			"role":        user.Role,
+			"customers":   user.Customers,
+		},
 	}
-
-	if !user.DisabledAt.IsZero() {
-		update["$set"].(bson.M)["disabled_at"] = user.DisabledAt
-	}
-
-	if user.Username != "" {
-		update["$set"].(bson.M)["username"] = user.Username
-	}
-
-	if user.Password != "" {
-		hash, err := crypto.Encrypt(user.Password)
-		if err != nil {
-			return err
-		}
-
-		update["$set"].(bson.M)["password"] = hash
-	}
-
-	if !user.PasswordExpiry.IsZero() {
-		update["$set"].(bson.M)["password_expiry"] = user.PasswordExpiry
-	}
-
-	if user.Role != "" {
-		update["$set"].(bson.M)["role"] = user.Role
-	}
-
-	if user.Customers != nil {
-		update["$set"].(bson.M)["customers"] = user.Customers
-	}
-
-	if user.Assessments != nil {
-		update["$set"].(bson.M)["assessments"] = user.Assessments
-	}
-
-	update["$set"].(bson.M)["updated_at"] = time.Now()
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }
 
-func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, isOwned bool) error {
+func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User) error {
+	filter := bson.M{"_id": userID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+		},
+	}
+
+	if newUser.Username != "" {
+		update["$set"].(bson.M)["username"] = newUser.Username
+	}
+
+	if newUser.Password != "" {
+		hash, err := crypto.Encrypt(newUser.Password)
+		if err != nil {
+			return err
+		}
+		update["$set"].(bson.M)["password"] = hash
+	}
+
+	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addToOwned bool) error {
 	filter := bson.M{"_id": userID}
 
 	op := "$pull"
-	if isOwned {
+	if addToOwned {
 		op = "$addToSet"
 	}
 
