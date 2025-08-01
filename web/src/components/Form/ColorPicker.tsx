@@ -28,13 +28,19 @@ export default function ColorPicker({
     };
   }, []);
 
+  const handleChange = (color: ColorResult) => {
+    const { r, g, b, a } = color.rgb;
+    const rgba = `rgba(${r}, ${g}, ${b}, ${a ?? 1})`;
+    onChange(rgba);
+  };
+
   return (
     <div className="relative inline-block" ref={pickerRef}>
       <Button icon={icon} title={title} onClick={() => setOpen(o => !o)} />
 
       {open && (
         <div className="absolute z-20 mt-2 shadow-lg">
-          <ChromePicker color={value} onChange={(color: ColorResult) => onChange(color.hex)} disableAlpha />
+          <ChromePicker color={value} onChange={handleChange} />
         </div>
       )}
     </div>
