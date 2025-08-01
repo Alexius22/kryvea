@@ -242,7 +242,7 @@ func (d *Driver) templateFromParam(param string) (*mongo.Template, string) {
 
 	templateID, err := util.ParseUUID(param)
 	if err != nil {
-		return nil, "Invalid customer ID"
+		return nil, "Invalid template ID"
 	}
 
 	template, err := d.mongo.Template().GetByID(templateID)

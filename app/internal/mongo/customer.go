@@ -33,6 +33,7 @@ type Customer struct {
 }
 
 type CustomerTemplate struct {
+	ID       uuid.UUID `json:"id" bson:"_id"`
 	Name     string    `json:"name" bson:"name"`
 	Filename string    `json:"filename" bson:"filename"`
 	Language string    `json:"language" bson:"language"`
