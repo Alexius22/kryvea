@@ -302,12 +302,21 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at":  time.Now(),
-			"disabled_at": user.DisabledAt,
-			"username":    user.Username,
-			"role":        user.Role,
-			"customers":   user.Customers,
+			"updated_at": time.Now(),
 		},
+	}
+
+	if !user.DisabledAt.IsZero() {
+		update["$set"].(bson.M)["disabled_at"] = user.DisabledAt
+	}
+	if user.Username != "" {
+		update["$set"].(bson.M)["username"] = user.Username
+	}
+	if user.Role != "" {
+		update["$set"].(bson.M)["role"] = user.Role
+	}
+	if user.Customers != nil {
+		update["$set"].(bson.M)["customers"] = user.Customers
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
