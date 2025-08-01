@@ -9,6 +9,7 @@ interface BaseButtonCoreProps {
   title?: string;
   formSubmit?: boolean;
   children?;
+  customColor?;
 }
 interface WithIcon {
   icon: string;
@@ -44,6 +45,7 @@ export default function Button({
   formSubmit,
   onClick = () => {},
   children,
+  customColor,
 }: ButtonProps) {
   return (
     <button
@@ -58,6 +60,7 @@ export default function Button({
       }}
       data-variant={variant}
       title={title}
+      style={customColor ? { backgroundColor: customColor, borderColor: customColor } : undefined}
     >
       {icon && <Icon path={icon} size={iconSize} />}
       {text}
