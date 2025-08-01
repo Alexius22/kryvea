@@ -112,6 +112,7 @@ export default function PocCodeEditor({
             title="Add highlight"
             icon={mdiMarker}
             iconSize={24}
+            customColor={highlightColor}
             onClick={() => {
               const className = getOrCreateHighlightClass(highlightColor);
               const coloredSelection = selectedText.map(sel => ({
