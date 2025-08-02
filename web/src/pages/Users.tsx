@@ -9,6 +9,7 @@ import Subtitle from "../components/Composition/Subtitle";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
@@ -20,8 +21,8 @@ export default function Users() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
-  const [userDisabled, setUserDisabled] = useState<string | null>(null);
-  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+  const [userDisabled, setUserDisabled] = useState<string>(null);
+  const [temporaryPassword, setTemporaryPassword] = useState<string>(null);
 
   const [users, setUsers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -31,7 +32,7 @@ export default function Users() {
   const [isModalEditActive, setIsModalEditActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
 
-  const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const [activeUserId, setActiveUserId] = useState<string>(null);
 
   const navigate = useNavigate();
 
@@ -162,13 +163,16 @@ export default function Users() {
             closeMenuOnSelect={false}
             id="customer-selection"
           />
-          <Input
-            type="datetime-local"
-            id="disable_user_at"
+          <DateCalendar
+            idStart="disable_user_at"
             label="Disable user from"
-            value={userDisabled ? userDisabled.substring(0, 16) : ""}
-            onChange={e => {
-              setUserDisabled(new Date(e.target.value).toISOString());
+            showTime
+            value={{ start: userDisabled }}
+            onChange={val => {
+              console.log(val);
+              if (typeof val === "string") {
+                setUserDisabled(val);
+              }
             }}
           />
         </Grid>
