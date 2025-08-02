@@ -1,53 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Label from "./Label";
 
-interface CustomDatePickerProps {
+interface DateCalendarProps {
   idStart: string;
-  idEnd?: string; // required only for range
   label: string;
   isRange?: boolean;
-  value: string | { start: string; end: string };
+  showTime?: boolean;
+  value: { start: string; end?: string };
   onChange: (value: string | { start: string; end: string }) => void;
   placeholder?: string | { start?: string; end?: string };
 }
 
 export default function DateCalendar({
   idStart,
-  idEnd,
   label,
   isRange = false,
+  showTime = false,
   value,
   onChange,
   placeholder,
-}: CustomDatePickerProps) {
-  const startDate = isRange
-    ? (value as { start: string; end: string }).start
-      ? new Date((value as { start: string; end: string }).start)
-      : null
-    : (value as string)
-      ? new Date(value as string)
-      : null;
-
-  const endDate =
-    isRange && idEnd
-      ? (value as { start: string; end: string }).end
-        ? new Date((value as { start: string; end: string }).end)
-        : null
-      : null;
-
-  const [range, setRange] = useState<[Date | null, Date | null]>([startDate, endDate]);
-
-  useEffect(() => {
-    if (isRange) {
-      setRange([startDate, endDate]);
-    }
-  }, [isRange]);
+}: DateCalendarProps) {
+  const [range, setRange] = useState<[Date | null, Date | null]>([
+    new Date(value.start),
+    new Date(value.end === "" ? new Date() : value.end),
+  ]);
 
   // Handler for single date change
   const handleChangeSingle = (date: Date | null) => {
-    onChange(date ? date.toISOString() : "");
+    onChange(date.toISOString());
   };
 
   // Handler for range change
@@ -63,7 +45,7 @@ export default function DateCalendar({
   return (
     <div>
       {label && <Label text={label} htmlFor={isRange ? undefined : idStart} />}
-      {isRange && idEnd ? (
+      {isRange ? (
         <DatePicker
           selectsRange
           swapRange
@@ -72,18 +54,19 @@ export default function DateCalendar({
           onChange={handleChangeRange}
           className="datepicker-input"
           placeholderText={"Select range date"}
-          shouldCloseOnSelect={false}
           autoComplete="off"
         />
       ) : (
         <DatePicker
-          selected={startDate}
+          selected={new Date(value.start)}
           onChange={handleChangeSingle}
+          showTimeSelect={showTime}
+          timeIntervals={15}
+          dateFormat={showTime ? "Pp" : "P"}
           className="datepicker-input"
           placeholderText={typeof placeholder === "string" ? placeholder : "Select a date"}
           id={idStart}
           autoComplete="off"
-          inline
         />
       )}
     </div>

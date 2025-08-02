@@ -73,8 +73,8 @@ export default function AssessmentUpsert() {
   >({
     assessment_type: "",
     name: "",
-    start_date_time: "",
-    end_date_time: "",
+    start_date_time: new Date().toISOString(),
+    end_date_time: new Date().toISOString(),
     targets: [],
     cvss_versions: [],
     environment: "",
@@ -265,9 +265,8 @@ export default function AssessmentUpsert() {
               />
               <DateCalendar
                 idStart="start_date_time"
-                idEnd="end_date_time"
                 label="Activity Period"
-                isRange={true}
+                isRange
                 value={{ start: form.start_date_time, end: form.end_date_time }}
                 onChange={val => {
                   const { start, end } = val as { start: string; end: string };
