@@ -50,42 +50,15 @@ var UserPipeline = mongo.Pipeline{
 			{Key: "from", Value: "assessment"},
 			{Key: "localField", Value: "assessments._id"},
 			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "assessmentData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "assessments", Value: bson.D{
-				{Key: "$map", Value: bson.D{
-					{Key: "input", Value: "$assessments"},
-					{Key: "as", Value: "assessment"},
-					{Key: "in", Value: bson.D{
-						{Key: "_id", Value: "$$assessment._id"},
-						{Key: "name", Value: bson.D{
-							{Key: "$let", Value: bson.D{
-								{Key: "vars", Value: bson.D{
-									{Key: "matched", Value: bson.D{
-										{Key: "$arrayElemAt", Value: bson.A{
-											bson.D{{Key: "$filter", Value: bson.D{
-												{Key: "input", Value: "$assessmentData"},
-												{Key: "as", Value: "assess"},
-												{Key: "cond", Value: bson.D{
-													{Key: "$eq", Value: bson.A{"$$assess._id", "$$assessment._id"}},
-												}},
-											}}},
-											0,
-										}},
-									}},
-								}},
-								{Key: "in", Value: "$$matched.name"},
-							}},
-						}},
-					}},
-				}},
+			{Key: "as", Value: "assessments"},
+			{Key: "pipeline", Value: mongo.Pipeline{
+				bson.D{{Key: "$project", Value: bson.D{
+					{Key: "_id", Value: 1},
+					{Key: "name", Value: 1},
+				}}},
 			}},
 		}},
 	},
-	bson.D{{Key: "$unset", Value: "assessmentData"}},
 
 	bson.D{
 		{Key: "$project", Value: bson.D{
@@ -103,15 +76,15 @@ var UserPipeline = mongo.Pipeline{
 
 type User struct {
 	Model          `bson:",inline"`
-	DisabledAt     time.Time        `json:"disabled_at" bson:"disabled_at"`
-	Username       string           `json:"username" bson:"username"`
-	Password       string           `json:"-" bson:"password"`
-	PasswordExpiry time.Time        `json:"-" bson:"password_expiry"`
-	Token          uuid.UUID        `json:"-" bson:"token"`
-	TokenExpiry    time.Time        `json:"-" bson:"token_expiry"`
-	Role           string           `json:"role" bson:"role"`
-	Customers      []Customer       `json:"customers" bson:"customers"`
-	Assessments    []UserAssessment `json:"assessments" bson:"assessments"`
+	DisabledAt     time.Time    `json:"disabled_at" bson:"disabled_at"`
+	Username       string       `json:"username" bson:"username"`
+	Password       string       `json:"-" bson:"password"`
+	PasswordExpiry time.Time    `json:"-" bson:"password_expiry"`
+	Token          uuid.UUID    `json:"-" bson:"token"`
+	TokenExpiry    time.Time    `json:"-" bson:"token_expiry"`
+	Role           string       `json:"role" bson:"role"`
+	Customers      []Customer   `json:"customers" bson:"customers"`
+	Assessments    []Assessment `json:"assessments" bson:"assessments"`
 }
 
 type UserAssessment struct {
@@ -164,7 +137,7 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 	}
 
 	if user.Assessments == nil {
-		user.Assessments = []UserAssessment{}
+		user.Assessments = []Assessment{}
 	}
 
 	hash, err := crypto.Encrypt(user.Password)

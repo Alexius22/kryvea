@@ -64,19 +64,19 @@ var AssessmentPipeline = mongo.Pipeline{
 
 type Assessment struct {
 	Model              `bson:",inline"`
-	Name               string    `json:"name" bson:"name"`
-	StartDateTime      time.Time `json:"start_date_time" bson:"start_date_time"`
-	EndDateTime        time.Time `json:"end_date_time" bson:"end_date_time"`
-	Targets            []Target  `json:"targets" bson:"targets"`
-	Status             string    `json:"status" bson:"status"`
-	AssessmentType     string    `json:"assessment_type" bson:"assessment_type"`
-	CVSSVersions       []string  `json:"cvss_versions" bson:"cvss_versions"`
-	Environment        string    `json:"environment" bson:"environment"`
-	TestingType        string    `json:"testing_type" bson:"testing_type"`
-	OSSTMMVector       string    `json:"osstmm_vector" bson:"osstmm_vector"`
-	VulnerabilityCount int       `json:"vulnerability_count" bson:"vulnerability_count"`
-	Customer           Customer  `json:"customer" bson:"customer"`
-	IsOwned            bool      `json:"is_owned" bson:"is_owned"`
+	Name               string    `json:"name,omitempty" bson:"name"`
+	StartDateTime      time.Time `json:"start_date_time,omitempty" bson:"start_date_time"`
+	EndDateTime        time.Time `json:"end_date_time,omitempty" bson:"end_date_time"`
+	Targets            []Target  `json:"targets,omitempty" bson:"targets"`
+	Status             string    `json:"status,omitempty" bson:"status"`
+	AssessmentType     string    `json:"assessment_type,omitempty" bson:"assessment_type"`
+	CVSSVersions       []string  `json:"cvss_versions,omitempty" bson:"cvss_versions"`
+	Environment        string    `json:"environment,omitempty" bson:"environment"`
+	TestingType        string    `json:"testing_type,omitempty" bson:"testing_type"`
+	OSSTMMVector       string    `json:"osstmm_vector,omitempty" bson:"osstmm_vector"`
+	VulnerabilityCount int       `json:"vulnerability_count,omitempty" bson:"vulnerability_count"`
+	Customer           Customer  `json:"customer,omitempty" bson:"customer"`
+	IsOwned            bool      `json:"is_owned,omitempty" bson:"is_owned"`
 }
 
 type AssessmentIndex struct {
