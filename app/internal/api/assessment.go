@@ -1,7 +1,6 @@
 package api
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -516,32 +515,24 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	// retrieve pocs
 	reportPoc := mongo.Poc{}
 	for _, v := range vulnerabilities {
-		var cvssReportVersion int
+		var cvssReportVersion string
 		for _, version := range assessment.CVSSVersions {
-			// TODO: fix
-			cvssVersionInt, err := strconv.Atoi(version)
-			if err != nil {
-				c.Status(fiber.StatusBadRequest)
-				return c.JSON(fiber.Map{
-					"error": "Invalid CVSS version",
-				})
-			}
-
-			if cvssVersionInt > cvssReportVersion {
+			// TODO: this was a temporary fix
+			// comparing strings may not be ideal
+			if version > cvssReportVersion {
 				switch version {
 				case cvss.Cvss4:
 					v.CVSSReport = v.CVSSv4
-					cvssReportVersion = cvssVersionInt
 				case cvss.Cvss31:
 					v.CVSSReport = v.CVSSv31
-					cvssReportVersion = cvssVersionInt
 				case cvss.Cvss3:
 					v.CVSSReport = v.CVSSv3
-					cvssReportVersion = cvssVersionInt
 				case cvss.Cvss2:
 					v.CVSSReport = v.CVSSv2
-					cvssReportVersion = cvssVersionInt
+				default:
+					continue
 				}
+				cvssReportVersion = version
 			}
 		}
 
