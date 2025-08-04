@@ -64,6 +64,7 @@ export default function DateCalendar({
           onChange={handleChangeSingle}
           showTimeSelect={showTime}
           timeIntervals={15}
+          todayButton={showTime ? "Today" : false}
           dateFormat={
             showTime
               ? `${formatDateTime(value.start)[0]} ${formatDateTime(value.start)[1]} '${formatDateTime(value.start)[2]}'`
