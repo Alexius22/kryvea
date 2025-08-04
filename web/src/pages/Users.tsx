@@ -169,7 +169,6 @@ export default function Users() {
             showTime
             value={{ start: userDisabled }}
             onChange={val => {
-              console.log(val);
               if (typeof val === "string") {
                 setUserDisabled(val);
               }
