@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { formatDateTime, getUserDateFormatPattern } from "../dateUtils";
 import Label from "./Label";
 
 interface DateCalendarProps {
@@ -51,6 +52,7 @@ export default function DateCalendar({
           swapRange
           startDate={range[0]}
           endDate={range[1]}
+          dateFormat={getUserDateFormatPattern()}
           onChange={handleChangeRange}
           className="datepicker-input"
           placeholderText={"Select range date"}
@@ -62,7 +64,11 @@ export default function DateCalendar({
           onChange={handleChangeSingle}
           showTimeSelect={showTime}
           timeIntervals={15}
-          dateFormat={showTime ? "Pp" : "P"}
+          dateFormat={
+            showTime
+              ? `${formatDateTime(value.start)[0]} ${formatDateTime(value.start)[1]} '${formatDateTime(value.start)[2]}'`
+              : `${formatDateTime(value.start)[0].slice(0, -1)}`
+          }
           className="datepicker-input"
           placeholderText={typeof placeholder === "string" ? placeholder : "Select a date"}
           id={idStart}
