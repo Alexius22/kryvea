@@ -57,7 +57,7 @@ type Template struct {
 	FileType string    `json:"file_type" bson:"file_type"`
 	Type     string    `json:"type" bson:"type"`
 	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
-	Customer Customer  `json:"customer,omitempty" bson:"customer"`
+	Customer *Customer `json:"customer,omitempty" bson:"customer"`
 }
 
 type TemplateIndex struct {
@@ -141,9 +141,6 @@ func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
 	var template Template
 	err := ti.collection.FindOne(context.Background(), bson.D{{Key: "file_id", Value: fileID}}).Decode(&template)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
 		return nil, err
 	}
 

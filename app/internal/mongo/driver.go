@@ -66,22 +66,15 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 		return nil
 	}
 
-	userID, err := d.User().Insert(&User{
+	_, err = d.User().Insert(&User{
 		Username: adminUser,
 		Password: adminPass,
+		Role:     RoleAdmin,
 	})
 	if err != nil {
 		return err
 	}
-	d.logger.Debug().Msgf("Created admin user %s", adminUser)
-
-	err = d.User().Update(userID, &User{
-		Role: RoleAdmin,
-	})
-	if err != nil {
-		return err
-	}
-	d.logger.Debug().Msgf("Updated %s role to %s", adminUser, RoleAdmin)
+	d.logger.Debug().Msgf("Created %s user %s", RoleAdmin, adminUser)
 
 	return nil
 }

@@ -23,23 +23,24 @@ var CustomerPipeline = mongo.Pipeline{
 			{Key: "as", Value: "templates"},
 		}},
 	},
+	bson.D{
+		{Key: "$unset", Value: "templates.customer"},
+	},
+}
+
+var AllCustomerPipeline = mongo.Pipeline{
+	bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "templates", Value: []bson.A{}},
+		}},
+	},
 }
 
 type Customer struct {
 	Model     `bson:",inline"`
-	Name      string             `json:"name" bson:"name"`
-	Language  string             `json:"language" bson:"language"`
-	Templates []CustomerTemplate `json:"templates" bson:"templates"`
-}
-
-type CustomerTemplate struct {
-	ID       uuid.UUID `json:"id" bson:"_id"`
-	Name     string    `json:"name" bson:"name"`
-	Filename string    `json:"filename" bson:"filename"`
-	Language string    `json:"language" bson:"language"`
-	FileType string    `json:"file_type" bson:"file_type"`
-	Type     string    `json:"type" bson:"type"`
-	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
+	Name      string     `json:"name" bson:"name"`
+	Language  string     `json:"language" bson:"language"`
+	Templates []Template `json:"templates" bson:"templates"`
 }
 
 type CustomerIndex struct {
@@ -174,13 +175,16 @@ func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error
 }
 
 func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
-	filter := bson.M{}
-
+	pipeline := AllCustomerPipeline
 	if customerIDs != nil {
-		filter["_id"] = bson.M{"$in": customerIDs}
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.M{
+				"_id": bson.M{"$in": customerIDs},
+			}},
+		})
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return []Customer{}, err
 	}
