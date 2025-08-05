@@ -256,7 +256,7 @@ export default function Assessments() {
         data={assessmentsData?.map(assessment => ({
           Title: (
             <Link
-              to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}
+              to={`/customers/${customerId}/assessments/${assessment.id}/vulnerabilities`}
               onClick={() => setCtxAssessment(assessment)}
             >
               {assessment.name}
