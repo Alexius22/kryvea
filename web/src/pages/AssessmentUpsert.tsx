@@ -69,13 +69,14 @@ export default function AssessmentUpsert() {
   const [hostName, setHostName] = useState("");
 
   const [form, setForm] = useState<
-    Omit<Assessment, "id" | "created_at" | "updated_at" | "status" | "vulnerability_count" | "customer" | "is_owned">
+    Omit<Assessment, "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned">
   >({
     assessment_type: "",
     name: "",
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
     targets: [],
+    status: "On Hold",
     cvss_versions: [],
     environment: "",
     testing_type: "",
@@ -103,6 +104,7 @@ export default function AssessmentUpsert() {
             start_date_time: data.start_date_time,
             end_date_time: data.end_date_time,
             targets: data.targets,
+            status: data.status,
             cvss_versions: data.cvss_versions,
             environment: data.environment,
             testing_type: data.testing_type,
