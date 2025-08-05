@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDateTime, getUserDateFormatPattern } from "../dateUtils";
@@ -23,10 +23,16 @@ export default function DateCalendar({
   onChange,
   placeholder,
 }: DateCalendarProps) {
-  const [range, setRange] = useState<[Date | null, Date | null]>([
-    new Date(value.start),
-    new Date(value.end === "" ? new Date() : value.end),
-  ]);
+  const parseValueToDateRange = (value: { start: string; end?: string }): [Date | null, Date | null] => [
+    value.start ? new Date(value.start) : null,
+    value.end ? new Date(value.end) : null,
+  ];
+
+  const [range, setRange] = useState<[Date | null, Date | null]>(() => parseValueToDateRange(value));
+
+  useEffect(() => {
+    setRange(parseValueToDateRange(value));
+  }, [value.start, value.end]);
 
   // Handler for single date change
   const handleChangeSingle = (date: Date | null) => {
