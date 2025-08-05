@@ -40,7 +40,7 @@ export default function MonacoCodeEditor({
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
 
-  const highlightCode = () => {
+  const highlightCode = (className = "bg-green-900") => {
     if (!editor) {
       return;
     }
@@ -58,6 +58,7 @@ export default function MonacoCodeEditor({
       .map(({ start, end, color }) => ({
         range: new monaco.Range(start.line, start.col, end.line, end.col),
         options: {
+          className,
           inlineClassName: color,
           isWholeLine: false,
         },
