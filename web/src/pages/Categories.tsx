@@ -144,7 +144,7 @@ export default function Categories() {
 
       <SectionTitleLineWithButton icon={mdiShapePlus} title="Categories">
         <Buttons>
-          <Button icon={mdiPlus} text="New category" small onClick={() => navigate("/manage_category")} />
+          <Button icon={mdiPlus} text="New category" small onClick={() => navigate("new")} />
           <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
         </Buttons>
       </SectionTitleLineWithButton>
@@ -160,7 +160,7 @@ export default function Categories() {
               .toUpperCase(),
             buttons: (
               <Buttons noWrap key={category.id}>
-                <Button icon={mdiPencil} small onClick={() => navigate(`/manage_category/${category.id}`)} />
+                <Button icon={mdiPencil} small onClick={() => navigate(`${category.id}`)} />
                 <Button
                   variant="danger"
                   icon={mdiTrashCan}
