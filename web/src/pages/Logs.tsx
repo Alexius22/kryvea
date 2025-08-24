@@ -86,7 +86,7 @@ export default function Logs() {
             Timestamp: new Date(log.time).toLocaleString(),
             Level: log.level,
             IP: log.ip,
-            method: log.method,
+            Method: log.method,
             URL: log.url,
             Status: log.status,
             Message: log.message,
