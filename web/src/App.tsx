@@ -12,13 +12,13 @@ import {
   AssessmentUpsert,
   AssessmentVulnerabilities,
   Categories,
+  CategoryUpsert,
   CustomerDetail,
   Customers,
   Dashboard,
   EditPoc,
   EditReport,
   Login,
-  ManageCategory,
   Profile,
   Targets,
   Users,
@@ -147,8 +147,8 @@ export default function App() {
 
               {/* Categories */}
               <Route path="/categories" element={<Categories />} />
-              <Route path="/manage_category" element={<ManageCategory />} />
-              <Route path="/manage_category/:categoryId" element={<ManageCategory />} />
+              <Route path="/categories/new" element={<CategoryUpsert />} />
+              <Route path="/categories/:categoryId" element={<CategoryUpsert />} />
 
               {/* Other */}
               <Route path="/edit_report" element={<EditReport />} />

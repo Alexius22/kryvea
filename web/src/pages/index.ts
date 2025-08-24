@@ -5,13 +5,13 @@ import Assessments from "./Assessments";
 import AssessmentUpsert from "./AssessmentUpsert";
 import AssessmentVulnerabilities from "./AssessmentVulnerabilities";
 import Categories from "./Categories";
+import CategoryUpsert from "./CategoryUpsert";
 import CustomerDetail from "./CustomerDetail";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
 import EditPoc from "./EditPoc";
 import EditReport from "./EditReport";
 import Login from "./Login";
-import ManageCategory from "./ManageCategory";
 import Profile from "./Profile";
 import Targets from "./Targets";
 import Users from "./Users";
@@ -27,13 +27,13 @@ export {
   AssessmentUpsert,
   AssessmentVulnerabilities,
   Categories,
+  CategoryUpsert,
   CustomerDetail,
   Customers,
   Dashboard,
   EditPoc,
   EditReport,
   Login,
-  ManageCategory,
   Profile,
   Targets,
   Users,

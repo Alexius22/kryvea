@@ -19,7 +19,7 @@ import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
 import { languageMapping } from "../types/languages";
 
-export default function ManageCategory() {
+export default function CategoryUpsert() {
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId?: string }>();
 
@@ -283,7 +283,6 @@ export default function ManageCategory() {
         ))}
 
         <Grid>
-          <Divider />
           <Buttons>
             <Button text="Submit" onClick={handleSubmit} />
             <Button variant="outline-only" text="Cancel" onClick={() => navigate("/categories")} />
