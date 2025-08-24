@@ -10,8 +10,8 @@ $main-max-width: 1735px !default;
   /* Palette */
   $bg-primary: #c7c7c7;
   $text-primary: #121212;
-  $border: #e45353;
-  $link: #c94c4c;
+  $border: #555555;
+  $link: #dc6601;
   $button-bg: color.adjust($bg-primary, $lightness: -10%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
@@ -82,8 +82,8 @@ html.dark {
   $bg-primary: #161616;
   $text-primary: #e0e0e0;
   $border: #bdbdbd;
-  $link: #ebbebe;
-  $button-bg: color.adjust($bg-primary, $lightness: 40%);
+  $link: #ee9f27;
+  $button-bg: color.adjust($bg-primary, $lightness: 35%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
@@ -91,7 +91,7 @@ html.dark {
   $backgrounds: (
     "primary": $bg-primary,
     "secondary": color.adjust($bg-primary, $lightness: 5%),
-    "tertiary": color.adjust($bg-primary, $lightness: 13%),
+    "tertiary": color.adjust($bg-primary, $lightness: 8%),
     "quaternary": color.adjust($bg-primary, $lightness: 25%),
     "quinary": color.adjust($bg-primary, $lightness: 35%),
     "active": color.adjust($bg-primary, $lightness: 55%),

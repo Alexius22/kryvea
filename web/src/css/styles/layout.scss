@@ -16,7 +16,10 @@
 }
 
 .layout-sidebar {
-  @apply h-full w-full max-w-[300px] rounded-2xl transition-position;
+  @apply h-full w-full max-w-[300px] transition-position border-r border-[color:--border-secondary];
+}
+
+.sidebar-item-active {
   background-color: var(--bg-secondary);
 }
 

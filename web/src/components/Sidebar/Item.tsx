@@ -46,7 +46,7 @@ export default function Item({ item, isDropdownList = false }: Props) {
     }
   };
 
-  const baseClasses = [isDropdownList ? "text-sm" : "", !item.color && isLinkActive ? "aside-menu-item-active" : ""]
+  const baseClasses = [isDropdownList ? "text-sm" : "", !item.color && isLinkActive ? "sidebar-item-active" : ""]
     .filter(Boolean)
     .join(" ");
 
@@ -59,7 +59,7 @@ export default function Item({ item, isDropdownList = false }: Props) {
   );
 
   return (
-    <li className={`rounded p-1 ${isLinkActive ? "aside-menu-item-active" : ""}`}>
+    <li className={`rounded p-1 ${isLinkActive ? "sidebar-item-active" : ""}`}>
       {item.href && !item.onClick ? (
         <Link to={item.href}>{content}</Link>
       ) : (
