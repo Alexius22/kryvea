@@ -43,6 +43,7 @@ type HighlightedText struct {
 	Start           LineCol `json:"start" bson:"start"`
 	End             LineCol `json:"end" bson:"end"`
 	SelectedPreview string  `json:"selectionPreview" bson:"selection_preview"`
+	Color           string  `json:"color" bson:"color"`
 }
 
 type LineCol struct {
