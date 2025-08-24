@@ -75,14 +75,34 @@ textarea::placeholder {
   font-style: normal;
 }
 
-.aside-menu-item-active {
-  background-color: var(--bg-tertiary);
-}
-
 .cardbox {
   @apply rounded-3xl p-4;
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
+
+  .cardbox table {
+    background-color: var(--bg-tertiary);
+
+    &:hover {
+      filter: brightness(0.9);
+
+      td[data-buttons-cell] {
+        filter: brightness(1);
+      }
+    }
+
+    tbody tr {
+      background-color: rgba(var(--bg-quaternary-rgb), 0.35);
+    }
+
+    thead tr {
+      background-color: var(--bg-quaternary);
+    }
+
+    td[data-buttons-cell] {
+      background-color: var(--bg-quaternary);
+    }
+  }
 
   .cardbox {
     background-color: rgba(var(--bg-quaternary-rgb), 0.35);

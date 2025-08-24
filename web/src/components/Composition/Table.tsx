@@ -189,11 +189,7 @@ export default function Table({
                       // Default rendering
                       if (key === BUTTONS_KEY) {
                         return (
-                          <td
-                            className="sticky right-0 bg-[color:--bg-tertiary]"
-                            data-buttons-cell
-                            key={getTableElementKey(`${key}-cell-${i}`)}
-                          >
+                          <td className="sticky right-0" data-buttons-cell key={getTableElementKey(`${key}-cell-${i}`)}>
                             {value}
                           </td>
                         );

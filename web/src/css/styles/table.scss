@@ -20,6 +20,10 @@ table tr {
   &:last-child:not(:first-child) {
     border-bottom: none;
   }
+
+  td[data-buttons-cell] {
+    background-color: var(--bg-tertiary);
+  }
 }
 
 table tbody tr:hover {

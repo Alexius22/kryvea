@@ -14,7 +14,7 @@ export default function LayoutAuthenticated() {
   } = useContext(GlobalContext);
   return (
     <div className={`layout-root ${fullscreen ? "layout-fullscreen" : ""}`}>
-      <Sidebar className="layout-sidebar border border-[color:--border-secondary]" />
+      <Sidebar className="layout-sidebar" />
       <div className="layout-content">
         <NavBar>
           <Breadcrumb
