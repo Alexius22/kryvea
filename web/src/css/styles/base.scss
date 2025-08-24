@@ -48,8 +48,7 @@ input {
   height: min-content;
   background-color: var(--bg-quaternary);
 }
-input::placeholder,
-textarea::placeholder {
+input::placeholder {
   color: var(--text-secondary);
   font-weight: 300;
   font-style: italic;
@@ -72,7 +71,9 @@ textarea:focus {
 }
 textarea::placeholder {
   color: var(--text-secondary);
+  font-weight: 300;
   font-style: normal;
+  background-color: red;
 }
 
 .cardbox {
