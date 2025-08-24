@@ -40,7 +40,24 @@ export default function MonacoCodeEditor({
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
 
-  const highlightCode = (className = "bg-green-900") => {
+  function getOrCreateHighlightClass(hexValue: string): string {
+    const hexValueClean = hexValue.replace("#", "");
+    const className = `monaco-editor-highlight-${hexValueClean}`;
+
+    if (!document.querySelector(`.${className}`)) {
+      const style = document.createElement("style");
+      style.innerHTML = `
+      .${className} {
+        background-color: ${hexValue};
+      }
+    `;
+      document.head.appendChild(style);
+    }
+
+    return className;
+  }
+
+  const highlightCode = () => {
     if (!editor) {
       return;
     }
@@ -58,7 +75,7 @@ export default function MonacoCodeEditor({
       .map(({ start, end, color }) => ({
         range: new monaco.Range(start.line, start.col, end.line, end.col),
         options: {
-          className,
+          className: getOrCreateHighlightClass(color),
           inlineClassName: color,
           isWholeLine: false,
         },

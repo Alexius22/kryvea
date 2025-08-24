@@ -48,25 +48,6 @@ export default function PocCodeEditor({
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
   const [highlightColor, setHighlightColor] = useState<string>("#0d542b");
 
-  function getOrCreateHighlightClass(rgbaValue: string): string {
-    const className = `highlight-${rgbaValue
-      .replace(/[^a-zA-Z0-9]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/(^-|-$)/g, "")}`;
-
-    if (!document.querySelector(`.${className}`)) {
-      const style = document.createElement("style");
-      style.innerHTML = `
-      .${className} {
-        background-color: ${rgbaValue} !important;
-      }
-    `;
-      document.head.appendChild(style);
-    }
-
-    return className;
-  }
-
   return (
     <Grid className="gap-4">
       <Modal
@@ -114,10 +95,9 @@ export default function PocCodeEditor({
             iconSize={24}
             customColor={highlightColor}
             onClick={() => {
-              const className = getOrCreateHighlightClass(highlightColor);
               const coloredSelection = selectedText.map(sel => ({
                 ...sel,
-                color: className,
+                color: highlightColor,
               }));
               onSetCodeSelection(currentIndex, highlightsProperty, [
                 ...(pocDoc[highlightsProperty] ?? []),
