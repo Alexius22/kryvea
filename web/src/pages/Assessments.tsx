@@ -258,6 +258,7 @@ export default function Assessments() {
             <Link
               to={`/customers/${customerId}/assessments/${assessment.id}/vulnerabilities`}
               onClick={() => setCtxAssessment(assessment)}
+              title={assessment.name}
             >
               {assessment.name}
             </Link>
@@ -308,6 +309,7 @@ export default function Assessments() {
           ),
         }))}
         perPageCustom={50}
+        maxWidthColumns={{ Title: "24rem" }}
       />
     </div>
   );
