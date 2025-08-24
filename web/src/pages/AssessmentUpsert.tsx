@@ -298,7 +298,9 @@ export default function AssessmentUpsert() {
                 id="targets"
                 options={targetOptions}
                 isMulti
-                value={targetOptions.filter(opt => form.targets.some(t => t.id === opt.value))}
+                value={targetOptions.filter(
+                  opt => Array.isArray(form.targets) && form.targets.some(t => t.id === opt.value)
+                )}
                 onChange={handleTargetsChange}
                 closeMenuOnSelect={false}
               />
