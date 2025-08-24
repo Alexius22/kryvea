@@ -91,10 +91,10 @@ html.dark {
   $backgrounds: (
     "primary": $bg-primary,
     "secondary": color.adjust($bg-primary, $lightness: 5%),
-    "tertiary": color.adjust($bg-primary, $lightness: 8%),
-    "quaternary": color.adjust($bg-primary, $lightness: 25%),
-    "quinary": color.adjust($bg-primary, $lightness: 35%),
-    "active": color.adjust($bg-primary, $lightness: 55%),
+    "tertiary": color.adjust($bg-primary, $lightness: 10%),
+    "quaternary": color.adjust($bg-primary, $lightness: 22%),
+    "quinary": color.adjust($bg-primary, $lightness: 30%),
+    "active": color.adjust($bg-primary, $lightness: 40%),
   );
 
   /* Text */
