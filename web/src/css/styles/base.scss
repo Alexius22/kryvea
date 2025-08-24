@@ -89,6 +89,7 @@ textarea::placeholder {
 
       &:hover {
         filter: brightness(0.9);
+        border-bottom: 1px solid var(--border-primary-highlight);
 
         td[data-buttons-cell] {
           filter: brightness(1);
