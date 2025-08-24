@@ -12,6 +12,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
+import { getPageTitle } from "../config";
 import { Template } from "../types/common.types";
 import { languageMapping } from "../types/languages";
 
@@ -34,6 +35,7 @@ export default function Templates() {
   }));
 
   useEffect(() => {
+    document.title = getPageTitle("Templates");
     fetchTemplates();
   }, []);
 
@@ -167,7 +169,7 @@ export default function Templates() {
         <p>Are you sure you want to delete this template?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiFileChart} title="Default templates">
+      <SectionTitleLineWithButton icon={mdiFileChart} title="Templates">
         <Button icon={mdiPlus} text="New template" small onClick={() => setIsModalUploadActive(true)} />
       </SectionTitleLineWithButton>
 
@@ -180,7 +182,7 @@ export default function Templates() {
           "Template Type": template.type,
           buttons: (
             <Buttons noWrap>
-              <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
+              <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} small title="Download template" />
               <Button
                 icon={mdiTrashCan}
                 onClick={() => {
@@ -188,6 +190,7 @@ export default function Templates() {
                   setIsModalTrashActive(true);
                 }}
                 variant="danger"
+                small
               />
             </Buttons>
           ),
