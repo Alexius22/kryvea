@@ -103,6 +103,7 @@ textarea::placeholder {
 
     td[data-buttons-cell] {
       background-color: var(--bg-quaternary);
+      border-bottom: 1px solid var(--border-primary-highlight);
     }
   }
 
