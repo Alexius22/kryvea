@@ -84,20 +84,20 @@ textarea::placeholder {
   .cardbox table {
     background-color: var(--bg-tertiary);
 
-    &:hover {
-      filter: brightness(0.9);
+    tbody tr {
+      background-color: var(--bg-quaternary);
 
-      td[data-buttons-cell] {
-        filter: brightness(1);
+      &:hover {
+        filter: brightness(0.9);
+
+        td[data-buttons-cell] {
+          filter: brightness(1);
+        }
       }
     }
 
-    tbody tr {
-      background-color: rgba(var(--bg-quaternary-rgb), 0.35);
-    }
-
     thead tr {
-      background-color: var(--bg-quaternary);
+      background-color: var(--bg-quinary);
     }
 
     td[data-buttons-cell] {
