@@ -22,7 +22,6 @@
 
 .react-datepicker__day {
   border-radius: 0.375rem;
-  width: 1.5rem;
   height: 1.5rem;
   line-height: 1.5rem;
   border: 1px solid var(--border-secondary);
@@ -43,14 +42,19 @@
   border-radius: 0.375rem;
 }
 
-.react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item[tabindex="0"][role=option],
-.react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item[tabindex="-1"][role=option] {
+.react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item[tabindex="0"][role="option"],
+.react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item[tabindex="-1"][role="option"] {
   height: 1.5rem;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected,
-ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected[tabindex="0"][role=option][aria-selected=true] {
+ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--selected[tabindex="0"][role="option"][aria-selected="true"] {
   @apply clickable;
   background-color: var(--link);
   color: var(--bg-primary);
@@ -68,16 +72,21 @@ ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected[tab
   color: var(--bg-primary);
   background-color: var(--link);
 }
-.react-datepicker__day--in-selecting-range[aria-disabled=false] {
+.react-datepicker__day--in-selecting-range[aria-disabled="false"] {
   color: var(--bg-primary);
   background-color: var(--link-hover);
 }
 
-.react-datepicker__day[aria-disabled=false]:hover,
+.react-datepicker__day[aria-disabled="false"]:hover,
 .react-datepicker__today-button:hover,
-ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected[tabindex="0"][role=option][aria-selected=true]:hover,
-.react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item[tabindex="0"][role=option]:hover,
-.react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item[tabindex="-1"][role=option]:hover {
+ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--selected[tabindex="0"][role="option"][aria-selected="true"]:hover,
+.react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item[tabindex="0"][role="option"]:hover,
+.react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item[tabindex="-1"][role="option"]:hover {
   @apply clickable;
   color: var(--bg-primary);
   background-color: var(--link-hover);
