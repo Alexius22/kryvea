@@ -14,6 +14,7 @@ interface BaseInputProps {
   value?: string | number;
   autoFocus?: boolean;
   disabled?: true;
+  name?: string;
 }
 
 interface InputProps extends BaseInputProps {
@@ -53,6 +54,7 @@ export default function Input({
   max,
   accept,
   autoFocus,
+  name,
   onChange,
 }: InputProps | FileInputProps | NumberInputProps) {
   const [numberPreview, setNumberPreview] = useState(value);
@@ -76,6 +78,7 @@ export default function Input({
             value={numberPreview}
             accept={accept}
             autoFocus={autoFocus}
+            name={name}
             onChange={e => setNumberPreview(e.target.value)}
             onKeyDown={e => {
               switch (e.key) {
@@ -122,6 +125,7 @@ export default function Input({
                 onChange={onChange}
                 accept={accept}
                 autoFocus={autoFocus}
+                name={name}
               />
               {type === "password" && (
                 <Button
