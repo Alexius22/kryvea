@@ -44,7 +44,7 @@ $main-max-width: 1735px !default;
   /* Buttons */
   $buttons: (
     "bg": $button-bg,
-    "bg-secondary": color.adjust($bg-primary, $lightness: 10%),
+    "bg-secondary": color.adjust($bg-primary, $lightness: 7%),
   );
 
   /* Alerts */
@@ -83,7 +83,7 @@ html.dark {
   $text-primary: #e0e0e0;
   $border: #bdbdbd;
   $link: #ee9f27;
-  $button-bg: color.adjust($bg-primary, $lightness: 35%);
+  $button-bg: color.adjust($bg-primary, $lightness: 30%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
@@ -92,7 +92,7 @@ html.dark {
     "primary": $bg-primary,
     "secondary": color.adjust($bg-primary, $lightness: 5%),
     "tertiary": color.adjust($bg-primary, $lightness: 10%),
-    "quaternary": color.adjust($bg-primary, $lightness: 22%),
+    "quaternary": color.adjust($bg-primary, $lightness: 20%),
     "quinary": color.adjust($bg-primary, $lightness: 30%),
     "active": color.adjust($bg-primary, $lightness: 40%),
   );
@@ -115,7 +115,7 @@ html.dark {
   /* Buttons */
   $buttons: (
     "bg": $button-bg,
-    "bg-secondary": color.adjust($bg-primary, $lightness: 10%),
+    "bg-secondary": color.adjust($bg-primary, $lightness: 5%),
   );
 
   /* Alerts */
