@@ -29,8 +29,8 @@ export default function CustomerDetail() {
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
 
   const [formCustomer, setFormCustomer] = useState({
-    name: ctxCustomer?.name || "",
-    language: ctxCustomer?.language || "",
+    name: ctxCustomer?.name,
+    language: ctxCustomer?.language,
   });
 
   const [newTemplateData, setNewTemplateData] = useState({
@@ -47,6 +47,13 @@ export default function CustomerDetail() {
   const selectedLanguageOption = languageOptions.find(opt => opt.value === formCustomer.language);
 
   useEffect(() => {
+    if (formCustomer.name != undefined) {
+      return;
+    }
+    setFormCustomer({ name: ctxCustomer?.name, language: ctxCustomer?.language });
+  }, []);
+
+  useEffect(() => {
     document.title = getPageTitle("Customer detail");
     if (ctxCustomer?.id) {
       fetchTemplates();
@@ -57,14 +64,14 @@ export default function CustomerDetail() {
     getData<Customer>(`/api/customers/${ctxCustomer?.id}`, data => setCustomerTemplates(data.templates));
   }
 
-  const handleCustomerFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { id, value } = e.target;
+  const handleFormCustomerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormCustomer(prev => ({ ...prev, [name]: value }));
+  };
 
-    if (id === "name" || id === "type" || id === "file_type") {
-      setNewTemplateData(prev => ({ ...prev, [id]: value }));
-    } else {
-      setFormCustomer(prev => ({ ...prev, [id]: value }));
-    }
+  const handleFormTemplateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewTemplateData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
@@ -73,9 +80,9 @@ export default function CustomerDetail() {
       return;
     }
 
-    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, formCustomer, updated => {
+    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, formCustomer, () => {
       toast.success("Customer updated successfully");
-      setCtxCustomer(updated);
+      setCtxCustomer(prev => ({ ...prev, ...formCustomer }));
     });
   };
 
@@ -162,9 +169,9 @@ export default function CustomerDetail() {
               label="Company name"
               helperSubtitle="Required"
               placeholder="Company name"
-              id="name"
+              name="name"
               value={formCustomer.name}
-              onChange={handleCustomerFormChange}
+              onChange={handleFormCustomerChange}
             />
             <SelectWrapper
               label="Language"
@@ -189,17 +196,17 @@ export default function CustomerDetail() {
                 type="text"
                 label="Template Name"
                 placeholder="Insert name for the template"
-                id="name"
+                name="name"
                 value={newTemplateData.name || ""}
-                onChange={handleCustomerFormChange}
+                onChange={handleFormTemplateChange}
               />
               <Input
                 type="text"
                 label="Template Type"
                 placeholder="e.g., Template for assessments"
-                id="type"
+                name="type"
                 value={newTemplateData.type}
-                onChange={handleCustomerFormChange}
+                onChange={handleFormTemplateChange}
               />
             </Grid>
             <UploadFile
