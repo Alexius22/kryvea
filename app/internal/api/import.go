@@ -180,10 +180,10 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			Category: mongo.VulnerabilityCategory{
 				ID: categoryID,
 			},
-			CVSSv2:  mongo.VulnerabilityCVSS{},
-			CVSSv3:  mongo.VulnerabilityCVSS{},
-			CVSSv31: mongo.VulnerabilityCVSS{},
-			CVSSv4:  mongo.VulnerabilityCVSS{},
+			CVSSv2:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
+			CVSSv3:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
+			CVSSv31: mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
+			CVSSv4:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
 			CVSSReport: mongo.VulnerabilityCVSS{
 				CVSSSeverity: issue.Severity,
 			},
@@ -393,7 +393,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				GenericRemediation: map[string]string{
 					"en": item.Solution,
 				},
-				References: []string{},
+				References: strings.Split(item.SeeAlso, "\n"),
 				Source:     mongo.SourceNessus,
 			}
 
@@ -409,12 +409,12 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				Category: mongo.VulnerabilityCategory{
 					ID: categoryID,
 				},
-				CVSSv2:        mongo.VulnerabilityCVSS{},
-				CVSSv3:        mongo.VulnerabilityCVSS{},
-				CVSSv31:       mongo.VulnerabilityCVSS{},
-				CVSSv4:        mongo.VulnerabilityCVSS{},
+				CVSSv2:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
+				CVSSv3:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
+				CVSSv31:       mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
+				CVSSv4:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
 				DetailedTitle: "",
-				References:    strings.Split(item.SeeAlso, "\n"),
+				References:    []string{},
 				Description:   item.Synopsis,
 				Remediation:   item.Solution,
 				Target: mongo.Target{
