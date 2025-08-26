@@ -139,6 +139,29 @@ textarea::placeholder {
   translate: 0 -100%;
   scale: 3;
 }
+.heart.beating {
+  animation: heartbeat 0.3s ease;
+}
+.heart.explode {
+  animation: explodeAnim 0.5s forwards;
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes explodeAnim {
+  to {
+    transform: scale(5) rotate(360deg);
+    opacity: 0;
+  }
+}
 
 @keyframes rotateFadeIn {
   0% {
