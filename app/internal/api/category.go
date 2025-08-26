@@ -165,12 +165,21 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	_, ok := c.Queries()["download"]
-	if ok {
-		c.Set("Content-Disposition", "attachment; filename=categories.json")
+	c.Status(fiber.StatusOK)
+	return c.JSON(categories)
+}
+
+func (d *Driver) ExportCategories(c *fiber.Ctx) error {
+	categories, err := d.mongo.Category().GetAll()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get categories",
+		})
 	}
 
 	c.Status(fiber.StatusOK)
+	c.Set("Content-Disposition", "attachment; filename=categories.json")
 	return c.JSON(categories)
 }
 
