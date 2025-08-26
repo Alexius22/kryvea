@@ -8,7 +8,9 @@
   @apply flex h-screen gap-4 p-4 transition-all lg:w-auto;
   max-width: var(--main-max-width);
   width: 100%;
-  justify-self: center;
+
+  margin-left: auto;
+  margin-right: auto;
 
   &.layout-fullscreen {
     max-width: 100vw;
@@ -16,7 +18,7 @@
 }
 
 .layout-sidebar {
-  @apply h-full w-full max-w-[300px] transition-position border-r border-[color:--border-secondary];
+  @apply h-full w-full max-w-[300px] border-r border-[color:--border-secondary] transition-position;
 }
 
 .sidebar-item-active {
