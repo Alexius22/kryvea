@@ -2,7 +2,7 @@ import { mdiDatabaseEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { getData, patchData, postData } from "../api/api";
+import { deleteData, getData, patchData, postData } from "../api/api";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -34,6 +34,8 @@ export default function CategoryUpsert() {
   ];
 
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+
   const [selectedLanguageOption, setSelectedLanguageOption] = useState<SelectOption | null>(null);
   const [additionalFields, setAdditionalFields] = useState<SelectOption[]>([]);
 
@@ -105,11 +107,27 @@ export default function CategoryUpsert() {
     }
   }, [categoryId, navigate]);
 
+  const confirmDeleteCategory = () => {
+    if (!categoryId) {
+      return;
+    }
+
+    deleteData<{ message: string }>(`/api/admin/categories/${categoryId}`, () => {
+      toast.success(`Category deleted successfully`);
+      setIsModalTrashActive(false);
+      navigate("/categories");
+    });
+  };
+
   const handleModalAction = () => {
     if (selectedLanguageOption && !additionalFields.some(f => f.value === selectedLanguageOption.value)) {
       setAdditionalFields(prev => [...prev, selectedLanguageOption]);
     }
     setIsModalInfoActive(false);
+  };
+
+  const handleModalTrashConfirm = () => {
+    confirmDeleteCategory();
   };
 
   const removeAdditionalLanguage = (value: string) => {
@@ -187,8 +205,30 @@ export default function CategoryUpsert() {
         />
       </Modal>
 
+      {/* Delete single category modal */}
+      <Modal
+        title="Please confirm: action irreversible"
+        confirmButtonLabel="Confirm"
+        isActive={isModalTrashActive}
+        onConfirm={handleModalTrashConfirm}
+        onCancel={() => setIsModalTrashActive(false)}
+      >
+        <p>Are you sure you want to delete this category?</p>
+      </Modal>
+
       <SectionTitleLineWithButton icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
-        <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
+        <Buttons>
+          <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
+          {categoryId && (
+            <Button
+              icon={mdiTrashCan}
+              text="Remove category"
+              small
+              onClick={() => setIsModalTrashActive(true)}
+              variant="danger"
+            />
+          )}
+        </Buttons>
       </SectionTitleLineWithButton>
 
       <Card>
