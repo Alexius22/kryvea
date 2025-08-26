@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import Table from "../components/Composition/Table";
@@ -126,7 +127,14 @@ export default function AssessmentVulnerabilities() {
 
   const changeFile = ({ target: { files } }: React.ChangeEvent<HTMLInputElement>) => {
     if (!files || !files[0]) return;
-    setFileObj(files[0]);
+
+    const file = files[0];
+    setFileObj(file);
+
+    setSource(null);
+    if (file.name.endsWith(".nessus")) {
+      setSource("nessus");
+    }
   };
 
   const clearFile = () => setFileObj(null);
@@ -134,6 +142,11 @@ export default function AssessmentVulnerabilities() {
   const handleUploadBulk = () => {
     if (!fileObj) {
       toast.error("Please select a file to upload");
+      return;
+    }
+
+    if (!source) {
+      toast.error("Please select the source type");
       return;
     }
 
@@ -230,23 +243,26 @@ export default function AssessmentVulnerabilities() {
         }}
         onCancel={() => setIsModalUploadActive(false)}
       >
-        <UploadFile
-          label="Choose bulk file"
-          inputId={"file"}
-          filename={fileObj?.name}
-          name={"imagePoc"}
-          accept={".nessus,text/xml"}
-          onChange={changeFile}
-          onButtonClick={clearFile}
-        />
-        <SelectWrapper
-          label="Source"
-          className="w-1/2"
-          id="source"
-          options={sourceOptions}
-          value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
-          onChange={option => setSource(option.value)}
-        />
+        <Flex col className="gap-2">
+          <UploadFile
+            label="Choose bulk file"
+            inputId={"file"}
+            filename={fileObj?.name}
+            name={"imagePoc"}
+            widthClass="w-3/4"
+            accept={".nessus,text/xml"}
+            onChange={changeFile}
+            onButtonClick={clearFile}
+          />
+          <SelectWrapper
+            label="Source"
+            className="w-1/2"
+            id="source"
+            options={sourceOptions}
+            value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
+            onChange={option => setSource(option.value)}
+          />
+        </Flex>
       </Modal>
 
       {/* Delete Confirmation Modal */}
