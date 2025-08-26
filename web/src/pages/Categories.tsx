@@ -59,7 +59,7 @@ export default function Categories() {
 
   // Export categories file
   const handleExport = () => {
-    const url = "/api/admin/categories?download=true";
+    const url = "/api/admin/categories/export";
     const link = document.createElement("a");
     link.href = url;
     document.body.appendChild(link);
