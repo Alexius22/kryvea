@@ -106,7 +106,7 @@ textarea::placeholder {
     }
   }
 
-  .cardbox {
+  .cardbox:not(.no-highlight) {
     background-color: rgba(var(--bg-quaternary-rgb), 0.35);
 
     .cardbox {
