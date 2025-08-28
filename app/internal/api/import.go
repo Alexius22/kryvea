@@ -180,13 +180,10 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			Category: mongo.VulnerabilityCategory{
 				ID: categoryID,
 			},
-			CVSSv2:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
-			CVSSv3:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
-			CVSSv31: mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
-			CVSSv4:  mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
-			CVSSReport: mongo.VulnerabilityCVSS{
-				CVSSSeverity: issue.Severity,
-			},
+			CVSSv2:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
+			CVSSv3:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
+			CVSSv31:     mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
+			CVSSv4:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
 			References:  []string{issue.References},
 			Description: issue.IssueDetail,
 			Remediation: issue.RemediationDetail,

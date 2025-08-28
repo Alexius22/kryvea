@@ -16,7 +16,13 @@ const (
 )
 
 var (
-	CvssVersions = []string{Cvss2, Cvss3, Cvss31, Cvss4}
+	CvssVersions   = []string{Cvss2, Cvss3, Cvss31, Cvss4}
+	VersionToValue = map[string]int{
+		Cvss2:  20,
+		Cvss3:  30,
+		Cvss31: 31,
+		Cvss4:  40,
+	}
 )
 
 type SeverityThreshold struct {

@@ -52,10 +52,6 @@ func randAssessmentType() string {
 	return types[rand.Intn(len(types))]
 }
 
-func randCVSSVersion() string {
-	return cvss.CvssVersions[rand.Intn(len(cvss.CvssVersions))]
-}
-
 func randEnvironment() string {
 	var environments = []string{"Pre-Production", "Production"}
 	return environments[rand.Intn(len(environments))]
@@ -137,7 +133,7 @@ func randUrl() string {
 	return urls[rand.Intn(len(urls))]
 }
 
-func TestXlsx(t *testing.T) {
+func TestClassic(t *testing.T) {
 	customer := &mongo.Customer{
 		Name:     randName(3),
 		Language: randLanguage(),
@@ -162,33 +158,29 @@ func TestXlsx(t *testing.T) {
 		OSSTMMVector:   randOSSTMMVector(),
 	}
 
+	cvssVersions := make([]string, len(cvss.CvssVersions))
+	copy(cvssVersions, cvss.CvssVersions)
+
+	rand.Shuffle(len(cvssVersions), func(i, j int) {
+		cvssVersions[i], cvssVersions[j] = cvssVersions[j], cvssVersions[i]
+	})
+
+	assessment.CVSSVersions = cvssVersions[:rand.Intn(len(cvss.CvssVersions))+1]
+
 	imageDataDecoded, err := base64.StdEncoding.DecodeString(imageData)
 	if err != nil {
 		t.Errorf("base64.StdEncoding.DecodeString() = %v, want %v", err, nil)
 	}
 
 	var vulnerabilities []mongo.Vulnerability
-	poc := mongo.Poc{}
+	pocs := []mongo.Poc{}
 	for i := 0; i < 5; i++ {
-		version := rand.Intn(len(assessment.CVSSVersions))
-		cvssVector := randCVSSVector(assessment.CVSSVersions[version])
-		cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, assessment.CVSSVersions[version])
-		if err != nil {
-			t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, assessment.CVSSVersions[version])
-		}
-
 		vulnerability := mongo.Vulnerability{
 			Model:         mongo.Model{ID: uuid.New()},
 			Category:      mongo.VulnerabilityCategory{Name: randName(3)},
 			DetailedTitle: randName(3),
-			CVSSReport: mongo.VulnerabilityCVSS{
-				CVSSVersion:     assessment.CVSSVersions[version],
-				CVSSVector:      cvssVector,
-				CVSSScore:       cvssScore,
-				CVSSSeverity:    cvssSeverity,
-				CVSSDescription: cvss.GenerateDescription(cvssVector, assessment.CVSSVersions[version], "en"),
-			},
-			References: []string{randUrl(), randUrl()},
+			Status:        "Open",
+			References:    []string{randUrl(), randUrl()},
 			GenericDescription: mongo.VulnerabilityGeneric{
 				Text: randName(20),
 			},
@@ -198,6 +190,50 @@ func TestXlsx(t *testing.T) {
 			Description: randName(20),
 			Remediation: randName(10),
 			Target:      assessment.Targets[rand.Intn(len(assessment.Targets))],
+		}
+		poc := mongo.Poc{VulnerabilityID: vulnerability.ID}
+
+		for _, version := range cvss.CvssVersions {
+			cvssVector := randCVSSVector(version)
+			cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, version)
+			if err != nil {
+				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
+			}
+
+			switch version {
+			case cvss.Cvss2:
+				vulnerability.CVSSv2 = mongo.VulnerabilityCVSS{
+					CVSSVersion:     version,
+					CVSSVector:      cvssVector,
+					CVSSScore:       cvssScore,
+					CVSSSeverity:    cvssSeverity,
+					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+				}
+			case cvss.Cvss3:
+				vulnerability.CVSSv3 = mongo.VulnerabilityCVSS{
+					CVSSVersion:     version,
+					CVSSVector:      cvssVector,
+					CVSSScore:       cvssScore,
+					CVSSSeverity:    cvssSeverity,
+					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+				}
+			case cvss.Cvss31:
+				vulnerability.CVSSv31 = mongo.VulnerabilityCVSS{
+					CVSSVersion:     version,
+					CVSSVector:      cvssVector,
+					CVSSScore:       cvssScore,
+					CVSSSeverity:    cvssSeverity,
+					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+				}
+			case cvss.Cvss4:
+				vulnerability.CVSSv4 = mongo.VulnerabilityCVSS{
+					CVSSVersion:     version,
+					CVSSVector:      cvssVector,
+					CVSSScore:       cvssScore,
+					CVSSSeverity:    cvssSeverity,
+					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+				}
+			}
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)
@@ -229,12 +265,14 @@ func TestXlsx(t *testing.T) {
 			TextLanguage: "JavaScript",
 			TextData:     randName(20),
 		})
+
+		pocs = append(pocs, poc)
 	}
 
 	assessment.VulnerabilityCount = len(vulnerabilities)
 
 	t.Run("test", func(t *testing.T) {
-		_, err := GenerateReport(customer, assessment, vulnerabilities, poc)
+		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
 		if err != nil {
 			t.Errorf("GenerateReport() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
 		}
