@@ -5,11 +5,12 @@ type Props = {
   className?: string;
   children: ReactNode;
   footer?: ReactNode;
+  noHighlight?: boolean;
 };
 
-export default function Card({ className, children, footer }: Props) {
+export default function Card({ className, children, footer, noHighlight }: Props) {
   return (
-    <Grid className={`cardbox ${className}`}>
+    <Grid className={`cardbox ${noHighlight ? `no-highlight` : ""} ${className}`}>
       {children}
       {footer && <div className="p-6">{footer}</div>}
     </Grid>

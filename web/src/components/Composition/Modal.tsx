@@ -42,7 +42,7 @@ export default function Modal({
   return (
     <div className="card-modal glasscard fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center">
       <div className={"w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
-        <Card className={className} footer={footer}>
+        <Card className={className} footer={footer} noHighlight>
           <CardTitle title={title} subtitle={subtitle}>
             {onCancel && <Button variant="transparent" icon={mdiClose} onClick={onCancel} small />}
           </CardTitle>
