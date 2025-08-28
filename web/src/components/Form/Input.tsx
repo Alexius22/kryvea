@@ -13,7 +13,7 @@ interface BaseInputProps {
   placeholder?: string;
   value?: string | number;
   autoFocus?: boolean;
-  disabled?: true;
+  disabled?: boolean;
   name?: string;
 }
 
@@ -129,6 +129,7 @@ export default function Input({
               />
               {type === "password" && (
                 <Button
+                  disabled={disabled}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 transform cursor-pointer p-1"
                   icon={showPassword ? mdiEye : mdiEyeOff}
