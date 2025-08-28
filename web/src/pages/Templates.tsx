@@ -177,6 +177,7 @@ export default function Templates() {
         data={uploadedTemplates.map(template => ({
           Name: template.name,
           Filename: template.filename,
+          Customer: template.customer?.name,
           Language: languageMapping[template.language] || template.language,
           "File Type": template.file_type,
           "Template Type": template.type,
