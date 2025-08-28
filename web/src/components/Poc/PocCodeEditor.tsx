@@ -51,7 +51,6 @@ export default function PocCodeEditor({
   return (
     <Grid className="gap-4">
       <Modal
-        className="overflow-auto"
         isActive={showHighligtedTextModal}
         title="Code that will be highlighted"
         subtitle="Click on a selected text to remove it"
@@ -67,8 +66,8 @@ export default function PocCodeEditor({
             const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
             return (
               <Button
-                className="hover:bg-red-400/20"
-                variant="outline-only"
+                className="border border-[color:--border-secondary] hover:bg-red-400/20"
+                variant="secondary"
                 onClick={() =>
                   onSetCodeSelection(
                     currentIndex,
