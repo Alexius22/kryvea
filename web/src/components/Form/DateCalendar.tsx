@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Grid from "../Composition/Grid";
 import { formatDateTime, getUserDateFormatPattern } from "../dateUtils";
 import Label from "./Label";
 
@@ -50,38 +51,40 @@ export default function DateCalendar({
   };
 
   return (
-    <div>
+    <Grid>
       {label && <Label text={label} htmlFor={isRange ? undefined : idStart} />}
-      {isRange ? (
-        <DatePicker
-          selectsRange
-          swapRange
-          startDate={range[0]}
-          endDate={range[1]}
-          dateFormat={getUserDateFormatPattern()}
-          onChange={handleChangeRange}
-          className="datepicker-input"
-          placeholderText={"Select range date"}
-          autoComplete="off"
-        />
-      ) : (
-        <DatePicker
-          selected={new Date(value.start)}
-          onChange={handleChangeSingle}
-          showTimeSelect={showTime}
-          timeIntervals={15}
-          todayButton={showTime ? "Today" : false}
-          dateFormat={
-            showTime
-              ? `${formatDateTime(value.start)[0]} ${formatDateTime(value.start)[1]} '${formatDateTime(value.start)[2]}'`
-              : `${formatDateTime(value.start)[0].slice(0, -1)}`
-          }
-          className="datepicker-input"
-          placeholderText={typeof placeholder === "string" ? placeholder : "Select a date"}
-          id={idStart}
-          autoComplete="off"
-        />
-      )}
-    </div>
+      <div>
+        {isRange ? (
+          <DatePicker
+            selectsRange
+            swapRange
+            startDate={range[0]}
+            endDate={range[1]}
+            dateFormat={getUserDateFormatPattern()}
+            onChange={handleChangeRange}
+            className="datepicker-input"
+            placeholderText={"Select range date"}
+            autoComplete="off"
+          />
+        ) : (
+          <DatePicker
+            selected={new Date(value.start)}
+            onChange={handleChangeSingle}
+            showTimeSelect={showTime}
+            timeIntervals={15}
+            todayButton={showTime ? "Today" : false}
+            dateFormat={
+              showTime
+                ? `${formatDateTime(value.start)[0]} ${formatDateTime(value.start)[1]} '${formatDateTime(value.start)[2]}'`
+                : `${formatDateTime(value.start)[0].slice(0, -1)}`
+            }
+            className="datepicker-input"
+            placeholderText={typeof placeholder === "string" ? placeholder : "Select a date"}
+            id={idStart}
+            autoComplete="off"
+          />
+        )}
+      </div>
+    </Grid>
   );
 }
