@@ -10,6 +10,7 @@ import Table from "../components/Composition/Table";
 import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
@@ -38,6 +39,8 @@ export default function Assessments() {
 
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
+
+  const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
 
   const [statusSelectOptions] = useState<SelectOption[]>([
     { label: "On Hold", value: "On Hold" },
@@ -131,11 +134,11 @@ export default function Assessments() {
     const payload = {
       type: exportType.value,
       template: selectedExportTemplate.file_id,
-      encryption: exportEncryption.value,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
+      delivery_date: deliveryDate,
     };
 
-    // TODO properly with docx-go-template
+    // TODO properly when implemented go-template-docx
     postData<Blob>(`/api/assessments/${selectedAssessmentId}/export`, payload, data => {
       const url = window.URL.createObjectURL(new Blob([data]));
       const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
@@ -147,7 +150,6 @@ export default function Assessments() {
       link.click();
       link.remove();
       setIsModalDownloadActive(false);
-      toast.success("Export started");
     });
   };
 
@@ -220,15 +222,26 @@ export default function Assessments() {
             value={exportEncryption}
             onChange={option => setExportEncryption(option)}
           />
-          {exportEncryption.value === "password" && (
-            <Input
-              type="password"
-              id="password"
-              placeholder="Insert password"
-              value={exportPassword}
-              onChange={e => setExportPassword(e.target.value)}
-            />
-          )}
+          <Input
+            type="password"
+            id="password"
+            className={exportEncryption.value !== "password" && "opacity-50"}
+            disabled={exportEncryption.value !== "password"}
+            placeholder="Insert password"
+            value={exportPassword}
+            onChange={e => setExportPassword(e.target.value)}
+          />
+
+          <DateCalendar
+            idStart="delivery_date"
+            label="Report delivery date"
+            value={{ start: deliveryDate }}
+            onChange={val => {
+              if (typeof val === "string") {
+                setDeliveryDate(val);
+              }
+            }}
+          />
         </Grid>
       </Modal>
 
