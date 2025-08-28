@@ -305,33 +305,45 @@ export default function AssessmentVulnerabilities() {
       </SectionTitleLineWithButton>
 
       <Table
-        data={vulnerabilities.map(vulnerability => ({
-          Vulnerability: (
-            <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
-              {vulnerability.category.index} - {vulnerability.category.name}{" "}
-              {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
-            </Link>
-          ),
-          Target: (() => {
-            const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
-            const fqdn = vulnerability.target.fqdn || "";
-            const name = vulnerability.target.name ? ` (${vulnerability.target.name})` : "";
+        data={vulnerabilities.map(vulnerability => {
+          const cvssColumns = {};
+          if (ctxAssessment?.cvss_versions.includes("3.1")) {
+            cvssColumns["CVSSv3.1 Score"] = vulnerability.cvssv31.cvss_score;
+          }
+          if (ctxAssessment?.cvss_versions.includes("4.0")) {
+            cvssColumns["CVSSv4.0 Score"] = vulnerability.cvssv4.cvss_score;
+          }
 
-            if (ip) {
-              return `${ip}${fqdn ? ` - ${fqdn}` : ""}${name}`;
-            }
-            return `${fqdn}${name}`;
-          })(),
-          "CVSSv3.1 Score": vulnerability.cvssv31.cvss_score,
-          "CVSSv4.0 Score": vulnerability.cvssv4.cvss_score,
-          "Last update": formatDate(vulnerability.updated_at),
-          buttons: (
-            <Buttons noWrap>
-              <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
-              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
-            </Buttons>
-          ),
-        }))}
+          return {
+            Vulnerability: (
+              <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
+                {vulnerability.category.index} - {vulnerability.category.name}{" "}
+                {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
+              </Link>
+            ),
+            Target: (() => {
+              const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
+              const fqdn = vulnerability.target.fqdn || "";
+              const name = vulnerability.target.name ? ` (${vulnerability.target.name})` : "";
+
+              if (ip) {
+                return `${ip}${fqdn ? ` - ${fqdn}` : ""}${name}`;
+              }
+              return `${fqdn}${name}`;
+            })(),
+
+            ...cvssColumns,
+
+            Status: vulnerability.status,
+            "Last update": formatDate(vulnerability.updated_at),
+            buttons: (
+              <Buttons noWrap>
+                <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
+                <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
+              </Buttons>
+            ),
+          };
+        })}
         perPageCustom={10}
         maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
       />

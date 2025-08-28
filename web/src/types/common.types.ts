@@ -10,6 +10,7 @@ export type Vulnerability = {
   updated_at: string;
   category: { id: string; index: string; name: string; source: Category["source"] };
   detailed_title: string;
+  status: string;
   cvssv2: {
     cvss_version: string;
     cvss_vector: string;
