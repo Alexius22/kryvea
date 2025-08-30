@@ -158,14 +158,11 @@ func TestClassic(t *testing.T) {
 		OSSTMMVector:   randOSSTMMVector(),
 	}
 
-	cvssVersions := make([]string, len(cvss.CvssVersions))
-	copy(cvssVersions, cvss.CvssVersions)
-
-	rand.Shuffle(len(cvssVersions), func(i, j int) {
-		cvssVersions[i], cvssVersions[j] = cvssVersions[j], cvssVersions[i]
-	})
-
-	assessment.CVSSVersions = cvssVersions[:rand.Intn(len(cvss.CvssVersions))+1]
+	cvssVersions := make(map[string]bool)
+	for _, version := range cvss.CvssVersions {
+		cvssVersions[version] = rand.Intn(2) == 1
+	}
+	assessment.CVSSVersions = cvssVersions
 
 	imageDataDecoded, err := base64.StdEncoding.DecodeString(imageData)
 	if err != nil {
@@ -272,9 +269,9 @@ func TestClassic(t *testing.T) {
 	assessment.VulnerabilityCount = len(vulnerabilities)
 
 	t.Run("test", func(t *testing.T) {
-		_, err := GenerateReport(customer, assessment, vulnerabilities, pocs)
+		_, err := GenerateReportClassic(customer, assessment, vulnerabilities, pocs)
 		if err != nil {
-			t.Errorf("GenerateReport() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
+			t.Errorf("GenerateReportClassic() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
 		}
 	})
 }

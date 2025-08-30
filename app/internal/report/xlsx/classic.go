@@ -200,7 +200,11 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		VerticalAlign:   "center",
 	})
 
-	for _, cvssVersion := range assessment.CVSSVersions {
+	for cvssVersion, enabled := range assessment.CVSSVersions {
+		if !enabled {
+			continue
+		}
+
 		vulnColumns.addColumn(Column{
 			Header:          fmt.Sprintf("CVSSv%s Vector", cvssVersion),
 			Width:           45,
@@ -322,8 +326,20 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		row := i + 2
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnID).Letter, row), i)
 
+		maxVersion := ""
+		for cvssVersion, enabled := range assessment.CVSSVersions {
+			if !enabled {
+				continue
+			}
+
+			if cvssVersion > maxVersion {
+				maxVersion = cvssVersion
+			}
+		}
+
+		fmt.Println("maxversion", maxVersion)
+
 		severity := ""
-		maxVersion := assessment.CVSSVersions[len(assessment.CVSSVersions)-1]
 		switch maxVersion {
 		case cvss.Cvss2:
 			severity = vuln.CVSSv2.CVSSSeverity
@@ -402,10 +418,13 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 			}
 		}
 
-		// fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnSeverity).Letter, row)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnDescription).Letter, row), description)
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnPOC).Letter, row), strings.Join(pocEntries, "\n"))
-		for _, assessmentCvssVersion := range assessment.CVSSVersions {
+		for assessmentCvssVersion, enabled := range assessment.CVSSVersions {
+			if !enabled {
+				continue
+			}
+
 			switch assessmentCvssVersion {
 			case cvss.Cvss2:
 				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv2.CVSSVector)
@@ -483,22 +502,17 @@ func sanitizeFileName(name string) string {
 	return replacer.Replace(name)
 }
 
-func GenerateReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
+func GenerateReportClassic(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
 	// Sort assessment.CVSSVersions
-	sort.Slice(assessment.CVSSVersions, func(i, j int) bool {
-		vi, iok := cvss.VersionToValue[assessment.CVSSVersions[i]]
-		vj, jok := cvss.VersionToValue[assessment.CVSSVersions[j]]
-
-		// Unknown versions get lowest priority
-		if !iok {
-			return false
+	maxVersion := ""
+	for cvssVersion, enabled := range assessment.CVSSVersions {
+		if !enabled {
+			continue
 		}
-		if !jok {
-			return true
+		if cvssVersion > maxVersion {
+			maxVersion = cvssVersion
 		}
-		return vi < vj
-	})
-	maxVersion := assessment.CVSSVersions[len(assessment.CVSSVersions)-1]
+	}
 
 	// Sort vulnerabilities by score. if score is equal, sort by name in ascending order
 	// TODO: simplify by creating  Vulnerability.CVSS as map[string]VulnerabilityCVSS

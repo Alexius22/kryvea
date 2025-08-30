@@ -1,3 +1,11 @@
+github.com/JJJJJJack/go-template-docx v1.0.7 h1:qHchbe8ihQlvXvY3/hgzIE9RycIBRbden3xY39us0tI=
+github.com/JJJJJJack/go-template-docx v1.0.7/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
+github.com/JJJJJJack/go-template-docx v1.0.10 h1:zBL4RfqFfPUnOGjGc7rqzHPPLZiZub02NDgrX8ETRNQ=
+github.com/JJJJJJack/go-template-docx v1.0.10/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
+github.com/JJJJJJack/go-template-docx v1.1.0 h1:E57qNThflEiQEwzIUe6o2WaF6dzUqBPkp7DD0xx2na0=
+github.com/JJJJJJack/go-template-docx v1.1.0/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
+github.com/JJJJJJack/go-zip-utils v1.0.1 h1:qk39Cc+rZu1VHuElvhH+PtTLvxvchPEdPfF7XRSlc7c=
+github.com/JJJJJJack/go-zip-utils v1.0.1/go.mod h1:YqgYPKuHnsmdRjcPxUKilQJh8saNhnR+9rmulVTthGI=
 github.com/andybalholm/brotli v1.1.1 h1:PR2pgnyFznKEugtsUo0xLdDop5SKXd5Qf5ysW+7XdTA=
 github.com/andybalholm/brotli v1.1.1/go.mod h1:05ib4cKhjx3OQYUY22hTVd34Bc8upXjOLL2rKwwZBoA=
 github.com/bytedance/sonic v1.13.3 h1:MS8gmaH16Gtirygw7jV91pDCN33NyMrPbN7qiYhEsF0=
