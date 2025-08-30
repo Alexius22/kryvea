@@ -57,7 +57,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 		Name:     data.Name,
 		Filename: filename,
 		Language: data.Language,
-		FileType: templateType,
+		MimeType: templateType,
 		Type:     data.Type,
 		FileID:   fileID,
 		Customer: &mongo.Customer{
