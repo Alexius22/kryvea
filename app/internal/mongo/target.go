@@ -38,13 +38,13 @@ var TargetPipeline = mongo.Pipeline{
 
 type Target struct {
 	Model    `bson:",inline"`
-	IPv4     string   `json:"ipv4" bson:"ipv4"`
-	IPv6     string   `json:"ipv6" bson:"ipv6"`
-	Port     int      `json:"port" bson:"port"`
-	Protocol string   `json:"protocol" bson:"protocol"`
+	IPv4     string   `json:"ipv4,omitempty" bson:"ipv4"`
+	IPv6     string   `json:"ipv6,omitempty" bson:"ipv6"`
+	Port     int      `json:"port,omitempty" bson:"port"`
+	Protocol string   `json:"protocol,omitempty" bson:"protocol"`
 	FQDN     string   `json:"fqdn" bson:"fqdn"`
-	Name     string   `json:"name" bson:"name"`
-	Customer Customer `json:"customer" bson:"customer"`
+	Name     string   `json:"name,omitempty" bson:"name"`
+	Customer Customer `json:"customer,omitempty" bson:"customer"`
 }
 
 type TargetIndex struct {

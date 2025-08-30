@@ -177,8 +177,10 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		}
 
 		vulnerability := &mongo.Vulnerability{
-			Category: mongo.VulnerabilityCategory{
-				ID: categoryID,
+			Category: mongo.Category{
+				Model: mongo.Model{
+					ID: categoryID,
+				},
 			},
 			CVSSv2:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
 			CVSSv3:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
@@ -190,11 +192,15 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			Target: mongo.Target{
 				Model: mongo.Model{ID: targetID},
 			},
-			Assessment: mongo.VulnerabilityAssessment{
-				ID: assessment.ID,
+			Assessment: mongo.Assessment{
+				Model: mongo.Model{
+					ID: assessment.ID,
+				},
 			},
-			User: mongo.VulnerabilityUser{
-				ID: userID,
+			User: mongo.User{
+				Model: mongo.Model{
+					ID: userID,
+				},
 			},
 		}
 		vulnerabilityID, err := d.mongo.Vulnerability().Insert(vulnerability)
@@ -403,8 +409,10 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			}
 
 			vulnerability := &mongo.Vulnerability{
-				Category: mongo.VulnerabilityCategory{
-					ID: categoryID,
+				Category: mongo.Category{
+					Model: mongo.Model{
+						ID: categoryID,
+					},
 				},
 				CVSSv2:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
 				CVSSv3:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
@@ -417,11 +425,15 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				Target: mongo.Target{
 					Model: mongo.Model{ID: targetID},
 				},
-				Assessment: mongo.VulnerabilityAssessment{
-					ID: assessment.ID,
+				Assessment: mongo.Assessment{
+					Model: mongo.Model{
+						ID: assessment.ID,
+					},
 				},
-				User: mongo.VulnerabilityUser{
-					ID: userID,
+				User: mongo.User{
+					Model: mongo.Model{
+						ID: userID,
+					},
 				},
 			}
 
