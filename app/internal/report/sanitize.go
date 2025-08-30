@@ -52,7 +52,7 @@ func sanitizeVulnerability(item mongo.Vulnerability) mongo.Vulnerability {
 	}
 
 	return mongo.Vulnerability{
-		Category: mongo.VulnerabilityCategory{
+		Category: mongo.Category{
 			Name:  escapeXMLString(item.Category.Name),
 			Index: escapeXMLString(item.Category.Index),
 		},

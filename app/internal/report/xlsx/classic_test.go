@@ -174,7 +174,7 @@ func TestClassic(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		vulnerability := mongo.Vulnerability{
 			Model:         mongo.Model{ID: uuid.New()},
-			Category:      mongo.VulnerabilityCategory{Name: randName(3)},
+			Category:      mongo.Category{Name: randName(3)},
 			DetailedTitle: randName(3),
 			Status:        "Open",
 			References:    []string{randUrl(), randUrl()},
