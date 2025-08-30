@@ -75,6 +75,7 @@ export default function AssessmentUpsert() {
     name: "",
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
+    kickoff_date_time: new Date().toISOString(),
     targets: [],
     status: "On Hold",
     cvss_versions: [],
@@ -82,6 +83,8 @@ export default function AssessmentUpsert() {
     testing_type: "",
     osstmm_vector: "",
   });
+
+  const [kickoffDate, setKickoffDate] = useState(new Date().toISOString());
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
 
@@ -103,6 +106,7 @@ export default function AssessmentUpsert() {
             name: data.name,
             start_date_time: data.start_date_time,
             end_date_time: data.end_date_time,
+            kickoff_date_time: data.kickoff_date_time,
             targets: data.targets,
             status: data.status,
             cvss_versions: data.cvss_versions,
@@ -248,7 +252,7 @@ export default function AssessmentUpsert() {
         <form onSubmit={handleSubmit}>
           <Grid>
             <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
-            <Grid className="grid-cols-2 !items-start">
+            <Grid className="grid-cols-2">
               <Input
                 type="text"
                 label="Name"
@@ -265,6 +269,8 @@ export default function AssessmentUpsert() {
                 closeMenuOnSelect
                 onChange={option => handleSelectChange("assessment_type", option)}
               />
+            </Grid>
+            <Grid className="grid-cols-3">
               <DateCalendar
                 idStart="start_date_time"
                 label="Activity Period"
@@ -277,7 +283,17 @@ export default function AssessmentUpsert() {
                 }}
                 placeholder={{ start: "Start date", end: "End date" }}
               />
-              <Grid>
+              <DateCalendar
+                idStart="kickoff_date_time"
+                label="Kick-off date"
+                value={{ start: kickoffDate }}
+                onChange={val => {
+                  if (typeof val === "string") {
+                    setKickoffDate(val);
+                  }
+                }}
+              />
+              <Grid className="h-full !items-start">
                 <Label text="CVSS Versions" />
                 <Flex className="gap-4">
                   {CVSS_VERSIONS.map(({ value, label }) => (
