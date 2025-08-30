@@ -3,6 +3,7 @@ module github.com/Alexius22/kryvea
 go 1.23.4
 
 require (
+	github.com/JJJJJJack/go-template-docx v1.1.0
 	github.com/bytedance/sonic v1.13.3
 	github.com/gabriel-vasile/mimetype v1.4.9
 	github.com/gofiber/contrib/fiberzerolog v1.0.3
@@ -19,6 +20,7 @@ require (
 )
 
 require (
+	github.com/JJJJJJack/go-zip-utils v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
