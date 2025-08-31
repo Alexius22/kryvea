@@ -112,7 +112,7 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
-	c.Set("Content-Type", mongo.SupportedTemplateMimeTypes[template.FileType])
+	c.Set("Content-Type", mongo.SupportedTemplateMimeTypes[template.MimeType])
 	c.Set("Content-Disposition", "attachment; filename="+template.Filename)
 	return c.SendStream(bytes.NewReader(fileData))
 }
