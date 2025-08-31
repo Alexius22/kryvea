@@ -1,10 +1,15 @@
 package api
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
+	"github.com/Alexius22/kryvea/internal/report"
+	"github.com/Alexius22/kryvea/internal/report/docx"
 	"github.com/Alexius22/kryvea/internal/report/xlsx"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -79,6 +84,11 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	versions := make(map[string]bool)
+	for _, version := range data.CVSSVersions {
+		versions[version] = true
+	}
+
 	// insert assessment into database
 	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
 		Name:           data.Name,
@@ -87,7 +97,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersions:   data.CVSSVersions,
+		CVSSVersions:   versions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -339,6 +349,11 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	versions := make(map[string]bool)
+	for _, version := range data.CVSSVersions {
+		versions[version] = true
+	}
+
 	// update assessment in database
 	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
 		Name:           data.Name,
@@ -347,7 +362,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersions:   data.CVSSVersions,
+		CVSSVersions:   versions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -458,11 +473,27 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse assessment param
-	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
-	if errStr != "" {
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": errStr,
+			"error": "Assessment ID is required",
+		})
+	}
+
+	assessmentID, err := util.ParseUUID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid Assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid Assessment ID",
 		})
 	}
 
@@ -484,11 +515,14 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	// parse request body
 	type reqData struct {
-		Type string `json:"type"`
+		Type         string `json:"type"`
+		Template     string `json:"template"`
+		DeliveryDate string `json:"delivery_date"`
 	}
 
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
+		d.logger.Info().Msg(err.Error())
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -503,8 +537,25 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	// validate template
+	template, errStr := d.templateFromParam(data.Template)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	templateBytes, _, err := d.mongo.FileReference().ReadByID(template.FileID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid template ID",
+		})
+	}
+
 	// retrieve vulnerabilities
-	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentID(assessment.ID)
+	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -512,61 +563,48 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: think
 	// retrieve pocs
-	reportPoc := mongo.Poc{}
-	for _, v := range vulnerabilities {
-		var cvssReportVersion string
-		for _, version := range assessment.CVSSVersions {
-			// TODO: this was a temporary fix
-			// comparing strings may not be ideal
-			if version > cvssReportVersion {
-				switch version {
-				case cvss.Cvss4:
-					v.CVSSReport = v.CVSSv4
-				case cvss.Cvss31:
-					v.CVSSReport = v.CVSSv31
-				case cvss.Cvss3:
-					v.CVSSReport = v.CVSSv3
-				case cvss.Cvss2:
-					v.CVSSReport = v.CVSSv2
-				default:
-					continue
-				}
-				cvssReportVersion = version
-			}
-		}
+	// for _, v := range vulnerabilities {
+	// 	for i, item := range poc.Pocs {
+	// 		if item.ImageID != uuid.Nil {
+	// 			imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
+	// 			if err != nil {
+	// 				c.Status(fiber.StatusInternalServerError)
+	// 				return c.JSON(fiber.Map{
+	// 					"error": "Failed to read image data",
+	// 				})
+	// 			}
+	// 			poc.Pocs[i].ImageData = imageData
+	// 		}
+	// 	}
+	// }
 
-		poc, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Failed to retrieve pocs",
-			})
-		}
-
-		for i, item := range poc.Pocs {
-			if item.ImageID != uuid.Nil {
-				imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
-				if err != nil {
-					c.Status(fiber.StatusInternalServerError)
-					return c.JSON(fiber.Map{
-						"error": "Failed to read image data",
-					})
-				}
-				poc.Pocs[i].ImageData = imageData
-			}
-		}
-
-		reportPoc = *poc
+	reportData := &report.ReportData{
+		Customer:                customer,
+		Assessment:              assessment,
+		Vulnerabilities:         vulnerabilities,
+		DeliveryDate:            data.DeliveryDate,
+		MaxCVSS:                 make(map[string]mongo.VulnerabilityCVSS),
+		VulnerabilitiesOverwiev: make(map[string]report.VulnerabilityOverview),
 	}
 
 	// generate report
-	var fileName string
+	var renderedTemplate []byte
 	switch data.Type {
 	case "xlsx":
-		fileName, err = xlsx.GenerateReport(customer, assessment, vulnerabilities, reportPoc)
+		renderedTemplate, err = xlsx.GenerateReport(reportData, templateBytes)
+	case "docx":
+		renderedTemplate, err = docx.GenerateReport(reportData, templateBytes)
+	// case "custom-classic":
+	// 	// TODO: make function return []byte
+	// 	_, err = xlsx.GenerateReportClassic(customer, assessment, vulnerabilities, reportPoc)
+	default:
+		err = errors.New("invalid template type")
 	}
+
 	if err != nil {
+		d.logger.Error().Msg(err.Error())
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Failed to generate report",
@@ -574,7 +612,8 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
-	return c.SendFile(fileName)
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=rendered_template.%s", data.Type))
+	return c.SendStream(bytes.NewBuffer(renderedTemplate))
 }
 
 func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment, string) {

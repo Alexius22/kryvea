@@ -52,11 +52,11 @@ var TemplatePipeline = mongo.Pipeline{
 type Template struct {
 	Model    `bson:",inline"`
 	Name     string    `json:"name" bson:"name"`
-	Filename string    `json:"filename" bson:"filename"`
-	Language string    `json:"language" bson:"language"`
-	FileType string    `json:"file_type" bson:"file_type"`
-	Type     string    `json:"type" bson:"type"`
-	FileID   uuid.UUID `json:"file_id" bson:"file_id"`
+	Filename string    `json:"filename,omitempty" bson:"filename"`
+	Language string    `json:"language,omitempty" bson:"language"`
+	MimeType string    `json:"mime_type" bson:"mime_type"`
+	Type     string    `json:"type,omitempty" bson:"type"`
+	FileID   uuid.UUID `json:"file_id,omitempty" bson:"file_id"`
 	Customer *Customer `json:"customer,omitempty" bson:"customer"`
 }
 

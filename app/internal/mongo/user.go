@@ -76,20 +76,15 @@ var UserPipeline = mongo.Pipeline{
 
 type User struct {
 	Model          `bson:",inline"`
-	DisabledAt     time.Time    `json:"disabled_at" bson:"disabled_at"`
+	DisabledAt     time.Time    `json:"disabled_at,omitempty" bson:"disabled_at"`
 	Username       string       `json:"username" bson:"username"`
 	Password       string       `json:"-" bson:"password"`
 	PasswordExpiry time.Time    `json:"-" bson:"password_expiry"`
 	Token          uuid.UUID    `json:"-" bson:"token"`
 	TokenExpiry    time.Time    `json:"-" bson:"token_expiry"`
 	Role           string       `json:"role" bson:"role"`
-	Customers      []Customer   `json:"customers" bson:"customers"`
-	Assessments    []Assessment `json:"assessments" bson:"assessments"`
-}
-
-type UserAssessment struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	Name string    `json:"name" bson:"name"`
+	Customers      []Customer   `json:"customers,omitempty" bson:"customers"`
+	Assessments    []Assessment `json:"assessments,omitempty" bson:"assessments"`
 }
 
 type UserIndex struct {
