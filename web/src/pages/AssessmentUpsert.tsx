@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -18,6 +18,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
 import { Assessment, Target } from "../types/common.types";
+import { Keys } from "../types/utils.types";
 
 const ASSESSMENT_TYPE: SelectOption[] = [
   {
@@ -58,8 +59,23 @@ const OSSTMM_VECTOR: SelectOption[] = [
   { value: "Outside to Inside", label: "Outside to Inside" },
 ];
 
-function getOption(options: SelectOption[], value: string): SelectOption | undefined {
-  return options.find(opt => opt.value === value);
+const initialSelectedOptionsState: {
+  assessment_type: SelectOption;
+  environment: SelectOption;
+  testing_type: SelectOption;
+  osstmm_vector: SelectOption;
+} = {
+  assessment_type: undefined,
+  environment: undefined,
+  testing_type: undefined,
+  osstmm_vector: undefined,
+};
+
+function reducer(
+  state: typeof initialSelectedOptionsState,
+  { field, value }: { field: Keys<typeof initialSelectedOptionsState>; value: SelectOption }
+) {
+  return { ...state, [field]: value };
 }
 
 export default function AssessmentUpsert() {
@@ -73,11 +89,12 @@ export default function AssessmentUpsert() {
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
   const [hostName, setHostName] = useState("");
+  const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
 
   const [form, setForm] = useState<
     Omit<Assessment, "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned">
   >({
-    assessment_type: undefined,
+    assessment_type: { short: "", full: "" },
     name: "",
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
@@ -141,7 +158,8 @@ export default function AssessmentUpsert() {
     setForm(f => ({ ...f, [field]: value }));
   };
 
-  const handleSelectChange = (field: keyof typeof form, option: SelectOption | null) => {
+  const handleSelectChange = (field: Keys<typeof initialSelectedOptionsState>, option: SelectOption | null) => {
+    updateSelectedOptions({ field: field, value: option });
     handleChange(field, option ? option.value : "");
   };
 
@@ -264,7 +282,7 @@ export default function AssessmentUpsert() {
                 label="Assessment Type"
                 id="assessment_type"
                 options={ASSESSMENT_TYPE}
-                value={getOption(ASSESSMENT_TYPE, form.assessment_type.short) || null}
+                value={selectedOptions.assessment_type}
                 closeMenuOnSelect
                 onChange={option => handleSelectChange("assessment_type", option)}
               />
@@ -325,7 +343,7 @@ export default function AssessmentUpsert() {
               label="Environment"
               id="environment"
               options={ENVIRONMENT}
-              value={form.environment}
+              value={selectedOptions.environment}
               closeMenuOnSelect
               onChange={option => handleSelectChange("environment", option)}
             />
@@ -333,7 +351,7 @@ export default function AssessmentUpsert() {
               label="Testing type"
               id="testing_type"
               options={TESTING_TYPE}
-              value={getOption(TESTING_TYPE, form.testing_type) || null}
+              value={selectedOptions.testing_type}
               closeMenuOnSelect
               onChange={option => handleSelectChange("testing_type", option)}
             />
@@ -341,7 +359,7 @@ export default function AssessmentUpsert() {
               label="OSSTMM Vector"
               id="osstmm_vector"
               options={OSSTMM_VECTOR}
-              value={getOption(OSSTMM_VECTOR, form.osstmm_vector) || null}
+              value={selectedOptions.osstmm_vector}
               closeMenuOnSelect
               onChange={option => handleSelectChange("osstmm_vector", option)}
             />
