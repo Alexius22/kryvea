@@ -19,14 +19,20 @@ import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { getPageTitle } from "../config";
 import { Assessment, Target } from "../types/common.types";
 
-export const ASSESSMENT_TYPE = [
-  { value: "VAPT", label: "Vulnerability Assessment Penetration Test" },
-  { value: "WAPT", label: "Web Application Penetration Test" },
-  { value: "API PT", label: "API Penetration Test" },
-  { value: "MAPT", label: "Mobile Application Penetration Test" },
-  { value: "NPT", label: "Network Penetration Test" },
-  { value: "Red Team Assessment", label: "Red Team Assessment" },
-  { value: "IoT PT", label: "IoT Device Penetration Test" },
+const ASSESSMENT_TYPE: SelectOption[] = [
+  {
+    value: { short: "VAPT", full: "Vulnerability Assessment Penetration Test" },
+    label: "Vulnerability Assessment Penetration Test",
+  },
+  { value: { short: "NPT", full: "Network Penetration Test" }, label: "Network Penetration Test" },
+  { value: { short: "WAPT", full: "Web Application Penetration Test" }, label: "Web Application Penetration Test" },
+  {
+    value: { short: "MAPT", full: "Mobile Application Penetration Test" },
+    label: "Mobile Application Penetration Test",
+  },
+  { value: { short: "API PT", full: "API Penetration Test" }, label: "API Penetration Test" },
+  { value: { short: "RT", full: "Red Team Assessment" }, label: "Red Team Assessment" },
+  { value: { short: "IOT PT", full: "IoT Device Penetration Test" }, label: "IoT Device Penetration Test" },
 ];
 
 const CVSS_VERSIONS: SelectOption[] = [
@@ -71,7 +77,7 @@ export default function AssessmentUpsert() {
   const [form, setForm] = useState<
     Omit<Assessment, "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned">
   >({
-    assessment_type: "",
+    assessment_type: undefined,
     name: "",
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
@@ -258,7 +264,7 @@ export default function AssessmentUpsert() {
                 label="Assessment Type"
                 id="assessment_type"
                 options={ASSESSMENT_TYPE}
-                value={getOption(ASSESSMENT_TYPE, form.assessment_type) || null}
+                value={getOption(ASSESSMENT_TYPE, form.assessment_type.short) || null}
                 closeMenuOnSelect
                 onChange={option => handleSelectChange("assessment_type", option)}
               />
@@ -319,7 +325,7 @@ export default function AssessmentUpsert() {
               label="Environment"
               id="environment"
               options={ENVIRONMENT}
-              value={getOption(ENVIRONMENT, form.environment) || null}
+              value={form.environment}
               closeMenuOnSelect
               onChange={option => handleSelectChange("environment", option)}
             />

@@ -68,7 +68,7 @@ export type Assessment = {
   kickoff_date_time: string;
   targets: { id: string; ipv4: string; ipv6: string; fqdn: string }[];
   status: string;
-  assessment_type: string;
+  assessment_type: { short: string; full: string };
   cvss_versions: { "3.1": boolean; "4.0": boolean };
   environment: string;
   testing_type: string;
