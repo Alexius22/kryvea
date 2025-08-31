@@ -17,17 +17,17 @@ import (
 )
 
 type assessmentRequestData struct {
-	Name           string    `json:"name"`
-	StartDateTime  time.Time `json:"start_date_time"`
-	EndDateTime    time.Time `json:"end_date_time"`
-	Status         string    `json:"status"`
-	Targets        []string  `json:"targets"`
-	AssessmentType string    `json:"assessment_type"`
-	CVSSVersions   []string  `json:"cvss_versions"`
-	Environment    string    `json:"environment"`
-	TestingType    string    `json:"testing_type"`
-	OSSTMMVector   string    `json:"osstmm_vector"`
-	CustomerID     string    `json:"customer_id"`
+	Name           string          `json:"name"`
+	StartDateTime  time.Time       `json:"start_date_time"`
+	EndDateTime    time.Time       `json:"end_date_time"`
+	Status         string          `json:"status"`
+	Targets        []string        `json:"targets"`
+	AssessmentType string          `json:"assessment_type"`
+	CVSSVersions   map[string]bool `json:"cvss_versions"`
+	Environment    string          `json:"environment"`
+	TestingType    string          `json:"testing_type"`
+	OSSTMMVector   string          `json:"osstmm_vector"`
+	CustomerID     string          `json:"customer_id"`
 }
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
@@ -84,11 +84,6 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	versions := make(map[string]bool)
-	for _, version := range data.CVSSVersions {
-		versions[version] = true
-	}
-
 	// insert assessment into database
 	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
 		Name:           data.Name,
@@ -97,7 +92,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersions:   versions,
+		CVSSVersions:   data.CVSSVersions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -349,11 +344,6 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	versions := make(map[string]bool)
-	for _, version := range data.CVSSVersions {
-		versions[version] = true
-	}
-
 	// update assessment in database
 	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
 		Name:           data.Name,
@@ -362,7 +352,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		Targets:        targets,
 		Status:         data.Status,
 		AssessmentType: data.AssessmentType,
-		CVSSVersions:   versions,
+		CVSSVersions:   data.CVSSVersions,
 		Environment:    data.Environment,
 		TestingType:    data.TestingType,
 		OSSTMMVector:   data.OSSTMMVector,
@@ -647,11 +637,18 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 		return "End date is required"
 	}
 
-	if len(data.CVSSVersions) == 0 {
+	check := false
+	for _, enabled := range data.CVSSVersions {
+		if enabled {
+			check = true
+			break
+		}
+	}
+	if !check {
 		return "At least one CVSS version is required"
 	}
 
-	for _, version := range data.CVSSVersions {
+	for version := range data.CVSSVersions {
 		if !cvss.IsValidVersion(version) {
 			return "Invalid CVSS version"
 		}
@@ -671,7 +668,7 @@ func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) strin
 		return "No data to update"
 	}
 
-	for _, version := range data.CVSSVersions {
+	for version := range data.CVSSVersions {
 		if !cvss.IsValidVersion(version) {
 			return "Invalid CVSS version"
 		}

@@ -277,7 +277,12 @@ export default function Assessments() {
             </Link>
           ),
           Type: assessment.assessment_type,
-          "CVSS Versions": assessment.cvss_versions?.join(" | "),
+          "CVSS Versions": [
+            assessment.cvss_versions["3.1"] ? "3.1" : null,
+            assessment.cvss_versions["4.0"] ? "4.0" : null,
+          ]
+            .filter(Boolean)
+            .join(" | "),
           "Vuln count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),

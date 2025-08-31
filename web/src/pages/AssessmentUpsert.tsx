@@ -78,7 +78,7 @@ export default function AssessmentUpsert() {
     kickoff_date_time: new Date().toISOString(),
     targets: [],
     status: "On Hold",
-    cvss_versions: [],
+    cvss_versions: { "3.1": false, "4.0": false },
     environment: "",
     testing_type: "",
     osstmm_vector: "",
@@ -140,20 +140,13 @@ export default function AssessmentUpsert() {
   };
 
   const toggleCvssVersion = (version: string) => {
-    setForm(prev => {
-      const current = prev.cvss_versions;
-      if (current.includes(version)) {
-        return {
-          ...prev,
-          cvss_versions: current.filter(v => v !== version),
-        };
-      } else {
-        return {
-          ...prev,
-          cvss_versions: [...current, version],
-        };
-      }
-    });
+    setForm(prev => ({
+      ...prev,
+      cvss_versions: {
+        ...prev.cvss_versions,
+        [version]: !prev.cvss_versions[version],
+      },
+    }));
   };
 
   const handleTargetsChange = (options: SelectOption[] | null) => {
@@ -301,7 +294,7 @@ export default function AssessmentUpsert() {
                       key={value}
                       id={`cvss_${value}`}
                       label={label}
-                      checked={form.cvss_versions.includes(value)}
+                      checked={form.cvss_versions[value] || false}
                       onChange={() => toggleCvssVersion(value)}
                     />
                   ))}

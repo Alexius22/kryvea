@@ -69,7 +69,7 @@ export type Assessment = {
   targets: { id: string; ipv4: string; ipv6: string; fqdn: string }[];
   status: string;
   assessment_type: string;
-  cvss_versions: string[];
+  cvss_versions: { "3.1": boolean; "4.0": boolean };
   environment: string;
   testing_type: string;
   osstmm_vector: string;
