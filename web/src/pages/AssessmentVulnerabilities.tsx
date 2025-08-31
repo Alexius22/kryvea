@@ -1,4 +1,4 @@
-import { mdiDownload, mdiFileEye, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
+import { mdiDownload, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -291,16 +291,16 @@ export default function AssessmentVulnerabilities() {
 
       <SectionTitleLineWithButton icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
-          <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} />
-          <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
+          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button
             icon={mdiPlus}
             text="New Target"
             small
             onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/new`)}
           />
-          <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
+          <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
+          {/* <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} /> */}
         </Buttons>
       </SectionTitleLineWithButton>
 

@@ -288,7 +288,7 @@ export default function EditPoc() {
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
             <Button text="Image" icon={mdiPlus} onClick={addPoc(POC_TYPE_IMAGE)} small />
             <Button text="Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_TEXT)} small />
-            <Button text="Rich Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_RICH_TEXT)} small />
+            {/* <Button text="Rich Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_RICH_TEXT)} small /> */}
             <Button
               className="ml-auto gap-2"
               text="Save"
