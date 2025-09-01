@@ -286,9 +286,5 @@ func (d *Driver) validateCategoryData(category *categoryRequestData) string {
 		return "Name is required"
 	}
 
-	if !util.IsValidSource(category.Source) {
-		return "Invalid source"
-	}
-
 	return ""
 }
