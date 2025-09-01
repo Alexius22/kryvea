@@ -12,6 +12,7 @@ export default function RouteWatcher() {
     useCtxAssessment: [ctxAssessment, setCtxAssessment],
     useCtxVulnerability: [ctxVulnerability, setCtxVulnerability],
     useCtxCategory: [ctxCategory, setCtxCategory],
+    useCtxLastPage: [, setCtxLastPage],
   } = useContext(GlobalContext);
   const location = useLocation();
   const previousPathname = useRef(location.pathname);
@@ -47,7 +48,7 @@ export default function RouteWatcher() {
   useEffect(() => {
     const kryveaShadow = getKryveaShadow();
     if ((!kryveaShadow || kryveaShadow === "password_expired") && location.pathname !== "/login") {
-      navigate("/login", { replace: true });
+      navigate("/login");
       return;
     }
     const currentPathname = location.pathname.split("/")[1];
@@ -55,10 +56,15 @@ export default function RouteWatcher() {
       return;
     }
 
+    if (location.pathname !== "/login" && location.pathname !== "/") {
+      setCtxLastPage(location.pathname);
+    }
+
     switch (currentPathname) {
       case "customers":
       case "assessments":
       case "vulnerabilities":
+      case "login":
         break;
       default:
         setCtxCustomer(undefined);

@@ -39,6 +39,7 @@ export type GlobalContextType = {
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
   useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
   useCtxCategory: [Category, Dispatch<SetStateAction<Category>>];
+  useCtxLastPage: [string, Dispatch<SetStateAction<string>>];
 };
 
 export const GlobalContext = createContext<GlobalContextType>(null);
@@ -52,6 +53,7 @@ export default function App() {
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
+  const useCtxLastPage = useState<string>(() => getLocalStorageCtxState("useCtxLastPage") ?? "/dashboard");
 
   useLayoutEffect(() => {
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
@@ -88,6 +90,7 @@ export default function App() {
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
         useCtxVulnerability: bindToLocalStorage(useCtxVulnerability, "useCtxVulnerability"),
         useCtxCategory: bindToLocalStorage(useCtxCategory, "useCtxCategory"),
+        useCtxLastPage: bindToLocalStorage(useCtxLastPage, "useCtxLastPage"),
       }}
     >
       <ToastContainer

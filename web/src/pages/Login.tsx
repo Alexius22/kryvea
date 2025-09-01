@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
+import { GlobalContext } from "../App";
 import Card from "../components/CardBox/Card";
 import Grid from "../components/Composition/Grid";
 import Subtitle from "../components/Composition/Subtitle";
@@ -19,17 +20,20 @@ export default function Login() {
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const {
+    useCtxLastPage: [ctxLastPage],
+  } = useContext(GlobalContext);
+
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = useMemo(() => location.state?.from || "/dashboard", []);
 
   useEffect(() => {
     const kryveaShadow = getKryveaShadow();
 
     if (kryveaShadow && kryveaShadow !== "password_expired") {
-      navigate(from, { replace: true });
+      navigate(ctxLastPage, { replace: true });
       return;
     }
+
     document.title = getPageTitle("Login");
   }, []);
 
@@ -38,7 +42,7 @@ export default function Login() {
     postData(
       "/api/login",
       { username, password, remember },
-      () => navigate(from, { replace: true }),
+      () => navigate(ctxLastPage, { replace: true }),
       err => {
         // Check for password expired case
         const data = err.response?.data as { error: string };
@@ -72,7 +76,7 @@ export default function Login() {
       { password },
       () => {
         toast.success("Password change successful");
-        navigate(from, { replace: true });
+        navigate(ctxLastPage, { replace: true });
       },
       err => {
         setError(err.response?.data?.error || "Failed to reset password");
