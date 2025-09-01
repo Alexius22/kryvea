@@ -14,6 +14,9 @@ import UploadFile from "../components/Form/UploadFile";
 import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
 import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
+import { sourceCategoryOptions } from "./CategoryUpsert";
+
+const sourceCategoryMap = Object.fromEntries(sourceCategoryOptions.map(({ value, label }) => [value, label]));
 
 export default function Categories() {
   const navigate = useNavigate();
@@ -154,7 +157,7 @@ export default function Categories() {
           data={categories.map(category => ({
             Identifier: category.index,
             Name: category.name,
-            Source: category.source.replace(/\b\w/g, char => char.toUpperCase()),
+            Source: sourceCategoryMap[category.source],
             Languages: Object.keys(category.generic_description || {})
               .join(" | ")
               .toUpperCase(),
