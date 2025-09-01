@@ -73,13 +73,6 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.IsValidSource(importData.Source) {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid source",
-		})
-	}
-
 	data, _, err := util.FormDataReadFile(c, "file")
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
