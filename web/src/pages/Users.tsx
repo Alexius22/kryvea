@@ -251,7 +251,7 @@ export default function Users() {
         data={users.map(user => ({
           Username: user.username,
           Role: user.role,
-          Customers: user.customers.map(customer => customer.name).join(" | "),
+          Customers: user.customers?.map(customer => customer.name).join(" | "),
           Active: Date.parse(user.disabled_at) > Date.now() ? "Yes" : "No",
           buttons: (
             <Buttons noWrap key={user.id}>
