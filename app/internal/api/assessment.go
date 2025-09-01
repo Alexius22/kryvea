@@ -571,12 +571,10 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	// }
 
 	reportData := &report.ReportData{
-		Customer:                customer,
-		Assessment:              assessment,
-		Vulnerabilities:         vulnerabilities,
-		DeliveryDate:            data.DeliveryDate,
-		MaxCVSS:                 make(map[string]mongo.VulnerabilityCVSS),
-		VulnerabilitiesOverwiev: make(map[string]report.VulnerabilityOverview),
+		Customer:        customer,
+		Assessment:      assessment,
+		Vulnerabilities: vulnerabilities,
+		DeliveryDate:    data.DeliveryDate,
 	}
 
 	// generate report

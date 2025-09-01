@@ -63,13 +63,14 @@ var AssessmentPipeline = mongo.Pipeline{
 }
 
 type Assessment struct {
-	Model              `bson:",inline"`
-	Name               string          `json:"name,omitempty" bson:"name"`
-	StartDateTime      time.Time       `json:"start_date_time,omitempty" bson:"start_date_time"`
-	EndDateTime        time.Time       `json:"end_date_time,omitempty" bson:"end_date_time"`
-	Targets            []Target        `json:"targets,omitempty" bson:"targets"`
-	Status             string          `json:"status,omitempty" bson:"status"`
-	AssessmentType     string          `json:"assessment_type,omitempty" bson:"assessment_type"`
+	Model          `bson:",inline"`
+	Name           string    `json:"name,omitempty" bson:"name"`
+	StartDateTime  time.Time `json:"start_date_time,omitempty" bson:"start_date_time"`
+	EndDateTime    time.Time `json:"end_date_time,omitempty" bson:"end_date_time"`
+	Targets        []Target  `json:"targets,omitempty" bson:"targets"`
+	Status         string    `json:"status,omitempty" bson:"status"`
+	AssessmentType string    `json:"assessment_type,omitempty" bson:"assessment_type"`
+	// AssessmentType        AssessmentType     `json:"assessment_type,omitempty" bson:"assessment_type"`
 	CVSSVersions       map[string]bool `json:"cvss_versions,omitempty" bson:"cvss_versions"`
 	Environment        string          `json:"environment,omitempty" bson:"environment"`
 	TestingType        string          `json:"testing_type,omitempty" bson:"testing_type"`
@@ -78,6 +79,11 @@ type Assessment struct {
 	Customer           Customer        `json:"customer,omitempty" bson:"customer"`
 	IsOwned            bool            `json:"is_owned,omitempty" bson:"is_owned"`
 }
+
+// type AssessmentType struct {
+// 	Short    string `json:"short,omitempty" bson:"short"`
+// 	Full string `json:"full,omitempty" bson:"full"`
+// }
 
 type AssessmentIndex struct {
 	driver     *Driver
