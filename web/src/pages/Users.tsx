@@ -67,7 +67,7 @@ export default function Users() {
     setActiveUserId(user.id);
     setUsername(user.username);
     setRole(user.role);
-    setSelectedCustomers(user.customers.map(c => c.id));
+    setSelectedCustomers(user.customers?.map(c => c.id) ?? []);
     setUserDisabled(user.disabled_at);
     setIsModalEditActive(true);
   };
@@ -152,7 +152,7 @@ export default function Users() {
             ]}
             closeMenuOnSelect
             onChange={option => setRole(option?.value || "")}
-            value={role ? { value: role, label: role.charAt(0).toUpperCase() + role.slice(1) } : null}
+            value={role ? { value: role, label: role } : null}
           />
           <SelectWrapper
             label="Customers"

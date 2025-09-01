@@ -78,7 +78,7 @@ export default function AddUser() {
           ]}
           closeMenuOnSelect
           onChange={option => setRole(option.value)}
-          value={role ? { value: role, label: role.charAt(0).toUpperCase() + role.slice(1) } : null}
+          value={role ? { value: role, label: role } : null}
         />
         <SelectWrapper
           label="Customers"
