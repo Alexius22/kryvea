@@ -54,7 +54,7 @@ export default function Users() {
 
   // Handle changes in the customers multi-select
   const handleCustomerChange = (selectedOptions: { value: string; label: string }[] | null) => {
-    setSelectedCustomers(selectedOptions ? selectedOptions.map(option => option.value) : []);
+    setSelectedCustomers(selectedOptions.map(option => option.value));
   };
 
   const openResetPswModal = (user: User) => {
