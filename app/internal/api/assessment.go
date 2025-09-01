@@ -637,22 +637,8 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 		return "End date is required"
 	}
 
-	check := false
-	for _, enabled := range data.CVSSVersions {
-		if enabled {
-			check = true
-			break
-		}
-	}
-	if !check {
-		return "At least one CVSS version is required"
-	}
-
-	for version := range data.CVSSVersions {
-		if !cvss.IsValidVersion(version) {
-			return "Invalid CVSS version"
-		}
-	}
+	// filter valid cvssVersions
+	data.CVSSVersions = d.filterValidCvssVersions(data.CVSSVersions)
 
 	return ""
 }
@@ -668,11 +654,24 @@ func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) strin
 		return "No data to update"
 	}
 
-	for version := range data.CVSSVersions {
-		if !cvss.IsValidVersion(version) {
-			return "Invalid CVSS version"
-		}
-	}
+	// filter valid cvssVersions
+	data.CVSSVersions = d.filterValidCvssVersions(data.CVSSVersions)
 
 	return ""
+}
+
+func (d *Driver) filterValidCvssVersions(cvssVersions map[string]bool) map[string]bool {
+	validCvssVersions := make(map[string]bool)
+	for _, version := range cvss.CvssVersions {
+		validCvssVersions[version] = false
+	}
+
+	for version, enabled := range cvssVersions {
+		if !enabled {
+			continue
+		}
+		validCvssVersions[version] = true
+	}
+
+	return validCvssVersions
 }
