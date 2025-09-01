@@ -10,101 +10,108 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 )
 
-func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, version string) []mongo.Vulnerability {
-	if len(vulnerabilities) == 0 {
-		return vulnerabilities
+func SanitizeCustomer(customer *mongo.Customer) {
+	customer.Name = escapeXMLString(customer.Name)
+	customer.Language = escapeXMLString(customer.Language)
+}
+
+func SanitizeAssessment(assessment *mongo.Assessment) {
+	sanitizeTargets := make([]mongo.Target, len(assessment.Targets))
+	for i, target := range assessment.Targets {
+		sanitizeTarget(&target)
+		sanitizeTargets[i] = target
 	}
 
-	sanitized := make([]mongo.Vulnerability, len(vulnerabilities))
-	copy(sanitized, vulnerabilities)
+	assessment.Name = escapeXMLString(assessment.Name)
+	assessment.Targets = sanitizeTargets
+	assessment.Status = escapeXMLString(assessment.Status)
+	assessment.AssessmentType = escapeXMLString(assessment.AssessmentType)
+	assessment.Environment = escapeXMLString(assessment.Environment)
+	assessment.TestingType = escapeXMLString(assessment.TestingType)
+	assessment.OSSTMMVector = escapeXMLString(assessment.OSSTMMVector)
+}
 
-	for i := range sanitized {
-		sanitized[i] = sanitizeVulnerability(sanitized[i])
+func sanitizeTarget(target *mongo.Target) {
+	target.IPv4 = escapeXMLString(target.IPv4)
+	target.IPv6 = escapeXMLString(target.IPv6)
+	target.Protocol = escapeXMLString(target.Protocol)
+	target.FQDN = escapeXMLString(target.FQDN)
+	target.Name = escapeXMLString(target.Name)
+}
+
+func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, version string) {
+	if len(vulnerabilities) == 0 {
+		return
+	}
+
+	for i := range vulnerabilities {
+		sanitizeVulnerability(&vulnerabilities[i])
 
 		switch version {
 		case cvss.Cvss2:
-			sort.Slice(sanitized, func(j, k int) bool {
-				return sanitized[j].CVSSv2.CVSSScore < sanitized[k].CVSSv2.CVSSScore
+			sort.Slice(vulnerabilities, func(j, k int) bool {
+				return vulnerabilities[j].CVSSv2.CVSSScore < vulnerabilities[k].CVSSv2.CVSSScore
 			})
 		case cvss.Cvss3:
-			sort.Slice(sanitized, func(j, k int) bool {
-				return sanitized[j].CVSSv3.CVSSScore < sanitized[k].CVSSv3.CVSSScore
+			sort.Slice(vulnerabilities, func(j, k int) bool {
+				return vulnerabilities[j].CVSSv3.CVSSScore < vulnerabilities[k].CVSSv3.CVSSScore
 			})
 		case cvss.Cvss31:
-			sort.Slice(sanitized, func(j, k int) bool {
-				return sanitized[j].CVSSv31.CVSSScore < sanitized[k].CVSSv31.CVSSScore
+			sort.Slice(vulnerabilities, func(j, k int) bool {
+				return vulnerabilities[j].CVSSv31.CVSSScore < vulnerabilities[k].CVSSv31.CVSSScore
 			})
 		case cvss.Cvss4:
-			sort.Slice(sanitized, func(j, k int) bool {
-				return sanitized[j].CVSSv4.CVSSScore < sanitized[k].CVSSv4.CVSSScore
+			sort.Slice(vulnerabilities, func(j, k int) bool {
+				return vulnerabilities[j].CVSSv4.CVSSScore < vulnerabilities[k].CVSSv4.CVSSScore
 			})
 		}
 	}
-
-	return sanitized
 }
 
 // TODO: add remaining fields
-func sanitizeVulnerability(item mongo.Vulnerability) mongo.Vulnerability {
+func sanitizeVulnerability(item *mongo.Vulnerability) {
 	references := make([]string, len(item.References))
 	for i, reference := range item.References {
 		references[i] = escapeXMLString(reference)
 	}
 
-	return mongo.Vulnerability{
-		Category: mongo.Category{
-			Name:  escapeXMLString(item.Category.Name),
-			Index: escapeXMLString(item.Category.Index),
-		},
-		DetailedTitle: escapeXMLString(item.DetailedTitle),
-		Status:        escapeXMLString(item.Status),
+	SanitizeAndSortPoc(&item.Poc)
 
-		References: references,
-		GenericDescription: mongo.VulnerabilityGeneric{
-			Enabled: item.GenericDescription.Enabled,
-			Text:    escapeXMLString(item.GenericDescription.Text),
-		},
-		GenericRemediation: mongo.VulnerabilityGeneric{
-			Enabled: item.GenericRemediation.Enabled,
-			Text:    escapeXMLString(item.GenericRemediation.Text),
-		},
-		Description: escapeXMLString(item.Description),
-		Remediation: escapeXMLString(item.Remediation),
-	}
+	item.Category.Name = escapeXMLString(item.Category.Name)
+	item.Category.Index = escapeXMLString(item.Category.Index)
+	item.DetailedTitle = escapeXMLString(item.DetailedTitle)
+	item.Status = escapeXMLString(item.Status)
+	item.References = references
+	item.GenericDescription.Text = escapeXMLString(item.GenericDescription.Text)
+	item.GenericRemediation.Text = escapeXMLString(item.GenericRemediation.Text)
+	item.Description = escapeXMLString(item.Description)
+	item.Remediation = escapeXMLString(item.Remediation)
 }
 
-func SanitizeAndSortPoc(poc mongo.Poc) mongo.Poc {
-	sanitized := poc
-
+func SanitizeAndSortPoc(poc *mongo.Poc) {
 	if len(poc.Pocs) == 0 {
-		return sanitized
+		return
 	}
 
-	sanitized.Pocs = make([]mongo.PocItem, len(poc.Pocs))
-
-	for i, oldPoc := range poc.Pocs {
-		sanitized.Pocs[i] = sanitizePocItem(oldPoc)
+	for _, oldPoc := range poc.Pocs {
+		sanitizePocItem(&oldPoc)
 	}
 
-	sort.Slice(sanitized.Pocs, func(i, j int) bool {
-		return sanitized.Pocs[i].Index < sanitized.Pocs[j].Index
+	sort.Slice(poc.Pocs, func(i, j int) bool {
+		return poc.Pocs[i].Index < poc.Pocs[j].Index
 	})
-
-	return sanitized
 }
 
-func sanitizePocItem(item mongo.PocItem) mongo.PocItem {
-	return mongo.PocItem{
-		Type:          escapeXMLString(item.Type),
-		Description:   escapeXMLString(item.Description),
-		URI:           escapeXMLString(item.URI),
-		Request:       escapeXMLString(item.Request),
-		Response:      escapeXMLString(item.Response),
-		ImageFilename: escapeXMLString(item.ImageFilename),
-		ImageCaption:  escapeXMLString(item.ImageCaption),
-		TextLanguage:  escapeXMLString(item.TextLanguage),
-		TextData:      escapeXMLString(item.TextData),
-	}
+func sanitizePocItem(item *mongo.PocItem) {
+	item.Type = escapeXMLString(item.Type)
+	item.Description = escapeXMLString(item.Description)
+	item.URI = escapeXMLString(item.URI)
+	item.Request = escapeXMLString(item.Request)
+	item.Response = escapeXMLString(item.Response)
+	item.ImageFilename = escapeXMLString(item.ImageFilename)
+	item.ImageCaption = escapeXMLString(item.ImageCaption)
+	item.TextLanguage = escapeXMLString(item.TextLanguage)
+	item.TextData = escapeXMLString(item.TextData)
 }
 
 func escapeXMLString(s string) string {
