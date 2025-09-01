@@ -102,7 +102,7 @@ export type Category = {
   id: string;
   index: string;
   name: string;
-  source: "generic" | "nessus" | "burp";
+  source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
   generic_description: Record<string, string>;
   generic_remediation: Record<string, string>;
   references: string[];

@@ -19,6 +19,14 @@ import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
 import { languageMapping } from "../types/languages";
 
+export const sourceCategoryOptions: SelectOption[] = [
+  { value: "owasp_web", label: "OWASP Top 10 Web" },
+  { value: "owasp_mobile", label: "OWASP Top 10 Mobile" },
+  { value: "owasp_api", label: "OWASP Top 10 API" },
+  { value: "nessus", label: "Nessus" },
+  { value: "burp", label: "Burp" },
+];
+
 export default function CategoryUpsert() {
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId?: string }>();
@@ -26,12 +34,6 @@ export default function CategoryUpsert() {
   const languageOptions: SelectOption[] = Object.entries(languageMapping)
     .filter(([code]) => code !== "en")
     .map(([value, label]) => ({ value, label }));
-
-  const sourceOptions = [
-    { label: "Generic", value: "generic" },
-    { label: "Nessus", value: "nessus" },
-    { label: "Burp", value: "burp" },
-  ];
 
   const [isModalInfoActive, setIsModalInfoActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -252,8 +254,8 @@ export default function CategoryUpsert() {
           <SelectWrapper
             label="Source"
             id="source"
-            options={sourceOptions}
-            value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
+            options={sourceCategoryOptions}
+            value={source ? { label: source, value: source } : null}
             onChange={option => setSource(option.value)}
           />
         </Grid>
