@@ -12,7 +12,7 @@ const (
 	CvssSeverityHigh     = "High"
 	CvssSeverityMedium   = "Medium"
 	CvssSeverityLow      = "Low"
-	CvssSeverityNone     = "None"
+	CvssSeverityNone     = "Informational"
 )
 
 var (
