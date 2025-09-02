@@ -8,7 +8,7 @@ from models.base import Base
 
 @dataclass
 class Category(Base):
-    index: str = field(default_factory=utils.rand_category_index)
+    index: str
 
     name: str = field(default_factory=utils.rand_category_name)
     generic_remediation: dict = field(default_factory=utils.rand_generic_remediation)

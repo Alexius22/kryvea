@@ -14,6 +14,7 @@ class Target(Base):
     ipv6: str = field(default_factory=utils.rand_ipv6)
     port: int = field(default_factory=utils.rand_port)
     protocol: str = field(default_factory=utils.rand_protocol)
+    name: str = field(default_factory=utils.rand_target_name)
 
     def add(self) -> Tuple[str, str]:
         data = {
@@ -23,6 +24,7 @@ class Target(Base):
             "ipv6": self.ipv6,
             "port": self.port,
             "protocol": self.protocol,
+            "name": self.name,
         }
         response = self.session.post(self.base_url + "/targets", json=data)
         json_response = response.json()
