@@ -23,6 +23,14 @@ var (
 		Cvss31: 31,
 		Cvss4:  40,
 	}
+
+	CvssSeverities = []string{
+		CvssSeverityCritical,
+		CvssSeverityHigh,
+		CvssSeverityMedium,
+		CvssSeverityLow,
+		CvssSeverityNone,
+	}
 )
 
 type SeverityThreshold struct {
