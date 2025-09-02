@@ -143,7 +143,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	// Set document properties
 	xl.SetDocProps(&excelize.DocProperties{
 		Title:   assessment.Name,
-		Subject: assessment.AssessmentType,
+		Subject: assessment.Type.Full,
 		Creator: "Kryvea",
 	})
 
@@ -444,7 +444,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnReferences).Letter, row), strings.Join(vuln.References, "\n"))
 	}
 
-	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0", assessment.AssessmentType, customer.Name, assessment.Name)
+	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0", assessment.Type, customer.Name, assessment.Name)
 	baseFileName = sanitizeFileName(baseFileName)
 
 	// Save XLSX file

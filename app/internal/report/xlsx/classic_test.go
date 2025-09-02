@@ -47,9 +47,22 @@ func randStatus() string {
 	return statuses[rand.Intn(len(statuses))]
 }
 
-func randAssessmentType() string {
-	var types = []string{"WAPT", "VAPT", "MAPT", "IoT", "Red Team Assessment"}
-	return types[rand.Intn(len(types))]
+func randAssessmentType() mongo.AssessmentType {
+	typesKey := []string{"WAPT", "VAPT", "MAPT", "IoT", "Red Team Assessment"}
+	typesValue := []string{
+		"Web Application Penetration Test",
+		"Vulnerability Assessment and Penetration Testing",
+		"Mobile Application Penetration Test",
+		"Internet of Things Penetration Test",
+		"Red Team Assessment",
+	}
+
+	selected := rand.Intn(len(typesKey))
+
+	return mongo.AssessmentType{
+		Short: typesKey[selected],
+		Full:  typesValue[selected],
+	}
 }
 
 func randEnvironment() string {
@@ -147,15 +160,15 @@ func TestClassic(t *testing.T) {
 	}
 
 	assessment := &mongo.Assessment{
-		Name:           randName(3),
-		StartDateTime:  time.Now().Add(-time.Hour * 24 * 7),
-		EndDateTime:    time.Now(),
-		Targets:        targets,
-		Status:         randStatus(),
-		AssessmentType: randAssessmentType(),
-		Environment:    randEnvironment(),
-		TestingType:    randTestingType(),
-		OSSTMMVector:   randOSSTMMVector(),
+		Name:          randName(3),
+		StartDateTime: time.Now().Add(-time.Hour * 24 * 7),
+		EndDateTime:   time.Now(),
+		Targets:       targets,
+		Status:        randStatus(),
+		Type:          randAssessmentType(),
+		Environment:   randEnvironment(),
+		TestingType:   randTestingType(),
+		OSSTMMVector:  randOSSTMMVector(),
 	}
 
 	cvssVersions := make(map[string]bool)

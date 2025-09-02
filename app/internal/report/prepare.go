@@ -49,6 +49,9 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 		for _, version := range cvss.CvssVersions {
 			if vulnerabilityOverview[version] == nil {
 				vulnerabilityOverview[version] = make(map[string]uint)
+				for _, severity := range cvss.CvssSeverities {
+					vulnerabilityOverview[version][severity] = 0
+				}
 			}
 
 			if !cvssVersions[version] {
