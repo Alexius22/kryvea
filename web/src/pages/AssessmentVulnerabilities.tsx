@@ -58,7 +58,7 @@ export default function AssessmentVulnerabilities() {
   }
 
   function filterTemplatesByType(type: string) {
-    const matches = allTemplatesRef.current.filter(t => t.file_type === type);
+    const matches = allTemplatesRef.current.filter(t => t.mime_type === type);
     setExportTemplateOptions(matches);
     setSelectedExportTemplate(matches[0] || null);
   }
@@ -94,23 +94,47 @@ export default function AssessmentVulnerabilities() {
   const exportAssessment = () => {
     const payload = {
       type: exportType.value,
-      template: selectedExportTemplate.file_id,
+      template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
-      delivery_date: deliveryDate,
+      delivery_date_time: deliveryDate,
     };
 
-    // TODO properly when implemented go-template-docx
-    postData<Blob>(`/api/assessments/${assessmentId}/export`, payload, data => {
-      const url = window.URL.createObjectURL(new Blob([data]));
-      const fileName = `${ctxAssessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setIsModalDownloadActive(false);
-    });
+    const toastDownload = toast.loading("Generating report...");
+    postData<Blob>(
+      `/api/assessments/${assessmentId}/export`,
+      payload,
+      data => {
+        const url = window.URL.createObjectURL(data);
+        const extension = exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip";
+        const fileName = `${ctxAssessment?.name ?? "assessment"}_export.${extension}`;
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        setIsModalDownloadActive(false);
+
+        toast.update(toastDownload, {
+          render: "Report generated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+      },
+      err => {
+        toast.update(toastDownload, {
+          render: err.response.data.error,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+      }
+    );
   };
 
   const openDeleteModal = (vulnerability: Vulnerability) => {
