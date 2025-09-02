@@ -172,6 +172,16 @@ def rand_protocol() -> str:
     return random.choice(protocols)
 
 
+def rand_target_name() -> str:
+    names = [
+        "Android",
+        "iOS",
+        "Backend",
+        "Api",
+    ]
+    return random.choice(names)
+
+
 def rand_name(n=1) -> str:
     names = [
         "Ace",
@@ -260,7 +270,11 @@ categories_dict = {
 
 
 def rand_category_index() -> str:
-    return f"{random.choice(list(categories_dict.keys()))}|{rand_string(4)}"
+    return f"{random.choice(list(categories_dict.keys()))}"
+
+
+def rand_category_indexes(n: int) -> list:
+    return random.sample(list(categories_dict.keys()), k=n)
 
 
 def rand_category_name(index: str = "") -> str:
@@ -411,7 +425,11 @@ def rand_source() -> str:
     sources = [
         "nessus",
         "burp",
-        "generic",
+        "owasp_api",
+        "owasp_mobile",
+        "owasp_web",
+        "cwe",
+        "capec",
     ]
     return random.choice(sources)
 

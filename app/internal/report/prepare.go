@@ -37,7 +37,7 @@ func getMaxCvss(vulnerabilities []mongo.Vulnerability, cvssVersions map[string]b
 		}
 	}
 
-	fmt.Println(maxCvss)
+	fmt.Printf("maxCvss: %+v\n", maxCvss)
 
 	return maxCvss
 }
@@ -46,12 +46,12 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 	vulnerabilityOverview := make(map[string]map[string]uint)
 
 	for _, vulnerability := range vulnerabilities {
-		for version, enabled := range cvssVersions {
+		for _, version := range cvss.CvssVersions {
 			if vulnerabilityOverview[version] == nil {
 				vulnerabilityOverview[version] = make(map[string]uint)
 			}
 
-			if !enabled {
+			if !cvssVersions[version] {
 				continue
 			}
 
@@ -69,7 +69,7 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 
 	}
 
-	fmt.Println(vulnerabilityOverview)
+	fmt.Printf("vulnerabilityOverview: %+v\n", vulnerabilityOverview)
 
 	return vulnerabilityOverview
 }
@@ -88,7 +88,7 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 		targetsCategoryCounter[vulnerability.Target.Name] += 1
 	}
 
-	fmt.Println(targetsCategoryCounter)
+	fmt.Printf("targetsCategoryCounter: %+v\n", targetsCategoryCounter)
 
 	return targetsCategoryCounter
 }
@@ -143,7 +143,7 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 		}
 	}
 
-	fmt.Println(owaspCounter)
+	fmt.Printf("owaspCounter: %+v\n", owaspCounter)
 
 	return owaspCounter
 }
