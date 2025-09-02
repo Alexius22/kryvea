@@ -6,6 +6,12 @@ from models.base import Base
 
 
 @dataclass
+class AssessmentType:
+    short: str
+    full: str
+
+
+@dataclass
 class Assessment(Base):
     customer_id: str
     targets: List[str]
@@ -15,13 +21,18 @@ class Assessment(Base):
     end_date_time: str = field(default_factory=utils.rand_date_future)
     cvss_versions: Dict[str, bool] = field(default_factory=utils.rand_cvss_versions)
     status: str = field(default_factory=utils.rand_status)
-    assessment_type: str = field(default_factory=utils.rand_assessment_type)
+    assessment_type: AssessmentType = field(default=None)
     environment: str = field(default_factory=utils.rand_environment)
     testing_type: str = field(default_factory=utils.rand_testing_type)
     osstmm_vector: str = field(default_factory=utils.rand_osstmm_vector)
 
     vulnerability_count: int = 0
     is_owned: bool = False
+
+    def __post_init__(self):
+        if not self.assessment_type:
+            short, full = utils.rand_assessment_type()
+            self.assessment_type = AssessmentType(short=short, full=full)
 
     def add(self) -> Tuple[str, str]:
         data = {
@@ -32,7 +43,10 @@ class Assessment(Base):
             "cvss_versions": self.cvss_versions,
             "targets": self.targets,
             "status": self.status,
-            "assessment_type": self.assessment_type,
+            "assessment_type": {
+                "short": self.assessment_type.short,
+                "full": self.assessment_type.full,
+            },
             "environment": self.environment,
             "testing_type": self.testing_type,
             "osstmm_vector": self.osstmm_vector,
