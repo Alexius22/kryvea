@@ -1,6 +1,9 @@
 import { mdiMinus, mdiPlus } from "@mdi/js";
 import { KeyboardEvent, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
+import Flex from "../Composition/Flex";
+import Button from "../Form/Button";
+import Label from "../Form/Label";
 import Icon from "../Icon";
 import SidebarContent from "./SidebarContent";
 
@@ -32,6 +35,7 @@ export default function Item({ item, isDropdownList = false }: Props) {
   const handleClick = (e: React.MouseEvent) => {
     if (item.onClick) {
       item.onClick();
+      return;
     }
 
     if (item.menu) {
@@ -39,10 +43,16 @@ export default function Item({ item, isDropdownList = false }: Props) {
     }
   };
 
+  const handleIconClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleDropdown();
+  };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      handleClick(e as any); // fake event
+      handleClick(e as any);
     }
   };
 
@@ -51,17 +61,26 @@ export default function Item({ item, isDropdownList = false }: Props) {
     .join(" ");
 
   const content = (
-    <div className="flex w-full items-center gap-x-2">
+    <Flex className="w-full gap-x-2" items="center">
       {item.icon && <Icon path={item.icon} />}
-      <span className={`grow ${item.menu ? "" : "pr-12"}`}>{item.label}</span>
-      {item.menu && <Icon path={isDropdownActive ? mdiMinus : mdiPlus} />}
-    </div>
+      <Label className={`grow text-base font-normal ${item.menu ? "" : "pr-12"}`} text={item.label} />
+      {item.menu && (
+        <Button
+          onClick={handleIconClick}
+          className="dropdown-toggle-button"
+          variant="transparent"
+          icon={isDropdownActive ? mdiMinus : mdiPlus}
+        />
+      )}
+    </Flex>
   );
 
   return (
     <li className={`rounded p-1 ${isLinkActive ? "sidebar-item-active" : ""}`}>
       {item.href && !item.onClick ? (
-        <Link to={item.href}>{content}</Link>
+        <Link to={item.href} className={baseClasses}>
+          {content}
+        </Link>
       ) : (
         <div
           className={`${baseClasses} cursor-pointer`}
@@ -69,8 +88,8 @@ export default function Item({ item, isDropdownList = false }: Props) {
           role="button"
           tabIndex={0}
           onKeyDown={handleKeyDown}
+          aria-haspopup={!!item.menu}
           aria-expanded={isDropdownActive}
-          aria-haspopup="true"
         >
           {content}
         </div>
