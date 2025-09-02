@@ -4,7 +4,7 @@ import random
 import string
 import urllib.parse
 from datetime import datetime, timedelta
-from typing import List
+from typing import Dict, List
 
 import requests
 from faker import Faker
@@ -28,9 +28,14 @@ def rand_username() -> str:
     return fake.user_name()
 
 
-def rand_cvss_versions() -> list:
+def rand_cvss_versions() -> Dict[str, bool]:
     versions = ["3.1", "4.0"]
-    return random.sample(versions, k=random.randint(1, len(versions)))
+    result = {version: random.choice([True, False]) for version in versions}
+
+    if not any(result.values()):
+        result[random.choice(versions)] = True
+
+    return result
 
 
 def rand_cvss(version: str) -> str:
@@ -320,6 +325,15 @@ def rand_vulnerability_description() -> str:
         'The PUT /api/user/profile endpoint allows users to update their profile information. During testing, I inserted an additional parameter into the JSON payload: "role": "admin". The server failed to restrict or validate role changes, and the request succeeded. The modified user was then able to access admin-only endpoints like /admin/settings and /admin/users, demonstrating a clear vertical privilege escalation flaw.',
     ]
     return random.choice(descriptions)
+
+
+def rand_vulnerability_status() -> str:
+    statuses = [
+        "Open",
+        "In Progress",
+        "Closed",
+    ]
+    return random.choice(statuses)
 
 
 def rand_status() -> str:

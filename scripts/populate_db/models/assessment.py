@@ -13,7 +13,7 @@ class Assessment(Base):
     name: str = field(default_factory=utils.rand_assessment_name)
     start_date_time: str = field(default_factory=utils.rand_date_decade)
     end_date_time: str = field(default_factory=utils.rand_date_future)
-    cvss_versions: List[str] = field(default_factory=utils.rand_cvss_versions)
+    cvss_versions: Dict[str, bool] = field(default_factory=utils.rand_cvss_versions)
     status: str = field(default_factory=utils.rand_status)
     assessment_type: str = field(default_factory=utils.rand_assessment_type)
     environment: str = field(default_factory=utils.rand_environment)
