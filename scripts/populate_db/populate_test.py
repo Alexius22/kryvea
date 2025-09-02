@@ -82,8 +82,8 @@ def create_categories(n: int) -> list:
     """
 
     categories = []
-    for _ in range(n):
-        category = Category()
+    for index in utils.rand_category_indexes(n):
+        category = Category(index=index)
         id, error = category.add()
         if error != "":
             raise Exception(f"Failed to register category {category.name}: {error}")
