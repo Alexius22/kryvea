@@ -47,12 +47,12 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 
 	for _, vulnerability := range vulnerabilities {
 		for version, enabled := range cvssVersions {
-			if !enabled {
-				continue
-			}
-
 			if vulnerabilityOverview[version] == nil {
 				vulnerabilityOverview[version] = make(map[string]uint)
+			}
+
+			if !enabled {
+				continue
 			}
 
 			switch version {
