@@ -1,4 +1,8 @@
+import { mdiMenuClose, mdiMenuOpen } from "@mdi/js";
+import { useState } from "react";
 import { Link } from "react-router";
+import Flex from "../Composition/Flex";
+import Button from "../Form/Button";
 import SidebarContent from "./SidebarContent";
 
 type Props = {
@@ -6,20 +10,35 @@ type Props = {
 };
 
 export default function Sidebar({ className = "" }: Props) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <aside className={className}>
-      <div>
-        <header className="flex h-14 items-center">
-          <div className="flex-1 text-center">
-            <Link className="font-black" to="/dashboard">
+    <aside className={`${className} ${isCollapsed ? "max-w-[80px]" : "max-w-[300px] md:max-w-[300px]"} `}>
+      <Flex className="h-full" col>
+        {/* Header */}
+        <header
+          className={`flex items-center p-4 transition-all ${isCollapsed ? "justify-center border-transparent" : "justify-between border-b border-[color:--border-secondary]"} `}
+        >
+          {!isCollapsed && (
+            <Link to="/dashboard" className="text-lg font-black transition-opacity duration-300">
               Kryvea
             </Link>
-          </div>
+          )}
+          <Button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 text-[color:--link]"
+            variant="transparent"
+            icon={isCollapsed ? mdiMenuClose : mdiMenuOpen}
+          />
         </header>
-        <div>
+
+        {/* Content */}
+        <div
+          className={`flex-1 overflow-auto transition-opacity duration-300 ${isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"} `}
+        >
           <SidebarContent className="flex flex-col gap-4 p-4 text-[color:--link]" />
         </div>
-      </div>
+      </Flex>
     </aside>
   );
 }

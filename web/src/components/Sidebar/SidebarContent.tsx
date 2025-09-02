@@ -6,6 +6,7 @@ import {
   mdiMonitor,
   mdiResponsive,
   mdiShapePlus,
+  mdiTabSearch,
   mdiViewList,
 } from "@mdi/js";
 import { useContext } from "react";
@@ -43,8 +44,8 @@ export default function SidebarContent({ nestedMenu, isDropdownList = false, cla
             icon: mdiViewList,
             onClick: () => navigate(`/customers/${ctxCustomer.id}`),
             menu: [
-              { href: `/customers/${ctxCustomer.id}/assessments`, label: "Assessments" },
-              { href: `/customers/${ctxCustomer.id}/targets`, label: "Targets" },
+              { href: `/customers/${ctxCustomer.id}/assessments`, icon: mdiTabSearch, label: "Assessments" },
+              { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiListBox, label: "Targets" },
             ],
           },
         ]
