@@ -93,6 +93,7 @@ export default function Logs() {
             Source: log.source,
           }))}
           perPageCustom={50}
+          maxWidthColumns={{ Message: "30rem" }}
         />
       </Grid>
     </div>
