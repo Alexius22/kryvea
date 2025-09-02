@@ -1,11 +1,11 @@
 .navbar {
-  @apply flex items-center justify-between overflow-x-clip text-nowrap px-2 py-4;
+  @apply flex items-center justify-between overflow-x-clip text-nowrap px-1;
   color: var(--text-primary);
   height: 3rem;
 }
 
 .layout-root {
-  @apply flex h-screen gap-4 p-4 transition-all lg:w-auto;
+  @apply flex h-screen transition-all lg:w-auto;
   max-width: var(--main-max-width);
   width: 100%;
 
@@ -18,7 +18,7 @@
 }
 
 .layout-sidebar {
-  @apply h-full w-full max-w-[300px] border-r border-[color:--border-secondary] transition-position;
+  @apply h-full w-full border-r border-[color:--border-secondary] transition-all duration-300;
 }
 
 .sidebar-item-active {
@@ -26,7 +26,7 @@
 }
 
 .layout-content {
-  @apply flex w-full flex-col overflow-auto;
+  @apply flex w-full flex-col overflow-auto px-4 py-2;
 }
 
 .layout-main {
