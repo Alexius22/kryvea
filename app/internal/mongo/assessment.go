@@ -63,14 +63,13 @@ var AssessmentPipeline = mongo.Pipeline{
 }
 
 type Assessment struct {
-	Model         `bson:",inline"`
-	Name          string    `json:"name,omitempty" bson:"name"`
-	StartDateTime time.Time `json:"start_date_time,omitempty" bson:"start_date_time"`
-	EndDateTime   time.Time `json:"end_date_time,omitempty" bson:"end_date_time"`
-	Targets       []Target  `json:"targets,omitempty" bson:"targets"`
-	Status        string    `json:"status,omitempty" bson:"status"`
-	// AssessmentType string    `json:"assessment_type,omitempty" bson:"assessment_type"`
-	AssessmentType     AssessmentType  `json:"assessment_type,omitempty" bson:"assessment_type"`
+	Model              `bson:",inline"`
+	Name               string          `json:"name,omitempty" bson:"name"`
+	StartDateTime      time.Time       `json:"start_date_time,omitempty" bson:"start_date_time"`
+	EndDateTime        time.Time       `json:"end_date_time,omitempty" bson:"end_date_time"`
+	Targets            []Target        `json:"targets,omitempty" bson:"targets"`
+	Status             string          `json:"status,omitempty" bson:"status"`
+	Type               AssessmentType  `json:"type,omitempty" bson:"type"`
 	CVSSVersions       map[string]bool `json:"cvss_versions,omitempty" bson:"cvss_versions"`
 	Environment        string          `json:"environment,omitempty" bson:"environment"`
 	TestingType        string          `json:"testing_type,omitempty" bson:"testing_type"`
@@ -293,8 +292,8 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		update["$set"].(bson.M)["status"] = assessment.Status
 	}
 
-	if assessment.AssessmentType.Short != "" || assessment.AssessmentType.Full != "" {
-		update["$set"].(bson.M)["assessment_type"] = assessment.AssessmentType
+	if assessment.Type.Short != "" || assessment.Type.Full != "" {
+		update["$set"].(bson.M)["assessment_type"] = assessment.Type
 	}
 
 	if len(assessment.CVSSVersions) > 0 {

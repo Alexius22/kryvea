@@ -160,15 +160,15 @@ func TestClassic(t *testing.T) {
 	}
 
 	assessment := &mongo.Assessment{
-		Name:           randName(3),
-		StartDateTime:  time.Now().Add(-time.Hour * 24 * 7),
-		EndDateTime:    time.Now(),
-		Targets:        targets,
-		Status:         randStatus(),
-		AssessmentType: randAssessmentType(),
-		Environment:    randEnvironment(),
-		TestingType:    randTestingType(),
-		OSSTMMVector:   randOSSTMMVector(),
+		Name:          randName(3),
+		StartDateTime: time.Now().Add(-time.Hour * 24 * 7),
+		EndDateTime:   time.Now(),
+		Targets:       targets,
+		Status:        randStatus(),
+		Type:          randAssessmentType(),
+		Environment:   randEnvironment(),
+		TestingType:   randTestingType(),
+		OSSTMMVector:  randOSSTMMVector(),
 	}
 
 	cvssVersions := make(map[string]bool)

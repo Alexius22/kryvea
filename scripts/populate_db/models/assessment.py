@@ -21,7 +21,7 @@ class Assessment(Base):
     end_date_time: str = field(default_factory=utils.rand_date_future)
     cvss_versions: Dict[str, bool] = field(default_factory=utils.rand_cvss_versions)
     status: str = field(default_factory=utils.rand_status)
-    assessment_type: AssessmentType = field(default=None)
+    type: AssessmentType = field(default=None)
     environment: str = field(default_factory=utils.rand_environment)
     testing_type: str = field(default_factory=utils.rand_testing_type)
     osstmm_vector: str = field(default_factory=utils.rand_osstmm_vector)
@@ -30,9 +30,9 @@ class Assessment(Base):
     is_owned: bool = False
 
     def __post_init__(self):
-        if not self.assessment_type:
+        if not self.type:
             short, full = utils.rand_assessment_type()
-            self.assessment_type = AssessmentType(short=short, full=full)
+            self.type = AssessmentType(short=short, full=full)
 
     def add(self) -> Tuple[str, str]:
         data = {
@@ -43,9 +43,9 @@ class Assessment(Base):
             "cvss_versions": self.cvss_versions,
             "targets": self.targets,
             "status": self.status,
-            "assessment_type": {
-                "short": self.assessment_type.short,
-                "full": self.assessment_type.full,
+            "type": {
+                "short": self.type.short,
+                "full": self.type.full,
             },
             "environment": self.environment,
             "testing_type": self.testing_type,
