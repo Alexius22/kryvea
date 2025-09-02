@@ -58,7 +58,7 @@ export default function Assessments() {
   };
 
   function filterTemplatesByType(type: string) {
-    const matches = allTemplatesRef.current.filter(t => t.file_type === type);
+    const matches = allTemplatesRef.current.filter(t => t.mime_type === type);
     setExportTemplateOptions(matches);
     setSelectedExportTemplate(matches[0] || null);
   }
@@ -133,24 +133,48 @@ export default function Assessments() {
   const exportAssessment = () => {
     const payload = {
       type: exportType.value,
-      template: selectedExportTemplate.file_id,
+      template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
-      delivery_date: deliveryDate,
+      delivery_date_time: deliveryDate,
     };
 
-    // TODO properly when implemented go-template-docx
-    postData<Blob>(`/api/assessments/${selectedAssessmentId}/export`, payload, data => {
-      const url = window.URL.createObjectURL(new Blob([data]));
-      const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
-      const fileName = `${assessment?.name || "assessment"}_export.${exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip"}`;
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setIsModalDownloadActive(false);
-    });
+    const toastDownload = toast.loading("Generating report...");
+    postData<Blob>(
+      `/api/assessments/${selectedAssessmentId}/export`,
+      payload,
+      data => {
+        const url = window.URL.createObjectURL(data);
+        const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
+        const extension = exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip";
+        const fileName = `${assessment?.name ?? "assessment"}_export.${extension}`;
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        setIsModalDownloadActive(false);
+
+        toast.update(toastDownload, {
+          render: "Report generated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+      },
+      err => {
+        toast.update(toastDownload, {
+          render: err.response.data.error,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+      }
+    );
   };
 
   return (
@@ -193,13 +217,13 @@ export default function Assessments() {
             label="Template Type"
             id="template"
             options={exportTemplateOptions.map(t => ({
-              value: t.file_id,
+              value: t.id,
               label: t.type ? `${t.name} (${t.type})` : t.name,
             }))}
             value={
               selectedExportTemplate
                 ? {
-                    value: selectedExportTemplate.file_id,
+                    value: selectedExportTemplate.id,
                     label: selectedExportTemplate.type
                       ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
                       : selectedExportTemplate.name,
@@ -276,7 +300,7 @@ export default function Assessments() {
               {assessment.name}
             </Link>
           ),
-          Type: assessment.assessment_type,
+          Type: assessment.type.short,
           "CVSS Versions": [
             assessment.cvss_versions["3.1"] ? "3.1" : null,
             assessment.cvss_versions["4.0"] ? "4.0" : null,
