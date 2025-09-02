@@ -226,7 +226,7 @@ export default function CustomerDetail() {
               data={customerTemplates.map(template => ({
                 Name: template.name,
                 Filename: template.filename,
-                "File Type": template.file_type,
+                "Mime Type": template.mime_type,
                 "Template Type": template.type,
                 buttons: (
                   <Buttons noWrap>

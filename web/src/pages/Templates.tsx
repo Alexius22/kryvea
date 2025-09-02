@@ -179,7 +179,7 @@ export default function Templates() {
           Filename: template.filename,
           Customer: template.customer?.name,
           Language: languageMapping[template.language] || template.language,
-          "File Type": template.file_type,
+          "Mime Type": template.mime_type,
           "Template Type": template.type,
           buttons: (
             <Buttons noWrap>

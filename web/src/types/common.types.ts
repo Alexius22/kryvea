@@ -114,7 +114,7 @@ export type Template = {
   filename: string;
   language: string;
   type: string;
-  file_type: string;
+  mime_type: string;
   file_id: string;
   customer: Customer;
 };
