@@ -143,7 +143,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 	// Set document properties
 	xl.SetDocProps(&excelize.DocProperties{
 		Title:   assessment.Name,
-		Subject: assessment.AssessmentType,
+		Subject: assessment.AssessmentType.Full,
 		Creator: "Kryvea",
 	})
 

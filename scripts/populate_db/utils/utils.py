@@ -378,9 +378,17 @@ def rand_assessment_name() -> str:
     return f"{random.choice(prefixes)} {rand_name()}"
 
 
-def rand_assessment_type() -> str:
-    types = ["WAPT", "VAPT", "MAPT", "IoT", "Red Team Assessment"]
-    return random.choice(types)
+def rand_assessment_type() -> tuple[str, str]:
+    typesKey = ["WAPT", "VAPT", "MAPT", "IoT", "Red Team Assessment"]
+    typesValue = [
+        "Web Application Penetration Test",
+        "Vulnerability Assessment and Penetration Testing",
+        "Mobile Application Penetration Test",
+        "Internet of Things Penetration Test",
+        "Red Team Assessment",
+    ]
+    selected = random.randint(0, len(typesKey) - 1)
+    return typesKey[selected], typesValue[selected]
 
 
 def rand_date_decade() -> str:
