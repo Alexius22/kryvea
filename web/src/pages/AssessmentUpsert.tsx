@@ -94,7 +94,7 @@ export default function AssessmentUpsert() {
   const [form, setForm] = useState<
     Omit<Assessment, "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned">
   >({
-    assessment_type: { short: "", full: "" },
+    type: { short: "", full: "" },
     name: "",
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
@@ -125,7 +125,7 @@ export default function AssessmentUpsert() {
         data => {
           setAssessment(data);
           setForm({
-            assessment_type: data.assessment_type,
+            type: data.type,
             name: data.name,
             start_date_time: data.start_date_time,
             end_date_time: data.end_date_time,
