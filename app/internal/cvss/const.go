@@ -12,7 +12,7 @@ const (
 	CvssSeverityHigh     = "High"
 	CvssSeverityMedium   = "Medium"
 	CvssSeverityLow      = "Low"
-	CvssSeverityNone     = "None"
+	CvssSeverityNone     = "Informational"
 )
 
 var (
@@ -22,6 +22,14 @@ var (
 		Cvss3:  30,
 		Cvss31: 31,
 		Cvss4:  40,
+	}
+
+	CvssSeverities = []string{
+		CvssSeverityCritical,
+		CvssSeverityHigh,
+		CvssSeverityMedium,
+		CvssSeverityLow,
+		CvssSeverityNone,
 	}
 )
 
