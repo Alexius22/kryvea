@@ -17,17 +17,17 @@ import (
 )
 
 type assessmentRequestData struct {
-	Name           string          `json:"name"`
-	StartDateTime  time.Time       `json:"start_date_time"`
-	EndDateTime    time.Time       `json:"end_date_time"`
-	Status         string          `json:"status"`
-	Targets        []string        `json:"targets"`
-	AssessmentType string          `json:"assessment_type"`
-	CVSSVersions   map[string]bool `json:"cvss_versions"`
-	Environment    string          `json:"environment"`
-	TestingType    string          `json:"testing_type"`
-	OSSTMMVector   string          `json:"osstmm_vector"`
-	CustomerID     string          `json:"customer_id"`
+	Name           string               `json:"name"`
+	StartDateTime  time.Time            `json:"start_date_time"`
+	EndDateTime    time.Time            `json:"end_date_time"`
+	Status         string               `json:"status"`
+	Targets        []string             `json:"targets"`
+	AssessmentType mongo.AssessmentType `json:"assessment_type"`
+	CVSSVersions   map[string]bool      `json:"cvss_versions"`
+	Environment    string               `json:"environment"`
+	TestingType    string               `json:"testing_type"`
+	OSSTMMVector   string               `json:"osstmm_vector"`
+	CustomerID     string               `json:"customer_id"`
 }
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
@@ -647,8 +647,7 @@ func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) strin
 		data.StartDateTime.IsZero() &&
 		data.EndDateTime.IsZero() &&
 		data.Status == "" &&
-		len(data.Targets) == 0 &&
-		data.AssessmentType == "" {
+		(data.AssessmentType.Full == "" || data.AssessmentType.Short == "") {
 
 		return "No data to update"
 	}
