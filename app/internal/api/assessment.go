@@ -596,6 +596,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Failed to generate report",
+			"err":   err.Error(),
 		})
 	}
 
