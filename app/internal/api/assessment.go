@@ -17,17 +17,18 @@ import (
 )
 
 type assessmentRequestData struct {
-	Name          string               `json:"name"`
-	StartDateTime time.Time            `json:"start_date_time"`
-	EndDateTime   time.Time            `json:"end_date_time"`
-	Status        string               `json:"status"`
-	Targets       []string             `json:"targets"`
-	Type          mongo.AssessmentType `json:"type"`
-	CVSSVersions  map[string]bool      `json:"cvss_versions"`
-	Environment   string               `json:"environment"`
-	TestingType   string               `json:"testing_type"`
-	OSSTMMVector  string               `json:"osstmm_vector"`
-	CustomerID    string               `json:"customer_id"`
+	Name            string               `json:"name"`
+	StartDateTime   time.Time            `json:"start_date_time"`
+	EndDateTime     time.Time            `json:"end_date_time"`
+	KickoffDateTime time.Time            `json:"kickoff_date_time"`
+	Status          string               `json:"status"`
+	Targets         []string             `json:"targets"`
+	Type            mongo.AssessmentType `json:"type"`
+	CVSSVersions    map[string]bool      `json:"cvss_versions"`
+	Environment     string               `json:"environment"`
+	TestingType     string               `json:"testing_type"`
+	OSSTMMVector    string               `json:"osstmm_vector"`
+	CustomerID      string               `json:"customer_id"`
 }
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
@@ -86,16 +87,17 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 
 	// insert assessment into database
 	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
-		Name:          data.Name,
-		StartDateTime: data.StartDateTime,
-		EndDateTime:   data.EndDateTime,
-		Targets:       targets,
-		Status:        data.Status,
-		Type:          data.Type,
-		CVSSVersions:  data.CVSSVersions,
-		Environment:   data.Environment,
-		TestingType:   data.TestingType,
-		OSSTMMVector:  data.OSSTMMVector,
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
 	}, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -346,16 +348,17 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 
 	// update assessment in database
 	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
-		Name:          data.Name,
-		StartDateTime: data.StartDateTime,
-		EndDateTime:   data.EndDateTime,
-		Targets:       targets,
-		Status:        data.Status,
-		Type:          data.Type,
-		CVSSVersions:  data.CVSSVersions,
-		Environment:   data.Environment,
-		TestingType:   data.TestingType,
-		OSSTMMVector:  data.OSSTMMVector,
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
 	})
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -505,9 +508,9 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	// parse request body
 	type reqData struct {
-		Type         string `json:"type"`
-		Template     string `json:"template"`
-		DeliveryDate string `json:"delivery_date"`
+		Type             string    `json:"type"`
+		Template         string    `json:"template"`
+		DeliveryDateTime time.Time `json:"delivery_date_time"`
 	}
 
 	data := &reqData{}
@@ -571,10 +574,10 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	// }
 
 	reportData := &report.ReportData{
-		Customer:        customer,
-		Assessment:      assessment,
-		Vulnerabilities: vulnerabilities,
-		DeliveryDate:    data.DeliveryDate,
+		Customer:         customer,
+		Assessment:       assessment,
+		Vulnerabilities:  vulnerabilities,
+		DeliveryDateTime: data.DeliveryDateTime,
 	}
 
 	// generate report
