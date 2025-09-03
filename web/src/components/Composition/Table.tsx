@@ -5,17 +5,20 @@ import Card from "../CardBox/Card";
 import Input from "../Form/Input";
 import Icon from "../Icon";
 import Paginator from "./Paginator";
+import Shimmer from "./Shimmer";
 
 export default function Table({
   data,
   perPageCustom = 5,
   wMin,
   maxWidthColumns = {},
+  loading,
 }: {
   data: any[];
   perPageCustom?;
   wMin?: true;
   maxWidthColumns?: Record<string, string>;
+  loading?: boolean;
 }) {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
@@ -154,7 +157,21 @@ export default function Table({
               </thead>
             )}
             <tbody>
-              {filteredData.length === 0 ? (
+              {loading ? (
+                Array(perPage).fill(
+                  <tr>
+                    <td>
+                      <Shimmer />
+                    </td>
+                    <td>
+                      <Shimmer />
+                    </td>
+                    <td>
+                      <Shimmer />
+                    </td>
+                  </tr>
+                )
+              ) : filteredData.length === 0 ? (
                 <tr>
                   <td
                     colSpan={Object.keys(filteredData[0] ?? {}).length}
