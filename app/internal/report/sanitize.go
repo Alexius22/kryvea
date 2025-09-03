@@ -51,19 +51,19 @@ func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, versi
 		switch version {
 		case cvss.Cvss2:
 			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv2.CVSSScore < vulnerabilities[k].CVSSv2.CVSSScore
+				return vulnerabilities[j].CVSSv2.Score < vulnerabilities[k].CVSSv2.Score
 			})
 		case cvss.Cvss3:
 			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv3.CVSSScore < vulnerabilities[k].CVSSv3.CVSSScore
+				return vulnerabilities[j].CVSSv3.Score < vulnerabilities[k].CVSSv3.Score
 			})
 		case cvss.Cvss31:
 			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv31.CVSSScore < vulnerabilities[k].CVSSv31.CVSSScore
+				return vulnerabilities[j].CVSSv31.Score < vulnerabilities[k].CVSSv31.Score
 			})
 		case cvss.Cvss4:
 			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv4.CVSSScore < vulnerabilities[k].CVSSv4.CVSSScore
+				return vulnerabilities[j].CVSSv4.Score < vulnerabilities[k].CVSSv4.Score
 			})
 		}
 	}

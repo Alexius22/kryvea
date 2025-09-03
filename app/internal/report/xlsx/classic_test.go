@@ -160,15 +160,16 @@ func TestClassic(t *testing.T) {
 	}
 
 	assessment := &mongo.Assessment{
-		Name:          randName(3),
-		StartDateTime: time.Now().Add(-time.Hour * 24 * 7),
-		EndDateTime:   time.Now(),
-		Targets:       targets,
-		Status:        randStatus(),
-		Type:          randAssessmentType(),
-		Environment:   randEnvironment(),
-		TestingType:   randTestingType(),
-		OSSTMMVector:  randOSSTMMVector(),
+		Name:            randName(3),
+		StartDateTime:   time.Now().Add(-time.Hour * 24 * 7),
+		EndDateTime:     time.Now(),
+		KickoffDateTime: time.Now(),
+		Targets:         targets,
+		Status:          randStatus(),
+		Type:            randAssessmentType(),
+		Environment:     randEnvironment(),
+		TestingType:     randTestingType(),
+		OSSTMMVector:    randOSSTMMVector(),
 	}
 
 	cvssVersions := make(map[string]bool)
@@ -213,35 +214,43 @@ func TestClassic(t *testing.T) {
 			switch version {
 			case cvss.Cvss2:
 				vulnerability.CVSSv2 = mongo.VulnerabilityCVSS{
-					CVSSVersion:     version,
-					CVSSVector:      cvssVector,
-					CVSSScore:       cvssScore,
-					CVSSSeverity:    cvssSeverity,
-					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+					Version: version,
+					Vector:  cvssVector,
+					Score:   cvssScore,
+					Severity: mongo.LabelColor{
+						Label: cvssSeverity,
+					},
+					Description: cvss.GenerateDescription(cvssVector, version, "en"),
 				}
 			case cvss.Cvss3:
 				vulnerability.CVSSv3 = mongo.VulnerabilityCVSS{
-					CVSSVersion:     version,
-					CVSSVector:      cvssVector,
-					CVSSScore:       cvssScore,
-					CVSSSeverity:    cvssSeverity,
-					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+					Version: version,
+					Vector:  cvssVector,
+					Score:   cvssScore,
+					Severity: mongo.LabelColor{
+						Label: cvssSeverity,
+					},
+					Description: cvss.GenerateDescription(cvssVector, version, "en"),
 				}
 			case cvss.Cvss31:
 				vulnerability.CVSSv31 = mongo.VulnerabilityCVSS{
-					CVSSVersion:     version,
-					CVSSVector:      cvssVector,
-					CVSSScore:       cvssScore,
-					CVSSSeverity:    cvssSeverity,
-					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+					Version: version,
+					Vector:  cvssVector,
+					Score:   cvssScore,
+					Severity: mongo.LabelColor{
+						Label: cvssSeverity,
+					},
+					Description: cvss.GenerateDescription(cvssVector, version, "en"),
 				}
 			case cvss.Cvss4:
 				vulnerability.CVSSv4 = mongo.VulnerabilityCVSS{
-					CVSSVersion:     version,
-					CVSSVector:      cvssVector,
-					CVSSScore:       cvssScore,
-					CVSSSeverity:    cvssSeverity,
-					CVSSDescription: cvss.GenerateDescription(cvssVector, version, "en"),
+					Version: version,
+					Vector:  cvssVector,
+					Score:   cvssScore,
+					Severity: mongo.LabelColor{
+						Label: cvssSeverity,
+					},
+					Description: cvss.GenerateDescription(cvssVector, version, "en"),
 				}
 			}
 		}

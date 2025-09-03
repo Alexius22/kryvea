@@ -67,6 +67,7 @@ type Assessment struct {
 	Name               string          `json:"name,omitempty" bson:"name"`
 	StartDateTime      time.Time       `json:"start_date_time,omitempty" bson:"start_date_time"`
 	EndDateTime        time.Time       `json:"end_date_time,omitempty" bson:"end_date_time"`
+	KickoffDateTime    time.Time       `json:"kickoff_date_time,omitempty" bson:"kickoff_date_time"`
 	Targets            []Target        `json:"targets,omitempty" bson:"targets"`
 	Status             string          `json:"status,omitempty" bson:"status"`
 	Type               AssessmentType  `json:"type,omitempty" bson:"type"`

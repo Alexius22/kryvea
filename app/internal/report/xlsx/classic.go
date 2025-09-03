@@ -342,13 +342,13 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		severity := ""
 		switch maxVersion {
 		case cvss.Cvss2:
-			severity = vuln.CVSSv2.CVSSSeverity
+			severity = vuln.CVSSv2.Severity.Label
 		case cvss.Cvss3:
-			severity = vuln.CVSSv3.CVSSSeverity
+			severity = vuln.CVSSv3.Severity.Label
 		case cvss.Cvss31:
-			severity = vuln.CVSSv31.CVSSSeverity
+			severity = vuln.CVSSv31.Severity.Label
 		case cvss.Cvss4:
-			severity = vuln.CVSSv4.CVSSSeverity
+			severity = vuln.CVSSv4.Severity.Label
 		}
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnSeverity).Letter, row), severity)
 
@@ -427,17 +427,17 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 
 			switch assessmentCvssVersion {
 			case cvss.Cvss2:
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv2.CVSSVector)
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv2.CVSSScore)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv2.Vector)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv2.Score)
 			case cvss.Cvss3:
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv3.CVSSVector)
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv3.CVSSScore)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv3.Vector)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv3.Score)
 			case cvss.Cvss31:
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv31.CVSSVector)
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv31.CVSSScore)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv31.Vector)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv31.Score)
 			case cvss.Cvss4:
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv4.CVSSVector)
-				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv4.CVSSScore)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Vector", assessmentCvssVersion)).Letter, row), vuln.CVSSv4.Vector)
+				xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(fmt.Sprintf("CVSSv%s Score", assessmentCvssVersion)).Letter, row), vuln.CVSSv4.Score)
 			}
 		}
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnRemediation).Letter, row), vuln.Remediation)
@@ -520,31 +520,31 @@ func GenerateReportClassic(customer *mongo.Customer, assessment *mongo.Assessmen
 	switch maxVersion {
 	case cvss.Cvss2:
 		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv2.CVSSScore == vulnerabilities[j].CVSSv2.CVSSScore {
+			if vulnerabilities[i].CVSSv2.Score == vulnerabilities[j].CVSSv2.Score {
 				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv2.CVSSScore > vulnerabilities[j].CVSSv2.CVSSScore
+			return vulnerabilities[i].CVSSv2.Score > vulnerabilities[j].CVSSv2.Score
 		})
 	case cvss.Cvss3:
 		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv3.CVSSScore == vulnerabilities[j].CVSSv3.CVSSScore {
+			if vulnerabilities[i].CVSSv3.Score == vulnerabilities[j].CVSSv3.Score {
 				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv3.CVSSScore > vulnerabilities[j].CVSSv3.CVSSScore
+			return vulnerabilities[i].CVSSv3.Score > vulnerabilities[j].CVSSv3.Score
 		})
 	case cvss.Cvss31:
 		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv31.CVSSScore == vulnerabilities[j].CVSSv31.CVSSScore {
+			if vulnerabilities[i].CVSSv31.Score == vulnerabilities[j].CVSSv31.Score {
 				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv31.CVSSScore > vulnerabilities[j].CVSSv31.CVSSScore
+			return vulnerabilities[i].CVSSv31.Score > vulnerabilities[j].CVSSv31.Score
 		})
 	case cvss.Cvss4:
 		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv4.CVSSScore == vulnerabilities[j].CVSSv4.CVSSScore {
+			if vulnerabilities[i].CVSSv4.Score == vulnerabilities[j].CVSSv4.Score {
 				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv4.CVSSScore > vulnerabilities[j].CVSSv4.CVSSScore
+			return vulnerabilities[i].CVSSv4.Score > vulnerabilities[j].CVSSv4.Score
 		})
 	}
 
