@@ -203,3 +203,68 @@ textarea::placeholder {
   background-image: linear-gradient(to top left, rgba(var(--bg-primary-rgb), 0.5), rgba(var(--bg-secondary-rgb), 0.5));
   border: 1px solid var(--border-primary);
 }
+
+.shimmer-wrapper {
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-quinary);
+  overflow: hidden;
+  border-radius: 4px;
+  position: relative;
+  animation: shimmerWrapper 3s infinite;
+  opacity: 20%;
+}
+
+.shimmer {
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  // prettier-ignore
+  background: linear-gradient(
+        130deg,
+        rgba(white, 0),
+        rgba(white, 0.5),
+        rgba(white, 0)
+      );
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0%;
+    transform: translateX(-150px);
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shimmerWrapper {
+  0% {
+    filter: brightness(40%);
+  }
+  50% {
+    filter: brightness(60%);
+  }
+  100% {
+    filter: brightness(40%);
+  }
+}
+
+html.dark {
+  @keyframes shimmerWrapper {
+    0% {
+      filter: brightness(75%);
+    }
+    50% {
+      filter: brightness(100%);
+    }
+    100% {
+      filter: brightness(75%);
+    }
+  }
+}
