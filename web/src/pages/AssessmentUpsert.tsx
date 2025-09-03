@@ -60,12 +60,12 @@ const OSSTMM_VECTOR: SelectOption[] = [
 ];
 
 const initialSelectedOptionsState: {
-  assessment_type: SelectOption;
+  type: SelectOption;
   environment: SelectOption;
   testing_type: SelectOption;
   osstmm_vector: SelectOption;
 } = {
-  assessment_type: undefined,
+  type: undefined,
   environment: undefined,
   testing_type: undefined,
   osstmm_vector: undefined,
@@ -280,11 +280,11 @@ export default function AssessmentUpsert() {
               />
               <SelectWrapper
                 label="Assessment Type"
-                id="assessment_type"
+                id="type"
                 options={ASSESSMENT_TYPE}
-                value={selectedOptions.assessment_type}
+                value={selectedOptions.type}
                 closeMenuOnSelect
-                onChange={option => handleSelectChange("assessment_type", option)}
+                onChange={option => handleSelectChange("type", option)}
               />
             </Grid>
             <Grid className="grid-cols-3">
