@@ -13,7 +13,7 @@ export default function Sidebar({ className = "" }: Props) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <aside className={`${className} ${isCollapsed ? "max-w-[80px]" : "max-w-[300px] md:max-w-[300px]"} `}>
+    <aside className={`${className} ${isCollapsed ? "w-[80px]" : "w-[400px]"} `}>
       <Flex className="h-full" col>
         {/* Header */}
         <header
