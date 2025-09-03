@@ -49,7 +49,7 @@ export default function FooterBar({ className }: Props) {
   };
 
   return (
-    <footer className={`${className} select-none font-light italic`}>
+    <footer className={`${className} my-2 select-none font-light italic`}>
       <div className="flex justify-between">
         <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
           <b>
