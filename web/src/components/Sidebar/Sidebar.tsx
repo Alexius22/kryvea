@@ -81,7 +81,7 @@ export default function Sidebar({ className = "" }: Props) {
       <Flex className="h-full w-full" col>
         {/* Header */}
         <header
-          className={`flex items-center border-b border-[color:--border-secondary] p-4 transition-all ${isCollapsed ? "justify-center" : "justify-between"} `}
+          className={`flex items-center p-4 transition-all ${isCollapsed ? "justify-center" : "justify-between"} `}
         >
           {!isCollapsed && (
             <Link to="/dashboard" className="text-lg font-black transition-opacity duration-300">

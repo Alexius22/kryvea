@@ -20,6 +20,17 @@
 
 .layout-sidebar {
   @apply sticky top-0 h-screen border-r border-[color:--border-secondary] transition-all duration-300;
+
+  header {
+    border-bottom: 1px solid;
+    // prettier-ignore
+    border-image: linear-gradient(
+      to right,
+      var(--bg-primary),
+      var(--border-secondary),
+      var(--border-secondary)
+    ) 1;
+  }
 }
 
 .sidebar-item {
