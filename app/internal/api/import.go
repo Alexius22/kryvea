@@ -455,12 +455,12 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if err != nil {
 					return err
 				}
-				vulnerability.CVSSv3.Vector = item.Cvss3Vector
-				vulnerability.CVSSv3.Score = cvssScore
-				vulnerability.CVSSv3.Severity = mongo.LabelColor{
+				vulnerability.CVSSv31.Vector = item.Cvss3Vector
+				vulnerability.CVSSv31.Score = cvssScore
+				vulnerability.CVSSv31.Severity = mongo.LabelColor{
 					Label: cvssSeverity,
 				}
-				vulnerability.CVSSv3.Description = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
+				vulnerability.CVSSv31.Description = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
 			}
 
 			vulnerabilityID, err := d.mongo.Vulnerability().Insert(vulnerability)
