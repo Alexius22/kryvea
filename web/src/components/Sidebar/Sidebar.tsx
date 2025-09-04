@@ -77,7 +77,7 @@ export default function Sidebar({ className = "" }: Props) {
   const iconSize = isCollapsed ? 22 : 18;
 
   return (
-    <aside className={`${className} ${isCollapsed ? "w-min" : "w-[400px]"}`}>
+    <aside className={`${className} ${isCollapsed ? "w-min" : "min-w-[280px] max-w-[280px]"}`}>
       <Flex className="h-full w-full" col>
         {/* Header */}
         <header
