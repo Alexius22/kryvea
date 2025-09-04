@@ -50,7 +50,7 @@ export default function NavBar({ children }: Props) {
         />
 
         <div
-          className={`relative h-4 w-4 ${darkTheme ? "text-amber-400" : "text-[color:--link]"}`}
+          className={`relative h-4 w-4 text-[color:--link]`}
           onClick={() => setDarkTheme(prev => !prev)}
           role="button"
           tabIndex={0}
