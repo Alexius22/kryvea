@@ -61,9 +61,10 @@ export default function RouteWatcher() {
     }
 
     switch (currentPathname) {
+      case "dashboard":
       case "customers":
       case "assessments":
-      case "vulnerabilities":
+      case "vulnerability_search":
       case "login":
         break;
       default:

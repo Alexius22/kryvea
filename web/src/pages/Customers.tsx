@@ -1,6 +1,6 @@
 import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import { GlobalContext } from "../App";
@@ -28,7 +28,7 @@ export default function Customers() {
   });
 
   const {
-    useCtxCustomer: [ctxCustomer, setCtxCustomer],
+    useCtxCustomer: [, setCtxCustomer],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -153,14 +153,14 @@ export default function Customers() {
       <Table
         data={customers.map(customer => ({
           Name: (
-            <Link
-              to={`/customers/${customer.id}`}
-              onClick={e => {
+            <a
+              className="cursor-pointer"
+              onClick={() => {
                 setCtxCustomer(customer);
               }}
             >
               {customer.name}
-            </Link>
+            </a>
           ),
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (
