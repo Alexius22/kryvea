@@ -41,7 +41,7 @@ export default function Dashboard() {
               {assessment.name}
             </Link>
           ),
-          "Assessment Type": assessment.type,
+          "Assessment Type": assessment.type.short,
           "Vulnerability Count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),
