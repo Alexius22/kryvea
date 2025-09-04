@@ -117,7 +117,7 @@ export default function Sidebar({ className = "" }: Props) {
                     setCtxSelectedSidebarItem(item.label);
                   }}
                 >
-                  <Flex className="cursor-pointer gap-4">
+                  <Flex className={`cursor-pointer gap-4 ${isCollapsed ? "justify-center" : ""}`}>
                     <Icon path={item.icon} />
                     <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
                   </Flex>
