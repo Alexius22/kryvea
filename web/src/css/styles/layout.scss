@@ -22,6 +22,10 @@
   @apply sticky top-0 h-screen border-r border-[color:--border-secondary] transition-all duration-300;
 }
 
+.sidebar-item {
+  @apply clickable flex gap-4 rounded-lg p-1 hover:bg-[color:--bg-secondary];
+}
+
 .sidebar-item-active {
   background-color: var(--bg-secondary);
 }

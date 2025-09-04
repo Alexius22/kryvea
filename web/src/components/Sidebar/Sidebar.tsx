@@ -1,9 +1,26 @@
-import { mdiMenuClose, mdiMenuOpen } from "@mdi/js";
-import { useState } from "react";
+import {
+  mdiAccountMultiple,
+  mdiFileChart,
+  mdiListBox,
+  mdiMagnify,
+  mdiMenuClose,
+  mdiMenuOpen,
+  mdiMonitor,
+  mdiPencil,
+  mdiResponsive,
+  mdiShapePlus,
+  mdiTabSearch,
+  mdiViewList,
+} from "@mdi/js";
+import { useContext, useState } from "react";
 import { Link } from "react-router";
+import { navigate } from "../../api/api";
+import { getKryveaShadow } from "../../api/cookie";
+import { GlobalContext } from "../../App";
+import { USER_ROLE_ADMIN } from "../../config";
 import Flex from "../Composition/Flex";
 import Button from "../Form/Button";
-import SidebarContent from "./SidebarContent";
+import Icon from "../Icon";
 
 type Props = {
   className?: string;
@@ -11,6 +28,52 @@ type Props = {
 
 export default function Sidebar({ className = "" }: Props) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [selectedItem, setSelectedItem] = useState("Dashboard");
+  const [dropdownMenus, setDropdownMenus] = useState({
+    Administration: false,
+    Customers: false,
+  });
+  const {
+    useCtxCustomer: [ctxCustomer],
+  } = useContext(GlobalContext);
+
+  const defaultMenu = [
+    { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
+    { href: "/customers", icon: mdiListBox, label: "Customers" },
+    ...(ctxCustomer != null
+      ? [
+          {
+            label: ctxCustomer.name,
+            icon: mdiViewList,
+            onClick: () => navigate(`/customers/${ctxCustomer.id}`),
+            menu: [
+              {
+                href: `/customers/${ctxCustomer.id}`,
+                icon: mdiPencil,
+                label: "Edit Customer",
+              },
+              {
+                href: `/customers/${ctxCustomer.id}/assessments`,
+                icon: mdiTabSearch,
+                label: "Assessments",
+              },
+              { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiListBox, label: "Targets" },
+            ],
+          },
+        ]
+      : []),
+    { href: "/vulnerability_search", icon: mdiMagnify, label: "Vulnerability Search" },
+    getKryveaShadow() === USER_ROLE_ADMIN && {
+      label: "Administration",
+      icon: mdiResponsive,
+      menu: [
+        { href: "/categories", icon: mdiShapePlus, label: "Categories" },
+        { href: "/users", icon: mdiAccountMultiple, label: "Users" },
+        { href: "/logs", icon: mdiListBox, label: "Logs" },
+        { href: "/templates", icon: mdiFileChart, label: "Templates" },
+      ],
+    },
+  ];
 
   return (
     <aside className={`${className} ${isCollapsed ? "w-[80px]" : "w-[400px]"} `}>
@@ -33,11 +96,51 @@ export default function Sidebar({ className = "" }: Props) {
         </header>
 
         {/* Content */}
-        <div
-          className={`flex-1 overflow-auto transition-opacity duration-300 ${isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"} `}
-        >
-          <SidebarContent className="flex flex-col gap-4 p-4 text-[color:--link]" />
-        </div>
+        <Flex col className="flex-1 gap-2 p-4">
+          {defaultMenu.map(item =>
+            item.menu == undefined ? (
+              <Link
+                className={`sidebar-item ${selectedItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
+                to={item.href}
+                onClick={() => setSelectedItem(item.label)}
+                key={item.label}
+              >
+                <Icon path={item.icon} />
+                <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
+              </Link>
+            ) : (
+              <>
+                <a
+                  className={`sidebar-item flex-col ${selectedItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square" : "!pl-2"}`}
+                  onClick={() => {
+                    setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }));
+                    setSelectedItem(item.label);
+                  }}
+                >
+                  <Flex className="cursor-pointer gap-4">
+                    <Icon path={item.icon} />
+                    <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
+                  </Flex>
+                </a>
+                {(item.label === ctxCustomer?.name || dropdownMenus[item.label]) && (
+                  <>
+                    {item.menu.map(subItem => (
+                      <Link
+                        className={`sidebar-item ${selectedItem === subItem.label ? "sidebar-item-active" : ""} ${isCollapsed ? "ml-0 aspect-square justify-center" : "ml-4 !pl-2"}`}
+                        to={subItem.href}
+                        onClick={() => setSelectedItem(subItem.label)}
+                        key={subItem.label}
+                      >
+                        <Icon path={subItem.icon} />
+                        <span className={isCollapsed ? "hidden" : ""}>{subItem.label}</span>
+                      </Link>
+                    ))}
+                  </>
+                )}
+              </>
+            )
+          )}
+        </Flex>
       </Flex>
     </aside>
   );
