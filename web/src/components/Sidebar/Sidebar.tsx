@@ -3,7 +3,6 @@ import {
   mdiFileChart,
   mdiListBox,
   mdiMagnify,
-  mdiMenuClose,
   mdiMenuOpen,
   mdiMonitor,
   mdiPencil,
@@ -48,16 +47,16 @@ export default function Sidebar({ className = "" }: Props) {
             onClick: () => navigate(`/customers/${ctxCustomer.id}`),
             menu: [
               {
-                href: `/customers/${ctxCustomer.id}`,
-                icon: mdiPencil,
-                label: "Edit Customer",
-              },
-              {
                 href: `/customers/${ctxCustomer.id}/assessments`,
                 icon: mdiTabSearch,
                 label: "Assessments",
               },
               { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiListBox, label: "Targets" },
+              {
+                href: `/customers/${ctxCustomer.id}`,
+                icon: mdiPencil,
+                label: "Edit Customer",
+              },
             ],
           },
         ]
@@ -75,12 +74,14 @@ export default function Sidebar({ className = "" }: Props) {
     },
   ];
 
+  const iconSize = isCollapsed ? 22 : 18;
+
   return (
-    <aside className={`navbar ${className} ${isCollapsed ? "w-[80px]" : "w-[400px]"} `}>
-      <Flex className="h-full" col>
+    <aside className={`${className} ${isCollapsed ? "w-min" : "w-[400px]"}`}>
+      <Flex className="h-full w-full" col>
         {/* Header */}
         <header
-          className={`flex items-center p-4 transition-all ${isCollapsed ? "justify-center border-transparent" : "justify-between border-b border-[color:--border-secondary]"} `}
+          className={`flex items-center border-b border-[color:--border-secondary] p-4 transition-all ${isCollapsed ? "justify-center" : "justify-between"} `}
         >
           {!isCollapsed && (
             <Link to="/dashboard" className="text-lg font-black transition-opacity duration-300">
@@ -89,36 +90,39 @@ export default function Sidebar({ className = "" }: Props) {
           )}
           <Button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 text-[color:--link]"
+            className={`p-2 text-[color:--link] ${isCollapsed ? "rotate-180" : ""}`}
             variant="transparent"
-            icon={isCollapsed ? mdiMenuClose : mdiMenuOpen}
+            icon={mdiMenuOpen}
+            iconSize={22}
           />
         </header>
 
         {/* Content */}
-        <Flex col className="flex-1 gap-2 p-4">
+        <Flex col className={`flex-1 gap-2 overflow-y-auto p-4`}>
           {defaultMenu.map(item =>
             item.menu == undefined ? (
               <Link
-                className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
+                className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square h-12 justify-center" : "!pl-2"}`}
                 to={item.href}
                 onClick={() => setCtxSelectedSidebarItem(item.label)}
                 key={item.label}
+                title={item.label}
               >
-                <Icon path={item.icon} />
+                <Icon path={item.icon} size={iconSize} />
                 <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
               </Link>
             ) : (
               <>
                 <a
-                  className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square" : "!pl-2"}`}
+                  className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
                   onClick={() => {
                     setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }));
                     setCtxSelectedSidebarItem(item.label);
                   }}
+                  title={`${item.label} menu`}
                 >
                   <Flex className={`cursor-pointer gap-4 ${isCollapsed ? "justify-center" : ""}`}>
-                    <Icon path={item.icon} />
+                    <Icon path={item.icon} size={iconSize} />
                     <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
                   </Flex>
                 </a>
@@ -129,9 +133,10 @@ export default function Sidebar({ className = "" }: Props) {
                         className={`sidebar-item ${ctxSelectedSidebarItem === subItem.label ? "sidebar-item-active" : ""} ${isCollapsed ? "ml-0 aspect-square justify-center" : "ml-4 !pl-2"}`}
                         to={subItem.href}
                         onClick={() => setCtxSelectedSidebarItem(subItem.label)}
+                        title={subItem.label}
                         key={subItem.label}
                       >
-                        <Icon path={subItem.icon} />
+                        <Icon path={subItem.icon} size={iconSize} />
                         <span className={isCollapsed ? "hidden" : ""}>{subItem.label}</span>
                       </Link>
                     ))}

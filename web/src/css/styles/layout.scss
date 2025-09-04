@@ -1,5 +1,5 @@
 .navbar {
-  @apply sticky top-0 z-10 flex items-center justify-between overflow-x-clip text-nowrap px-1 py-2;
+  @apply sticky top-0 z-10 flex items-center justify-between overflow-x-clip text-nowrap py-2;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   height: 3rem;
