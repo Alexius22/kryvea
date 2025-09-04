@@ -54,6 +54,15 @@
   transition: background-color 0.2s ease;
 }
 
+.select-wrapper__option--is-focused {
+  background-color: var(--bg-tertiary);
+}
+
+/* Selected option (after pressing Enter) */
+.select-wrapper__option--is-selected {
+  background-color: var(--bg-quinary);
+}
+
 .select-wrapper__option:active {
   background-color: var(--bg-border);
 }
