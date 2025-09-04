@@ -15,7 +15,7 @@ export default function RouteWatcher() {
     useCtxLastPage: [, setCtxLastPage],
   } = useContext(GlobalContext);
   const location = useLocation();
-  const previousPathname = useRef(location.pathname);
+  const previousPath = useRef(location.pathname);
   const navigate = useNavigate();
   const { customerId, assessmentId, vulnerabilityId, categoryId } = useParams();
 
@@ -25,22 +25,22 @@ export default function RouteWatcher() {
   useEffect(() => {
     if (customerId != undefined && ctxCustomer?.id !== customerId) {
       getData<Customer>(`/api/customers/${customerId}`, setCtxCustomer, () =>
-        toast.error("Could not retrieve customer by id: " + customerId)
+        toast.error("Could not get customer by id: " + customerId)
       );
     }
     if (assessmentId != undefined && ctxAssessment?.id !== assessmentId) {
       getData<Assessment>(`/api/assessments/${assessmentId}`, setCtxAssessment, () =>
-        toast.error("Could not retrieve assessment by id: " + assessmentId)
+        toast.error("Could not get assessment by id: " + assessmentId)
       );
     }
     if (vulnerabilityId != undefined && ctxVulnerability?.id !== vulnerabilityId) {
       getData<Vulnerability>(`/api/vulnerabilities/${vulnerabilityId}`, setCtxVulnerability, () =>
-        toast.error("Could not retrieve vulnerability by id: " + vulnerabilityId)
+        toast.error("Could not get vulnerability by id: " + vulnerabilityId)
       );
     }
     if (categoryId != undefined && ctxCategory?.id !== categoryId) {
       getData<Category>(`/api/categories/${categoryId}`, setCtxCategory, () =>
-        toast.error("Could not retrieve category by id: " + categoryId)
+        toast.error("Could not get category by id: " + categoryId)
       );
     }
   }, [customerId, assessmentId, vulnerabilityId, categoryId]);
@@ -51,16 +51,17 @@ export default function RouteWatcher() {
       navigate("/login");
       return;
     }
-    const currentPathname = location.pathname.split("/")[1];
-    if (currentPathname === previousPathname.current) {
-      return;
-    }
 
     if (location.pathname !== "/login" && location.pathname !== "/") {
       setCtxLastPage(location.pathname);
     }
 
-    switch (currentPathname) {
+    const currentPathParent = location.pathname.split("/")[1];
+    if (currentPathParent === previousPath.current.split("/")[1]) {
+      return;
+    }
+
+    switch (currentPathParent) {
       case "dashboard":
       case "customers":
       case "assessments":
@@ -74,7 +75,7 @@ export default function RouteWatcher() {
         setCtxCategory(undefined);
         break;
     }
-    previousPathname.current = currentPathname;
+    previousPath.current = location.pathname;
   }, [location]); // Runs whenever the location changes
 
   return <Outlet />;
