@@ -28,13 +28,13 @@ type Props = {
 
 export default function Sidebar({ className = "" }: Props) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selectedItem, setSelectedItem] = useState("Dashboard");
   const [dropdownMenus, setDropdownMenus] = useState({
     Administration: false,
     Customers: false,
   });
   const {
     useCtxCustomer: [ctxCustomer],
+    useCtxSelectedSidebarItem: [ctxSelectedSidebarItem, setCtxSelectedSidebarItem],
   } = useContext(GlobalContext);
 
   const defaultMenu = [
@@ -76,7 +76,7 @@ export default function Sidebar({ className = "" }: Props) {
   ];
 
   return (
-    <aside className={`${className} ${isCollapsed ? "w-[80px]" : "w-[400px]"} `}>
+    <aside className={`navbar ${className} ${isCollapsed ? "w-[80px]" : "w-[400px]"} `}>
       <Flex className="h-full" col>
         {/* Header */}
         <header
@@ -100,9 +100,9 @@ export default function Sidebar({ className = "" }: Props) {
           {defaultMenu.map(item =>
             item.menu == undefined ? (
               <Link
-                className={`sidebar-item ${selectedItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
+                className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
                 to={item.href}
-                onClick={() => setSelectedItem(item.label)}
+                onClick={() => setCtxSelectedSidebarItem(item.label)}
                 key={item.label}
               >
                 <Icon path={item.icon} />
@@ -111,10 +111,10 @@ export default function Sidebar({ className = "" }: Props) {
             ) : (
               <>
                 <a
-                  className={`sidebar-item flex-col ${selectedItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square" : "!pl-2"}`}
+                  className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square" : "!pl-2"}`}
                   onClick={() => {
                     setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }));
-                    setSelectedItem(item.label);
+                    setCtxSelectedSidebarItem(item.label);
                   }}
                 >
                   <Flex className="cursor-pointer gap-4">
@@ -126,9 +126,9 @@ export default function Sidebar({ className = "" }: Props) {
                   <>
                     {item.menu.map(subItem => (
                       <Link
-                        className={`sidebar-item ${selectedItem === subItem.label ? "sidebar-item-active" : ""} ${isCollapsed ? "ml-0 aspect-square justify-center" : "ml-4 !pl-2"}`}
+                        className={`sidebar-item ${ctxSelectedSidebarItem === subItem.label ? "sidebar-item-active" : ""} ${isCollapsed ? "ml-0 aspect-square justify-center" : "ml-4 !pl-2"}`}
                         to={subItem.href}
-                        onClick={() => setSelectedItem(subItem.label)}
+                        onClick={() => setCtxSelectedSidebarItem(subItem.label)}
                         key={subItem.label}
                       >
                         <Icon path={subItem.icon} />
