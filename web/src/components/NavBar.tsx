@@ -41,35 +41,38 @@ export default function NavBar({ children }: Props) {
   return (
     <nav className="navbar">
       {children}
-      <Buttons className="sticky right-0" noWrap>
+      <Buttons>
         <Button
           onClick={() => navigate("/profile")}
           icon={mdiAccount}
           text={username}
-          className="gap-2 bg-transparent text-[color:--link]"
+          className="gap-1 bg-transparent p-2 text-[color:--link]"
         />
-
-        <div
-          className={`relative h-4 w-4 text-[color:--link]`}
+        <Button
           onClick={() => setDarkTheme(prev => !prev)}
-          role="button"
-          tabIndex={0}
+          className="relative bg-transparent text-[color:--link]"
+          title={"Switch theme"}
         >
-          <Icon path={mdiWhiteBalanceSunny} className={`absolute opacity-0 ${darkTheme ? "" : "rotateFadeIn"}`} />
-          <Icon path={mdiWeatherNight} className={`absolute opacity-0 ${darkTheme ? "rotateFadeIn" : ""}`} />
-        </div>
-
+          <Icon
+            path={mdiWhiteBalanceSunny}
+            className={`absolute left-0 top-0 opacity-0 ${darkTheme ? "" : "rotateFadeIn"}`}
+          />
+          <Icon
+            path={mdiWeatherNight}
+            className={`absolute left-0 top-0 opacity-0 ${darkTheme ? "rotateFadeIn" : ""}`}
+          />
+        </Button>
         <Button
           onClick={() => setFullScreen(prev => !prev)}
           icon={fullscreen ? mdiFullscreenExit : mdiFullscreen}
-          className="bg-transparent text-[color:--link]"
+          className="bg-transparent !pl-3 !pr-0 text-[color:--link]"
+          title={`${fullscreen ? "Exit fullscreen" : "Fullscreen"}`}
         />
-
         <Button
           onClick={handleLogout}
           icon={mdiLogout}
           text="Logout"
-          className="gap-2 bg-transparent p-0 text-[color:--link]"
+          className="gap-1 bg-transparent p-2 text-[color:--link]"
         />
       </Buttons>
     </nav>
