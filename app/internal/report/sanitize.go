@@ -94,8 +94,8 @@ func SanitizeAndSortPoc(poc *mongo.Poc) {
 		return
 	}
 
-	for _, oldPoc := range poc.Pocs {
-		sanitizePocItem(&oldPoc)
+	for i := range poc.Pocs {
+		sanitizePocItem(&poc.Pocs[i])
 	}
 
 	sort.Slice(poc.Pocs, func(i, j int) bool {
@@ -118,6 +118,6 @@ func sanitizePocItem(item *mongo.PocItem) {
 func escapeXMLString(s string) string {
 	var buf bytes.Buffer
 	xml.EscapeText(&buf, []byte(s))
-	escaped := strings.ReplaceAll(buf.String(), "&#xA;", "</w:t></w:r><w:r w:rsidR=\"006C359A\"><w:rPr><w:noProof /></w:rPr><w:br /></w:r><w:r><w:rPr><w:noProof /></w:rPr><w:t>")
+	escaped := strings.ReplaceAll(buf.String(), "&#xA;", "\n")
 	return escaped
 }

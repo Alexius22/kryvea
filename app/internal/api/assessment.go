@@ -556,22 +556,22 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: think
 	// retrieve pocs
-	// for _, v := range vulnerabilities {
-	// 	for i, item := range poc.Pocs {
-	// 		if item.ImageID != uuid.Nil {
-	// 			imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
-	// 			if err != nil {
-	// 				c.Status(fiber.StatusInternalServerError)
-	// 				return c.JSON(fiber.Map{
-	// 					"error": "Failed to read image data",
-	// 				})
-	// 			}
-	// 			poc.Pocs[i].ImageData = imageData
-	// 		}
-	// 	}
-	// }
+	for i, v := range vulnerabilities {
+		for j, item := range v.Poc.Pocs {
+			if item.ImageID != uuid.Nil {
+				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
+				if err != nil {
+					c.Status(fiber.StatusInternalServerError)
+					return c.JSON(fiber.Map{
+						"error": "Failed to read image data",
+					})
+				}
+				vulnerabilities[i].Poc.Pocs[j].ImageData = imageData
+				vulnerabilities[i].Poc.Pocs[j].ImageFilename = imageFilename
+			}
+		}
+	}
 
 	reportData := &report.ReportData{
 		Customer:         customer,
