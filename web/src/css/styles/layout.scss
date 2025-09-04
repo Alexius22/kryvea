@@ -42,9 +42,9 @@
 }
 
 .layout-content {
-  @apply flex w-full flex-col px-4;
+  @apply flex w-full flex-col overflow-auto px-4;
 }
 
 .layout-main {
-  @apply flex h-full w-full flex-col justify-between overflow-auto;
+  @apply flex h-full w-full flex-col justify-between;
 }
