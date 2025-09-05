@@ -19,7 +19,7 @@
 }
 
 .layout-sidebar {
-  @apply sticky top-0 h-screen border-r border-[color:--border-secondary] transition-all duration-300;
+  @apply sticky top-0 block h-screen border-r border-[color:--border-secondary] transition-all duration-300;
 
   header {
     border-bottom: 1px solid;
