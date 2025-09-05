@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { getData, setNavigate } from "../api/api";
-import { getKryveaShadow } from "../api/cookie";
-import { GlobalContext } from "../App";
-import { Assessment, Category, Customer, Vulnerability } from "../types/common.types";
+import { getData, setNavigate } from "../../api/api";
+import { getKryveaShadow } from "../../api/cookie";
+import { GlobalContext } from "../../App";
+import { Assessment, Category, Customer, Vulnerability } from "../../types/common.types";
 
 export default function RouteWatcher() {
   const {

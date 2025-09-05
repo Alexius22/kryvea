@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { postData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
-import { getPageTitle } from "../config";
 import { Target } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 
 export default function AddTarget() {
   const navigate = useNavigate();

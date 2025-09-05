@@ -4,20 +4,20 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
-import Card from "../components/CardBox/Card";
-import CardTitle from "../components/CardBox/CardTitle";
+import Card from "../components/Composition/Card";
+import CardTitle from "../components/Composition/CardTitle";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Customer, Template } from "../types/common.types";
-import { languageMapping } from "../types/languages";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
 export default function CustomerDetail() {
   const {
@@ -143,7 +143,7 @@ export default function CustomerDetail() {
 
   return (
     <div>
-      <SectionTitleLineWithButton icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
+      <PageHeader icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
         <Buttons>
           <Button
             small
@@ -158,7 +158,7 @@ export default function CustomerDetail() {
             onClick={() => navigate(`/customers/${ctxCustomer?.id}/targets`)}
           />
         </Buttons>
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Grid className="grid-cols-2 !items-start">
         <Card>

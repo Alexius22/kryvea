@@ -1,9 +1,8 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
-import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
-import RouteWatcher from "./layouts/RouteWatcher";
+import LayoutAuthenticated from "./components/Layout/LayoutAuthenticated";
+import RouteWatcher from "./components/Layout/RouteWatcher";
 import {
   AddCustomer,
   AddTarget,
@@ -30,6 +29,7 @@ import LiveEditor from "./pages/LiveEditor";
 import Logs from "./pages/Logs";
 import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
+import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];

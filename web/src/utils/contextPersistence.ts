@@ -1,5 +1,5 @@
-import { GlobalContextType } from "./App";
-import { Keys } from "./types/utils.types";
+import { GlobalContextType } from "../App";
+import { Keys } from "../types/utils.types";
 
 export type GlobalContextKeys = Keys<GlobalContextType>;
 type GlobalContextStatesTypes = GlobalContextType[GlobalContextKeys][0];

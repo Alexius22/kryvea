@@ -8,12 +8,12 @@ import {
 } from "@mdi/js";
 import { ReactNode, useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getData, postData } from "../api/api";
-import { GlobalContext } from "../App";
-import { User } from "../types/common.types";
-import Button from "./Form/Button";
-import Buttons from "./Form/Buttons";
-import Icon from "./Icon";
+import { GlobalContext } from "../../App";
+import { getData, postData } from "../../api/api";
+import { User } from "../../types/common.types";
+import Icon from "../Composition/Icon";
+import Button from "../Form/Button";
+import Buttons from "../Form/Buttons";
 
 type Props = {
   children?: ReactNode;

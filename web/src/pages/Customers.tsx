@@ -6,15 +6,15 @@ import { deleteData, getData, patchData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Customer } from "../types/common.types";
-import { languageMapping } from "../types/languages";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -146,9 +146,9 @@ export default function Customers() {
         </p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
+      <PageHeader icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/customers/new")} />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={customers.map(customer => ({

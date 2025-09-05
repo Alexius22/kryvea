@@ -1,9 +1,9 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useCallback, useEffect, useMemo, useState } from "react";
 import { v4 } from "uuid";
-import Card from "../CardBox/Card";
 import Input from "../Form/Input";
-import Icon from "../Icon";
+import Card from "./Card";
+import Icon from "./Icon";
 import Paginator from "./Paginator";
 import Shimmer from "./Shimmer";
 

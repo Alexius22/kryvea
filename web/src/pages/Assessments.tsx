@@ -6,17 +6,17 @@ import { deleteData, getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
-import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Assessment, Customer, exportTypes, Template } from "../types/common.types";
+import { formatDate } from "../utils/dates";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Assessments() {
   const navigate = useNavigate();
@@ -280,14 +280,14 @@ export default function Assessments() {
         <p>Are you sure to delete this assessment?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiTabSearch} title="Assessments">
+      <PageHeader icon={mdiTabSearch} title="Assessments">
         <Button
           icon={mdiPlus}
           text="New assessment"
           small
           onClick={() => navigate(`/customers/${customerId}/assessments/new`)}
         />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={assessmentsData?.map(assessment => ({

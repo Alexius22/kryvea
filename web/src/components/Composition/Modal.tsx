@@ -1,9 +1,9 @@
 import { mdiClose } from "@mdi/js";
 import { ReactNode } from "react";
-import Card from "../CardBox/Card";
-import CardTitle from "../CardBox/CardTitle";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
+import Card from "./Card";
+import CardTitle from "./CardTitle";
 
 type Props = {
   title: string;

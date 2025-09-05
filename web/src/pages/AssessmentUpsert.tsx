@@ -3,11 +3,11 @@ import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -16,9 +16,9 @@ import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import { getPageTitle } from "../config";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
+import { getPageTitle } from "../utils/helpers";
 
 const ASSESSMENT_TYPE: SelectOption[] = [
   {

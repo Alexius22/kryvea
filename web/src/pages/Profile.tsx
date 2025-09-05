@@ -2,14 +2,14 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getData, patchData } from "../api/api";
 import { GlobalContext } from "../App";
-import Card from "../components/CardBox/Card";
-import CardTitle from "../components/CardBox/CardTitle";
+import Card from "../components/Composition/Card";
+import CardTitle from "../components/Composition/CardTitle";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
-import { getPageTitle } from "../config";
 import { User } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Profile() {
   const {
