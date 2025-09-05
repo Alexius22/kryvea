@@ -69,7 +69,7 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 
 	_, err = ci.collection.InsertOne(context.Background(), category)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, enrichError(err)
 	}
 
 	return category.ID, err
@@ -126,25 +126,8 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 		},
 	}
 
-	// update := bson.M{
-	// 	"$set": bson.M{
-	// 		"updated_at": time.Now(),
-	// 		"index":      category.Index,
-	// 		"name":       category.Name,
-	// 		"references": category.References,
-	// 	},
-	// }
-
-	// for key, value := range category.GenericDescription {
-	// 	update["$set"].(bson.M)["generic_description."+key] = value
-	// }
-
-	// for key, value := range category.GenericRemediation {
-	// 	update["$set"].(bson.M)["generic_remediation."+key] = value
-	// }
-
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	return enrichError(err)
 }
 
 func (ci *CategoryIndex) Delete(ID uuid.UUID) error {

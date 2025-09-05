@@ -136,7 +136,11 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 	}
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
-	return assessment.ID, err
+	if err != nil {
+		return uuid.Nil, enrichError(err)
+	}
+
+	return assessment.ID, nil
 }
 
 func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) {
@@ -314,7 +318,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 	}
 
 	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	return enrichError(err)
 }
 
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {

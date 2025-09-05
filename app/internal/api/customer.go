@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -31,13 +33,22 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	// insert customer into database
-	customerID, err := d.mongo.Customer().Insert(&mongo.Customer{
+	customer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
-	})
+	}
+
+	// insert customer into database
+	customerID, err := d.mongo.Customer().Insert(customer)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Customer \"%s\" already exists", customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create customer",
 		})
@@ -128,14 +139,23 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	// insert customer into database
-	err := d.mongo.Customer().Update(customer.ID, &mongo.Customer{
+	newCustomer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
-	})
+	}
+
+	// insert customer into database
+	err := d.mongo.Customer().Update(customer.ID, newCustomer)
 	if err != nil {
 		d.logger.Error().Err(err).Msg("Cannot update customer")
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Customer \"%s\" already exists", newCustomer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update customer",
 		})
