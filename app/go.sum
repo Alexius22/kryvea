@@ -1,5 +1,5 @@
-github.com/JJJJJJack/go-template-docx v1.3.0 h1:1iSL6K0u0zhYypnSSKuAWaweIcHRg673NTmelnqe30E=
-github.com/JJJJJJack/go-template-docx v1.3.0/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
+github.com/JJJJJJack/go-template-docx v1.3.2 h1:ApHiaCq7Pmjoy7igvnF7vVGjc4Uc0fHQfvRhckWuvxI=
+github.com/JJJJJJack/go-template-docx v1.3.2/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
 github.com/JJJJJJack/go-zip-utils v1.0.1 h1:qk39Cc+rZu1VHuElvhH+PtTLvxvchPEdPfF7XRSlc7c=
 github.com/JJJJJJack/go-zip-utils v1.0.1/go.mod h1:YqgYPKuHnsmdRjcPxUKilQJh8saNhnR+9rmulVTthGI=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
