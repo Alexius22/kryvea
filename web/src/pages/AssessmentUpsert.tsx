@@ -42,6 +42,7 @@ const CVSS_VERSIONS: SelectOption[] = [
 ];
 
 const ENVIRONMENT: SelectOption[] = [
+  { value: "Testing", label: "Testing" },
   { value: "Pre-Production", label: "Pre-Production" },
   { value: "Production", label: "Production" },
 ];
@@ -189,6 +190,23 @@ export default function AssessmentUpsert() {
     const endpoint = isEdit ? `/api/assessments/${assessmentId}` : `/api/assessments`;
 
     const apiCall = isEdit ? patchData : postData;
+
+    if (!form.name) {
+      toast.error("Assessment name required");
+      return;
+    }
+    if (!form.type.full || !form.type.short) {
+      toast.error("Assessment type required");
+      return;
+    }
+    if (Object.values(form.cvss_versions).every(val => val === false)) {
+      toast.error("Select at least one CVSS version");
+      return;
+    }
+    if (form.targets.length === 0) {
+      toast.error("At least a target is required");
+      return;
+    }
 
     apiCall(endpoint, payload, data => {
       toast.success((data as any)?.message);
