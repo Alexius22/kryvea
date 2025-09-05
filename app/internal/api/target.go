@@ -53,17 +53,26 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	// inseert target into database
-	targetID, err := d.mongo.Target().Insert(&mongo.Target{
+	target := &mongo.Target{
 		IPv4:     data.IPv4,
 		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
 		Name:     data.Name,
-	}, customer.ID)
+	}
+
+	// inseert target into database
+	targetID, err := d.mongo.Target().Insert(target, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": "Target with provided data already exists",
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create target",
 		})
@@ -114,17 +123,26 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	// update target in database
-	err := d.mongo.Target().Update(target.ID, &mongo.Target{
+	newTarget := &mongo.Target{
 		IPv4:     data.IPv4,
 		IPv6:     data.IPv6,
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
 		Name:     data.Name,
-	})
+	}
+
+	// update target in database
+	err := d.mongo.Target().Update(target.ID, newTarget)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": "Target with provided data already exists",
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update target",
 		})

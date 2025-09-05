@@ -82,6 +82,13 @@ func (d *Driver) AddGlobalTemplate(c *fiber.Ctx) error {
 	templateID, err := d.mongo.Template().Insert(template)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": "Template with provided data already exists",
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create template",
 		})
@@ -127,6 +134,13 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 	templateID, err := d.mongo.Template().Insert(template)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": "Template with provided data already exists",
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create template",
 		})

@@ -85,8 +85,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// insert assessment into database
-	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
+	assessment := &mongo.Assessment{
 		Name:            data.Name,
 		StartDateTime:   data.StartDateTime,
 		EndDateTime:     data.EndDateTime,
@@ -98,9 +97,19 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		Environment:     data.Environment,
 		TestingType:     data.TestingType,
 		OSSTMMVector:    data.OSSTMMVector,
-	}, customer.ID)
+	}
+
+	// insert assessment into database
+	assessmentID, err := d.mongo.Assessment().Insert(assessment, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", assessment.Name, customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create assessment",
 		})
@@ -346,8 +355,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// update assessment in database
-	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
+	newAssessment := &mongo.Assessment{
 		Name:            data.Name,
 		StartDateTime:   data.StartDateTime,
 		EndDateTime:     data.EndDateTime,
@@ -359,9 +367,19 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		Environment:     data.Environment,
 		TestingType:     data.TestingType,
 		OSSTMMVector:    data.OSSTMMVector,
-	})
+	}
+
+	// update assessment in database
+	err := d.mongo.Assessment().Update(assessment.ID, newAssessment)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", newAssessment.Name, assessment.Customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update assessment",
 		})
