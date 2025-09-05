@@ -14,7 +14,7 @@ export default function LayoutAuthenticated() {
   } = useContext(GlobalContext);
   return (
     <div className={`layout-root ${fullscreen ? "layout-fullscreen" : ""}`}>
-      <Sidebar className="layout-sidebar" />
+      <Sidebar />
       <div className="layout-content">
         <NavBar>
           <Breadcrumb

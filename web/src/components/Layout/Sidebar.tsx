@@ -21,11 +21,7 @@ import Flex from "../Composition/Flex";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
 
-type Props = {
-  className?: string;
-};
-
-export default function Sidebar({ className = "" }: Props) {
+export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [dropdownMenus, setDropdownMenus] = useState({
     Administration: false,
@@ -77,7 +73,7 @@ export default function Sidebar({ className = "" }: Props) {
   const iconSize = isCollapsed ? 22 : 18;
 
   return (
-    <aside className={`${className} ${isCollapsed ? "w-min" : "min-w-[280px] max-w-[280px]"}`}>
+    <aside className={`layout-sidebar ${isCollapsed ? "w-min" : "min-w-[280px] max-w-[280px]"}`}>
       <Flex className="h-full w-full" col>
         {/* Header */}
         <header
