@@ -1,10 +1,10 @@
 import { mdiDelete } from "@mdi/js";
 import { useRef } from "react";
 import Flex from "../Composition/Flex";
+import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
 import Input from "../Form/Input";
-import Icon from "../Icon";
 
 export default function PocTemplate({
   icon,

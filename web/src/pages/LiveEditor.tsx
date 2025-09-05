@@ -1,7 +1,7 @@
 import { mdiCalculator } from "@mdi/js";
 import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import CVSS31Wrapper from "../components/CVSS/CVSS31Wrapper/CVSS31Wrapper";
@@ -11,7 +11,7 @@ import Accordion from "../components/Form/Accordion";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import Textarea from "../components/Form/Textarea";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
 const sections = [
   {

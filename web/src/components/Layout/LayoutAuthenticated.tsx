@@ -1,12 +1,12 @@
 import { mdiChevronDoubleRight } from "@mdi/js";
 import { useContext } from "react";
 import { Outlet } from "react-router";
-import { GlobalContext } from "../App";
-import FooterBar from "../components/FooterBar";
-import Icon from "../components/Icon";
-import NavBar from "../components/NavBar";
-import Sidebar from "../components/Sidebar/Sidebar";
+import { GlobalContext } from "../../App";
+import Icon from "../Composition/Icon";
 import Breadcrumb from "./Breadcrumb";
+import FooterBar from "./FooterBar";
+import NavBar from "./NavBar";
+import Sidebar from "./Sidebar";
 
 export default function LayoutAuthenticated() {
   const {

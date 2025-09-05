@@ -3,11 +3,11 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getData } from "../api/api";
 import { GlobalContext } from "../App";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
-import { formatDate } from "../components/dateUtils";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Assessment } from "../types/common.types";
+import { formatDate } from "../utils/dates";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Dashboard() {
   const {
@@ -23,7 +23,7 @@ export default function Dashboard() {
 
   const renderTable = (title: string, icon: string, assessments: Assessment[]) => (
     <div>
-      <SectionTitleLineWithButton icon={icon} title={title} />
+      <PageHeader icon={icon} title={title} />
       <Table
         data={assessments.map(assessment => ({
           Customer: (

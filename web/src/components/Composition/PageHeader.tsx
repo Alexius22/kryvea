@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Icon from "../Icon";
+import Icon from "./Icon";
 
 type Props = {
   icon: string;
@@ -8,7 +8,7 @@ type Props = {
   children?: ReactNode;
 };
 
-export default function SectionTitleLineWithButton({ icon, title, main = false, children }: Props) {
+export default function PageHeader({ icon, title, main = false, children }: Props) {
   return (
     <section className={`${main ? "" : "py-2"} mb-2 flex items-center justify-between`}>
       <div className="flex items-center justify-start overflow-x-auto">

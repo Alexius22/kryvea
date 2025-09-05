@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Target } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Targets() {
   const [targets, setTargets] = useState<Target[]>([]);
@@ -143,14 +143,14 @@ export default function Targets() {
         </p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Targets">
+      <PageHeader icon={mdiListBox} title="Targets">
         <Button
           icon={mdiPlus}
           text="New target"
           small
           onClick={() => navigate(`/customers/${customerId}/targets/new`)}
         />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={targets.map(target => ({

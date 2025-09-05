@@ -2,13 +2,13 @@ import { mdiListBox } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Checkbox from "../components/Form/Checkbox";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
 type Log = {
   level: string;
@@ -64,7 +64,7 @@ export default function Logs() {
 
   return (
     <div>
-      <SectionTitleLineWithButton icon={mdiListBox} title="Logs" />
+      <PageHeader icon={mdiListBox} title="Logs" />
       <Grid>
         <Card>
           <Flex className="gap-2">

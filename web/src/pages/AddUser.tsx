@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getData, postData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import { getPageTitle } from "../config";
 import { Customer } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 
 export default function AddUser() {
   const [username, setUsername] = useState("");

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Grid from "../Composition/Grid";
+import Grid from "./Grid";
 
 type Props = {
   className?: string;

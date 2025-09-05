@@ -16,10 +16,10 @@ import { Link } from "react-router";
 import { navigate } from "../../api/api";
 import { getKryveaShadow } from "../../api/cookie";
 import { GlobalContext } from "../../App";
-import { USER_ROLE_ADMIN } from "../../config";
+import { USER_ROLE_ADMIN } from "../../utils/constants";
 import Flex from "../Composition/Flex";
+import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
-import Icon from "../Icon";
 
 type Props = {
   className?: string;

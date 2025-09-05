@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
-import Divider from "../components/Divider";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -14,10 +15,9 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import Textarea from "../components/Form/Textarea";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
-import { languageMapping } from "../types/languages";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
 export const sourceCategoryOptions: SelectOption[] = [
   { value: "owasp_web", label: "OWASP Top 10 Web" },
@@ -218,7 +218,7 @@ export default function CategoryUpsert() {
         <p>Are you sure you want to delete this category?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
+      <PageHeader icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
         <Buttons>
           <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
           {categoryId && (
@@ -231,7 +231,7 @@ export default function CategoryUpsert() {
             />
           )}
         </Buttons>
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Card>
         <Grid className="grid-cols-3 gap-4">

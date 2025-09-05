@@ -3,17 +3,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
+import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import UploadFile from "../components/Form/UploadFile";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Category } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 import { sourceCategoryOptions } from "./CategoryUpsert";
 
 const sourceCategoryMap = Object.fromEntries(sourceCategoryOptions.map(({ value, label }) => [value, label]));
@@ -145,12 +145,12 @@ export default function Categories() {
         </Grid>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiShapePlus} title="Categories">
+      <PageHeader icon={mdiShapePlus} title="Categories">
         <Buttons>
           <Button icon={mdiPlus} text="New category" small onClick={() => navigate("new")} />
           <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
         </Buttons>
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <div>
         <Table

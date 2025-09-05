@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { formatDateTime, getUserDateFormatPattern } from "../../utils/dates";
 import Grid from "../Composition/Grid";
-import { formatDateTime, getUserDateFormatPattern } from "../dateUtils";
 import Label from "./Label";
 
 interface DateCalendarProps {

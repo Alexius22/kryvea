@@ -49,7 +49,7 @@ import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useId, useRef, useState } from "react";
 import ImageResize from "tiptap-extension-resize-image";
-import Card from "../CardBox/Card";
+import Card from "../Composition/Card";
 import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Button from "../Form/Button";

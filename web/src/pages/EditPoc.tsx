@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { getData, putData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import { MonacoTextSelection } from "../components/Poc/MonacoCodeEditor.types";
@@ -19,7 +19,7 @@ import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
 import PocRichText from "../components/Poc/PocRichText";
 import PocText from "../components/Poc/PocText";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
 export default function EditPoc() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
