@@ -294,7 +294,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 	}
 
 	if assessment.Type.Short != "" || assessment.Type.Full != "" {
-		update["$set"].(bson.M)["assessment_type"] = assessment.Type
+		update["$set"].(bson.M)["type"] = assessment.Type
 	}
 
 	if len(assessment.CVSSVersions) > 0 {

@@ -3,7 +3,7 @@ module github.com/Alexius22/kryvea
 go 1.23.4
 
 require (
-	github.com/JJJJJJack/go-template-docx v1.3.0
+	github.com/JJJJJJack/go-template-docx v1.3.2
 	github.com/bytedance/sonic v1.14.1
 	github.com/gabriel-vasile/mimetype v1.4.10
 	github.com/gofiber/contrib/fiberzerolog v1.0.3
