@@ -30,9 +30,11 @@ import Logs from "./pages/Logs";
 import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
+import { getBrowser } from "./utils/helpers";
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useBrowser: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
@@ -48,6 +50,7 @@ export const GlobalContext = createContext<GlobalContextType>(null);
 export default function App() {
   const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
   const [darkTheme] = useDarkTheme;
+  const useBrowser = useState<string>(getBrowser);
   const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
@@ -88,6 +91,7 @@ export default function App() {
     <GlobalContext.Provider
       value={{
         useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useBrowser,
         useUsername: bindToLocalStorage(useUsername, "useUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
