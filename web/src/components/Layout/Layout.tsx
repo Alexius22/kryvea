@@ -5,7 +5,7 @@ import FooterBar from "./FooterBar";
 import NavBar from "./NavBar";
 import Sidebar from "./Sidebar";
 
-export default function LayoutAuthenticated() {
+export default function Layout() {
   const {
     useFullscreen: [fullscreen],
   } = useContext(GlobalContext);
