@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"context"
+
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -52,6 +54,11 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 		return nil, err
 	}
 
+	err = d.CreateNilCategory()
+	if err != nil {
+		return nil, err
+	}
+
 	return d, nil
 }
 
@@ -74,6 +81,38 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 		return err
 	}
 	d.logger.Debug().Msgf("Created %s user %s", RoleAdmin, adminUser)
+
+	return nil
+}
+
+func (d *Driver) CreateNilCategory() error {
+	category, err := d.Category().GetByID(ImmutableCategoryID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+
+	// category already exists
+	if category != nil {
+		return nil
+	}
+
+	_, err = d.Category().collection.InsertOne(context.Background(), &Category{
+		Model: Model{
+			ID: ImmutableCategoryID,
+		},
+		Index: "KRYVEA",
+		Name:  "DELETED-CATEGORY",
+		GenericDescription: map[string]string{
+			"en": "The original category for this vulnerability has been deleted, please select a new one",
+		},
+		GenericRemediation: map[string]string{
+			"en": "",
+		},
+	})
+	if err != nil {
+		return err
+	}
+	d.logger.Debug().Msg("Created nil category")
 
 	return nil
 }
