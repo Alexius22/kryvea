@@ -1,12 +1,11 @@
 .navbar {
-  @apply sticky top-0 z-10 flex items-center justify-between overflow-x-clip text-nowrap py-2;
-  background-color: var(--bg-primary);
+  @apply flex items-center justify-between overflow-x-clip text-nowrap px-1;
   color: var(--text-primary);
   height: 3rem;
 }
 
 .layout-root {
-  @apply flex transition-all lg:w-auto;
+  @apply flex h-screen transition-all lg:w-auto;
   max-width: var(--main-max-width);
   width: 100%;
 
@@ -42,9 +41,9 @@
 }
 
 .layout-content {
-  @apply flex w-full flex-col overflow-auto px-4;
+  @apply flex w-full flex-col overflow-auto px-4 pt-2;
 }
 
 .layout-main {
-  @apply flex h-full w-full flex-col justify-between;
+  @apply flex h-full w-full flex-col justify-between overflow-auto;
 }
