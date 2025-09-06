@@ -1,9 +1,8 @@
-import { mdiCogs, mdiDownload, mdiPencil, mdiPlus, mdiShapePlus, mdiTrashCan } from "@mdi/js";
+import { mdiDownload, mdiPencil, mdiPlus, mdiShapePlus, mdiTrashCan, mdiUpload } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
-import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import PageHeader from "../components/Composition/PageHeader";
@@ -115,19 +114,15 @@ export default function Categories() {
         </p>
       </Modal>
 
-      {/* Manage categories modal */}
+      {/* Upload categories */}
       <Modal
-        title="Categories management"
+        title="Upload categories"
         confirmButtonLabel="Upload"
         isActive={isModalManageActive}
         onConfirm={handleModalManageConfirm}
         onCancel={() => setIsModalManageActive(false)}
       >
         <Grid className="gap-4">
-          <Buttons>
-            <Button icon={mdiDownload} text="Export categories" small onClick={handleExport} />
-          </Buttons>
-          <Divider />
           <UploadFile
             inputId="imported_categories"
             filename={fileObj?.name}
@@ -148,7 +143,8 @@ export default function Categories() {
       <PageHeader icon={mdiShapePlus} title="Categories">
         <Buttons>
           <Button icon={mdiPlus} text="New category" small onClick={() => navigate("new")} />
-          <Button icon={mdiCogs} text="Categories management" small onClick={() => setIsModalManageActive(true)} />
+          <Button icon={mdiUpload} text="Upload categories" small onClick={() => setIsModalManageActive(true)} />
+          <Button icon={mdiDownload} text="Export categories" small onClick={handleExport} />
         </Buttons>
       </PageHeader>
 
