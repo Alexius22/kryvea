@@ -102,11 +102,11 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 	highestSeverityByCategoryType := make(map[string]float64)
 
 	severityColors := map[string]string{
-		cvss.CvssSeverityCritical: "#800080",
-		cvss.CvssSeverityHigh:     "#ff0000",
-		cvss.CvssSeverityMedium:   "#ffa500",
-		cvss.CvssSeverityLow:      "#ffff00",
-		cvss.CvssSeverityNone:     "#008000",
+		cvss.CvssSeverityCritical: "#7030A0",
+		cvss.CvssSeverityHigh:     "#EE0000",
+		cvss.CvssSeverityMedium:   "#FFC000",
+		cvss.CvssSeverityLow:      "#FFFF00",
+		cvss.CvssSeverityNone:     "#92d050",
 	}
 
 	for _, vulnerability := range vulnerabilities {
