@@ -322,7 +322,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentUpdateData(data)
+	errStr = d.validateAssessmentData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -655,22 +655,6 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 
 	if data.EndDateTime.IsZero() {
 		return "End date is required"
-	}
-
-	// filter valid cvssVersions
-	data.CVSSVersions = d.filterValidCvssVersions(data.CVSSVersions)
-
-	return ""
-}
-
-func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) string {
-	if data.Name == "" &&
-		data.StartDateTime.IsZero() &&
-		data.EndDateTime.IsZero() &&
-		data.Status == "" &&
-		(data.Type.Full == "" || data.Type.Short == "") {
-
-		return "No data to update"
 	}
 
 	// filter valid cvssVersions
