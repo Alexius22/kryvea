@@ -256,7 +256,7 @@ export default function MonacoCodeEditor({
   return (
     <Grid>
       {label && <Label text={label} />}
-      <div className="monaco-code-editor-parent w-full max-w-full border border-[color:--border-primary]">
+      <div className="monaco-code-editor-parent !w-full !max-w-full border border-[color:--border-primary]">
         <Editor
           height={height}
           language={language}
