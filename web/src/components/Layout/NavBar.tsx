@@ -1,12 +1,13 @@
 import {
   mdiAccount,
+  mdiChevronDoubleRight,
   mdiFullscreen,
   mdiFullscreenExit,
   mdiLogout,
   mdiWeatherNight,
   mdiWhiteBalanceSunny,
 } from "@mdi/js";
-import { ReactNode, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../../App";
 import { getData, postData } from "../../api/api";
@@ -14,12 +15,9 @@ import { User } from "../../types/common.types";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
+import Breadcrumb from "./Breadcrumb";
 
-type Props = {
-  children?: ReactNode;
-};
-
-export default function NavBar({ children }: Props) {
+export default function NavBar() {
   const {
     useUsername: [username, setUsername],
     useDarkTheme: [darkTheme, setDarkTheme],
@@ -40,7 +38,11 @@ export default function NavBar({ children }: Props) {
 
   return (
     <nav className="navbar">
-      {children}
+      <Breadcrumb
+        homeElement={"Home"}
+        separator={<Icon viewBox="4 4 20 7.5" path={mdiChevronDoubleRight} />}
+        capitalizeLinks
+      />
       <Buttons noWrap>
         <Button
           onClick={() => navigate("/profile")}
