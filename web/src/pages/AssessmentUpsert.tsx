@@ -20,6 +20,11 @@ import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
 import { getPageTitle } from "../utils/helpers";
 
+type AssessmentPayload = Omit<
+  Assessment,
+  "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned"
+>;
+
 const ASSESSMENT_TYPE: SelectOption[] = [
   {
     value: { short: "VAPT", full: "Vulnerability Assessment Penetration Test" },
@@ -74,9 +79,25 @@ const initialSelectedOptionsState: {
 
 function reducer(
   state: typeof initialSelectedOptionsState,
-  { field, value }: { field: Keys<typeof initialSelectedOptionsState>; value: SelectOption }
+  {
+    action,
+    field,
+    value,
+  }:
+    | { action: "field"; field: Keys<typeof initialSelectedOptionsState>; value: SelectOption }
+    | { action: "all"; field: ""; value: AssessmentPayload }
 ) {
-  return { ...state, [field]: value };
+  switch (action) {
+    case "field":
+      return { ...state, [field]: value };
+    case "all":
+      return {
+        type: { label: value.type.full, value: value.type },
+        environment: { label: value.environment, value: value.environment },
+        testing_type: { label: value.testing_type, value: value.testing_type },
+        osstmm_vector: { label: value.osstmm_vector, value: value.osstmm_vector },
+      };
+  }
 }
 
 export default function AssessmentUpsert() {
@@ -92,9 +113,7 @@ export default function AssessmentUpsert() {
   const [hostName, setHostName] = useState("");
   const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
 
-  const [form, setForm] = useState<
-    Omit<Assessment, "id" | "created_at" | "updated_at" | "vulnerability_count" | "customer" | "is_owned">
-  >({
+  const [form, setForm] = useState<AssessmentPayload>({
     type: { short: "", full: "" },
     name: "",
     start_date_time: new Date().toISOString(),
@@ -138,6 +157,7 @@ export default function AssessmentUpsert() {
             testing_type: data.testing_type,
             osstmm_vector: data.osstmm_vector,
           });
+          updateSelectedOptions({ action: "all", field: "", value: data });
         },
         err => {
           toast.error(err.response.data.error);
@@ -160,7 +180,7 @@ export default function AssessmentUpsert() {
   };
 
   const handleSelectChange = (field: Keys<typeof initialSelectedOptionsState>, option: SelectOption | null) => {
-    updateSelectedOptions({ field: field, value: option });
+    updateSelectedOptions({ action: "field", field: field, value: option });
     handleChange(field, option ? option.value : "");
   };
 
