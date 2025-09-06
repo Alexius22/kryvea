@@ -1,9 +1,9 @@
 import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
 import { isValidElement, useCallback, useEffect, useMemo, useState } from "react";
 import { v4 } from "uuid";
-import Card from "../CardBox/Card";
 import Input from "../Form/Input";
-import Icon from "../Icon";
+import Card from "./Card";
+import Icon from "./Icon";
 import Paginator from "./Paginator";
 import Shimmer from "./Shimmer";
 
@@ -112,9 +112,9 @@ export default function Table({
   };
 
   return (
-    <Card className={`!relative gap-0 !p-0 ${wMin ? "w-min" : ""}`}>
+    <Card className={`!relative !gap-0 !p-0 ${wMin ? "w-min" : ""}`}>
       <Input
-        className="rounded-t-2xl bg-transparent p-4 focus:border-transparent"
+        className="rounded-t-2xl bg-transparent p-[11px] focus:border-transparent"
         placeholder="Search"
         type="text"
         value={filterText}

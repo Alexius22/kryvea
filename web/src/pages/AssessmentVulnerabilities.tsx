@@ -7,8 +7,8 @@ import { GlobalContext } from "../App";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
-import { formatDate } from "../components/dateUtils";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import DateCalendar from "../components/Form/DateCalendar";
@@ -16,9 +16,9 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Category, Customer, exportTypes, Template, Vulnerability } from "../types/common.types";
+import { formatDate } from "../utils/dates";
+import { getPageTitle } from "../utils/helpers";
 
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
@@ -313,7 +313,7 @@ export default function AssessmentVulnerabilities() {
         <p>Are you sure to delete this vulnerability?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
+      <PageHeader icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
           <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button
@@ -326,7 +326,7 @@ export default function AssessmentVulnerabilities() {
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
           {/* <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} /> */}
         </Buttons>
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={vulnerabilities.map(vulnerability => {

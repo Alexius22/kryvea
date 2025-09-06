@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Subtitle from "../components/Composition/Subtitle";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
@@ -13,9 +14,8 @@ import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Customer, User } from "../types/common.types";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Users() {
   const [username, setUsername] = useState("");
@@ -242,9 +242,9 @@ export default function Users() {
         <p>Are you sure you want to delete this user?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiAccountMultiple} title="Users">
+      <PageHeader icon={mdiAccountMultiple} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/users/new")} />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       {/* Users Table */}
       <Table

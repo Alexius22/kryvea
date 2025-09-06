@@ -4,13 +4,13 @@ import { toast } from "react-toastify";
 import { postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
 import Grid from "../components/Composition/Grid";
 import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Login() {
   const [username, setUsername] = useState("");
