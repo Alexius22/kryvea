@@ -1,5 +1,5 @@
 import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTabSearch, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
@@ -14,7 +14,7 @@ import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import { Assessment, Customer, exportTypes, Template } from "../types/common.types";
+import { Assessment, exportTypes, Template } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 
@@ -32,14 +32,14 @@ export default function Assessments() {
 
   const [cloneName, setCloneName] = useState("");
 
-  const [exportType, setExportType] = useState<SelectOption>(exportTypes[0]);
-  const [exportTemplateOptions, setExportTemplateOptions] = useState<Template[]>([]);
+  const [selectedExportTypeOption, setSelectedExportTypeOption] = useState<SelectOption>(exportTypes[0]);
+  const [templatesByTypeAndLanguage, setTemplatesByTypeAndLanguage] = useState<Template[]>([]);
+  const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([]);
   const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
-  const allTemplatesRef = useRef<Template[]>([]);
+  const [allTemplates, setAllTemplates] = useState<Template[]>([]);
 
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
-
   const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
 
   const [statusSelectOptions] = useState<SelectOption[]>([
@@ -57,29 +57,33 @@ export default function Assessments() {
     getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
   };
 
-  function filterTemplatesByType(type: string) {
-    const matches = allTemplatesRef.current.filter(t => t.mime_type === type);
-    setExportTemplateOptions(matches);
-    setSelectedExportTemplate(matches[0] || null);
-  }
-
-  function fetchTemplates() {
-    getData<Customer>(`/api/customers/${customerId}`, customerData => {
-      getData<Template[]>("/api/templates", allTemplates => {
-        const all = [...customerData.templates, ...allTemplates];
-        const uniqueTemplates = Array.from(new Map(all.map(t => [t.file_id, t])).values());
-
-        allTemplatesRef.current = uniqueTemplates;
-        filterTemplatesByType(exportType.value);
-      });
-    });
-  }
-
   useEffect(() => {
     document.title = getPageTitle("Assessments");
     fetchAssessments();
-    fetchTemplates();
+    getData<Template[]>("/api/templates", setAllTemplates);
   }, []);
+
+  const getTemplatesByTypeAndLanguage = () =>
+    allTemplates.filter(
+      t => t.language === assessmentsData[0]?.customer.language && t.mime_type === selectedExportTypeOption.value
+    );
+
+  useEffect(() => {
+    const filteredTemplates = getTemplatesByTypeAndLanguage();
+
+    setTemplatesByTypeAndLanguage(filteredTemplates);
+    setTemplateOptions(
+      filteredTemplates.map(t => ({
+        value: t.id,
+        label: t.type ? `${t.name} (${t.type})` : t.name,
+      }))
+    );
+
+    setSelectedExportTemplate(null);
+    if (filteredTemplates.length > 0 && !selectedExportTemplate) {
+      setSelectedExportTemplate(filteredTemplates[0]);
+    }
+  }, [allTemplates, selectedExportTypeOption]);
 
   const handleOwnedToggle = assessment => () => {
     patchData(
@@ -132,7 +136,7 @@ export default function Assessments() {
 
   const exportAssessment = () => {
     const payload = {
-      type: exportType.value,
+      type: selectedExportTypeOption.value,
       template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
       delivery_date_time: deliveryDate,
@@ -145,7 +149,12 @@ export default function Assessments() {
       data => {
         const url = window.URL.createObjectURL(data);
         const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
-        const extension = exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip";
+        const extension =
+          selectedExportTypeOption.value === "word"
+            ? "docx"
+            : selectedExportTypeOption.value === "excel"
+              ? "xlsx"
+              : "zip";
         const fileName = `${assessment?.name ?? "assessment"}_export.${extension}`;
 
         const link = document.createElement("a");
@@ -210,16 +219,13 @@ export default function Assessments() {
             label="Type"
             id="type"
             options={exportTypes}
-            value={exportType}
-            onChange={option => setExportType(option)}
+            value={selectedExportTypeOption}
+            onChange={setSelectedExportTypeOption}
           />
           <SelectWrapper
             label="Template Type"
             id="template"
-            options={exportTemplateOptions.map(t => ({
-              value: t.id,
-              label: t.type ? `${t.name} (${t.type})` : t.name,
-            }))}
+            options={templateOptions}
             value={
               selectedExportTemplate
                 ? {
@@ -231,7 +237,7 @@ export default function Assessments() {
                 : null
             }
             onChange={option => {
-              const selected = exportTemplateOptions.find(t => t.id === option.value) || null;
+              const selected = allTemplates.find(t => t.id === option.value) || null;
               setSelectedExportTemplate(selected);
             }}
           />
