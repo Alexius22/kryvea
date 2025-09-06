@@ -78,9 +78,9 @@ type User struct {
 	Model          `bson:",inline"`
 	DisabledAt     time.Time    `json:"disabled_at,omitempty" bson:"disabled_at"`
 	Username       string       `json:"username" bson:"username"`
-	Password       string       `json:"-" bson:"password"`
+	Password       []byte       `json:"-" bson:"password"`
 	PasswordExpiry time.Time    `json:"-" bson:"password_expiry"`
-	Token          uuid.UUID    `json:"-" bson:"token"`
+	Token          crypto.Token `json:"-" bson:"token"`
 	TokenExpiry    time.Time    `json:"-" bson:"token_expiry"`
 	Role           string       `json:"role" bson:"role"`
 	Customers      []Customer   `json:"customers,omitempty" bson:"customers"`
@@ -112,7 +112,7 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
+func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.UUID{}, err
@@ -135,7 +135,7 @@ func (ui *UserIndex) Insert(user *User) (uuid.UUID, error) {
 		user.Assessments = []Assessment{}
 	}
 
-	hash, err := crypto.Encrypt(user.Password)
+	hash, err := crypto.Encrypt(password)
 	if err != nil {
 		return uuid.UUID{}, err
 	}
@@ -164,10 +164,7 @@ func (ui *UserIndex) Login(username, password string) (*User, error) {
 		return nil, ErrDisabledUser
 	}
 
-	user.Token, err = uuid.NewRandom()
-	if err != nil {
-		return nil, err
-	}
+	user.Token = crypto.NewToken()
 
 	user.TokenExpiry = time.Now().Add(TokenExpireTime)
 	if user.PasswordExpiry.Before(time.Now()) {
@@ -203,7 +200,7 @@ func (ui *UserIndex) RefreshUserToken(user *User) error {
 func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
-			"token":        uuid.Nil,
+			"token":        crypto.TokenNil,
 			"token_expiry": time.Time{},
 		}})
 	return err
@@ -243,7 +240,7 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 	return users, err
 }
 
-func (ui *UserIndex) GetByToken(token uuid.UUID) (*User, error) {
+func (ui *UserIndex) GetByToken(token crypto.Token) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,
 	})
@@ -295,7 +292,7 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	return enrichError(err)
 }
 
-func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User) error {
+func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) error {
 	filter := bson.M{"_id": userID}
 
 	update := bson.M{
@@ -308,8 +305,8 @@ func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User) error {
 		update["$set"].(bson.M)["username"] = newUser.Username
 	}
 
-	if newUser.Password != "" {
-		hash, err := crypto.Encrypt(newUser.Password)
+	if password != "" {
+		hash, err := crypto.Encrypt(password)
 		if err != nil {
 			return err
 		}
@@ -373,10 +370,7 @@ func (ui *UserIndex) ResetPassword(user *User, password string) error {
 	user.UpdatedAt = time.Now()
 	user.PasswordExpiry = TimeNever
 
-	user.Token, err = uuid.NewRandom()
-	if err != nil {
-		return err
-	}
+	user.Token = crypto.NewToken()
 	user.TokenExpiry = time.Now().Add(TokenExpireTime)
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
