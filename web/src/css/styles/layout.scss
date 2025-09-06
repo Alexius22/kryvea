@@ -18,7 +18,7 @@
 }
 
 .layout-sidebar {
-  @apply sticky top-0 block h-screen border-r border-[color:--border-secondary] transition-all duration-300;
+  @apply sticky top-0 block h-screen border-r border-[color:--border-primary] transition-all duration-300;
 
   header {
     border-bottom: 1px solid;
@@ -26,8 +26,8 @@
     border-image: linear-gradient(
       to right,
       var(--bg-primary),
-      var(--border-secondary),
-      var(--border-secondary)
+      var(--border-primary),
+      var(--border-primary)
     ) 1;
   }
 }

@@ -1,4 +1,3 @@
-/* Table head */
 table thead {
   background-color: rgba(var(--bg-quinary-rgb), 0.6);
 }
@@ -7,19 +6,9 @@ table th {
   @apply text-nowrap border-none px-4 py-2 text-left;
 }
 
-table tbody {
-  border-top: 1px solid var(--border-primary);
-  border-bottom: 1px solid var(--border-primary);
-}
-
-/* Table body */
 table tr {
   @apply border-b;
   border-color: var(--border-primary);
-
-  &:last-child:not(:first-child) {
-    border-bottom: none;
-  }
 
   td[data-buttons-cell] {
     background-color: var(--bg-tertiary);
