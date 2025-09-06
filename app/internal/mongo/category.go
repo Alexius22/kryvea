@@ -121,6 +121,10 @@ func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, err
 }
 
 func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -140,6 +144,10 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 }
 
 func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return err
@@ -157,8 +165,10 @@ func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 }
 
 func (ci *CategoryIndex) GetAll() ([]Category, error) {
+	filter := bson.M{"_id": bson.M{"$ne": ImmutableCategoryID}}
+
 	categories := []Category{}
-	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -179,10 +189,14 @@ func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 }
 
 func (ci *CategoryIndex) Search(query string) ([]Category, error) {
-	cursor, err := ci.collection.Find(context.Background(), bson.M{"$or": []bson.M{
-		{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-		{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-	}})
+	filter := bson.M{
+		"$or": []bson.M{
+			{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+			{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+		},
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
