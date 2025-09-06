@@ -1,5 +1,5 @@
 import { mdiDownload, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
@@ -16,7 +16,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
-import { Category, Customer, exportTypes, Template, Vulnerability } from "../types/common.types";
+import { Category, exportTypes, Template, Vulnerability } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 
@@ -27,7 +27,7 @@ export default function AssessmentVulnerabilities() {
     useCtxVulnerability: [, setCtxVulnerability],
     useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
-  const { assessmentId, customerId } = useParams<{ customerId: string; assessmentId: string }>();
+  const { assessmentId } = useParams<{ assessmentId: string }>();
 
   const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
@@ -40,14 +40,14 @@ export default function AssessmentVulnerabilities() {
   const [source, setSource] = useState<Category["source"]>();
   const [fileObj, setFileObj] = useState<File | null>(null);
 
-  const [exportType, setExportType] = useState<SelectOption>(exportTypes[0]);
-  const [exportTemplateOptions, setExportTemplateOptions] = useState<Template[]>([]);
+  const [selectedExportTypeOption, setSelectedExportTypeOption] = useState<SelectOption>(exportTypes[0]);
+  const [templatesByTypeAndLanguage, setTemplatesByTypeAndLanguage] = useState<Template[]>([]);
+  const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([]);
   const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
-  const allTemplatesRef = useRef<Template[]>([]);
+  const [allTemplates, setAllTemplates] = useState<Template[]>([]);
 
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
-
   const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
 
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
@@ -57,35 +57,31 @@ export default function AssessmentVulnerabilities() {
     getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
   }
 
-  function filterTemplatesByType(type: string) {
-    const matches = allTemplatesRef.current.filter(t => t.mime_type === type);
-    setExportTemplateOptions(matches);
-    setSelectedExportTemplate(matches[0] || null);
-  }
-
-  function fetchTemplates() {
-    getData<Customer>(`/api/customers/${customerId}`, customerData => {
-      getData<Template[]>("/api/templates", allTemplates => {
-        const all = [...customerData.templates, ...allTemplates];
-        const uniqueTemplates = Array.from(new Map(all.map(t => [t.file_id, t])).values());
-
-        allTemplatesRef.current = uniqueTemplates;
-        filterTemplatesByType(exportType.value);
-      });
-    });
-  }
+  const getTemplatesByTypeAndLanguage = () =>
+    allTemplates.filter(t => t.language === ctxCustomer.language && t.mime_type === selectedExportTypeOption.value);
 
   useEffect(() => {
     document.title = getPageTitle("Assessment Vulnerabilities");
     fetchVulnerabilities();
-    fetchTemplates();
+    getData<Template[]>("/api/templates", setAllTemplates);
   }, []);
 
   useEffect(() => {
-    if (allTemplatesRef.current.length > 0) {
-      filterTemplatesByType(exportType.value);
+    const filteredTemplates = getTemplatesByTypeAndLanguage();
+
+    setTemplatesByTypeAndLanguage(filteredTemplates);
+    setTemplateOptions(
+      filteredTemplates.map(t => ({
+        value: t.id,
+        label: t.type ? `${t.name} (${t.type})` : t.name,
+      }))
+    );
+
+    setSelectedExportTemplate(null);
+    if (filteredTemplates.length > 0 && !selectedExportTemplate) {
+      setSelectedExportTemplate(filteredTemplates[0]);
     }
-  }, [exportType]);
+  }, [allTemplates, selectedExportTypeOption]);
 
   const openExportModal = () => {
     setIsModalDownloadActive(true);
@@ -93,7 +89,7 @@ export default function AssessmentVulnerabilities() {
 
   const exportAssessment = () => {
     const payload = {
-      type: exportType.value,
+      type: selectedExportTypeOption.value,
       template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
       delivery_date_time: deliveryDate,
@@ -105,7 +101,12 @@ export default function AssessmentVulnerabilities() {
       payload,
       data => {
         const url = window.URL.createObjectURL(data);
-        const extension = exportType.value === "word" ? "docx" : exportType.value === "excel" ? "xlsx" : "zip";
+        const extension =
+          selectedExportTypeOption.value === "word"
+            ? "docx"
+            : selectedExportTypeOption.value === "excel"
+              ? "xlsx"
+              : "zip";
         const fileName = `${ctxAssessment?.name ?? "assessment"}_export.${extension}`;
 
         const link = document.createElement("a");
@@ -210,20 +211,17 @@ export default function AssessmentVulnerabilities() {
             label="Type"
             id="type"
             options={exportTypes}
-            value={exportType}
-            onChange={option => setExportType(option)}
+            value={selectedExportTypeOption}
+            onChange={setSelectedExportTypeOption}
           />
           <SelectWrapper
             label="Template Type"
             id="template"
-            options={exportTemplateOptions.map(t => ({
-              value: t.file_id,
-              label: t.type ? `${t.name} (${t.type})` : t.name,
-            }))}
+            options={templateOptions}
             value={
               selectedExportTemplate
                 ? {
-                    value: selectedExportTemplate.file_id,
+                    value: selectedExportTemplate.id,
                     label: selectedExportTemplate.type
                       ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
                       : selectedExportTemplate.name,
@@ -231,7 +229,7 @@ export default function AssessmentVulnerabilities() {
                 : null
             }
             onChange={option => {
-              const selected = exportTemplateOptions.find(t => t.id === option.value) || null;
+              const selected = allTemplates.find(t => t.id === option.value) || null;
               setSelectedExportTemplate(selected);
             }}
           />
