@@ -286,7 +286,6 @@ export default function AssessmentVulnerabilities() {
             inputId={"file"}
             filename={fileObj?.name}
             name={"imagePoc"}
-            widthClass="w-3/4"
             accept={".nessus,text/xml"}
             onChange={changeFile}
             onButtonClick={clearFile}
