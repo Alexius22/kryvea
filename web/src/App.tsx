@@ -1,7 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-import LayoutAuthenticated from "./components/Layout/LayoutAuthenticated";
+import Layout from "./components/Layout/Layout";
 import RouteWatcher from "./components/Layout/RouteWatcher";
 import {
   AddCustomer,
@@ -108,7 +108,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<RouteWatcher />}>
-            <Route element={<LayoutAuthenticated />}>
+            <Route element={<Layout />}>
               {/* Dashboard and Profile */}
               <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
