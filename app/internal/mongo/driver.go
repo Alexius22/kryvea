@@ -49,17 +49,37 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 		i.init()
 	}
 
-	err = d.CreateAdminUser(adminUser, adminPass)
+	isInitialized, err := d.IsDbInitialized()
 	if err != nil {
 		return nil, err
 	}
 
-	err = d.CreateNilCategory()
-	if err != nil {
-		return nil, err
+	if !isInitialized {
+		err = d.CreateNilCategory()
+		if err != nil {
+			return nil, err
+		}
+
+		err = d.CreateAdminUser(adminUser, adminPass)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return d, nil
+}
+
+func (d *Driver) IsDbInitialized() (bool, error) {
+	_, err := d.Category().GetByID(ImmutableCategoryID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return false, err
+	}
+
+	if err == mongo.ErrNoDocuments {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
