@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { Outlet } from "react-router";
 import { GlobalContext } from "../../App";
 import FooterBar from "./FooterBar";
@@ -13,37 +13,37 @@ export default function Layout() {
 
   const mainRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let scrollTimeout: number | null = null;
+  const getScrollOptions = useCallback<(delta: number) => ScrollToOptions>(
+    delta => (browser === "Chrome" ? { top: delta, behavior: "instant" } : { top: delta * 4, behavior: "smooth" }),
+    []
+  );
 
+  useEffect(() => {
+    // If scrolled outside of main, scroll main instead
     function handleWheel(e: WheelEvent) {
       const main = mainRef.current;
-      if (!main) return;
+      if (!main) {
+        return;
+      }
+      if (main.contains(e.target as Node)) {
+        return;
+      }
 
-      if (!main.contains(e.target as Node)) {
-        const delta = e.deltaY;
-        const maxScroll = main.scrollHeight - main.clientHeight;
-        const atTop = main.scrollTop <= 0;
-        const atBottom = main.scrollTop >= maxScroll;
+      const delta = e.deltaY;
+      const maxScroll = main.scrollHeight - main.clientHeight;
 
-        if ((delta < 0 && !atTop) || (delta > 0 && !atBottom)) {
-          e.preventDefault();
+      const atTop = main.scrollTop <= 0;
+      const atBottom = main.scrollTop >= maxScroll;
 
-          if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
-
-          scrollTimeout = requestAnimationFrame(() => {
-            const scrollOptions: ScrollToOptions =
-              browser === "Chrome" ? { top: delta, behavior: "instant" } : { top: delta * 4, behavior: "smooth" };
-            main.scrollBy(scrollOptions);
-          });
-        }
+      if ((delta < 0 && !atTop) || (delta > 0 && !atBottom)) {
+        main.scrollBy(getScrollOptions(delta));
+        e.preventDefault();
       }
     }
 
     document.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
       document.removeEventListener("wheel", handleWheel);
-      if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
     };
   }, []);
 
