@@ -19,6 +19,15 @@ const (
 	SourceBurp    = "burp"
 )
 
+var (
+	ImmutableCategoryID uuid.UUID = [16]byte{
+		'K', 'R', 'Y', 'V',
+		'E', 'A', '-', 'I',
+		'M', 'M', 'U', 'T',
+		'A', 'B', 'L', 'E',
+	}
+)
+
 type Category struct {
 	Model              `bson:",inline"`
 	Index              string            `json:"index" bson:"index"`
@@ -136,10 +145,10 @@ func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 		return err
 	}
 
-	filter := bson.M{"category_id": ID}
+	filter := bson.M{"category._id": ID}
 	update := bson.M{
 		"$set": bson.M{
-			"category_id": uuid.Nil,
+			"category._id": ImmutableCategoryID,
 		},
 	}
 
