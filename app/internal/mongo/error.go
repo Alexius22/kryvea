@@ -9,6 +9,8 @@ import (
 var (
 	ErrDuplicateKey     error = errors.New("duplicate key")
 	ErrBulkDuplicateKey error = errors.New("bulk duplicate key")
+
+	ErrImmutableCategory error = errors.New("cannot edit immutable category")
 )
 
 func enrichError(err error) error {
