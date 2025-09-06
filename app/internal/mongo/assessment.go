@@ -81,8 +81,8 @@ type Assessment struct {
 }
 
 type AssessmentType struct {
-	Short string `json:"short,omitempty" bson:"short"`
-	Full  string `json:"full,omitempty" bson:"full"`
+	Short string `json:"short" bson:"short"`
+	Full  string `json:"full" bson:"full"`
 }
 
 type AssessmentIndex struct {
@@ -273,48 +273,19 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at": time.Now(),
+			"updated_at":        time.Now(),
+			"name":              assessment.Name,
+			"start_date_time":   assessment.StartDateTime,
+			"end_date_time":     assessment.EndDateTime,
+			"kickoff_date_time": assessment.KickoffDateTime,
+			"targets":           assessment.Targets,
+			"status":            assessment.Status,
+			"type":              assessment.Type,
+			"cvss_versions":     assessment.CVSSVersions,
+			"environment":       assessment.Environment,
+			"testing_type":      assessment.TestingType,
+			"osstmm_vector":     assessment.OSSTMMVector,
 		},
-	}
-
-	if assessment.Name != "" {
-		update["$set"].(bson.M)["name"] = assessment.Name
-	}
-
-	if !assessment.StartDateTime.IsZero() {
-		update["$set"].(bson.M)["start_date_time"] = assessment.StartDateTime
-	}
-
-	if !assessment.EndDateTime.IsZero() {
-		update["$set"].(bson.M)["end_date_time"] = assessment.EndDateTime
-	}
-
-	if len(assessment.Targets) > 0 {
-		update["$set"].(bson.M)["targets"] = assessment.Targets
-	}
-
-	if assessment.Status != "" {
-		update["$set"].(bson.M)["status"] = assessment.Status
-	}
-
-	if assessment.Type.Short != "" || assessment.Type.Full != "" {
-		update["$set"].(bson.M)["type"] = assessment.Type
-	}
-
-	if len(assessment.CVSSVersions) > 0 {
-		update["$set"].(bson.M)["cvss_versions"] = assessment.CVSSVersions
-	}
-
-	if assessment.Environment != "" {
-		update["$set"].(bson.M)["environment"] = assessment.Environment
-	}
-
-	if assessment.TestingType != "" {
-		update["$set"].(bson.M)["testing_type"] = assessment.TestingType
-	}
-
-	if assessment.OSSTMMVector != "" {
-		update["$set"].(bson.M)["osstmm_vector"] = assessment.OSSTMMVector
 	}
 
 	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
