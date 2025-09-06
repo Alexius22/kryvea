@@ -11,7 +11,7 @@ import {
   mdiTabSearch,
   mdiViewList,
 } from "@mdi/js";
-import { useContext, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { Link } from "react-router";
 import { navigate } from "../../api/api";
 import { getKryveaShadow } from "../../api/cookie";
@@ -101,14 +101,14 @@ export default function Sidebar() {
                 className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square h-12 justify-center" : "!pl-2"}`}
                 to={item.href}
                 onClick={() => setCtxSelectedSidebarItem(item.label)}
-                key={item.label}
                 title={item.label}
+                key={`sidebar-${item.label}`}
               >
                 <Icon path={item.icon} size={iconSize} />
                 <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
               </Link>
             ) : (
-              <>
+              <Fragment key={`sidebar-${item.label}`}>
                 <a
                   className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
                   onClick={() => {
@@ -130,7 +130,7 @@ export default function Sidebar() {
                         to={subItem.href}
                         onClick={() => setCtxSelectedSidebarItem(subItem.label)}
                         title={subItem.label}
-                        key={subItem.label}
+                        key={`sidebar-${subItem.label}`}
                       >
                         <Icon path={subItem.icon} size={iconSize} />
                         <span className={isCollapsed ? "hidden" : ""}>{subItem.label}</span>
@@ -138,7 +138,7 @@ export default function Sidebar() {
                     ))}
                   </>
                 )}
-              </>
+              </Fragment>
             )
           )}
         </Flex>
