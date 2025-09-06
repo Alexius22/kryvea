@@ -1,5 +1,5 @@
 import { mdiClose } from "@mdi/js";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
 import Card from "./Card";
@@ -28,19 +28,41 @@ export default function Modal({
   onConfirm,
   onCancel,
 }: Props) {
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      switch (event.key) {
+        case "Enter":
+          onConfirm?.();
+          break;
+        case "Escape":
+          onCancel?.();
+          break;
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isActive]);
+
   if (!isActive) {
     return null;
   }
 
   const footer = (
-    <Buttons className="-ml-6">
-      {onConfirm && <Button text={confirmButtonLabel} onClick={onConfirm} />}
+    <Buttons>
       {onCancel && <Button variant="outline-only" text={cancelButtonLabel} onClick={onCancel} />}
+      {onConfirm && <Button text={confirmButtonLabel} onClick={onConfirm} />}
     </Buttons>
   );
 
   return (
-    <div className="card-modal glasscard fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center">
+    <div className="card-modal glasscard fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center !border-none">
       <div className={"w-11/12 transition-transform md:w-2/5 lg:w-2/5 xl:w-1/3"}>
         <Card className={className} footer={footer} noHighlight>
           <CardTitle title={title} subtitle={subtitle}>
