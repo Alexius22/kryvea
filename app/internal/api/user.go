@@ -66,13 +66,12 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 
 	user := &mongo.User{
 		Username:  data.Username,
-		Password:  data.Password,
 		Role:      data.Role,
 		Customers: customers,
 	}
 
 	// insert user into database
-	userID, err := d.mongo.User().Insert(user)
+	userID, err := d.mongo.User().Insert(user, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
@@ -323,11 +322,10 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 
 	newUser := &mongo.User{
 		Username: data.Username,
-		Password: data.NewPassword,
 	}
 
 	// update user in database
-	err := d.mongo.User().UpdateMe(user.ID, newUser)
+	err := d.mongo.User().UpdateMe(user.ID, newUser, data.NewPassword)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 

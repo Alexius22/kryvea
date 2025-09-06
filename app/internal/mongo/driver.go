@@ -68,9 +68,8 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 
 	_, err = d.User().Insert(&User{
 		Username: adminUser,
-		Password: adminPass,
 		Role:     RoleAdmin,
-	})
+	}, adminPass)
 	if err != nil {
 		return err
 	}

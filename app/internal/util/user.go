@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/Alexius22/kryvea/internal/crypto"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -137,7 +138,7 @@ func IsValidRole(role string) bool {
 	return false
 }
 
-func SetSessionCookies(c *fiber.Ctx, token uuid.UUID, expires time.Time) {
+func SetSessionCookies(c *fiber.Ctx, token crypto.Token, expires time.Time) {
 	user := c.Locals("user").(*mongo.User)
 	SetKryveaCookie(c, token.String(), expires)
 	SetKryveaShadowCookie(c, user.Role, expires)
@@ -168,8 +169,8 @@ func SetKryveaShadowCookie(c *fiber.Ctx, value string, expires time.Time) {
 func ClearCookies(c *fiber.Ctx) {
 	c.ClearCookie(KryveaSessionCookie)
 
-	// standard ClearCookie does not allow frontend
-	// to check cookie existence as quickly as
+	// The fiber function ClearCookie does not allow
+	// frontend to check cookie existence as quickly as
 	// the following approach does
 	c.Cookie(&fiber.Cookie{
 		Name:     KryveaShadowCookie,
