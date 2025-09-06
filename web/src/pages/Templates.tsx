@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
@@ -11,10 +12,9 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Template } from "../types/common.types";
-import { languageMapping } from "../types/languages";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Templates() {
   const [uploadedTemplates, setUploadedTemplates] = useState<Template[]>([]);
@@ -169,9 +169,9 @@ export default function Templates() {
         <p>Are you sure you want to delete this template?</p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiFileChart} title="Templates">
+      <PageHeader icon={mdiFileChart} title="Templates">
         <Button icon={mdiPlus} text="New template" small onClick={() => setIsModalUploadActive(true)} />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={uploadedTemplates.map(template => ({

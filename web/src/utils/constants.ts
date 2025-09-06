@@ -1,3 +1,8 @@
+export const appTitle = "Kryvea";
+
+export const USER_ROLE_ADMIN = "admin";
+export const USER_ROLE_USER = "user";
+
 export const languageMapping: Record<string, string> = {
   bg: "Bulgarian",
   cs: "Czech",

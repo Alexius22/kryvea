@@ -25,7 +25,7 @@ export default function Paginator({
   const isOverlapping = page => page + 1 < 3 || page > pagesList.length - 3;
 
   return (
-    <div className="flex flex-col items-center justify-between px-3 md:flex-row md:py-0">
+    <div className="flex flex-col items-center justify-between gap-4 px-3 md:flex-row md:py-0">
       <Buttons className="flex-nowrap !overflow-x-scroll">
         {isLessThan10 ? (
           pagesList.map(page => (
@@ -98,9 +98,7 @@ export default function Paginator({
           max={filteredData.length}
           onChange={setPerPage}
         />
-        <small className="mt-6 text-nowrap md:mt-0">
-          Page {numPages === 0 ? 0 : currentPage + 1} of {numPages}
-        </small>
+        <small className="text-nowrap">per page</small>
       </Flex>
     </div>
   );

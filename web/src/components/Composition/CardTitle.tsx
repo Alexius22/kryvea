@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import Grid from "../Composition/Grid";
-import Subtitle from "../Composition/Subtitle";
+import Grid from "./Grid";
+import Subtitle from "./Subtitle";
 
 type Props = {
   title?: string;

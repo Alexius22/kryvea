@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Icon from "../Icon";
+import Icon from "../Composition/Icon";
 
 //  accordionitem component
 function AccordionItem({ title, isOpen, children }) {

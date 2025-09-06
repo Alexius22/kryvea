@@ -1,20 +1,20 @@
 import { mdiListBox, mdiNoteEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
-import SectionTitleLineWithButton from "../components/Section/SectionTitleLineWithButton";
-import { getPageTitle } from "../config";
 import { Customer } from "../types/common.types";
-import { languageMapping } from "../types/languages";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -28,7 +28,7 @@ export default function Customers() {
   });
 
   const {
-    useCtxCustomer: [ctxCustomer, setCtxCustomer],
+    useCtxCustomer: [, setCtxCustomer],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -146,21 +146,21 @@ export default function Customers() {
         </p>
       </Modal>
 
-      <SectionTitleLineWithButton icon={mdiListBox} title="Customers">
+      <PageHeader icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/customers/new")} />
-      </SectionTitleLineWithButton>
+      </PageHeader>
 
       <Table
         data={customers.map(customer => ({
           Name: (
-            <Link
-              to={`/customers/${customer.id}`}
-              onClick={e => {
+            <a
+              className="cursor-pointer"
+              onClick={() => {
                 setCtxCustomer(customer);
               }}
             >
               {customer.name}
-            </Link>
+            </a>
           ),
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (

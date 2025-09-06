@@ -3,11 +3,11 @@ import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
-import Divider from "../components/Divider";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -16,9 +16,9 @@ import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import { getPageTitle } from "../config";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
+import { getPageTitle } from "../utils/helpers";
 
 const ASSESSMENT_TYPE: SelectOption[] = [
   {
@@ -42,6 +42,7 @@ const CVSS_VERSIONS: SelectOption[] = [
 ];
 
 const ENVIRONMENT: SelectOption[] = [
+  { value: "Testing", label: "Testing" },
   { value: "Pre-Production", label: "Pre-Production" },
   { value: "Production", label: "Production" },
 ];
@@ -189,6 +190,23 @@ export default function AssessmentUpsert() {
     const endpoint = isEdit ? `/api/assessments/${assessmentId}` : `/api/assessments`;
 
     const apiCall = isEdit ? patchData : postData;
+
+    if (!form.name) {
+      toast.error("Assessment name required");
+      return;
+    }
+    if (!form.type.full || !form.type.short) {
+      toast.error("Assessment type required");
+      return;
+    }
+    if (Object.values(form.cvss_versions).every(val => val === false)) {
+      toast.error("Select at least one CVSS version");
+      return;
+    }
+    if (form.targets.length === 0) {
+      toast.error("At least a target is required");
+      return;
+    }
 
     apiCall(endpoint, payload, data => {
       toast.success((data as any)?.message);

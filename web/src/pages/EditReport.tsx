@@ -1,9 +1,9 @@
 import { Form, Formik } from "formik";
 import { useEffect } from "react";
-import Card from "../components/CardBox/Card";
+import Card from "../components/Composition/Card";
 import Grid from "../components/Composition/Grid";
 import Textarea from "../components/Form/Textarea";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
 export default function EditReport() {
   useEffect(() => {

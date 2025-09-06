@@ -1,9 +1,8 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./ctxPersistence";
-import LayoutAuthenticated from "./layouts/LayoutAuthenticated";
-import RouteWatcher from "./layouts/RouteWatcher";
+import LayoutAuthenticated from "./components/Layout/LayoutAuthenticated";
+import RouteWatcher from "./components/Layout/RouteWatcher";
 import {
   AddCustomer,
   AddTarget,
@@ -30,6 +29,7 @@ import LiveEditor from "./pages/LiveEditor";
 import Logs from "./pages/Logs";
 import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
+import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
@@ -40,6 +40,7 @@ export type GlobalContextType = {
   useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
   useCtxCategory: [Category, Dispatch<SetStateAction<Category>>];
   useCtxLastPage: [string, Dispatch<SetStateAction<string>>];
+  useCtxSelectedSidebarItem: [string, Dispatch<SetStateAction<string>>];
 };
 
 export const GlobalContext = createContext<GlobalContextType>(null);
@@ -54,6 +55,9 @@ export default function App() {
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
   const useCtxLastPage = useState<string>(() => getLocalStorageCtxState("useCtxLastPage") ?? "/dashboard");
+  const useCtxSelectedSidebarItem = useState<string>(
+    () => getLocalStorageCtxState("useCtxSelectedSidebarItem") ?? "Dashboard"
+  );
 
   useLayoutEffect(() => {
     document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
@@ -91,6 +95,7 @@ export default function App() {
         useCtxVulnerability: bindToLocalStorage(useCtxVulnerability, "useCtxVulnerability"),
         useCtxCategory: bindToLocalStorage(useCtxCategory, "useCtxCategory"),
         useCtxLastPage: bindToLocalStorage(useCtxLastPage, "useCtxLastPage"),
+        useCtxSelectedSidebarItem: bindToLocalStorage(useCtxSelectedSidebarItem, "useCtxSelectedSidebarItem"),
       }}
     >
       <ToastContainer

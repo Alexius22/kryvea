@@ -1,5 +1,5 @@
 .navbar {
-  @apply sticky top-0 z-10 flex items-center justify-between overflow-x-clip text-nowrap px-1 py-2;
+  @apply sticky top-0 z-10 flex items-center justify-between overflow-x-clip text-nowrap py-2;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   height: 3rem;
@@ -19,7 +19,22 @@
 }
 
 .layout-sidebar {
-  @apply sticky top-0 h-screen border-r border-[color:--border-secondary] transition-all duration-300;
+  @apply sticky top-0 block h-screen border-r border-[color:--border-secondary] transition-all duration-300;
+
+  header {
+    border-bottom: 1px solid;
+    // prettier-ignore
+    border-image: linear-gradient(
+      to right,
+      var(--bg-primary),
+      var(--border-secondary),
+      var(--border-secondary)
+    ) 1;
+  }
+}
+
+.sidebar-item {
+  @apply clickable flex gap-4 rounded-lg p-1 hover:bg-[color:--bg-secondary];
 }
 
 .sidebar-item-active {
@@ -27,9 +42,9 @@
 }
 
 .layout-content {
-  @apply flex w-full flex-col px-4;
+  @apply flex w-full flex-col overflow-auto px-4;
 }
 
 .layout-main {
-  @apply flex h-full w-full flex-col justify-between overflow-auto;
+  @apply flex h-full w-full flex-col justify-between;
 }

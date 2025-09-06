@@ -8,6 +8,7 @@ interface TextareaProps {
   helperSubtitle?: string;
   placeholder?: string;
   value?;
+  disabled?: boolean;
   onChange?;
   rows?: number;
 }
@@ -19,6 +20,7 @@ export default function Textarea({
   helperSubtitle,
   placeholder = "Enter text here...",
   value,
+  disabled,
   onChange,
   rows = 6,
 }: TextareaProps) {
@@ -27,10 +29,11 @@ export default function Textarea({
       {label && <Label text={label} htmlFor={id} />}
       <div className="grid">
         <textarea
-          className="resize-y p-2"
+          className={`resize-y p-2 ${disabled ? "opacity-75" : ""}`}
           rows={rows}
           placeholder={placeholder}
           value={value}
+          disabled={disabled}
           onChange={onChange}
           id={id}
         />
