@@ -114,6 +114,12 @@ export default function PocImage({
   }, [imageUrl]);
 
   const onImageChangeWrapper = ({ target: { files } }) => {
+    if (!files || !files[0]) {
+      return;
+    }
+
+    const image_file: File = files[0];
+
     const checkFilenameDuplicate = (pocs: PocDoc[]) =>
       pocs.some((poc, i) => {
         if (poc.type !== POC_TYPE_IMAGE || image_file.name !== poc?.image_file?.name) {
@@ -123,12 +129,6 @@ export default function PocImage({
         toast.error(`Image with name ${image_file.name} already exists in the list at index ${i + 1}.`);
         return true;
       });
-
-    if (!files || !files[0]) {
-      return;
-    }
-
-    const image_file: File = files[0];
 
     if (checkFilenameDuplicate(pocList)) {
       imageInput.current.value = ""; // clean implicit default input change behaviour
