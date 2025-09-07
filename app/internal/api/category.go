@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/bytedance/sonic"
@@ -37,17 +39,26 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	// insert category into database
-	categoryID, err := d.mongo.Category().Insert(&mongo.Category{
+	category := &mongo.Category{
 		Index:              data.Index,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
 		References:         data.References,
 		Source:             data.Source,
-	})
+	}
+
+	// insert category into database
+	categoryID, err := d.mongo.Category().Insert(category)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create category",
 		})
@@ -88,17 +99,26 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	// update category in database
-	err := d.mongo.Category().Update(category.ID, &mongo.Category{
+	newCategory := &mongo.Category{
 		Index:              data.Index,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
 		References:         data.References,
 		Source:             data.Source,
-	})
+	}
+
+	// update category in database
+	err := d.mongo.Category().Update(category.ID, newCategory)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", newCategory.Index, newCategory.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update category",
 		})
@@ -245,8 +265,15 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 		categoryID, err := d.mongo.Category().Upsert(category, override == "true")
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
+
+			if err == mongo.ErrDuplicateKey {
+				return c.JSON(fiber.Map{
+					"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+				})
+			}
+
 			return c.JSON(fiber.Map{
-				"error": "Cannot create category",
+				"error": fmt.Sprintf("Cannot create category \"%s %s\"", category.Index, category.Name),
 			})
 		}
 		categories = append(categories, categoryID)

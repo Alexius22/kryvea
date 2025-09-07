@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/crypto"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	}
 
 	session := c.Cookies("kryvea")
-	token, err := util.ParseUUID(session)
+	token, err := crypto.ParseToken(session)
 	if err != nil {
 		util.ClearCookies(c)
 		c.Status(fiber.StatusUnauthorized)

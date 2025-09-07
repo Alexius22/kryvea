@@ -4,15 +4,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Encrypt(password string) (string, error) {
+func Encrypt(password string) ([]byte, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(hash), nil
+	return hash, nil
 }
 
-func Compare(password, hash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+func Compare(password string, hash []byte) bool {
+	return bcrypt.CompareHashAndPassword(hash, []byte(password)) == nil
 }

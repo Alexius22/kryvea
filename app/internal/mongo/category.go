@@ -19,6 +19,15 @@ const (
 	SourceBurp    = "burp"
 )
 
+var (
+	ImmutableCategoryID uuid.UUID = [16]byte{
+		'K', 'R', 'Y', 'V',
+		'E', 'A', '-', 'I',
+		'M', 'M', 'U', 'T',
+		'A', 'B', 'L', 'E',
+	}
+)
+
 type Category struct {
 	Model              `bson:",inline"`
 	Index              string            `json:"index" bson:"index"`
@@ -69,7 +78,7 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 
 	_, err = ci.collection.InsertOne(context.Background(), category)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, enrichError(err)
 	}
 
 	return category.ID, err
@@ -112,6 +121,10 @@ func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, err
 }
 
 func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -126,37 +139,24 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 		},
 	}
 
-	// update := bson.M{
-	// 	"$set": bson.M{
-	// 		"updated_at": time.Now(),
-	// 		"index":      category.Index,
-	// 		"name":       category.Name,
-	// 		"references": category.References,
-	// 	},
-	// }
-
-	// for key, value := range category.GenericDescription {
-	// 	update["$set"].(bson.M)["generic_description."+key] = value
-	// }
-
-	// for key, value := range category.GenericRemediation {
-	// 	update["$set"].(bson.M)["generic_remediation."+key] = value
-	// }
-
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	return enrichError(err)
 }
 
 func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return err
 	}
 
-	filter := bson.M{"category_id": ID}
+	filter := bson.M{"category._id": ID}
 	update := bson.M{
 		"$set": bson.M{
-			"category_id": uuid.Nil,
+			"category._id": ImmutableCategoryID,
 		},
 	}
 
@@ -165,8 +165,10 @@ func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 }
 
 func (ci *CategoryIndex) GetAll() ([]Category, error) {
+	filter := bson.M{"_id": bson.M{"$ne": ImmutableCategoryID}}
+
 	categories := []Category{}
-	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -187,10 +189,14 @@ func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 }
 
 func (ci *CategoryIndex) Search(query string) ([]Category, error) {
-	cursor, err := ci.collection.Find(context.Background(), bson.M{"$or": []bson.M{
-		{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-		{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-	}})
+	filter := bson.M{
+		"$or": []bson.M{
+			{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+			{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+		},
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
