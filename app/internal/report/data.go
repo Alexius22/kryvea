@@ -1,12 +1,16 @@
 package report
 
-import "github.com/Alexius22/kryvea/internal/mongo"
+import (
+	"time"
+
+	"github.com/Alexius22/kryvea/internal/mongo"
+)
 
 type ReportData struct {
 	Customer                *mongo.Customer
 	Assessment              *mongo.Assessment
 	Vulnerabilities         []mongo.Vulnerability
-	DeliveryDate            string
+	DeliveryDateTime        time.Time
 	MaxCVSS                 map[string]mongo.VulnerabilityCVSS // maps each cvss version to the vector with the highest score
 	VulnerabilitiesOverview map[string]map[string]uint         // maps each cvss version to the aggregated vulnerability counts grouped by severity levels
 	TargetsCategoryCounter  map[string]uint                    // groups all targets by name and maps them to the number of their occurrences

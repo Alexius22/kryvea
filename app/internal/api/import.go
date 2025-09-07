@@ -175,10 +175,10 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 					ID: categoryID,
 				},
 			},
-			CVSSv2:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
-			CVSSv3:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
-			CVSSv31:     mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
-			CVSSv4:      mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
+			CVSSv2:      mongo.VulnerabilityCVSS{Version: cvss.Cvss2},
+			CVSSv3:      mongo.VulnerabilityCVSS{Version: cvss.Cvss3},
+			CVSSv31:     mongo.VulnerabilityCVSS{Version: cvss.Cvss31},
+			CVSSv4:      mongo.VulnerabilityCVSS{Version: cvss.Cvss4},
 			References:  []string{issue.References},
 			Description: issue.IssueDetail,
 			Remediation: issue.RemediationDetail,
@@ -407,10 +407,10 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 						ID: categoryID,
 					},
 				},
-				CVSSv2:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss2},
-				CVSSv3:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss3},
-				CVSSv31:       mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss31},
-				CVSSv4:        mongo.VulnerabilityCVSS{CVSSVersion: cvss.Cvss4},
+				CVSSv2:        mongo.VulnerabilityCVSS{Version: cvss.Cvss2},
+				CVSSv3:        mongo.VulnerabilityCVSS{Version: cvss.Cvss3},
+				CVSSv31:       mongo.VulnerabilityCVSS{Version: cvss.Cvss31},
+				CVSSv4:        mongo.VulnerabilityCVSS{Version: cvss.Cvss4},
 				DetailedTitle: "",
 				References:    []string{},
 				Description:   item.Synopsis,
@@ -440,10 +440,14 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if err != nil {
 					return err
 				}
-				vulnerability.CVSSv2.CVSSVector = vector
-				vulnerability.CVSSv2.CVSSScore = cvssScore
-				vulnerability.CVSSv2.CVSSSeverity = cvssSeverity
-				vulnerability.CVSSv2.CVSSDescription = cvss.GenerateDescription(vector, cvss.Cvss2, customer.Language)
+				vulnerability.CVSSv2.Vector = vector
+				vulnerability.CVSSv2.Score = cvssScore
+				vulnerability.CVSSv2.Severity = mongo.LabelColor{
+					Label: cvssSeverity,
+				}
+				// TODO: complexity
+				vulnerability.CVSSv2.Complexity = mongo.LabelColor{}
+				vulnerability.CVSSv2.Description = cvss.GenerateDescription(vector, cvss.Cvss2, customer.Language)
 			}
 
 			if item.Cvss3Vector != "" {
@@ -451,10 +455,12 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if err != nil {
 					return err
 				}
-				vulnerability.CVSSv3.CVSSVector = item.Cvss3Vector
-				vulnerability.CVSSv3.CVSSScore = cvssScore
-				vulnerability.CVSSv3.CVSSSeverity = cvssSeverity
-				vulnerability.CVSSv3.CVSSDescription = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
+				vulnerability.CVSSv31.Vector = item.Cvss3Vector
+				vulnerability.CVSSv31.Score = cvssScore
+				vulnerability.CVSSv31.Severity = mongo.LabelColor{
+					Label: cvssSeverity,
+				}
+				vulnerability.CVSSv31.Description = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
 			}
 
 			vulnerabilityID, err := d.mongo.Vulnerability().Insert(vulnerability)

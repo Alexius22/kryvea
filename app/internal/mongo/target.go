@@ -99,7 +99,11 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 	}
 
 	_, err = ti.collection.InsertOne(context.Background(), target)
-	return target.ID, err
+	if err != nil {
+		return uuid.Nil, enrichError(err)
+	}
+
+	return target.ID, nil
 }
 
 func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid.UUID, bool, error) {
@@ -137,7 +141,7 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 	}
 
 	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	return enrichError(err)
 }
 
 func (ti *TargetIndex) Delete(targetID uuid.UUID) error {

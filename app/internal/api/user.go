@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -63,15 +64,23 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 		}
 	}
 
-	// insert user into database
-	userID, err := d.mongo.User().Insert(&mongo.User{
+	user := &mongo.User{
 		Username:  data.Username,
-		Password:  data.Password,
 		Role:      data.Role,
 		Customers: customers,
-	})
+	}
+
+	// insert user into database
+	userID, err := d.mongo.User().Insert(user, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", user.Username),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot add user",
 		})
@@ -255,15 +264,24 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		}
 	}
 
-	// update user in database
-	err := d.mongo.User().Update(user.ID, &mongo.User{
+	newUser := &mongo.User{
 		DisabledAt: data.DisabledAt,
 		Username:   data.Username,
 		Role:       data.Role,
 		Customers:  customers,
-	})
+	}
+
+	// update user in database
+	err := d.mongo.User().Update(user.ID, newUser)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update user",
 		})
@@ -302,13 +320,21 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 		})
 	}
 
-	// update user in database
-	err := d.mongo.User().UpdateMe(user.ID, &mongo.User{
+	newUser := &mongo.User{
 		Username: data.Username,
-		Password: data.NewPassword,
-	})
+	}
+
+	// update user in database
+	err := d.mongo.User().UpdateMe(user.ID, newUser, data.NewPassword)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update user",
 		})

@@ -17,17 +17,18 @@ import (
 )
 
 type assessmentRequestData struct {
-	Name          string               `json:"name"`
-	StartDateTime time.Time            `json:"start_date_time"`
-	EndDateTime   time.Time            `json:"end_date_time"`
-	Status        string               `json:"status"`
-	Targets       []string             `json:"targets"`
-	Type          mongo.AssessmentType `json:"type"`
-	CVSSVersions  map[string]bool      `json:"cvss_versions"`
-	Environment   string               `json:"environment"`
-	TestingType   string               `json:"testing_type"`
-	OSSTMMVector  string               `json:"osstmm_vector"`
-	CustomerID    string               `json:"customer_id"`
+	Name            string               `json:"name"`
+	StartDateTime   time.Time            `json:"start_date_time"`
+	EndDateTime     time.Time            `json:"end_date_time"`
+	KickoffDateTime time.Time            `json:"kickoff_date_time"`
+	Status          string               `json:"status"`
+	Targets         []string             `json:"targets"`
+	Type            mongo.AssessmentType `json:"type"`
+	CVSSVersions    map[string]bool      `json:"cvss_versions"`
+	Environment     string               `json:"environment"`
+	TestingType     string               `json:"testing_type"`
+	OSSTMMVector    string               `json:"osstmm_vector"`
+	CustomerID      string               `json:"customer_id"`
 }
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
@@ -84,21 +85,31 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	assessment := &mongo.Assessment{
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
+	}
+
 	// insert assessment into database
-	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
-		Name:          data.Name,
-		StartDateTime: data.StartDateTime,
-		EndDateTime:   data.EndDateTime,
-		Targets:       targets,
-		Status:        data.Status,
-		Type:          data.Type,
-		CVSSVersions:  data.CVSSVersions,
-		Environment:   data.Environment,
-		TestingType:   data.TestingType,
-		OSSTMMVector:  data.OSSTMMVector,
-	}, customer.ID)
+	assessmentID, err := d.mongo.Assessment().Insert(assessment, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", assessment.Name, customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create assessment",
 		})
@@ -311,7 +322,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentUpdateData(data)
+	errStr = d.validateAssessmentData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -344,21 +355,31 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	newAssessment := &mongo.Assessment{
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
+	}
+
 	// update assessment in database
-	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
-		Name:          data.Name,
-		StartDateTime: data.StartDateTime,
-		EndDateTime:   data.EndDateTime,
-		Targets:       targets,
-		Status:        data.Status,
-		Type:          data.Type,
-		CVSSVersions:  data.CVSSVersions,
-		Environment:   data.Environment,
-		TestingType:   data.TestingType,
-		OSSTMMVector:  data.OSSTMMVector,
-	})
+	err := d.mongo.Assessment().Update(assessment.ID, newAssessment)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", newAssessment.Name, assessment.Customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update assessment",
 		})
@@ -505,9 +526,9 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	// parse request body
 	type reqData struct {
-		Type         string `json:"type"`
-		Template     string `json:"template"`
-		DeliveryDate string `json:"delivery_date"`
+		Type             string    `json:"type"`
+		Template         string    `json:"template"`
+		DeliveryDateTime time.Time `json:"delivery_date_time"`
 	}
 
 	data := &reqData{}
@@ -553,28 +574,28 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: think
 	// retrieve pocs
-	// for _, v := range vulnerabilities {
-	// 	for i, item := range poc.Pocs {
-	// 		if item.ImageID != uuid.Nil {
-	// 			imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
-	// 			if err != nil {
-	// 				c.Status(fiber.StatusInternalServerError)
-	// 				return c.JSON(fiber.Map{
-	// 					"error": "Failed to read image data",
-	// 				})
-	// 			}
-	// 			poc.Pocs[i].ImageData = imageData
-	// 		}
-	// 	}
-	// }
+	for i, v := range vulnerabilities {
+		for j, item := range v.Poc.Pocs {
+			if item.ImageID != uuid.Nil {
+				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
+				if err != nil {
+					c.Status(fiber.StatusInternalServerError)
+					return c.JSON(fiber.Map{
+						"error": "Failed to read image data",
+					})
+				}
+				vulnerabilities[i].Poc.Pocs[j].ImageData = imageData
+				vulnerabilities[i].Poc.Pocs[j].ImageFilename = imageFilename
+			}
+		}
+	}
 
 	reportData := &report.ReportData{
-		Customer:        customer,
-		Assessment:      assessment,
-		Vulnerabilities: vulnerabilities,
-		DeliveryDate:    data.DeliveryDate,
+		Customer:         customer,
+		Assessment:       assessment,
+		Vulnerabilities:  vulnerabilities,
+		DeliveryDateTime: data.DeliveryDateTime,
 	}
 
 	// generate report
@@ -634,22 +655,6 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 
 	if data.EndDateTime.IsZero() {
 		return "End date is required"
-	}
-
-	// filter valid cvssVersions
-	data.CVSSVersions = d.filterValidCvssVersions(data.CVSSVersions)
-
-	return ""
-}
-
-func (d *Driver) validateAssessmentUpdateData(data *assessmentRequestData) string {
-	if data.Name == "" &&
-		data.StartDateTime.IsZero() &&
-		data.EndDateTime.IsZero() &&
-		data.Status == "" &&
-		(data.Type.Full == "" || data.Type.Short == "") {
-
-		return "No data to update"
 	}
 
 	// filter valid cvssVersions

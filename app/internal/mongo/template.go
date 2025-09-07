@@ -103,7 +103,7 @@ func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
 
 	_, err = ti.collection.InsertOne(context.Background(), template)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, enrichError(err)
 	}
 
 	return template.ID, err
