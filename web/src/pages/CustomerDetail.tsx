@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
+import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
 import CardTitle from "../components/Composition/CardTitle";
@@ -16,7 +17,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import { Customer, Template } from "../types/common.types";
-import { languageMapping } from "../utils/constants";
+import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 
 export default function CustomerDetail() {
@@ -176,7 +177,8 @@ export default function CustomerDetail() {
               label="Company name"
               helperSubtitle="Required"
               placeholder="Company name"
-              name="name"
+              id="name"
+              disabled
               value={formCustomer.name}
               onChange={handleFormCustomerChange}
             />
@@ -185,16 +187,20 @@ export default function CustomerDetail() {
               id="language"
               options={languageOptions}
               value={selectedLanguageOption}
+              disabled
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
           </Grid>
           <Divider />
           <Buttons>
-            <Button text="Submit" onClick={handleSubmit} />
-            <Button variant="secondary" text="Cancel" onClick={() => navigate("/customers")} />
+            <Button
+              text="Submit"
+              onClick={handleSubmit}
+              disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
+              title={getKryveaShadow() !== USER_ROLE_ADMIN ? "Only administrators can perform this action" : ""}
+            />
           </Buttons>
         </Card>
-
         <Card>
           <CardTitle title="Custom templates" />
           <Grid className="gap-4">
@@ -203,7 +209,7 @@ export default function CustomerDetail() {
                 type="text"
                 label="Template Name"
                 placeholder="Insert name for the template"
-                name="name"
+                id="name"
                 value={newTemplateData.name || ""}
                 onChange={handleFormTemplateChange}
               />
@@ -211,7 +217,7 @@ export default function CustomerDetail() {
                 type="text"
                 label="Template Type"
                 placeholder="e.g., Template for assessments"
-                name="type"
+                id="type"
                 value={newTemplateData.type}
                 onChange={handleFormTemplateChange}
               />
