@@ -12,6 +12,7 @@ export default function Layout() {
   } = useContext(GlobalContext);
 
   const mainRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const getScrollOptions = useCallback<(delta: number) => ScrollToOptions>(
     delta => (browser === "Chrome" ? { top: delta, behavior: "instant" } : { top: delta * 4, behavior: "smooth" }),
@@ -26,6 +27,9 @@ export default function Layout() {
         return;
       }
       if (main.contains(e.target as Node)) {
+        return;
+      }
+      if (contentRef.current && contentRef.current.contains(e.target as Node)) {
         return;
       }
 
@@ -50,7 +54,7 @@ export default function Layout() {
   return (
     <div className={`layout-root ${fullscreen ? "layout-fullscreen" : ""}`}>
       <Sidebar />
-      <div className="layout-content">
+      <div ref={contentRef} className="layout-content">
         <NavBar />
         <main ref={mainRef} className="layout-main">
           <Outlet />
