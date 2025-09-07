@@ -6,15 +6,16 @@ import Label from "./Label";
 import { SelectOption } from "./SelectWrapper.types";
 
 interface CommonProps {
-  label?: string;
-  className?: string;
   options: SelectOption[];
   defaultValue?: SelectOption | SelectOption[];
-  widthFixed?: boolean;
   onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  disabled?: boolean;
+  small?: boolean;
+  widthFixed?: boolean;
   closeMenuOnSelect?: boolean;
   id?: string;
-  small?: boolean;
+  label?: string;
+  className?: string;
 }
 interface SelectWrapperSingleProps extends CommonProps {
   isMulti?: false | undefined;
@@ -28,18 +29,19 @@ interface SelectWrapperMultiProps extends CommonProps {
   onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
 }
 export default function SelectWrapper({
-  className,
   options,
-  defaultValue,
   value,
+  defaultValue,
   onChange,
-  isMulti,
-  widthFixed,
   onInputChange,
+  isMulti,
+  disabled,
+  small,
+  widthFixed,
   closeMenuOnSelect,
   id,
   label,
-  small,
+  className,
 }: SelectWrapperSingleProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
   const [width, setWidth] = useState<number>(0);
@@ -134,17 +136,18 @@ export default function SelectWrapper({
       )}
       <Select
         {...{
-          className,
-          classNamePrefix: "select-wrapper",
-          isMulti,
-          value,
-          onInputChange: handleOnInputChange,
-          inputValue,
           options,
-          onChange: onChangeWrapper,
+          value,
+          inputValue,
           defaultValue,
+          onChange: onChangeWrapper,
+          onInputChange: handleOnInputChange,
+          isMulti,
+          isDisabled: disabled,
           closeMenuOnSelect,
           inputId: id,
+          classNamePrefix: "select-wrapper",
+          className: `${className} ${disabled ? "opacity-40" : ""}`,
         }}
         unstyled
         components={animatedComponents}
