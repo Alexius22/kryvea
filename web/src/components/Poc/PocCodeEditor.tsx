@@ -50,40 +50,40 @@ export default function PocCodeEditor({
 
   return (
     <Grid className="gap-4">
-      <Modal
-        isActive={showHighligtedTextModal}
-        title="Code that will be highlighted"
-        subtitle="Click on a selected text to remove it"
-        confirmButtonLabel="Close"
-        onCancel={() => setShowHighlightedTextModal(false)}
-      >
-        <Grid>
-          {pocDoc[highlightsProperty]?.map((highlight: MonacoTextSelection, i) => {
-            const {
-              start: { line, col },
-              selectionPreview: text,
-            } = highlight;
-            const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
-            return (
-              <Button
-                className="border border-[color:--border-secondary] hover:bg-red-400/20"
-                variant="secondary"
-                onClick={() =>
-                  onSetCodeSelection(
-                    currentIndex,
-                    highlightsProperty,
-                    pocDoc[highlightsProperty].filter((_, j) => i !== j)
-                  )
-                }
-                key={codeSelectionKey}
-              >
-                <DescribedCode className="p-2" subtitle={`line ${line} col ${col}`} text={text} />
-              </Button>
-            );
-          })}
-        </Grid>
-      </Modal>
-
+      {showHighligtedTextModal && (
+        <Modal
+          title="Code that will be highlighted"
+          subtitle="Click on a selected text to remove it"
+          confirmButtonLabel="Close"
+          onCancel={() => setShowHighlightedTextModal(false)}
+        >
+          <Grid>
+            {pocDoc[highlightsProperty]?.map((highlight: MonacoTextSelection, i) => {
+              const {
+                start: { line, col },
+                selectionPreview: text,
+              } = highlight;
+              const codeSelectionKey = `poc-${currentIndex}-code-selection-${i}-${pocDoc.key}`;
+              return (
+                <Button
+                  className="border border-[color:--border-secondary] hover:bg-red-400/20"
+                  variant="secondary"
+                  onClick={() =>
+                    onSetCodeSelection(
+                      currentIndex,
+                      highlightsProperty,
+                      pocDoc[highlightsProperty].filter((_, j) => i !== j)
+                    )
+                  }
+                  key={codeSelectionKey}
+                >
+                  <DescribedCode className="p-2" subtitle={`line ${line} col ${col}`} text={text} />
+                </Button>
+              );
+            })}
+          </Grid>
+        </Modal>
+      )}
       <Buttons containerClassname="flex-grow" className="justify-between">
         <Buttons>
           <Button

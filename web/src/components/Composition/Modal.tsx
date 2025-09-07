@@ -7,7 +7,6 @@ import CardTitle from "./CardTitle";
 
 type Props = {
   title: string;
-  isActive: boolean;
   children: ReactNode;
   className?: string;
   subtitle?: string;
@@ -20,7 +19,6 @@ type Props = {
 export default function Modal({
   title,
   subtitle,
-  isActive,
   children,
   className,
   confirmButtonLabel = "Confirm",
@@ -29,10 +27,6 @@ export default function Modal({
   onCancel,
 }: Props) {
   useEffect(() => {
-    if (!isActive) {
-      return;
-    }
-
     function handleKeyDown(event: KeyboardEvent) {
       switch (event.key) {
         case "Enter":
@@ -48,11 +42,7 @@ export default function Modal({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isActive]);
-
-  if (!isActive) {
-    return null;
-  }
+  }, []);
 
   const footer = (
     <Buttons>

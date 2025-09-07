@@ -260,48 +260,49 @@ export default function AssessmentUpsert() {
 
   return (
     <>
-      <Modal
-        title="New Target"
-        confirmButtonLabel="Save"
-        isActive={isModalTargetActive}
-        onConfirm={handleModalConfirm}
-        onCancel={() => setIsModalTargetActive(false)}
-      >
-        <Grid className="grid-cols-1 gap-4">
-          <Input
-            type="text"
-            id="ipv4"
-            label="IPv4"
-            placeholder="IPv4 address"
-            value={ipv4}
-            onChange={e => setIpv4(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="ipv6"
-            label="IPv6"
-            placeholder="IPv6 address"
-            value={ipv6}
-            onChange={e => setIpv6(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="fqdn"
-            label="FQDN"
-            placeholder="Fully Qualified Domain Name"
-            value={fqdn}
-            onChange={e => setFqdn(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="name"
-            label="Name"
-            placeholder="This name is used to differentiate between duplicate entries"
-            value={hostName}
-            onChange={e => setHostName(e.target.value)}
-          />
-        </Grid>
-      </Modal>
+      {isModalTargetActive && (
+        <Modal
+          title="New Target"
+          confirmButtonLabel="Save"
+          onConfirm={handleModalConfirm}
+          onCancel={() => setIsModalTargetActive(false)}
+        >
+          <Grid className="grid-cols-1 gap-4">
+            <Input
+              type="text"
+              id="ipv4"
+              label="IPv4"
+              placeholder="IPv4 address"
+              value={ipv4}
+              onChange={e => setIpv4(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="ipv6"
+              label="IPv6"
+              placeholder="IPv6 address"
+              value={ipv6}
+              onChange={e => setIpv6(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="fqdn"
+              label="FQDN"
+              placeholder="Fully Qualified Domain Name"
+              value={fqdn}
+              onChange={e => setFqdn(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="name"
+              label="Name"
+              placeholder="This name is used to differentiate between duplicate entries"
+              value={hostName}
+              onChange={e => setHostName(e.target.value)}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       <Card>
         <form onSubmit={handleSubmit}>

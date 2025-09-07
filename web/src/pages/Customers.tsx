@@ -112,47 +112,48 @@ export default function Customers() {
   return (
     <div>
       {/* Edit Customer Modal */}
-      <Modal
-        title="Edit customer"
-        confirmButtonLabel="Confirm"
-        isActive={isModalCustomerActive}
-        onConfirm={handleEditConfirm}
-        onCancel={handleModalClose}
-      >
-        <Grid className="gap-4">
-          <Input
-            type="text"
-            label="Company name"
-            helperSubtitle="Required"
-            placeholder="Company name"
-            id="name"
-            value={formData.name}
-            onChange={handleInputChange}
-          />
+      {isModalCustomerActive && (
+        <Modal
+          title="Edit customer"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleEditConfirm}
+          onCancel={handleModalClose}
+        >
+          <Grid className="gap-4">
+            <Input
+              type="text"
+              label="Company name"
+              helperSubtitle="Required"
+              placeholder="Company name"
+              id="name"
+              value={formData.name}
+              onChange={handleInputChange}
+            />
 
-          <SelectWrapper
-            label="Language"
-            id="language"
-            options={languageOptions}
-            value={selectedLanguageOption}
-            onChange={option => setFormData(prev => ({ ...prev, language: option.value }))}
-          />
-        </Grid>
-      </Modal>
+            <SelectWrapper
+              label="Language"
+              id="language"
+              options={languageOptions}
+              value={selectedLanguageOption}
+              onChange={option => setFormData(prev => ({ ...prev, language: option.value }))}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleModalClose}
-      >
-        <p>
-          Are you sure you want to delete customer <strong>{selectedCustomer?.name}</strong>?
-        </p>
-      </Modal>
-
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleModalClose}
+        >
+          <p>
+            Are you sure you want to delete customer <strong>{selectedCustomer?.name}</strong>?
+          </p>
+        </Modal>
+      )}
       <PageHeader icon={mdiListBox} title="Customers">
         <Button icon={mdiPlus} text="New customer" small onClick={() => navigate("/customers/new")} />
       </PageHeader>

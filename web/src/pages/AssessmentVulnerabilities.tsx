@@ -203,116 +203,119 @@ export default function AssessmentVulnerabilities() {
   return (
     <div>
       {/* Download Modal */}
-      <Modal
-        title="Download report"
-        confirmButtonLabel="Confirm"
-        isActive={isModalDownloadActive}
-        onConfirm={exportAssessment}
-        onCancel={() => setIsModalDownloadActive(false)}
-      >
-        <Grid className="grid-cols-2">
-          <SelectWrapper
-            label="Type"
-            id="type"
-            options={exportTypes}
-            value={selectedExportTypeOption}
-            onChange={setSelectedExportTypeOption}
-          />
-          <SelectWrapper
-            label="Template Type"
-            id="template"
-            options={templateOptions}
-            value={
-              selectedExportTemplate
-                ? {
-                    value: selectedExportTemplate.id,
-                    label: selectedExportTemplate.type
-                      ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
-                      : selectedExportTemplate.name,
-                  }
-                : null
-            }
-            onChange={option => {
-              const selected = allTemplates.find(t => t.id === option.value) || null;
-              setSelectedExportTemplate(selected);
-            }}
-          />
-
-          <SelectWrapper
-            label="Encryption"
-            id="encryption"
-            options={[
-              { value: "none", label: "None" },
-              { value: "password", label: "Password" },
-            ]}
-            value={exportEncryption}
-            onChange={option => setExportEncryption(option)}
-          />
-          <Input
-            type="password"
-            id="password"
-            className={exportEncryption.value !== "password" && "opacity-50"}
-            disabled={exportEncryption.value !== "password"}
-            placeholder="Insert password"
-            value={exportPassword}
-            onChange={e => setExportPassword(e.target.value)}
-          />
-
-          <DateCalendar
-            idStart="delivery_date"
-            label="Report delivery date"
-            value={{ start: deliveryDate }}
-            onChange={val => {
-              if (typeof val === "string") {
-                setDeliveryDate(val);
+      {isModalDownloadActive && (
+        <Modal
+          title="Download report"
+          confirmButtonLabel="Confirm"
+          onConfirm={exportAssessment}
+          onCancel={() => setIsModalDownloadActive(false)}
+        >
+          <Grid className="grid-cols-2">
+            <SelectWrapper
+              label="Type"
+              id="type"
+              options={exportTypes}
+              value={selectedExportTypeOption}
+              onChange={setSelectedExportTypeOption}
+            />
+            <SelectWrapper
+              label="Template Type"
+              id="template"
+              options={templateOptions}
+              value={
+                selectedExportTemplate
+                  ? {
+                      value: selectedExportTemplate.id,
+                      label: selectedExportTemplate.type
+                        ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
+                        : selectedExportTemplate.name,
+                    }
+                  : null
               }
-            }}
-          />
-        </Grid>
-      </Modal>
+              onChange={option => {
+                const selected = allTemplates.find(t => t.id === option.value) || null;
+                setSelectedExportTemplate(selected);
+              }}
+            />
+
+            <SelectWrapper
+              label="Encryption"
+              id="encryption"
+              options={[
+                { value: "none", label: "None" },
+                { value: "password", label: "Password" },
+              ]}
+              value={exportEncryption}
+              onChange={option => setExportEncryption(option)}
+            />
+            <Input
+              type="password"
+              id="password"
+              className={exportEncryption.value !== "password" && "opacity-50"}
+              disabled={exportEncryption.value !== "password"}
+              placeholder="Insert password"
+              value={exportPassword}
+              onChange={e => setExportPassword(e.target.value)}
+            />
+
+            <DateCalendar
+              idStart="delivery_date"
+              label="Report delivery date"
+              value={{ start: deliveryDate }}
+              onChange={val => {
+                if (typeof val === "string") {
+                  setDeliveryDate(val);
+                }
+              }}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       {/* Upload Modal */}
-      <Modal
-        title="Upload file"
-        confirmButtonLabel="Confirm"
-        isActive={isModalUploadActive}
-        onConfirm={() => {
-          handleUploadBulk();
-          setIsModalUploadActive(false);
-        }}
-        onCancel={() => setIsModalUploadActive(false)}
-      >
-        <Flex col className="gap-2">
-          <UploadFile
-            label="Choose bulk file"
-            inputId={"file"}
-            filename={fileObj?.name}
-            name={"imagePoc"}
-            accept={".nessus,text/xml"}
-            onChange={changeFile}
-            onButtonClick={clearFile}
-          />
-          <SelectWrapper
-            label="Source"
-            className="w-1/2"
-            id="source"
-            options={sourceOptions}
-            value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
-            onChange={option => setSource(option.value)}
-          />
-        </Flex>
-      </Modal>
+      {isModalUploadActive && (
+        <Modal
+          title="Upload file"
+          confirmButtonLabel="Confirm"
+          onConfirm={() => {
+            handleUploadBulk();
+            setIsModalUploadActive(false);
+          }}
+          onCancel={() => setIsModalUploadActive(false)}
+        >
+          <Flex col className="gap-2">
+            <UploadFile
+              label="Choose bulk file"
+              inputId={"file"}
+              filename={fileObj?.name}
+              name={"imagePoc"}
+              accept={".nessus,text/xml"}
+              onChange={changeFile}
+              onButtonClick={clearFile}
+            />
+            <SelectWrapper
+              label="Source"
+              className="w-1/2"
+              id="source"
+              options={sourceOptions}
+              value={source ? { label: source.charAt(0).toUpperCase() + source.slice(1), value: source } : null}
+              onChange={option => setSource(option.value)}
+            />
+          </Flex>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={confirmDelete}
-        onCancel={() => setIsModalTrashActive(false)}
-      >
-        <p>Are you sure to delete this vulnerability?</p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={confirmDelete}
+          onCancel={() => setIsModalTrashActive(false)}
+        >
+          <p>Are you sure to delete this vulnerability?</p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>

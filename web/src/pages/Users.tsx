@@ -129,120 +129,119 @@ export default function Users() {
   return (
     <div>
       {/* Edit User Modal */}
-      <Modal
-        title="Edit user"
-        confirmButtonLabel="Confirm"
-        isActive={isModalEditActive}
-        onConfirm={handleUpdateUser}
-        onCancel={handleModalAction}
-      >
-        <Grid className="gap-4">
-          <Input
-            type="text"
-            label="Username"
-            placeholder="username"
-            id="username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-          />
-          <SelectWrapper
-            label="Role"
-            id="role-selection"
-            options={[
-              { value: "admin", label: "Admin" },
-              { value: "user", label: "User" },
-            ]}
-            closeMenuOnSelect
-            onChange={option => setRole(option?.value || "")}
-            value={role ? { value: role, label: role } : null}
-          />
-          <SelectWrapper
-            label="Customers"
-            options={customerOptions}
-            isMulti
-            value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
-            onChange={handleCustomerChange}
-            closeMenuOnSelect={false}
-            id="customer-selection"
-          />
-          <DateCalendar
-            idStart="disable_user_at"
-            label="Disable user from"
-            showTime
-            value={{ start: userDisabled }}
-            onChange={val => {
-              if (typeof val === "string") {
-                setUserDisabled(val);
-              }
-            }}
-          />
-        </Grid>
-      </Modal>
+      {isModalEditActive && (
+        <Modal title="Edit user" confirmButtonLabel="Confirm" onConfirm={handleUpdateUser} onCancel={handleModalAction}>
+          <Grid className="gap-4">
+            <Input
+              type="text"
+              label="Username"
+              placeholder="username"
+              id="username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+            />
+            <SelectWrapper
+              label="Role"
+              id="role-selection"
+              options={[
+                { value: "admin", label: "Admin" },
+                { value: "user", label: "User" },
+              ]}
+              closeMenuOnSelect
+              onChange={option => setRole(option?.value || "")}
+              value={role ? { value: role, label: role } : null}
+            />
+            <SelectWrapper
+              label="Customers"
+              options={customerOptions}
+              isMulti
+              value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
+              onChange={handleCustomerChange}
+              closeMenuOnSelect={false}
+              id="customer-selection"
+            />
+            <DateCalendar
+              idStart="disable_user_at"
+              label="Disable user from"
+              showTime
+              value={{ start: userDisabled }}
+              onChange={val => {
+                if (typeof val === "string") {
+                  setUserDisabled(val);
+                }
+              }}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       {/* Password reset Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalResetPswActive}
-        onConfirm={handleResetPsw}
-        onCancel={handleModalAction}
-      >
-        <p>
-          Are you sure you want to reset the password for user '<strong>{username}</strong>'?
-        </p>
-      </Modal>
+      {isModalResetPswActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleResetPsw}
+          onCancel={handleModalAction}
+        >
+          <p>
+            Are you sure you want to reset the password for user '<strong>{username}</strong>'?
+          </p>
+        </Modal>
+      )}
 
       {/* Modal to display the temporary password */}
-      <Modal
-        title="Temporary Password"
-        confirmButtonLabel="Close"
-        isActive={isModalTempPswActive}
-        onConfirm={() => {
-          setIsModalTempPswActive(false);
-          setTemporaryPassword(null);
-          setActiveUserId(null);
-        }}
-        className="gap-4"
-      >
-        <Grid className="text-center">
-          <Grid>
-            <p>
-              The user <strong>{username}</strong> has a new temporary password:
-            </p>
-            <div className="group relative w-1/2 justify-self-center">
-              <pre
-                className="clickable cursor-pointer select-all rounded-md bg-[color:--bg-quaternary] p-3 font-mono"
-                onClick={() => {
-                  if (temporaryPassword) {
-                    navigator.clipboard.writeText(temporaryPassword);
-                    toast.success("Temporary password copied to clipboard");
-                  }
-                }}
-              >
-                {temporaryPassword}
-              </pre>
-              <Subtitle className="select-none text-[color:--text-secondary]" text="Click to copy" />
-            </div>
-          </Grid>
+      {isModalTempPswActive && (
+        <Modal
+          title="Temporary Password"
+          confirmButtonLabel="Close"
+          onConfirm={() => {
+            setIsModalTempPswActive(false);
+            setTemporaryPassword(null);
+            setActiveUserId(null);
+          }}
+          className="gap-4"
+        >
+          <Grid className="text-center">
+            <Grid>
+              <p>
+                The user <strong>{username}</strong> has a new temporary password:
+              </p>
+              <div className="group relative w-1/2 justify-self-center">
+                <pre
+                  className="clickable cursor-pointer select-all rounded-md bg-[color:--bg-quaternary] p-3 font-mono"
+                  onClick={() => {
+                    if (temporaryPassword) {
+                      navigator.clipboard.writeText(temporaryPassword);
+                      toast.success("Temporary password copied to clipboard");
+                    }
+                  }}
+                >
+                  {temporaryPassword}
+                </pre>
+                <Subtitle className="select-none text-[color:--text-secondary]" text="Click to copy" />
+              </div>
+            </Grid>
 
-          <p>
-            Please share this temporary password securely with the user.
-            <br />
-            Once you close this modal, the <strong>password will no longer be accessible</strong>.
-          </p>
-        </Grid>
-      </Modal>
+            <p>
+              Please share this temporary password securely with the user.
+              <br />
+              Once you close this modal, the <strong>password will no longer be accessible</strong>.
+            </p>
+          </Grid>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleDeleteUser}
-        onCancel={handleModalAction}
-      >
-        <p>Are you sure you want to delete this user?</p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleDeleteUser}
+          onCancel={handleModalAction}
+        >
+          <p>Are you sure you want to delete this user?</p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiAccountMultiple} title="Users">
         <Button icon={mdiPlus} text="New user" small onClick={() => navigate("/users/new")} />

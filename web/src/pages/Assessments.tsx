@@ -193,102 +193,105 @@ export default function Assessments() {
   return (
     <div>
       {/* Clone Modal */}
-      <Modal
-        title="Clone assessment"
-        confirmButtonLabel="Confirm"
-        isActive={isModalCloneActive}
-        onConfirm={confirmClone}
-        onCancel={() => setIsModalCloneActive(false)}
-      >
-        <Input
-          type="text"
-          label="Assessment Name"
-          placeholder="Cloned assessment name"
-          id="assessment_name"
-          value={cloneName}
-          onChange={e => setCloneName(e.target.value)}
-        />
-      </Modal>
+      {isModalCloneActive && (
+        <Modal
+          title="Clone assessment"
+          confirmButtonLabel="Confirm"
+          onConfirm={confirmClone}
+          onCancel={() => setIsModalCloneActive(false)}
+        >
+          <Input
+            type="text"
+            label="Assessment Name"
+            placeholder="Cloned assessment name"
+            id="assessment_name"
+            value={cloneName}
+            onChange={e => setCloneName(e.target.value)}
+          />
+        </Modal>
+      )}
 
       {/* Download Modal */}
-      <Modal
-        title="Download report"
-        confirmButtonLabel="Confirm"
-        isActive={isModalDownloadActive}
-        onConfirm={exportAssessment}
-        onCancel={() => setIsModalDownloadActive(false)}
-      >
-        <Grid className="grid-cols-2">
-          <SelectWrapper
-            label="Type"
-            id="type"
-            options={exportTypes}
-            value={selectedExportTypeOption}
-            onChange={setSelectedExportTypeOption}
-          />
-          <SelectWrapper
-            label="Template Type"
-            id="template"
-            options={templateOptions}
-            value={
-              selectedExportTemplate
-                ? {
-                    value: selectedExportTemplate.id,
-                    label: selectedExportTemplate.type
-                      ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
-                      : selectedExportTemplate.name,
-                  }
-                : null
-            }
-            onChange={option => {
-              const selected = allTemplates.find(t => t.id === option.value) || null;
-              setSelectedExportTemplate(selected);
-            }}
-          />
-
-          <SelectWrapper
-            label="Encryption"
-            id="encryption"
-            options={[
-              { value: "none", label: "None" },
-              { value: "password", label: "Password" },
-            ]}
-            value={exportEncryption}
-            onChange={option => setExportEncryption(option)}
-          />
-          <Input
-            type="password"
-            id="password"
-            className={exportEncryption.value !== "password" && "opacity-50"}
-            disabled={exportEncryption.value !== "password"}
-            placeholder="Insert password"
-            value={exportPassword}
-            onChange={e => setExportPassword(e.target.value)}
-          />
-
-          <DateCalendar
-            idStart="delivery_date"
-            label="Report delivery date"
-            value={{ start: deliveryDate }}
-            onChange={val => {
-              if (typeof val === "string") {
-                setDeliveryDate(val);
+      {isModalDownloadActive && (
+        <Modal
+          title="Download report"
+          confirmButtonLabel="Confirm"
+          onConfirm={exportAssessment}
+          onCancel={() => setIsModalDownloadActive(false)}
+        >
+          <Grid className="grid-cols-2">
+            <SelectWrapper
+              label="Type"
+              id="type"
+              options={exportTypes}
+              value={selectedExportTypeOption}
+              onChange={setSelectedExportTypeOption}
+            />
+            <SelectWrapper
+              label="Template Type"
+              id="template"
+              options={templateOptions}
+              value={
+                selectedExportTemplate
+                  ? {
+                      value: selectedExportTemplate.id,
+                      label: selectedExportTemplate.type
+                        ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
+                        : selectedExportTemplate.name,
+                    }
+                  : null
               }
-            }}
-          />
-        </Grid>
-      </Modal>
+              onChange={option => {
+                const selected = allTemplates.find(t => t.id === option.value) || null;
+                setSelectedExportTemplate(selected);
+              }}
+            />
+
+            <SelectWrapper
+              label="Encryption"
+              id="encryption"
+              options={[
+                { value: "none", label: "None" },
+                { value: "password", label: "Password" },
+              ]}
+              value={exportEncryption}
+              onChange={option => setExportEncryption(option)}
+            />
+            <Input
+              type="password"
+              id="password"
+              className={exportEncryption.value !== "password" && "opacity-50"}
+              disabled={exportEncryption.value !== "password"}
+              placeholder="Insert password"
+              value={exportPassword}
+              onChange={e => setExportPassword(e.target.value)}
+            />
+
+            <DateCalendar
+              idStart="delivery_date"
+              label="Report delivery date"
+              value={{ start: deliveryDate }}
+              onChange={val => {
+                if (typeof val === "string") {
+                  setDeliveryDate(val);
+                }
+              }}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={confirmDelete}
-        onCancel={() => setIsModalTrashActive(false)}
-      >
-        <p>Are you sure to delete this assessment?</p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={confirmDelete}
+          onCancel={() => setIsModalTrashActive(false)}
+        >
+          <p>Are you sure to delete this assessment?</p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiTabSearch} title="Assessments">
         <Button

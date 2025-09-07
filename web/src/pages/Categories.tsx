@@ -101,46 +101,48 @@ export default function Categories() {
   return (
     <div>
       {/* Delete single category modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleModalTrashConfirm}
-        onCancel={() => {
-          setIsModalTrashActive(false);
-          setCategoryToDelete(null);
-        }}
-      >
-        <p>
-          Are you sure you want to delete category <strong>{categoryToDelete?.name}</strong>?
-        </p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleModalTrashConfirm}
+          onCancel={() => {
+            setIsModalTrashActive(false);
+            setCategoryToDelete(null);
+          }}
+        >
+          <p>
+            Are you sure you want to delete category <strong>{categoryToDelete?.name}</strong>?
+          </p>
+        </Modal>
+      )}
 
       {/* Upload categories */}
-      <Modal
-        title="Upload categories"
-        confirmButtonLabel="Upload"
-        isActive={isModalManageActive}
-        onConfirm={handleModalManageConfirm}
-        onCancel={() => setIsModalManageActive(false)}
-      >
-        <Grid className="gap-4">
-          <UploadFile
-            inputId="imported_categories"
-            filename={fileObj?.name}
-            name="categories"
-            accept="application/json"
-            onChange={changeFile}
-            onButtonClick={clearFile}
-          />
-          <Checkbox
-            id="override_categories"
-            label="Override existing categories"
-            checked={overrideExisting}
-            onChange={e => setOverrideExisting(e.target.checked)}
-          />
-        </Grid>
-      </Modal>
+      {isModalManageActive && (
+        <Modal
+          title="Upload categories"
+          confirmButtonLabel="Upload"
+          onConfirm={handleModalManageConfirm}
+          onCancel={() => setIsModalManageActive(false)}
+        >
+          <Grid className="gap-4">
+            <UploadFile
+              inputId="imported_categories"
+              filename={fileObj?.name}
+              name="categories"
+              accept="application/json"
+              onChange={changeFile}
+              onButtonClick={clearFile}
+            />
+            <Checkbox
+              id="override_categories"
+              label="Override existing categories"
+              checked={overrideExisting}
+              onChange={e => setOverrideExisting(e.target.checked)}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiShapePlus} title="Categories">
         <Buttons>
