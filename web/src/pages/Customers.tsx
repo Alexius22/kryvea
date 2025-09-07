@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
+import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -13,7 +14,7 @@ import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { Customer } from "../types/common.types";
-import { languageMapping } from "../utils/constants";
+import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 
 export default function Customers() {
@@ -100,6 +101,7 @@ export default function Customers() {
       toast.success("Customer deleted successfully");
       setIsModalTrashActive(false);
       setCustomers(prev => prev.filter(c => c.id !== selectedCustomer.id));
+      setCtxCustomer(undefined);
     });
   };
 
@@ -166,6 +168,7 @@ export default function Customers() {
               className="cursor-pointer"
               onClick={() => {
                 setCtxCustomer(customer);
+                navigate(`${customer.id}/assessments`);
               }}
             >
               {customer.name}
@@ -174,8 +177,29 @@ export default function Customers() {
           "Default language": languageMapping[customer.language] || customer.language,
           buttons: (
             <Buttons noWrap>
-              <Button small onClick={() => openEditModal(customer)} icon={mdiNoteEdit} />
-              <Button small variant="danger" onClick={() => openDeleteModal(customer)} icon={mdiTrashCan} />
+              <Button
+                title={
+                  getKryveaShadow() !== USER_ROLE_ADMIN
+                    ? "Only administrators can perform this action"
+                    : "Edit customer"
+                }
+                disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
+                small
+                onClick={() => openEditModal(customer)}
+                icon={mdiNoteEdit}
+              />
+              <Button
+                title={
+                  getKryveaShadow() !== USER_ROLE_ADMIN
+                    ? "Only administrators can perform this action"
+                    : "Delete customer"
+                }
+                disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
+                small
+                variant="danger"
+                onClick={() => openDeleteModal(customer)}
+                icon={mdiTrashCan}
+              />
             </Buttons>
           ),
         }))}
