@@ -22,6 +22,7 @@ const ALL_LEVELS = ["info", "debug", "error"];
 
 export default function Logs() {
   const [logs, setLogs] = useState<Log[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<string[]>(["error"]);
 
   function fetchLogs() {
@@ -31,6 +32,7 @@ export default function Logs() {
     }
     const toastId = toast.loading("Loading logs...");
 
+    setLoadingLogs(true);
     getData<{ logs: Log[] }>(
       `/api/admin/logs?levels=${selectedLevels.join(",")}`,
       data => {
@@ -49,7 +51,8 @@ export default function Logs() {
           isLoading: false,
           autoClose: 3000,
         });
-      }
+      },
+      () => setLoadingLogs(false)
     );
   }
 
@@ -82,6 +85,7 @@ export default function Logs() {
         </Card>
 
         <Table
+          loading={loadingLogs}
           data={logs?.map(log => ({
             Timestamp: new Date(log.time).toLocaleString(),
             Level: log.level,

@@ -51,10 +51,14 @@ export default function AssessmentVulnerabilities() {
   const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
 
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [loadingVulnerabilities, setLoadingVulnerabilities] = useState(true);
   const [vulnerabilityToDelete, setVulnerabilityToDelete] = useState<Vulnerability | null>(null);
 
   function fetchVulnerabilities() {
-    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities);
+    setLoadingVulnerabilities(true);
+    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities, undefined, () =>
+      setLoadingVulnerabilities(false)
+    );
   }
 
   const getTemplatesByTypeAndLanguage = () =>
@@ -326,6 +330,7 @@ export default function AssessmentVulnerabilities() {
       </PageHeader>
 
       <Table
+        loading={loadingVulnerabilities}
         data={vulnerabilities.map(vulnerability => {
           const cvssColumns = {};
           if (ctxAssessment?.cvss_versions["3.1"]) {

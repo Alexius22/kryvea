@@ -27,6 +27,7 @@ export default function CustomerDetail() {
 
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
+  const [loadingCustomerTemplates, setLoadingCustomerTemplates] = useState(true);
 
   const [formCustomer, setFormCustomer] = useState({
     name: ctxCustomer?.name,
@@ -61,7 +62,13 @@ export default function CustomerDetail() {
   }, [ctxCustomer?.id]);
 
   function fetchTemplates() {
-    getData<Customer>(`/api/customers/${ctxCustomer?.id}`, data => setCustomerTemplates(data.templates));
+    setLoadingCustomerTemplates(true);
+    getData<Customer>(
+      `/api/customers/${ctxCustomer?.id}`,
+      data => setCustomerTemplates(data.templates),
+      undefined,
+      () => setLoadingCustomerTemplates(false)
+    );
   }
 
   const handleFormCustomerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -223,6 +230,7 @@ export default function CustomerDetail() {
             </Buttons>
             <Divider />
             <Table
+              loading={loadingCustomerTemplates}
               data={customerTemplates.map(template => ({
                 Name: template.name,
                 Filename: template.filename,

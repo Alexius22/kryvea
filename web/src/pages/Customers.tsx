@@ -18,6 +18,7 @@ import { getPageTitle } from "../utils/helpers";
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [isModalCustomerActive, setIsModalCustomerActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [error, setError] = useState("");
@@ -46,11 +47,17 @@ export default function Customers() {
   }, []);
 
   function fetchCustomers() {
-    getData<Customer[]>("/api/customers", setCustomers, err => {
-      const errorMessage = err.response.data.error;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    });
+    setLoadingCustomers(true);
+    getData<Customer[]>(
+      "/api/customers",
+      setCustomers,
+      err => {
+        const errorMessage = err.response.data.error;
+        setError(errorMessage);
+        toast.error(errorMessage);
+      },
+      () => setLoadingCustomers(false)
+    );
   }
 
   const openEditModal = (customer: Customer) => {
@@ -151,6 +158,7 @@ export default function Customers() {
       </PageHeader>
 
       <Table
+        loading={loadingCustomers}
         data={customers.map(customer => ({
           Name: (
             <a

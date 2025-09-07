@@ -18,6 +18,7 @@ import { getPageTitle } from "../utils/helpers";
 
 export default function Templates() {
   const [uploadedTemplates, setUploadedTemplates] = useState<Template[]>([]);
+  const [loadingAssessments, setLoadingAssessments] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<Template | null>(null);
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -40,7 +41,8 @@ export default function Templates() {
   }, []);
 
   function fetchTemplates() {
-    getData<Template[]>("/api/templates", setUploadedTemplates);
+    setLoadingAssessments(true);
+    getData<Template[]>("/api/templates", setUploadedTemplates, undefined, () => setLoadingAssessments(false));
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,6 +176,7 @@ export default function Templates() {
       </PageHeader>
 
       <Table
+        loading={loadingAssessments}
         data={uploadedTemplates.map(template => ({
           Name: template.name,
           Filename: template.filename,
