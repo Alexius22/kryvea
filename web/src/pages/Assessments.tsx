@@ -103,11 +103,11 @@ export default function Assessments() {
   };
 
   const confirmClone = () => {
-    postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, clonedAssessment => {
-      setAssessments(prev => [...prev, clonedAssessment]);
+    postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, _ => {
+      fetchAssessments();
       setIsModalCloneActive(false);
       setAssessmentToClone(null);
-      setCloneName("");
+      setCloneName(null);
       toast.success("Assessment cloned successfully");
     });
   };
