@@ -12,32 +12,32 @@ export type Vulnerability = {
   detailed_title: string;
   status: string;
   cvssv2: {
-    cvss_version: string;
-    cvss_vector: string;
-    cvss_score: number;
-    cvss_severity: string;
-    cvss_description: string;
+    version: string;
+    vector: string;
+    score: number;
+    severity: { label: string };
+    description: string;
   };
   cvssv3: {
-    cvss_version: string;
-    cvss_vector: string;
-    cvss_score: number;
-    cvss_severity: string;
-    cvss_description: string;
+    version: string;
+    vector: string;
+    score: number;
+    severity: { label: string };
+    description: string;
   };
   cvssv31: {
-    cvss_version: string;
-    cvss_vector: string;
-    cvss_score: number;
-    cvss_severity: string;
-    cvss_description: string;
+    version: string;
+    vector: string;
+    score: number;
+    severity: { label: string };
+    description: string;
   };
   cvssv4: {
-    cvss_version: string;
-    cvss_vector: string;
-    cvss_score: number;
-    cvss_severity: string;
-    cvss_description: string;
+    version: string;
+    vector: string;
+    score: number;
+    severity: { label: string };
+    description: string;
   };
   references: string[];
   generic_description: { enabled: boolean; text: string };

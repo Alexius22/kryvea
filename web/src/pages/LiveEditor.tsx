@@ -50,16 +50,16 @@ export default function LiveEditor() {
     {
       detailed_title: "Vulnerability 1",
       description: "Description of vulnerability 1",
-      cvss_vector: "CVSS Vector 1",
-      cvss_score: 7.5,
+      vector: "CVSS Vector 1",
+      score: 7.5,
       remediation: "Remediation for vulnerability 1",
       references: ["Reference 1", "Reference 2"],
     },
     {
       detailed_title: "Vulnerability 2",
       description: "Description of vulnerability 2",
-      cvss_vector: "CVSS Vector 2",
-      cvss_score: 5.0,
+      vector: "CVSS Vector 2",
+      score: 5.0,
       remediation: "Remediation for vulnerability 2",
       references: ["Reference 3", "Reference 4"],
     },
@@ -131,8 +131,8 @@ export default function LiveEditor() {
                               <Input
                                 type="text"
                                 label="CVSS Vector"
-                                id={`cvss_vector-${index}`}
-                                value={vulnerability.cvss_vector}
+                                id={`vector-${index}`}
+                                value={vulnerability.vector}
                               />
                               <Button
                                 className="h-12"
@@ -140,7 +140,7 @@ export default function LiveEditor() {
                                 text="Recalculate CVSS"
                                 onClick={() => setIsModalInfoActive(true)}
                               />
-                              <ScoreBar score={vulnerability.cvss_score} />
+                              <ScoreBar score={vulnerability.score} />
                             </Grid>
                             <Grid>
                               <Textarea
