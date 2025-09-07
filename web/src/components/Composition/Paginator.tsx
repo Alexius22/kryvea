@@ -93,6 +93,7 @@ export default function Paginator({
         <Input
           type="number"
           className="mr-2 h-8 w-[50px] rounded-md text-center"
+          id="page_number"
           value={perPagePreview}
           min={1}
           max={filteredData.length}

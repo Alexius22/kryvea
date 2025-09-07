@@ -116,6 +116,7 @@ export default function Table({
       <Input
         className="rounded-t-2xl bg-transparent p-[11px] focus:border-transparent"
         placeholder="Search"
+        id="search"
         type="text"
         value={filterText}
         onChange={e => {
