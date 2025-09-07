@@ -13,12 +13,14 @@ export default function Table({
   wMin,
   maxWidthColumns = {},
   loading,
+  onSearch,
 }: {
   data: any[];
   perPageCustom?;
   wMin?: true;
   maxWidthColumns?: Record<string, string>;
   loading?: boolean;
+  onSearch?: (query: string) => void;
 }) {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
@@ -43,7 +45,10 @@ export default function Table({
           });
       })
     );
-  }, [filterText, data]);
+    if (onSearch) {
+      setFilteredData(data ?? []);
+    }
+  }, [filterText, data, onSearch]);
 
   const sortAscend = (a, b) => {
     a = a[keySort.header];
@@ -122,6 +127,9 @@ export default function Table({
         onChange={e => {
           setCurrentPage(0);
           setFilterText(e.target.value);
+          if (onSearch) {
+            onSearch(e.target.value);
+          }
         }}
       />
       <div className="grid gap-2">
