@@ -191,32 +191,34 @@ export default function CategoryUpsert() {
 
   return (
     <div>
-      <Modal
-        title="Add language"
-        confirmButtonLabel="Add"
-        isActive={isModalInfoActive}
-        onConfirm={handleModalAction}
-        onCancel={() => setIsModalInfoActive(false)}
-      >
-        <p>The English language option is not available, as it is the default language.</p>
-        <SelectWrapper
-          label="Select language"
-          options={languageOptions.filter(option => !additionalFields.some(f => f.value === option.value))}
-          onChange={option => setSelectedLanguageOption(option)}
-          value={selectedLanguageOption}
-        />
-      </Modal>
+      {isModalInfoActive && (
+        <Modal
+          title="Add language"
+          confirmButtonLabel="Add"
+          onConfirm={handleModalAction}
+          onCancel={() => setIsModalInfoActive(false)}
+        >
+          <p>The English language option is not available, as it is the default language.</p>
+          <SelectWrapper
+            label="Select language"
+            options={languageOptions.filter(option => !additionalFields.some(f => f.value === option.value))}
+            onChange={option => setSelectedLanguageOption(option)}
+            value={selectedLanguageOption}
+          />
+        </Modal>
+      )}
 
       {/* Delete single category modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleModalTrashConfirm}
-        onCancel={() => setIsModalTrashActive(false)}
-      >
-        <p>Are you sure you want to delete this category?</p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleModalTrashConfirm}
+          onCancel={() => setIsModalTrashActive(false)}
+        >
+          <p>Are you sure you want to delete this category?</p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
         <Buttons>

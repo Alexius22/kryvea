@@ -85,22 +85,23 @@ export default function LiveEditor() {
 
   return (
     <div>
-      <Modal
-        title="Recalculate CVSS"
-        confirmButtonLabel="Confirm"
-        isActive={isModalInfoActive}
-        onConfirm={handleModalAction}
-        onCancel={handleModalAction}
-        className="overflow-y-auto xl:w-8/12"
-      >
-        <Formik initialValues={{}} onSubmit={undefined}>
-          {isCvss4 ? (
-            <CVSS40Wrapper value={undefined} onChange={undefined} />
-          ) : (
-            <CVSS31Wrapper value={""} onChange={undefined} />
-          )}
-        </Formik>
-      </Modal>
+      {isModalInfoActive && (
+        <Modal
+          title="Recalculate CVSS"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleModalAction}
+          onCancel={handleModalAction}
+          className="overflow-y-auto xl:w-8/12"
+        >
+          <Formik initialValues={{}} onSubmit={undefined}>
+            {isCvss4 ? (
+              <CVSS40Wrapper value={undefined} onChange={undefined} />
+            ) : (
+              <CVSS31Wrapper value={""} onChange={undefined} />
+            )}
+          </Formik>
+        </Modal>
+      )}
 
       <Grid className="grid-cols-2">
         <Card>

@@ -85,65 +85,67 @@ export default function Targets() {
   return (
     <div>
       {/* Edit Target Modal */}
-      <Modal
-        title="Edit Target"
-        confirmButtonLabel="Save"
-        isActive={isModalEditActive}
-        onConfirm={handleEditConfirm}
-        onCancel={() => setIsModalEditActive(false)}
-      >
-        <Grid className="grid-cols-1 gap-4">
-          <Input
-            type="text"
-            id="ipv4"
-            label="IPv4"
-            placeholder="IPv4 address"
-            value={ipv4}
-            onChange={e => setIpv4(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="ipv6"
-            label="IPv6"
-            placeholder="IPv6 address"
-            value={ipv6}
-            onChange={e => setIpv6(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="fqdn"
-            label="FQDN"
-            placeholder="Fully Qualified Domain Name"
-            value={fqdn}
-            onChange={e => setFqdn(e.target.value)}
-          />
-          <Input
-            type="text"
-            id="name"
-            label="Name"
-            placeholder="This name is used to differentiate between duplicate entries"
-            value={hostName}
-            onChange={e => setHostName(e.target.value)}
-          />
-        </Grid>
-      </Modal>
+      {isModalEditActive && (
+        <Modal
+          title="Edit Target"
+          confirmButtonLabel="Save"
+          onConfirm={handleEditConfirm}
+          onCancel={() => setIsModalEditActive(false)}
+        >
+          <Grid className="grid-cols-1 gap-4">
+            <Input
+              type="text"
+              id="ipv4"
+              label="IPv4"
+              placeholder="IPv4 address"
+              value={ipv4}
+              onChange={e => setIpv4(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="ipv6"
+              label="IPv6"
+              placeholder="IPv6 address"
+              value={ipv6}
+              onChange={e => setIpv6(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="fqdn"
+              label="FQDN"
+              placeholder="Fully Qualified Domain Name"
+              value={fqdn}
+              onChange={e => setFqdn(e.target.value)}
+            />
+            <Input
+              type="text"
+              id="name"
+              label="Name"
+              placeholder="This name is used to differentiate between duplicate entries"
+              value={hostName}
+              onChange={e => setHostName(e.target.value)}
+            />
+          </Grid>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setIsModalTrashActive(false)}
-      >
-        <p>
-          Are you sure to delete{" "}
-          <strong>
-            {targetToDelete?.name || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
-          </strong>{" "}
-          target?
-        </p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setIsModalTrashActive(false)}
+        >
+          <p>
+            Are you sure to delete{" "}
+            <strong>
+              {targetToDelete?.name || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
+            </strong>{" "}
+            target?
+          </p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiListBox} title="Targets">
         <Button

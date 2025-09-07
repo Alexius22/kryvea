@@ -116,60 +116,58 @@ export default function Templates() {
   return (
     <div>
       {/* Upload Modal */}
-      <Modal
-        title="Upload Template"
-        isActive={isModalUploadActive}
-        onConfirm={handleUpload}
-        onCancel={() => setIsModalUploadActive(false)}
-      >
-        <Grid>
-          <UploadFile
-            label="Choose template file"
-            inputId="template-upload"
-            inputRef={templateInputRef}
-            name="templateFile"
-            filename={fileObj?.name}
-            accept=".docx,.xlsx"
-            onChange={handleFileChange}
-            onButtonClick={clearFileInput}
-          />
-          <Grid className="grid-cols-2">
+      {isModalUploadActive && (
+        <Modal title="Upload Template" onConfirm={handleUpload} onCancel={() => setIsModalUploadActive(false)}>
+          <Grid>
+            <UploadFile
+              label="Choose template file"
+              inputId="template-upload"
+              inputRef={templateInputRef}
+              name="templateFile"
+              filename={fileObj?.name}
+              accept=".docx,.xlsx"
+              onChange={handleFileChange}
+              onButtonClick={clearFileInput}
+            />
+            <Grid className="grid-cols-2">
+              <Input
+                type="text"
+                label="Template Name"
+                id="template_name"
+                value={nameTemplate}
+                onChange={e => setNameTemplate(e.target.value)}
+                placeholder="Insert name for the template"
+              />
+              <SelectWrapper
+                label="Language"
+                options={languageOptions}
+                value={selectedLanguage}
+                onChange={setSelectedLanguage}
+              />
+            </Grid>
             <Input
               type="text"
-              label="Template Name"
-              id="template_name"
-              value={nameTemplate}
-              onChange={e => setNameTemplate(e.target.value)}
-              placeholder="Insert name for the template"
-            />
-            <SelectWrapper
-              label="Language"
-              options={languageOptions}
-              value={selectedLanguage}
-              onChange={setSelectedLanguage}
+              label="Template Type"
+              placeholder="e.g., Template for assessments"
+              id="template_type"
+              value={templateType}
+              onChange={e => setTemplateType(e.target.value)}
             />
           </Grid>
-          <Input
-            type="text"
-            label="Template Type"
-            placeholder="e.g., Template for assessments"
-            id="template_type"
-            value={templateType}
-            onChange={e => setTemplateType(e.target.value)}
-          />
-        </Grid>
-      </Modal>
+        </Modal>
+      )}
 
       {/* Delete Modal */}
-      <Modal
-        title="Please confirm: action irreversible"
-        confirmButtonLabel="Confirm"
-        isActive={isModalTrashActive}
-        onConfirm={handleDeleteTemplate}
-        onCancel={() => setIsModalTrashActive(false)}
-      >
-        <p>Are you sure you want to delete this template?</p>
-      </Modal>
+      {isModalTrashActive && (
+        <Modal
+          title="Please confirm: action irreversible"
+          confirmButtonLabel="Confirm"
+          onConfirm={handleDeleteTemplate}
+          onCancel={() => setIsModalTrashActive(false)}
+        >
+          <p>Are you sure you want to delete this template?</p>
+        </Modal>
+      )}
 
       <PageHeader icon={mdiFileChart} title="Templates">
         <Button icon={mdiPlus} text="New template" small onClick={() => setIsModalUploadActive(true)} />

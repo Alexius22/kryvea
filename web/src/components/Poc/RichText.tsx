@@ -151,34 +151,35 @@ function MenuBar({ editor }: { editor: Editor | null }) {
 
   return (
     <>
-      <Modal
-        title={showModal === "link" ? "Insert Link" : "Insert Image"}
-        isActive={!!showModal}
-        onConfirm={handleModalConfirm}
-        onCancel={() => setShowModal(false)}
-      >
-        {showModal === "link" && (
-          <Input type="text" label="URL" value={inputValue} onChange={e => setInputValue(e.target.value)} autoFocus />
-        )}
+      {showModal && (
+        <Modal
+          title={showModal === "link" ? "Insert Link" : "Insert Image"}
+          onConfirm={handleModalConfirm}
+          onCancel={() => setShowModal(false)}
+        >
+          {showModal === "link" && (
+            <Input type="text" label="URL" value={inputValue} onChange={e => setInputValue(e.target.value)} autoFocus />
+          )}
 
-        {showModal === "image" && (
-          <Grid>
-            <UploadFile
-              label="Choose Image"
-              inputId={imageInputId}
-              filename={filename}
-              inputRef={imageInputRef}
-              name="imagePoc"
-              accept="image/png, image/jpeg"
-              onChange={onImageChangeWrapper}
-              onButtonClick={clearImage}
-            />
-            {imageUrl && (
-              <img src={imageUrl} alt="Selected image preview" className="max-h-[550px] w-fit object-contain" />
-            )}
-          </Grid>
-        )}
-      </Modal>
+          {showModal === "image" && (
+            <Grid>
+              <UploadFile
+                label="Choose Image"
+                inputId={imageInputId}
+                filename={filename}
+                inputRef={imageInputRef}
+                name="imagePoc"
+                accept="image/png, image/jpeg"
+                onChange={onImageChangeWrapper}
+                onButtonClick={clearImage}
+              />
+              {imageUrl && (
+                <img src={imageUrl} alt="Selected image preview" className="max-h-[550px] w-fit object-contain" />
+              )}
+            </Grid>
+          )}
+        </Modal>
+      )}
 
       <div className="RichText-buttons">
         {/** Formatting */}
