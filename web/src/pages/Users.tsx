@@ -25,6 +25,7 @@ export default function Users() {
   const [temporaryPassword, setTemporaryPassword] = useState<string>(null);
 
   const [users, setUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   const [isModalResetPswActive, setIsModalResetPswActive] = useState(false);
@@ -37,7 +38,8 @@ export default function Users() {
   const navigate = useNavigate();
 
   const fetchUsers = () => {
-    getData<User[]>("/api/admin/users", setUsers);
+    setLoadingUsers(true);
+    getData<User[]>("/api/admin/users", setUsers, undefined, () => setLoadingUsers(false));
   };
 
   useEffect(() => {
@@ -248,6 +250,7 @@ export default function Users() {
 
       {/* Users Table */}
       <Table
+        loading={loadingUsers}
         data={users.map(user => ({
           Username: user.username,
           Role: user.role,

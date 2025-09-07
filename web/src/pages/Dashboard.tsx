@@ -14,56 +14,79 @@ export default function Dashboard() {
     useCtxCustomer: [, setCtxCustomer],
   } = useContext(GlobalContext);
 
-  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [loadingAssessments, setLoadingAssessments] = useState(true);
 
   useEffect(() => {
     document.title = getPageTitle("Dashboard");
-    getData<Assessment[]>("/api/assessments/owned", setAssessmentsData);
+    setLoadingAssessments(true);
+    getData<Assessment[]>("/api/assessments/owned", setAssessments, undefined, () => setLoadingAssessments(false));
   }, []);
-
-  const renderTable = (title: string, icon: string, assessments: Assessment[]) => (
-    <div>
-      <PageHeader icon={icon} title={title} />
-      <Table
-        data={assessments.map(assessment => ({
-          Customer: (
-            <Link
-              to={`/customers/${assessment.customer.id}`}
-              onClick={e => {
-                setCtxCustomer(assessment.customer);
-              }}
-            >
-              {assessment.customer.name}
-            </Link>
-          ),
-          "Assessment Name": (
-            <Link to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}>
-              {assessment.name}
-            </Link>
-          ),
-          "Assessment Type": assessment.type.short,
-          "Vulnerability Count": assessment.vulnerability_count,
-          Start: formatDate(assessment.start_date_time),
-          End: formatDate(assessment.end_date_time),
-          Status: assessment.status,
-        }))}
-        perPageCustom={10}
-      />
-    </div>
-  );
 
   return (
     <div className="flex flex-col gap-4">
-      {renderTable(
-        "Ongoing Assessments",
-        mdiDotsCircle,
-        assessmentsData.filter(a => a.status !== "Completed")
-      )}
-      {renderTable(
-        "Completed Assessments",
-        mdiHistory,
-        assessmentsData.filter(a => a.status === "Completed")
-      )}
+      <div>
+        <PageHeader icon={mdiDotsCircle} title="Ongoing Assessments" />
+        <Table
+          loading={loadingAssessments}
+          data={assessments
+            .filter(a => a.status !== "Completed")
+            .map(assessment => ({
+              Customer: (
+                <Link
+                  to={`/customers/${assessment.customer.id}`}
+                  onClick={() => {
+                    setCtxCustomer(assessment.customer);
+                  }}
+                >
+                  {assessment.customer.name}
+                </Link>
+              ),
+              "Assessment Name": (
+                <Link to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}>
+                  {assessment.name}
+                </Link>
+              ),
+              "Assessment Type": assessment.type.short,
+              "Vulnerability Count": assessment.vulnerability_count,
+              Start: formatDate(assessment.start_date_time),
+              End: formatDate(assessment.end_date_time),
+              Status: assessment.status,
+            }))}
+          perPageCustom={10}
+        />
+      </div>
+      <div>
+        <PageHeader icon={mdiHistory} title="Completed Assessments" />
+        <Table
+          loading={loadingAssessments}
+          data={assessments
+            .filter(a => a.status === "Completed")
+            .map(assessment => ({
+              Customer: (
+                <Link
+                  to={`/customers/${assessment.customer.id}`}
+                  onClick={() => {
+                    setCtxCustomer(assessment.customer);
+                  }}
+                >
+                  {assessment.customer.name}
+                </Link>
+              ),
+              "Assessment Name": (
+                <Link to={`/customers/${assessment.customer.id}/assessments/${assessment.id}/vulnerabilities`}>
+                  {assessment.name}
+                </Link>
+              ),
+              "Assessment Type": assessment.type.short,
+              "Vulnerability Count": assessment.vulnerability_count,
+              Start: formatDate(assessment.start_date_time),
+              End: formatDate(assessment.end_date_time),
+              Status: assessment.status,
+            }))}
+          perPageCustom={10}
+        />
+      </div>
     </div>
   );
 }

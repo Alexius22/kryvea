@@ -15,6 +15,7 @@ import { getPageTitle } from "../utils/helpers";
 
 export default function Targets() {
   const [targets, setTargets] = useState<Target[]>([]);
+  const [loadingTargets, setLoadingTargets] = useState(true);
 
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
@@ -31,7 +32,8 @@ export default function Targets() {
   const { customerId } = useParams<{ customerId: string }>();
 
   const fetchTargets = () => {
-    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+    setLoadingTargets(true);
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets, undefined, () => setLoadingTargets(false));
   };
 
   useEffect(() => {
@@ -153,6 +155,7 @@ export default function Targets() {
       </PageHeader>
 
       <Table
+        loading={loadingTargets}
         data={targets.map(target => ({
           FQDN: target.fqdn,
           IPv4: target.ipv4,

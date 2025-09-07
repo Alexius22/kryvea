@@ -47,14 +47,18 @@ export default function Assessments() {
     { label: "In Progress", value: "In Progress" },
     { label: "Completed", value: "Completed" },
   ]);
-  const [assessmentsData, setAssessmentsData] = useState<Assessment[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [loadingAssessments, setLoadingAssessments] = useState(true);
 
   const {
     useCtxAssessment: [, setCtxAssessment],
   } = useContext(GlobalContext);
 
   const fetchAssessments = () => {
-    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessmentsData);
+    setLoadingAssessments(true);
+    getData<Assessment[]>(`/api/customers/${customerId}/assessments`, setAssessments, undefined, () =>
+      setLoadingAssessments(false)
+    );
   };
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function Assessments() {
 
   const getTemplatesByTypeAndLanguage = () =>
     allTemplates.filter(
-      t => t.language === assessmentsData[0]?.customer.language && t.mime_type === selectedExportTypeOption.value
+      t => t.language === assessments[0]?.customer.language && t.mime_type === selectedExportTypeOption.value
     );
 
   useEffect(() => {
@@ -101,7 +105,7 @@ export default function Assessments() {
 
   const confirmClone = () => {
     postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, clonedAssessment => {
-      setAssessmentsData(prev => [...prev, clonedAssessment]);
+      setAssessments(prev => [...prev, clonedAssessment]);
       setIsModalCloneActive(false);
       setAssessmentToClone(null);
       setCloneName("");
@@ -116,7 +120,7 @@ export default function Assessments() {
 
   const confirmDelete = () => {
     deleteData(`/api/assessments/${assessmentToDelete.id}`, () => {
-      setAssessmentsData(prev => prev.filter(a => a.id !== assessmentToDelete.id));
+      setAssessments(prev => prev.filter(a => a.id !== assessmentToDelete.id));
       setIsModalTrashActive(false);
       setAssessmentToDelete(null);
       toast.success("Assessment deleted successfully");
@@ -125,7 +129,7 @@ export default function Assessments() {
 
   const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
     patchData<Assessment>(`/api/assessments/${assessmentId}`, { status: selectedOption.value }, updatedAssessment => {
-      setAssessmentsData(prev => prev.map(a => (a.id === assessmentId ? { ...a, status: selectedOption.value } : a)));
+      setAssessments(prev => prev.map(a => (a.id === assessmentId ? { ...a, status: selectedOption.value } : a)));
     });
   };
 
@@ -148,7 +152,7 @@ export default function Assessments() {
       payload,
       data => {
         const url = window.URL.createObjectURL(data);
-        const assessment = assessmentsData.find(a => a.id === selectedAssessmentId);
+        const assessment = assessments.find(a => a.id === selectedAssessmentId);
         const extension =
           selectedExportTypeOption.value === "word"
             ? "docx"
@@ -296,7 +300,8 @@ export default function Assessments() {
       </PageHeader>
 
       <Table
-        data={assessmentsData?.map(assessment => ({
+        loading={loadingAssessments}
+        data={assessments?.map(assessment => ({
           Title: (
             <Link
               to={`/customers/${customerId}/assessments/${assessment.id}/vulnerabilities`}

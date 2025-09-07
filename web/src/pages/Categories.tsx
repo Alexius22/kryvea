@@ -21,6 +21,7 @@ export default function Categories() {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [isModalManageActive, setIsModalManageActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
@@ -34,7 +35,8 @@ export default function Categories() {
   }, []);
 
   function fetchCategories() {
-    getData<Category[]>("/api/categories", setCategories);
+    setLoadingCategories(true);
+    getData<Category[]>("/api/categories", setCategories, undefined, () => setLoadingCategories(false));
   }
 
   const changeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,6 +152,7 @@ export default function Categories() {
 
       <div>
         <Table
+          loading={loadingCategories}
           data={categories.map(category => ({
             Identifier: category.index,
             Name: category.name,
