@@ -337,10 +337,10 @@ export default function AssessmentVulnerabilities() {
         data={vulnerabilities.map(vulnerability => {
           const cvssColumns = {};
           if (ctxAssessment?.cvss_versions["3.1"]) {
-            cvssColumns["CVSSv3.1 Score"] = vulnerability.cvssv31.cvss_score;
+            cvssColumns["CVSSv3.1 Score"] = vulnerability.cvssv31.score;
           }
           if (ctxAssessment?.cvss_versions["4.0"]) {
-            cvssColumns["CVSSv4.0 Score"] = vulnerability.cvssv4.cvss_score;
+            cvssColumns["CVSSv4.0 Score"] = vulnerability.cvssv4.score;
           }
 
           return {
