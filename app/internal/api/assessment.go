@@ -54,9 +54,9 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -142,9 +142,9 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		}
 
 		if !util.CanAccessCustomer(user, customer.ID) {
-			c.Status(fiber.StatusUnauthorized)
+			c.Status(fiber.StatusForbidden)
 			return c.JSON(fiber.Map{
-				"error": "Unauthorized",
+				"error": "Forbidden",
 			})
 		}
 
@@ -186,9 +186,9 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -245,9 +245,9 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -333,9 +333,9 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -406,9 +406,9 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -441,9 +441,9 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -519,9 +519,9 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 

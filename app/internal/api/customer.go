@@ -75,9 +75,9 @@ func (d *Driver) GetCustomer(c *fiber.Ctx) error {
 
 	// check if user has access to the customer
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 

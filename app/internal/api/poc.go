@@ -53,9 +53,9 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 	// check if user can access the customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -163,9 +163,9 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
