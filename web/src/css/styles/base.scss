@@ -273,3 +273,13 @@ html.dark {
     animation: shimmerWrapperDark 1.5s infinite;
   }
 }
+
+// .responsive-grid {
+//   grid-template-columns: 1fr 1fr;
+// }
+
+// @container responsive-grid (min-width: 1300px) {
+//   .responsive-grid {
+//     grid-template-columns: repeat(2, minmax(0, 1fr));
+//   }
+// }
