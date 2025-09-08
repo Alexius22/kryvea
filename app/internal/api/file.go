@@ -55,9 +55,9 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 		}
 	}
 	if !canAccess {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -97,9 +97,9 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 	}
 
 	if template.Customer.ID != uuid.Nil && !util.CanAccessCustomer(user, template.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 

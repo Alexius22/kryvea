@@ -189,11 +189,14 @@ func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 }
 
 func (ci *CategoryIndex) Search(query string) ([]Category, error) {
-	filter := bson.M{
-		"$or": []bson.M{
-			{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-			{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-		},
+	filter := bson.M{}
+	if query != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+				{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+			},
+		}
 	}
 
 	cursor, err := ci.collection.Find(context.Background(), filter)
