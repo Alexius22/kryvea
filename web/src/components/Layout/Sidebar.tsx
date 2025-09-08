@@ -1,22 +1,8 @@
-import {
-  mdiAccountMultiple,
-  mdiFileChart,
-  mdiListBox,
-  mdiMagnify,
-  mdiMenuOpen,
-  mdiMonitor,
-  mdiPencil,
-  mdiResponsive,
-  mdiShapePlus,
-  mdiTabSearch,
-  mdiViewList,
-} from "@mdi/js";
-import { Fragment, useContext, useState } from "react";
-import { Link } from "react-router";
-import { navigate } from "../../api/api";
-import { getKryveaShadow } from "../../api/cookie";
+import { mdiMenuOpen } from "@mdi/js";
+import { Fragment, useContext, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { GlobalContext } from "../../App";
-import { USER_ROLE_ADMIN } from "../../utils/constants";
+import { getSidebarItems } from "../../utils/helpers";
 import Flex from "../Composition/Flex";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
@@ -29,46 +15,11 @@ export default function Sidebar() {
   });
   const {
     useCtxCustomer: [ctxCustomer],
-    useCtxSelectedSidebarItem: [ctxSelectedSidebarItem, setCtxSelectedSidebarItem],
+    useCtxSelectedSidebarItemLabel: [ctxSelectedSidebarItem, setCtxSelectedSidebarItemLabel],
   } = useContext(GlobalContext);
+  const navigate = useNavigate();
 
-  const defaultMenu = [
-    { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
-    { href: "/customers", icon: mdiListBox, label: "Customers" },
-    ...(ctxCustomer != null
-      ? [
-          {
-            label: ctxCustomer.name,
-            icon: mdiViewList,
-            onClick: () => navigate(`/customers/${ctxCustomer.id}`),
-            menu: [
-              {
-                href: `/customers/${ctxCustomer.id}/assessments`,
-                icon: mdiTabSearch,
-                label: "Assessments",
-              },
-              { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiListBox, label: "Targets" },
-              {
-                href: `/customers/${ctxCustomer.id}`,
-                icon: mdiPencil,
-                label: "Edit Customer",
-              },
-            ],
-          },
-        ]
-      : []),
-    { href: "/vulnerability_search", icon: mdiMagnify, label: "Vulnerability Search" },
-    getKryveaShadow() === USER_ROLE_ADMIN && {
-      label: "Administration",
-      icon: mdiResponsive,
-      menu: [
-        { href: "/categories", icon: mdiShapePlus, label: "Categories" },
-        { href: "/users", icon: mdiAccountMultiple, label: "Users" },
-        { href: "/logs", icon: mdiListBox, label: "Logs" },
-        { href: "/templates", icon: mdiFileChart, label: "Templates" },
-      ],
-    },
-  ];
+  const defaultMenu = useMemo(() => getSidebarItems(ctxCustomer, navigate), [ctxCustomer]);
 
   const iconSize = isCollapsed ? 22 : 18;
 
@@ -100,7 +51,7 @@ export default function Sidebar() {
               <Link
                 className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square h-12 justify-center" : "!pl-2"}`}
                 to={item.href}
-                onClick={() => setCtxSelectedSidebarItem(item.label)}
+                onClick={() => setCtxSelectedSidebarItemLabel(item.label)}
                 title={item.label}
                 key={`sidebar-${item.label}`}
               >
@@ -111,10 +62,7 @@ export default function Sidebar() {
               <Fragment key={`sidebar-${item.label}`}>
                 <a
                   className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
-                  onClick={() => {
-                    setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }));
-                    setCtxSelectedSidebarItem(item.label);
-                  }}
+                  onClick={() => setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }))}
                   title={`${item.label} menu`}
                 >
                   <Flex className={`cursor-pointer gap-4 ${isCollapsed ? "justify-center" : ""}`}>
@@ -128,7 +76,7 @@ export default function Sidebar() {
                       <Link
                         className={`sidebar-item ${ctxSelectedSidebarItem === subItem.label ? "sidebar-item-active" : ""} ${isCollapsed ? "ml-0 aspect-square justify-center" : "ml-4 !pl-2"}`}
                         to={subItem.href}
-                        onClick={() => setCtxSelectedSidebarItem(subItem.label)}
+                        onClick={() => setCtxSelectedSidebarItemLabel(subItem.label)}
                         title={subItem.label}
                         key={`sidebar-${subItem.label}`}
                       >

@@ -31,6 +31,7 @@ export default function Customers() {
 
   const {
     useCtxCustomer: [, setCtxCustomer],
+    useCtxSelectedSidebarItemLabel: [, setCtxSelectedSidebarItemLabel],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -168,6 +169,7 @@ export default function Customers() {
               className="cursor-pointer"
               onClick={() => {
                 setCtxCustomer(customer);
+                setCtxSelectedSidebarItemLabel("Assessments");
                 navigate(`${customer.id}/assessments`);
               }}
             >
