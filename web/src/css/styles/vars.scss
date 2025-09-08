@@ -8,22 +8,22 @@ $main-max-width: 1735px !default;
   --main-max-width: #{$main-max-width};
 
   /* Palette */
-  $bg-primary: #d0d0d0;
-  $text-primary: #272727;
+  $bg-primary: #e0e0e0;
+  $text-primary: #3d3b43;
   $border: #4f4f4f;
-  $link: hsl(215, 90%, 60%);
-  $button-bg: color.adjust($bg-primary, $lightness: 18%);
+  $link: hsl(226, 55%, 55%);
+  $button-bg: color.adjust($bg-primary, $lightness: 0%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
   /* Maps */
   $backgrounds: (
     "primary": $bg-primary,
-    "secondary": color.adjust($bg-primary, $lightness: 5%),
-    "tertiary": color.adjust($bg-primary, $lightness: 10%),
-    "quaternary": color.adjust($bg-primary, $lightness: 20%),
-    "quinary": color.adjust($bg-primary, $lightness: 30%),
-    "active": color.adjust($bg-primary, $lightness: 40%),
+    "secondary": color.adjust($bg-primary, $lightness: 8%),
+    "tertiary": color.adjust($bg-primary, $lightness: 12%),
+    "quaternary": color.adjust($bg-primary, $lightness: 5%),
+    "quinary": color.adjust($bg-primary, $lightness: -2%),
+    "active": color.adjust($bg-primary, $lightness: -10%),
   );
 
   /* Text */
@@ -48,7 +48,7 @@ $main-max-width: 1735px !default;
   );
 
   /* Alerts */
-  $error: #ff4040;
+  $error: #ff5656;
   --error: #{$error};
   --error-rgb: #{color.channel($error, "red")}, #{color.channel($error, "green")}, #{color.channel($error, "blue")};
 
