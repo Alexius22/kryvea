@@ -67,9 +67,9 @@ func (d *Driver) AdminMiddleware(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	if user.Role != mongo.RoleAdmin {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 

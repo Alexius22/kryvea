@@ -372,9 +372,9 @@ func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
