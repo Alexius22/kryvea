@@ -5,15 +5,7 @@ import Buttons from "../Form/Buttons";
 import Input from "../Form/Input";
 import Flex from "./Flex";
 
-export default function Paginator({
-  pagesList,
-  currentPage,
-  setCurrentPage,
-  filteredData,
-  perPagePreview,
-  setPerPage,
-  numPages,
-}) {
+export default function Paginator({ pagesList, currentPage, setCurrentPage, filteredData, perPage, setPerPage }) {
   const getPaginatorKey = useCallback((page: number) => `paginator-${page}-${v4()}`, []);
 
   const isInTheMiddle = currentPage > 1 && currentPage < pagesList.length - 2;
@@ -94,7 +86,7 @@ export default function Paginator({
           type="number"
           className="mr-2 h-8 w-[50px] rounded-md text-center"
           id="page_number"
-          value={perPagePreview}
+          value={perPage}
           min={1}
           max={filteredData.length}
           onChange={setPerPage}
