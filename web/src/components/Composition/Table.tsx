@@ -7,26 +7,41 @@ import Icon from "./Icon";
 import Paginator from "./Paginator";
 import Shimmer from "./Shimmer";
 
-export default function Table({
-  data,
-  perPageCustom = 5,
-  wMin,
-  maxWidthColumns = {},
-  loading,
-  onSearch,
-}: {
+interface BaseTableProps {
   data: any[];
+  defaultFilterText?: string;
   perPageCustom?;
   wMin?: true;
   maxWidthColumns?: Record<string, string>;
   loading?: boolean;
-  onSearch?: (query: string) => void;
-}) {
+}
+
+interface WithoutBackendSearchProps {
+  backendSearch?: undefined;
+  onBackendSearch?: undefined;
+}
+
+interface WithBackendSearchProps {
+  backendSearch: string;
+  onBackendSearch: (query: string) => void;
+}
+
+type TableProps = (BaseTableProps & WithoutBackendSearchProps) | (BaseTableProps & WithBackendSearchProps);
+
+export default function Table({
+  data,
+  defaultFilterText = "",
+  perPageCustom = 5,
+  wMin,
+  maxWidthColumns = {},
+  loading,
+  backendSearch,
+  onBackendSearch: onBackendSearch,
+}: TableProps) {
   const [perPage, setPerPage] = useState(perPageCustom);
-  const [perPagePreview, setPerPagePreview] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState(defaultFilterText);
   const [filteredData, setFilteredData] = useState(data ?? []);
 
   const BUTTONS_KEY = useMemo(() => "buttons", []);
@@ -45,10 +60,7 @@ export default function Table({
           });
       })
     );
-    if (onSearch) {
-      setFilteredData(data ?? []);
-    }
-  }, [filterText, data, onSearch]);
+  }, [filterText, data]);
 
   const sortAscend = (a, b) => {
     a = a[keySort.header];
@@ -123,13 +135,16 @@ export default function Table({
         placeholder="Search"
         id="search"
         type="text"
-        value={filterText}
+        value={backendSearch ?? filterText}
         onChange={e => {
           setCurrentPage(0);
-          setFilterText(e.target.value);
-          if (onSearch) {
-            onSearch(e.target.value);
+
+          if (onBackendSearch) {
+            onBackendSearch(e.target.value);
+            return;
           }
+
+          setFilterText(e.target.value);
         }}
       />
       <div className="grid gap-2">
@@ -234,9 +249,7 @@ export default function Table({
           </table>
         </div>
         <div>
-          <Paginator
-            {...{ currentPage, filteredData, pagesList, perPagePreview, setCurrentPage, setPerPage, numPages }}
-          />
+          <Paginator {...{ currentPage, filteredData, pagesList, perPage, setCurrentPage, setPerPage }} />
         </div>
         <div /> {/* Empty element just to even the last element gap */}
       </div>
