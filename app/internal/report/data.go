@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
+	"github.com/Alexius22/kryvea/internal/util"
 )
 
 type ReportData struct {
@@ -29,16 +30,7 @@ type OWASPCounter struct {
 
 func (rd *ReportData) Prepare() {
 	// get highest cvss version
-	maxVersion := ""
-	for cvssVersion, enabled := range rd.Assessment.CVSSVersions {
-		if !enabled {
-			continue
-		}
-
-		if cvssVersion > maxVersion {
-			maxVersion = cvssVersion
-		}
-	}
+	maxVersion := util.GetMaxCvssVersion(rd.Assessment.CVSSVersions)
 
 	// sanitize customer
 	SanitizeCustomer(rd.Customer)
