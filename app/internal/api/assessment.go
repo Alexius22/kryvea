@@ -12,6 +12,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/report/docx"
 	"github.com/Alexius22/kryvea/internal/report/xlsx"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -622,6 +623,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
+	c.Set("Content-Type", mimetype.Detect(renderedTemplate).String())
 	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=rendered_template.%s", data.Type))
 	return c.SendStream(bytes.NewBuffer(renderedTemplate))
 }
