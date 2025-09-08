@@ -30,7 +30,7 @@ import Logs from "./pages/Logs";
 import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
-import { getBrowser } from "./utils/helpers";
+import { getBrowser, SidebarItemLabel } from "./utils/helpers";
 
 export type GlobalContextType = {
   useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
@@ -42,7 +42,7 @@ export type GlobalContextType = {
   useCtxVulnerability: [Partial<Vulnerability>, Dispatch<SetStateAction<Partial<Vulnerability>>>];
   useCtxCategory: [Category, Dispatch<SetStateAction<Category>>];
   useCtxLastPage: [string, Dispatch<SetStateAction<string>>];
-  useCtxSelectedSidebarItem: [string, Dispatch<SetStateAction<string>>];
+  useCtxSelectedSidebarItemLabel: [SidebarItemLabel, Dispatch<SetStateAction<SidebarItemLabel>>];
 };
 
 export const GlobalContext = createContext<GlobalContextType>(null);
@@ -58,8 +58,8 @@ export default function App() {
   const useCtxVulnerability = useState<Partial<Vulnerability>>(() => getLocalStorageCtxState("useCtxVulnerability"));
   const useCtxCategory = useState<Category>(() => getLocalStorageCtxState("useCtxCategory"));
   const useCtxLastPage = useState<string>(() => getLocalStorageCtxState("useCtxLastPage") ?? "/dashboard");
-  const useCtxSelectedSidebarItem = useState<string>(
-    () => getLocalStorageCtxState("useCtxSelectedSidebarItem") ?? "Dashboard"
+  const useCtxSelectedSidebarItemLabel = useState<SidebarItemLabel>(
+    () => getLocalStorageCtxState("useCtxSelectedSidebarItemLabel") ?? "Dashboard"
   );
 
   useLayoutEffect(() => {
@@ -99,7 +99,10 @@ export default function App() {
         useCtxVulnerability: bindToLocalStorage(useCtxVulnerability, "useCtxVulnerability"),
         useCtxCategory: bindToLocalStorage(useCtxCategory, "useCtxCategory"),
         useCtxLastPage: bindToLocalStorage(useCtxLastPage, "useCtxLastPage"),
-        useCtxSelectedSidebarItem: bindToLocalStorage(useCtxSelectedSidebarItem, "useCtxSelectedSidebarItem"),
+        useCtxSelectedSidebarItemLabel: bindToLocalStorage(
+          useCtxSelectedSidebarItemLabel,
+          "useCtxSelectedSidebarItemLabel"
+        ),
       }}
     >
       <ToastContainer
