@@ -17,6 +17,14 @@
   }
 }
 
+.layout-content {
+  @apply flex w-full flex-col overflow-auto px-4 pt-2;
+}
+
+.layout-main {
+  @apply flex h-full flex-col justify-between overflow-y-auto;
+}
+
 .layout-sidebar {
   @apply sticky top-0 h-screen border-r border-[color:--border-primary] transition-all duration-300;
 
@@ -38,12 +46,4 @@
 
 .sidebar-item-active {
   background-color: var(--bg-secondary);
-}
-
-.layout-content {
-  @apply flex w-full flex-col px-4 pt-2;
-}
-
-.layout-main {
-  @apply flex h-full w-full flex-col justify-between overflow-y-auto;
 }
