@@ -49,6 +49,7 @@
 }
 
 .edit-poc-header {
+  @apply glasscard sticky top-0 z-10 rounded-b-3xl;
   border: none;
   background-image: linear-gradient(to bottom, var(--bg-primary), rgba(var(--bg-secondary-rgb), 0.5));
 }
