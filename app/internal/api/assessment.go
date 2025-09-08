@@ -12,6 +12,7 @@ import (
 	"github.com/Alexius22/kryvea/internal/report/docx"
 	"github.com/Alexius22/kryvea/internal/report/xlsx"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -53,9 +54,9 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -141,9 +142,9 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 		}
 
 		if !util.CanAccessCustomer(user, customer.ID) {
-			c.Status(fiber.StatusUnauthorized)
+			c.Status(fiber.StatusForbidden)
 			return c.JSON(fiber.Map{
-				"error": "Unauthorized",
+				"error": "Forbidden",
 			})
 		}
 
@@ -185,9 +186,9 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -244,9 +245,9 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -332,9 +333,9 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -405,9 +406,9 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -440,9 +441,9 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 
 	// check if user has access to customer
 	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -518,17 +519,18 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
 	// parse request body
 	type reqData struct {
-		Type             string    `json:"type"`
-		Template         string    `json:"template"`
-		DeliveryDateTime time.Time `json:"delivery_date_time"`
+		Type                                string    `json:"type"`
+		Template                            string    `json:"template"`
+		DeliveryDateTime                    time.Time `json:"delivery_date_time"`
+		IncludeInformationalVulnerabilities bool      `json:"include_informational_vulnerabilities"`
 	}
 
 	data := &reqData{}
@@ -565,8 +567,10 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	maxVersion := util.GetMaxCvssVersion(assessment.CVSSVersions)
+
 	// retrieve vulnerabilities
-	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(assessment.ID)
+	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(assessment.ID, data.IncludeInformationalVulnerabilities, maxVersion)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -576,6 +580,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	// retrieve pocs
 	for i, v := range vulnerabilities {
+		fmt.Printf("%s %s %s %s\n", v.CVSSv2.Severity.Label, v.CVSSv3.Severity.Label, v.CVSSv31.Severity.Label, v.CVSSv4.Severity.Label)
 		for j, item := range v.Poc.Pocs {
 			if item.ImageID != uuid.Nil {
 				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
@@ -622,6 +627,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
+	c.Set("Content-Type", mimetype.Detect(renderedTemplate).String())
 	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=rendered_template.%s", data.Type))
 	return c.SendStream(bytes.NewBuffer(renderedTemplate))
 }

@@ -114,9 +114,9 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 	}
 
 	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -167,9 +167,9 @@ func (d *Driver) GetTemplate(c *fiber.Ctx) error {
 
 	// check if user has access to the template
 	if !util.IsNullCustomer(template.Customer) && !util.CanAccessCustomer(user, template.Customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -216,9 +216,9 @@ func (d *Driver) DeleteTemplate(c *fiber.Ctx) error {
 	// check if user has access to the template
 	if (util.IsNullCustomer(template.Customer) && user.Role != mongo.RoleAdmin) ||
 		(!util.IsNullCustomer(template.Customer) && !util.CanAccessCustomer(user, template.Customer.ID)) {
-		c.Status(fiber.StatusUnauthorized)
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
