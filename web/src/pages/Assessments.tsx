@@ -13,6 +13,7 @@ import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
+import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { Assessment, exportTypes, Template } from "../types/common.types";
@@ -42,6 +43,7 @@ export default function Assessments() {
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
   const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
+  const [checkIncludeInfo, setCheckIncludeInfo] = useState(false);
 
   const [statusSelectOptions] = useState<SelectOption[]>([
     { label: "On Hold", value: "On Hold" },
@@ -150,6 +152,7 @@ export default function Assessments() {
       template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
       delivery_date_time: deliveryDate,
+      include_informational_vulnerabilities: checkIncludeInfo,
     };
 
     const toastDownload = toast.loading("Generating report...");
@@ -282,7 +285,6 @@ export default function Assessments() {
               value={exportPassword}
               onChange={e => setExportPassword(e.target.value)}
             />
-
             <DateCalendar
               idStart="delivery_date"
               label="Report delivery date"
@@ -293,6 +295,17 @@ export default function Assessments() {
                 }
               }}
             />
+            <Grid className="h-full !items-start">
+              <Label text={<>&nbsp;</>} />
+              <Checkbox
+                id="include_informational_vulnerabilities"
+                label="Include informational vulnerabilities"
+                checked={checkIncludeInfo}
+                onChange={e => {
+                  setCheckIncludeInfo(e.target.checked);
+                }}
+              />
+            </Grid>
           </Grid>
         </Modal>
       )}
