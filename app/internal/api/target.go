@@ -46,7 +46,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !user.CanAccessCustomer(customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -98,7 +98,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	if !util.CanAccessCustomer(user, target.Customer.ID) {
+	if !user.CanAccessCustomer(target.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -167,7 +167,7 @@ func (d *Driver) DeleteTarget(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	if !util.CanAccessCustomer(user, target.Customer.ID) {
+	if !user.CanAccessCustomer(target.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -201,7 +201,7 @@ func (d *Driver) GetTargetsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !user.CanAccessCustomer(customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -249,7 +249,7 @@ func (d *Driver) GetTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, target.Customer.ID) {
+	if !user.CanAccessCustomer(target.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",

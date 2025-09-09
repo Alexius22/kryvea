@@ -401,3 +401,30 @@ func (ui *UserIndex) ValidatePassword(ID uuid.UUID, currentPassword string) erro
 
 	return nil
 }
+
+func (u *User) CanAccessCustomer(customer uuid.UUID) bool {
+	if u.Role == RoleAdmin {
+		return true
+	}
+
+	for _, allowedCustomer := range u.Customers {
+		if allowedCustomer.ID == customer {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidRole(role string) bool {
+	if role == "" {
+		return false
+	}
+
+	for _, r := range Roles {
+		if r == role {
+			return true
+		}
+	}
+
+	return false
+}

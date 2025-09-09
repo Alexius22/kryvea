@@ -113,7 +113,7 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, customer.ID) {
+	if !user.CanAccessCustomer(customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -166,7 +166,7 @@ func (d *Driver) GetTemplate(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to the template
-	if !util.IsNullCustomer(template.Customer) && !util.CanAccessCustomer(user, template.Customer.ID) {
+	if !mongo.IsNullCustomer(template.Customer) && !user.CanAccessCustomer(template.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -192,7 +192,7 @@ func (d *Driver) GetTemplates(c *fiber.Ctx) error {
 	// filter templates by user access
 	filteredTemplates := []mongo.Template{}
 	for _, template := range templates {
-		if util.IsNullCustomer(template.Customer) || util.CanAccessCustomer(user, template.Customer.ID) {
+		if mongo.IsNullCustomer(template.Customer) || user.CanAccessCustomer(template.Customer.ID) {
 			filteredTemplates = append(filteredTemplates, template)
 		}
 	}
@@ -214,8 +214,8 @@ func (d *Driver) DeleteTemplate(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to the template
-	if (util.IsNullCustomer(template.Customer) && user.Role != mongo.RoleAdmin) ||
-		(!util.IsNullCustomer(template.Customer) && !util.CanAccessCustomer(user, template.Customer.ID)) {
+	if (mongo.IsNullCustomer(template.Customer) && user.Role != mongo.RoleAdmin) ||
+		(!mongo.IsNullCustomer(template.Customer) && !user.CanAccessCustomer(template.Customer.ID)) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
