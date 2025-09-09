@@ -1,5 +1,5 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
 import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
@@ -39,6 +39,7 @@ export default function MonacoCodeEditor({
 }: MonacoCodeEditorProps) {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
+  const monacoRef = useRef<typeof monaco | null>(null);
 
   function getOrCreateHighlightClass(hexValue: string): string {
     const hexValueClean = hexValue.replace("#", "");
@@ -68,12 +69,12 @@ export default function MonacoCodeEditor({
 
     const decorations: monaco.editor.IModelDeltaDecoration[] = textHighlights
       .filter(({ start, end, selectionPreview }) => {
-        const range = new monaco.Range(start.line, start.col, end.line, end.col);
+        const range = new monacoRef.current!.Range(start.line, start.col, end.line, end.col);
         const actualText = model.getValueInRange(range);
         return actualText === selectionPreview;
       })
       .map(({ start, end, color }) => ({
-        range: new monaco.Range(start.line, start.col, end.line, end.col),
+        range: new monacoRef.current!.Range(start.line, start.col, end.line, end.col),
         options: {
           className: getOrCreateHighlightClass(color),
           inlineClassName: color,
@@ -94,7 +95,7 @@ export default function MonacoCodeEditor({
       return;
     }
     const disappearedHighlightsIndexes = textHighlights.flatMap(({ start, end, selectionPreview }, i) => {
-      const range = new monaco.Range(start.line, start.col, end.line, end.col);
+      const range = new monacoRef.current!.Range(start.line, start.col, end.line, end.col);
       const actualText = model.getValueInRange(range);
       const textHighlightMatches = actualText === selectionPreview;
 
@@ -126,6 +127,7 @@ export default function MonacoCodeEditor({
   }, [value]);
 
   const handleBeforeMount = (monaco: Monaco) => {
+    monacoRef.current = monaco;
     monaco.languages.register({ id: "http" });
 
     monaco.languages.setMonarchTokensProvider("http", {
