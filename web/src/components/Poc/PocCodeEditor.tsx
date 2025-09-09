@@ -1,5 +1,5 @@
 import { mdiBroom, mdiClipboardText, mdiMarker, mdiPalette } from "@mdi/js";
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import { useState } from "react";
 import DescribedCode from "../Composition/DescribedCode";
 import Grid from "../Composition/Grid";
