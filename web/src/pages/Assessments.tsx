@@ -74,11 +74,15 @@ export default function Assessments() {
 
   const getTemplatesByTypeAndLanguage = () =>
     allTemplates.filter(
-      t => t.language === assessments?.[0].customer.language && t.mime_type === selectedExportTypeOption.value
+      t => t.language === assessments[0].customer.language && t.mime_type === selectedExportTypeOption.value
     );
-  useEffect(() => {
-    const filteredTemplates = getTemplatesByTypeAndLanguage();
 
+  useEffect(() => {
+    if (assessments.length <= 0) {
+      return;
+    }
+
+    const filteredTemplates = getTemplatesByTypeAndLanguage();
     setTemplatesByTypeAndLanguage(filteredTemplates);
     setTemplateOptions(
       filteredTemplates.map(t => ({
