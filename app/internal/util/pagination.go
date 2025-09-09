@@ -8,11 +8,6 @@ type Pagination struct {
 	Skip  int64
 }
 
-type PaginationResult struct {
-	TotalDocuments int `json:"total_documents" bson:"total_documents"`
-	Data           any `json:"data" bson:"data"`
-}
-
 func GetPagination(pageStr, limitStr string) *Pagination {
 	page := int64(1)
 	limit := int64(5)
