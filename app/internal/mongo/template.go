@@ -165,6 +165,17 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 }
 
 func (ti *TemplateIndex) Delete(id uuid.UUID) error {
-	_, err := ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
+	template, err := ti.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Delete File Reference
+	err = ti.driver.FileReference().Delete(template.FileID, template.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
 	return err
 }

@@ -100,6 +100,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 			pocImageFilename = filename
 
+			// TODO: FileReference should also be updated with the pocItem ID
+			// or the poc upsert logic should be reworked
 			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
