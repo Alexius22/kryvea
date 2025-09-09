@@ -55,7 +55,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 				"error": "Failed to refresh session",
 			})
 		}
-		util.SetSessionCookies(c, user.Token, user.TokenExpiry)
+		util.SetSessionCookies(c, user.Role, user.Token, user.TokenExpiry)
 	}
 
 	c.Locals("user", user)

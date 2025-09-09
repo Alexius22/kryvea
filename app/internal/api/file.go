@@ -4,7 +4,6 @@ import (
 	"bytes"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -49,7 +48,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 			})
 		}
 
-		if util.CanAccessCustomer(user, assessment.Customer.ID) {
+		if user.CanAccessCustomer(assessment.Customer.ID) {
 			canAccess = true
 			break
 		}
@@ -96,7 +95,7 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 		})
 	}
 
-	if template.Customer.ID != uuid.Nil && !util.CanAccessCustomer(user, template.Customer.ID) {
+	if template.Customer.ID != uuid.Nil && !user.CanAccessCustomer(template.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
