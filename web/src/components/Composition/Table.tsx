@@ -182,19 +182,21 @@ export default function Table({
             )}
             <tbody>
               {loading ? (
-                Array(perPage).fill(
-                  <tr>
-                    <td>
-                      <Shimmer />
-                    </td>
-                    <td>
-                      <Shimmer />
-                    </td>
-                    <td>
-                      <Shimmer />
-                    </td>
-                  </tr>
-                )
+                Array(perPage)
+                  .fill(0)
+                  .map((_, i) => (
+                    <tr key={getTableElementKey(`shimmer${i}`)}>
+                      <td>
+                        <Shimmer />
+                      </td>
+                      <td>
+                        <Shimmer />
+                      </td>
+                      <td>
+                        <Shimmer />
+                      </td>
+                    </tr>
+                  ))
               ) : filteredData.length === 0 ? (
                 <tr>
                   <td
