@@ -10,6 +10,7 @@ import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import Checkbox from "../components/Form/Checkbox";
 import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
@@ -49,6 +50,8 @@ export default function Assessments() {
   ]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loadingAssessments, setLoadingAssessments] = useState(true);
+
+  const [checkIncludePoc, setCheckIncludePoc] = useState(false);
 
   const {
     useCtxAssessment: [, setCtxAssessment],
@@ -103,13 +106,17 @@ export default function Assessments() {
   };
 
   const confirmClone = () => {
-    postData<Assessment>(`/api/assessments/${assessmentToClone.id}/clone`, { name: cloneName }, _ => {
-      fetchAssessments();
-      setIsModalCloneActive(false);
-      setAssessmentToClone(null);
-      setCloneName(null);
-      toast.success("Assessment cloned successfully");
-    });
+    postData<Assessment>(
+      `/api/assessments/${assessmentToClone.id}/clone`,
+      { name: cloneName, include_pocs: checkIncludePoc },
+      _ => {
+        fetchAssessments();
+        setIsModalCloneActive(false);
+        setAssessmentToClone(null);
+        setCloneName(null);
+        toast.success("Assessment cloned successfully");
+      }
+    );
   };
 
   const openDeleteModal = (assessment: Assessment) => {
@@ -199,14 +206,24 @@ export default function Assessments() {
           onConfirm={confirmClone}
           onCancel={() => setIsModalCloneActive(false)}
         >
-          <Input
-            type="text"
-            label="Assessment Name"
-            placeholder="Cloned assessment name"
-            id="assessment_name"
-            value={cloneName}
-            onChange={e => setCloneName(e.target.value)}
-          />
+          <Grid className="gap-4">
+            <Input
+              type="text"
+              label="Assessment name"
+              placeholder="Cloned assessment name"
+              id="assessment_name"
+              value={cloneName}
+              onChange={e => setCloneName(e.target.value)}
+            />
+            <Checkbox
+              id="include_pocs"
+              label="Include PoCs"
+              checked={checkIncludePoc}
+              onChange={e => {
+                setCheckIncludePoc(e.target.checked);
+              }}
+            />
+          </Grid>
         </Modal>
       )}
 
