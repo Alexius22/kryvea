@@ -293,12 +293,15 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 }
 
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
-	_, err := ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
+	// Remove the assessment from the user's list
+	filter := bson.M{"assessments._id": assessmentID}
+	update := bson.M{"$pull": bson.M{"assessments": bson.M{"_id": assessmentID}}}
+	_, err := ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
 		return err
 	}
 
-	// Delete all vulnerabilities and PoCs associated with the assessment
+	// Delete all vulnerabilities associated with the assessment
 	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
 	if err != nil {
 		return err
@@ -310,10 +313,8 @@ func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
 		}
 	}
 
-	// Remove the assessment from the user's list
-	filter := bson.M{"owned_assessments": assessmentID}
-	update := bson.M{"$pull": bson.M{"owned_assessments": assessmentID}}
-	_, err = ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	// Delete the assessment
+	_, err = ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
 	return err
 }
 

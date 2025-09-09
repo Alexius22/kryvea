@@ -104,21 +104,12 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 }
 
 func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
-	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
+	// Remove the customer from the user's list
+	filter := bson.M{"customers._id": customerID}
+	update := bson.M{"$pull": bson.M{"customers": bson.M{"_id": customerID}}}
+	_, err := ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
 		return err
-	}
-
-	// Remove all assessments for the customer
-	assessments, err := ci.driver.Assessment().GetByCustomerID(customerID)
-	if err != nil {
-		return err
-	}
-
-	for _, assessment := range assessments {
-		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
-			return err
-		}
 	}
 
 	// Remove all targets for the customer
@@ -133,10 +124,32 @@ func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
 		}
 	}
 
-	// Remove the customer from the user's list
-	filter := bson.M{"customers": customerID}
-	update := bson.M{"$pull": bson.M{"customers": customerID}}
-	_, err = ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	// Remove all templates for the customer
+	templates, err := ci.driver.Template().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, template := range templates {
+		if err := ci.driver.Template().Delete(template.ID); err != nil {
+			return err
+		}
+	}
+
+	// Remove all assessments for the customer
+	assessments, err := ci.driver.Assessment().GetByCustomerID(customerID)
+	if err != nil {
+		return err
+	}
+
+	for _, assessment := range assessments {
+		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
+			return err
+		}
+	}
+
+	// Delete the customer
+	_, err = ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
 	return err
 }
 

@@ -94,6 +94,14 @@ func (d *Driver) AddGlobalTemplate(c *fiber.Ctx) error {
 		})
 	}
 
+	err = d.mongo.FileReference().UpdateUsedBy(templateID, template.FileID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update FileReference usedBy with the template id",
+		})
+	}
+
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Template created",
@@ -143,6 +151,14 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 
 		return c.JSON(fiber.Map{
 			"error": "Cannot create template",
+		})
+	}
+
+	err = d.mongo.FileReference().UpdateUsedBy(templateID, template.FileID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update FileReference usedBy with the template id",
 		})
 	}
 
