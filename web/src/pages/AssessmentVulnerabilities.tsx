@@ -11,8 +11,10 @@ import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
+import Checkbox from "../components/Form/Checkbox";
 import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
+import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
@@ -49,6 +51,7 @@ export default function AssessmentVulnerabilities() {
   const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
   const [exportPassword, setExportPassword] = useState("");
   const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
+  const [checkIncludeInfo, setCheckIncludeInfo] = useState(false);
 
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [loadingVulnerabilities, setLoadingVulnerabilities] = useState(true);
@@ -97,6 +100,7 @@ export default function AssessmentVulnerabilities() {
       template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
       delivery_date_time: deliveryDate,
+      include_informational_vulnerabilities: checkIncludeInfo,
     };
 
     const toastDownload = toast.loading("Generating report...");
@@ -268,6 +272,17 @@ export default function AssessmentVulnerabilities() {
                 }
               }}
             />
+            <Grid className="h-full !items-start">
+              <Label text={<>&nbsp;</>} />
+              <Checkbox
+                id="include_informational_vulnerabilities"
+                label="Include informational vulnerabilities"
+                checked={checkIncludeInfo}
+                onChange={e => {
+                  setCheckIncludeInfo(e.target.checked);
+                }}
+              />
+            </Grid>
           </Grid>
         </Modal>
       )}
