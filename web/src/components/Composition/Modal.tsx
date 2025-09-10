@@ -32,9 +32,6 @@ export default function Modal({
         case "Enter":
           onConfirm?.();
           break;
-        case "Escape":
-          onCancel?.();
-          break;
       }
     }
 
