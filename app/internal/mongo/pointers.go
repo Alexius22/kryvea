@@ -1,11 +1,10 @@
-package util
+package mongo
 
 import (
-	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/google/uuid"
 )
 
-func IsNullCustomer(customer *mongo.Customer) bool {
+func IsNullCustomer(customer *Customer) bool {
 	if customer == nil {
 		return true
 	}

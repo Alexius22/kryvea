@@ -129,7 +129,7 @@ func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, erro
 	}
 	defer cursor.Close(context.Background())
 
-	var templates []Template
+	templates := []Template{}
 	if err = cursor.All(context.Background(), &templates); err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	var templates []Template
+	templates := []Template{}
 	if err = cursor.All(context.Background(), &templates); err != nil {
 		ti.driver.logger.Error().Err(err).Msg("Failed to decode templates")
 		return nil, err
@@ -165,6 +165,17 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 }
 
 func (ti *TemplateIndex) Delete(id uuid.UUID) error {
-	_, err := ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
+	template, err := ti.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Delete File Reference
+	err = ti.driver.FileReference().Delete(template.FileID, template.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
 	return err
 }

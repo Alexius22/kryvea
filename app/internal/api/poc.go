@@ -52,7 +52,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	}
 
 	// check if user can access the customer
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -100,6 +100,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 			pocImageFilename = filename
 
+			// TODO: FileReference should also be updated with the pocItem ID
+			// or the poc upsert logic should be reworked
 			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
@@ -162,7 +164,7 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",

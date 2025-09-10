@@ -32,8 +32,8 @@ type Category struct {
 	Model              `bson:",inline"`
 	Index              string            `json:"index" bson:"index"`
 	Name               string            `json:"name" bson:"name"`
-	GenericDescription map[string]string `json:"generic_description" bson:"generic_description"`
-	GenericRemediation map[string]string `json:"generic_remediation" bson:"generic_remediation"`
+	GenericDescription map[string]string `json:"generic_description,omitempty" bson:"generic_description"`
+	GenericRemediation map[string]string `json:"generic_remediation,omitempty" bson:"generic_remediation"`
 	References         []string          `json:"references" bson:"references"`
 	Source             string            `json:"source" bson:"source"`
 }
