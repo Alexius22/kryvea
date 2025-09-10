@@ -2,7 +2,8 @@ import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTab
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { deleteData, getData, patchData, postData } from "../api/api";
+import { deleteData, getData, patchData, postData, postDownloadBlob } from "../api/api";
+import { curryDownloadReport } from "../api/curries";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -160,37 +161,12 @@ export default function Assessments() {
     };
 
     const toastDownload = toast.loading("Generating report...");
-    postData<Blob>(
+    setIsModalDownloadActive(false);
+
+    postDownloadBlob(
       `/api/assessments/${selectedAssessmentId}/export`,
       payload,
-      data => {
-        const url = window.URL.createObjectURL(data);
-        const assessment = assessments.find(a => a.id === selectedAssessmentId);
-        const extension =
-          selectedExportTypeOption.value === "word"
-            ? "docx"
-            : selectedExportTypeOption.value === "excel"
-              ? "xlsx"
-              : "zip";
-        const fileName = `${assessment?.name ?? "assessment"}_export.${extension}`;
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        setIsModalDownloadActive(false);
-
-        toast.update(toastDownload, {
-          render: "Report generated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-          closeButton: true,
-        });
-      },
+      curryDownloadReport(toastDownload),
       err => {
         toast.update(toastDownload, {
           render: err.response.data.error,

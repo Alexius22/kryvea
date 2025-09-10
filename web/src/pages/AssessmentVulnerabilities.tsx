@@ -2,7 +2,8 @@ import { mdiDownload, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } f
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { deleteData, getData, postData } from "../api/api";
+import { deleteData, getData, postData, postDownloadBlob } from "../api/api";
+import { curryDownloadReport } from "../api/curries";
 import { GlobalContext } from "../App";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
@@ -104,46 +105,17 @@ export default function AssessmentVulnerabilities() {
     };
 
     const toastDownload = toast.loading("Generating report...");
-    postData<Blob>(
-      `/api/assessments/${assessmentId}/export`,
-      payload,
-      data => {
-        const url = window.URL.createObjectURL(data);
-        const extension =
-          selectedExportTypeOption.value === "word"
-            ? "docx"
-            : selectedExportTypeOption.value === "excel"
-              ? "xlsx"
-              : "zip";
-        const fileName = `${ctxAssessment?.name ?? "assessment"}_export.${extension}`;
+    setIsModalDownloadActive(false);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        setIsModalDownloadActive(false);
-
-        toast.update(toastDownload, {
-          render: "Report generated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-          closeButton: true,
-        });
-      },
-      err => {
-        toast.update(toastDownload, {
-          render: err.response.data.error,
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-          closeButton: true,
-        });
-      }
-    );
+    postDownloadBlob(`/api/assessments/${assessmentId}/export`, payload, curryDownloadReport(toastDownload), err => {
+      toast.update(toastDownload, {
+        render: err.response.data.error,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+      });
+    });
   };
 
   const openDeleteModal = (vulnerability: Vulnerability) => {

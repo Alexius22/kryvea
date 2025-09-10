@@ -136,7 +136,7 @@ export function postDownloadBlob(
 ) {
   axios
     .post(endpoint, data, { responseType: "blob" })
-    .then(({ data, headers: { "Content-Disposition": contentDisposition } }) => {
+    .then(({ data, headers: { "content-disposition": contentDisposition } }) => {
       if (data instanceof Blob === false) {
         console.error("Expected a Blob response, got data = ", data.constructor.name);
         return;
