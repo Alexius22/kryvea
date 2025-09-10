@@ -1,4 +1,4 @@
-package xlsx
+package templates
 
 import (
 	"encoding/base64"
