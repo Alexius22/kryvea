@@ -2,15 +2,13 @@ package api
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/report"
-	"github.com/Alexius22/kryvea/internal/report/docx"
-	"github.com/Alexius22/kryvea/internal/report/xlsx"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
@@ -596,33 +594,30 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		}
 	}
 
-	reportData := &report.ReportData{
+	reportData := &reportdata.ReportData{
 		Customer:         customer,
 		Assessment:       assessment,
 		Vulnerabilities:  vulnerabilities,
 		DeliveryDateTime: data.DeliveryDateTime,
 	}
 
-	// generate report
-	var renderedTemplate []byte
-	switch data.Type {
-	case "xlsx":
-		renderedTemplate, err = xlsx.GenerateReport(reportData, templateBytes)
-	case "docx":
-		renderedTemplate, err = docx.GenerateReport(reportData, templateBytes)
-	// case "custom-classic":
-	// 	// TODO: make function return []byte
-	// 	_, err = xlsx.GenerateReportClassic(customer, assessment, vulnerabilities, reportPoc)
-	default:
-		err = errors.New("invalid template type")
+	report, err := report.New(data.Type)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Invalid template type",
+		})
 	}
 
+	// render report
+	renderedTemplate, err := report.Render(reportData, templateBytes)
 	if err != nil {
 		d.logger.Error().Msg(err.Error())
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Failed to generate report",
-			"err":   err.Error(),
+			// TODO: remove
+			"err": err.Error(),
 		})
 	}
 
