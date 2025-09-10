@@ -1,6 +1,7 @@
 import { mdiBroom, mdiClipboardText, mdiMarker, mdiPalette } from "@mdi/js";
 import type * as monaco from "monaco-editor";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { GlobalContext } from "../../App";
 import DescribedCode from "../Composition/DescribedCode";
 import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
@@ -46,7 +47,9 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
-  const [highlightColor, setHighlightColor] = useState<string>("#0d542b");
+  const {
+    useCtxCodeHighlightColor: [ctxCodeHighlightColor, setCtxCodeHighlightColor],
+  } = useContext(GlobalContext);
 
   return (
     <Grid className="gap-4">
@@ -92,11 +95,11 @@ export default function PocCodeEditor({
             title="Add highlight"
             icon={mdiMarker}
             iconSize={24}
-            customColor={highlightColor}
+            customColor={ctxCodeHighlightColor}
             onClick={() => {
               const coloredSelection = selectedText.map(sel => ({
                 ...sel,
-                color: highlightColor,
+                color: ctxCodeHighlightColor,
               }));
               onSetCodeSelection(currentIndex, highlightsProperty, [
                 ...(pocDoc[highlightsProperty] ?? []),
@@ -107,8 +110,8 @@ export default function PocCodeEditor({
           <ColorPicker
             icon={mdiPalette}
             title="Highlight color"
-            value={highlightColor}
-            onChange={color => setHighlightColor(color)}
+            value={ctxCodeHighlightColor}
+            onChange={setCtxCodeHighlightColor}
           />
           <Button
             small

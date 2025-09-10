@@ -43,6 +43,7 @@ export type GlobalContextType = {
   useCtxCategory: [Category, Dispatch<SetStateAction<Category>>];
   useCtxLastPage: [string, Dispatch<SetStateAction<string>>];
   useCtxSelectedSidebarItemLabel: [SidebarItemLabel, Dispatch<SetStateAction<SidebarItemLabel>>];
+  useCtxCodeHighlightColor: [string, Dispatch<SetStateAction<string>>];
 };
 
 export const GlobalContext = createContext<GlobalContextType>(null);
@@ -60,6 +61,9 @@ export default function App() {
   const useCtxLastPage = useState<string>(() => getLocalStorageCtxState("useCtxLastPage") ?? "/dashboard");
   const useCtxSelectedSidebarItemLabel = useState<SidebarItemLabel>(
     () => getLocalStorageCtxState("useCtxSelectedSidebarItemLabel") ?? "Dashboard"
+  );
+  const useCtxCodeHighlightColor = useState<string>(
+    () => getLocalStorageCtxState("useCtxCodeHighlightColor") ?? "#0D542B"
   );
 
   useLayoutEffect(() => {
@@ -103,6 +107,7 @@ export default function App() {
           useCtxSelectedSidebarItemLabel,
           "useCtxSelectedSidebarItemLabel"
         ),
+        useCtxCodeHighlightColor: bindToLocalStorage(useCtxCodeHighlightColor, "useCtxCodeHighlightColor"),
       }}
     >
       <ToastContainer
