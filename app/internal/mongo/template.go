@@ -129,7 +129,7 @@ func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, erro
 	}
 	defer cursor.Close(context.Background())
 
-	var templates []Template
+	templates := []Template{}
 	if err = cursor.All(context.Background(), &templates); err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	var templates []Template
+	templates := []Template{}
 	if err = cursor.All(context.Background(), &templates); err != nil {
 		ti.driver.logger.Error().Err(err).Msg("Failed to decode templates")
 		return nil, err
