@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 export const curryDownloadReport = toastId => (blob, contentDisposition) => {
   let filename = "report_export";
   if (contentDisposition) {
-    const match = contentDisposition.match(/filename=?(.+?)?$/);
+    const match = contentDisposition.match(/filename=?"(.+?)?"$/);
     if (match && match[1]) {
       filename = match[1];
     }
