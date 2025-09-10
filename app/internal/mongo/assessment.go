@@ -206,7 +206,7 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	}
 	defer cursor.Close(context.Background())
 
-	var assessments []Assessment
+	assessments := []Assessment{}
 	err = cursor.All(context.Background(), &assessments)
 	if err != nil {
 		return nil, err
@@ -247,22 +247,6 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 	assessments := []Assessment{}
 	if err := cursor.All(context.Background(), &assessments); err != nil {
 		return []Assessment{}, err
-	}
-
-	return assessments, nil
-}
-
-func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
-	pipeline := append(AssessmentPipeline, bson.D{{Key: "$sort", Value: bson.M{"name": 1}}})
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var assessments []Assessment
-	if err := cursor.All(context.Background(), &assessments); err != nil {
-		return nil, err
 	}
 
 	return assessments, nil

@@ -211,7 +211,7 @@ func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	var targets []Target
+	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
 	return targets, err
 }
@@ -270,22 +270,6 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 	err = cursor.All(context.Background(), &targets)
 	if err != nil {
 		return []Target{}, err
-	}
-
-	return targets, nil
-}
-
-func (ti *TargetIndex) GetAll() ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var targets []Target
-	err = cursor.All(context.Background(), &targets)
-	if err != nil {
-		return nil, err
 	}
 
 	return targets, nil
