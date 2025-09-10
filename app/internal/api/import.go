@@ -48,7 +48,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",

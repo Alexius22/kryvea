@@ -149,7 +149,7 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	}
 
 	c.Locals("user", user)
-	util.SetSessionCookies(c, user.Token, user.TokenExpiry)
+	util.SetSessionCookies(c, user.Role, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -371,7 +371,7 @@ func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, assessment.Customer.ID) {
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
 		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
 			"error": "Forbidden",
@@ -510,7 +510,7 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	util.SetSessionCookies(c, user.Token, user.TokenExpiry)
+	util.SetSessionCookies(c, user.Role, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -541,7 +541,7 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 		return "Username is required"
 	}
 
-	if !util.IsValidRole(data.Role) {
+	if !mongo.IsValidRole(data.Role) {
 		return "Invalid role"
 	}
 
@@ -553,7 +553,7 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 }
 
 func (d *Driver) validateUserUpdateData(data *updateUserRequestData) string {
-	if !util.IsValidRole(data.Role) {
+	if !mongo.IsValidRole(data.Role) {
 		return "Invalid role"
 	}
 

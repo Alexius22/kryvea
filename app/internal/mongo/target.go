@@ -145,29 +145,29 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 }
 
 func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
-	_, err := ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
-	if err != nil {
-		return err
-	}
-
-	filter := bson.M{"target_id": targetID}
+	filter := bson.M{"target._id": targetID}
 	update := bson.M{
 		"$set": bson.M{
-			"target_id": uuid.Nil,
+			"target._id": uuid.Nil,
 		},
 	}
-	_, err = ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
+	_, err := ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
 		return err
 	}
 
-	filter = bson.M{"targets": targetID}
+	filter = bson.M{"targets._id": targetID}
 	update = bson.M{
 		"$pull": bson.M{
-			"targets": targetID,
+			"targets": bson.M{"_id": targetID},
 		},
 	}
 	_, err = ti.driver.Assessment().collection.UpdateMany(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	_, err = ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
 	return err
 }
 
@@ -211,7 +211,7 @@ func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	var targets []Target
+	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
 	return targets, err
 }
@@ -270,22 +270,6 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 	err = cursor.All(context.Background(), &targets)
 	if err != nil {
 		return []Target{}, err
-	}
-
-	return targets, nil
-}
-
-func (ti *TargetIndex) GetAll() ([]Target, error) {
-	cursor, err := ti.collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var targets []Target
-	err = cursor.All(context.Background(), &targets)
-	if err != nil {
-		return nil, err
 	}
 
 	return targets, nil

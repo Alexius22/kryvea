@@ -19,6 +19,7 @@ type FileReference struct {
 	File     bson.ObjectID `json:"file" bson:"file"`
 	Checksum [16]byte      `json:"checksum" bson:"checksum"`
 	Filename string        `json:"filename" bson:"filename"`
+	UsedBy   []uuid.UUID   `json:"used_by" bson:"used_by"`
 }
 
 type FileReferenceIndex struct {
@@ -114,18 +115,26 @@ func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, string, error) {
 	return data, fileReference.Filename, nil
 }
 
-func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
+func (i *FileReferenceIndex) UpdateUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
+	_, err := i.collection.UpdateOne(context.Background(),
+		bson.M{"_id": id},
+		bson.M{"$addToSet": bson.M{"used_by": usedBy}},
+	)
+	return err
+}
+
+func (i *FileReferenceIndex) Delete(id uuid.UUID, usedBy uuid.UUID) error {
 	fileReference, err := i.GetByID(id)
 	if err != nil {
 		return err
 	}
 
-	relatedPocs, err := i.driver.Poc().CountByFileReferenceID(id)
-	if err != nil {
+	if len(fileReference.UsedBy) > 1 {
+		_, err = i.collection.UpdateOne(context.Background(),
+			bson.M{"_id": id},
+			bson.M{"$pull": bson.M{"used_by": usedBy}},
+		)
 		return err
-	}
-	if relatedPocs > 1 {
-		return nil
 	}
 
 	err = i.driver.File().Delete(fileReference.File)
@@ -134,9 +143,5 @@ func (i *FileReferenceIndex) Delete(id uuid.UUID) error {
 	}
 
 	_, err = i.collection.DeleteOne(context.Background(), bson.M{"_id": id})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

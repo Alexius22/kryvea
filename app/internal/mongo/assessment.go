@@ -206,7 +206,7 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	}
 	defer cursor.Close(context.Background())
 
-	var assessments []Assessment
+	assessments := []Assessment{}
 	err = cursor.All(context.Background(), &assessments)
 	if err != nil {
 		return nil, err
@@ -252,22 +252,6 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) GetAll() ([]Assessment, error) {
-	pipeline := append(AssessmentPipeline, bson.D{{Key: "$sort", Value: bson.M{"name": 1}}})
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var assessments []Assessment
-	if err := cursor.All(context.Background(), &assessments); err != nil {
-		return nil, err
-	}
-
-	return assessments, nil
-}
-
 func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment) error {
 	filter := bson.M{"_id": assessmentID}
 
@@ -293,12 +277,15 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 }
 
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
-	_, err := ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
+	// Remove the assessment from the user's list
+	filter := bson.M{"assessments._id": assessmentID}
+	update := bson.M{"$pull": bson.M{"assessments": bson.M{"_id": assessmentID}}}
+	_, err := ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
 		return err
 	}
 
-	// Delete all vulnerabilities and PoCs associated with the assessment
+	// Delete all vulnerabilities associated with the assessment
 	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
 	if err != nil {
 		return err
@@ -310,10 +297,8 @@ func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
 		}
 	}
 
-	// Remove the assessment from the user's list
-	filter := bson.M{"owned_assessments": assessmentID}
-	update := bson.M{"$pull": bson.M{"owned_assessments": assessmentID}}
-	_, err = ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	// Delete the assessment
+	_, err = ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
 	return err
 }
 

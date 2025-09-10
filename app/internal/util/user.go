@@ -8,9 +8,7 @@ import (
 	"unicode"
 
 	"github.com/Alexius22/kryvea/internal/crypto"
-	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 const (
@@ -111,37 +109,9 @@ func IsValidPassword(password string) bool {
 	return false
 }
 
-func CanAccessCustomer(user *mongo.User, customer uuid.UUID) bool {
-	if user.Role == mongo.RoleAdmin {
-		return true
-	}
-
-	for _, allowedCustomer := range user.Customers {
-		if allowedCustomer.ID == customer {
-			return true
-		}
-	}
-	return false
-}
-
-func IsValidRole(role string) bool {
-	if role == "" {
-		return false
-	}
-
-	for _, r := range mongo.Roles {
-		if r == role {
-			return true
-		}
-	}
-
-	return false
-}
-
-func SetSessionCookies(c *fiber.Ctx, token crypto.Token, expires time.Time) {
-	user := c.Locals("user").(*mongo.User)
+func SetSessionCookies(c *fiber.Ctx, role string, token crypto.Token, expires time.Time) {
 	SetKryveaCookie(c, token.String(), expires)
-	SetKryveaShadowCookie(c, user.Role, expires)
+	SetKryveaShadowCookie(c, role, expires)
 }
 
 func SetKryveaCookie(c *fiber.Ctx, value string, expires time.Time) {
