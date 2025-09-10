@@ -8,7 +8,7 @@ export type ObjectWithId = {
 export type Vulnerability = {
   id: string;
   updated_at: string;
-  category: { id: string; index: string; name: string; source: Category["source"] };
+  category: Category;
   detailed_title: string;
   status: string;
   cvssv2: {
