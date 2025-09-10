@@ -1,7 +1,7 @@
 import { mdiImage } from "@mdi/js";
-import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { getBlob } from "../../api/api";
 import { uuidZero } from "../../types/common.types";
 import Grid from "../Composition/Grid";
 import Input from "../Form/Input";
@@ -67,7 +67,7 @@ export default function PocImage({
     if (pocDoc.image_id === uuidZero) {
       return;
     }
-    axios.get(`/api/files/images/${pocDoc.image_id}`, { responseType: "blob" }).then(({ data }) => {
+    getBlob(`/api/files/images/${pocDoc.image_id}`, data => {
       onImageChangeWrapper({ target: { files: [blobToFile(data, pocDoc.image_filename)] } });
     });
   }, []);

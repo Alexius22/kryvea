@@ -3,7 +3,8 @@ import { NavigateFunction } from "react-router";
 import { toast } from "react-toastify";
 import { ObjectWithId } from "../types/common.types";
 
-type OnThenCallback<T> = (response: T) => any;
+type OnThenCallback<T> = (data: T) => any;
+type OnThenCallbackBlob = (data: Blob, contentDisposition: string) => any;
 type OnCatchCallback<T> = (error: T) => any;
 type OnFinallyCallback = () => any;
 type HttpErrorData = {
@@ -103,6 +104,45 @@ export function deleteData<TResponseData>(
   axios
     .delete<TResponseData>(endpoint)
     .then(({ data }) => onThen(data))
+    .catch(onCatchClosure(onCatch))
+    .finally(onFinally);
+}
+
+export function getBlob(
+  endpoint: string,
+  onThen: OnThenCallbackBlob = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
+  onFinally: OnFinallyCallback = undefined
+) {
+  axios
+    .get(endpoint, { responseType: "blob" })
+    .then(({ data, headers: { "Content-Disposition": contentDisposition } }) => {
+      if (data instanceof Blob === false) {
+        console.error("Expected a Blob response, got data = ", data.constructor.name);
+        return;
+      }
+      onThen(data, contentDisposition);
+    })
+    .catch(onCatchClosure(onCatch))
+    .finally(onFinally);
+}
+
+export function postDownloadBlob(
+  endpoint: string,
+  data: any = undefined,
+  onThen: OnThenCallbackBlob = undefined,
+  onCatch: OnCatchCallback<AxiosError<HttpErrorData>> = defaultHandleCatch,
+  onFinally: OnFinallyCallback = undefined
+) {
+  axios
+    .post(endpoint, data, { responseType: "blob" })
+    .then(({ data, headers: { "Content-Disposition": contentDisposition } }) => {
+      if (data instanceof Blob === false) {
+        console.error("Expected a Blob response, got data = ", data.constructor.name);
+        return;
+      }
+      onThen(data, contentDisposition);
+    })
     .catch(onCatchClosure(onCatch))
     .finally(onFinally);
 }
