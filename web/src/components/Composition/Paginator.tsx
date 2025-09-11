@@ -5,7 +5,15 @@ import Buttons from "../Form/Buttons";
 import Input from "../Form/Input";
 import Flex from "./Flex";
 
-export default function Paginator({ pagesList, currentPage, setCurrentPage, filteredData, perPage, setPerPage }) {
+export default function Paginator({
+  currentPage,
+  pagesList,
+  filteredData,
+  backendTotalRows,
+  setCurrentPage,
+  perPage,
+  setPerPage,
+}) {
   const getPaginatorKey = useCallback((page: number) => `paginator-${page}-${v4()}`, []);
 
   const isInTheMiddle = currentPage > 1 && currentPage < pagesList.length - 2;
@@ -22,24 +30,24 @@ export default function Paginator({ pagesList, currentPage, setCurrentPage, filt
         {isLessThan10 ? (
           pagesList.map(page => (
             <Button
-              variant={currentPage === page ? "" : "secondary"}
-              key={getPaginatorKey(page)}
               small
+              variant={currentPage === page ? "" : "secondary"}
               text={page + 1}
               disabled={page === currentPage}
               onClick={() => setCurrentPage(page)}
+              key={getPaginatorKey(page)}
             />
           ))
         ) : (
           <>
             {pagesList.slice(0, isInTheMiddle ? 2 : 3).map(page => (
               <Button
-                variant={currentPage === page ? "" : "secondary"}
-                key={getPaginatorKey(page)}
                 small
+                variant={currentPage === page ? "" : "secondary"}
                 text={page + 1}
                 disabled={page === currentPage}
                 onClick={() => setCurrentPage(page)}
+                key={getPaginatorKey(page)}
               />
             ))}
 
@@ -51,13 +59,13 @@ export default function Paginator({ pagesList, currentPage, setCurrentPage, filt
                   .map(page =>
                     isOverlapping(page) ? null : (
                       <Button
+                        small
                         className="sticky left-0"
                         variant={currentPage === page ? "" : "secondary"}
-                        key={getPaginatorKey(page)}
-                        small
                         text={page + 1}
                         disabled={page === currentPage}
                         onClick={() => setCurrentPage(page)}
+                        key={getPaginatorKey(page)}
                       />
                     )
                   )}
@@ -69,13 +77,13 @@ export default function Paginator({ pagesList, currentPage, setCurrentPage, filt
 
             {pagesList.splice(isInTheMiddle ? -2 : -3).map(page => (
               <Button
+                small
                 className="sticky right-0"
                 variant={currentPage === page ? "" : "secondary"}
-                key={getPaginatorKey(page)}
-                small
                 text={page + 1}
                 disabled={page === currentPage}
                 onClick={() => setCurrentPage(page)}
+                key={getPaginatorKey(page)}
               />
             ))}
           </>
@@ -85,10 +93,10 @@ export default function Paginator({ pagesList, currentPage, setCurrentPage, filt
         <Input
           type="number"
           className="mr-2 h-8 w-[50px] rounded-md text-center"
-          id="page_number"
+          id="paginator-per-page-input"
           value={perPage}
           min={1}
-          max={filteredData.length}
+          max={backendTotalRows ?? filteredData.length}
           onChange={setPerPage}
         />
         <small className="text-nowrap">per page</small>
