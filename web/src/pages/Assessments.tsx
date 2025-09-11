@@ -96,7 +96,7 @@ export default function Assessments() {
     if (filteredTemplates.length > 0 && !selectedExportTemplate) {
       setSelectedExportTemplate(filteredTemplates[0]);
     }
-  }, [allTemplates, selectedExportTypeOption]);
+  }, [allTemplates, selectedExportTypeOption, assessments]);
 
   const handleOwnedToggle = assessment => () => {
     patchData(
