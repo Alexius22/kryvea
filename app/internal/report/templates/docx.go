@@ -1,4 +1,4 @@
-package docx
+package templates
 
 import (
 	"fmt"
@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/poc"
-	"github.com/Alexius22/kryvea/internal/report"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 	gotemplatedocx "github.com/JJJJJJack/go-template-docx"
 )
 
-func GenerateReport(reportData *report.ReportData, templateBytes []byte) ([]byte, error) {
+type DocxTemplate struct{}
+
+func (t DocxTemplate) Render(reportData *reportdata.ReportData, templateBytes []byte) ([]byte, error) {
 	reportData.Prepare()
 
 	DocxTemplate, err := gotemplatedocx.NewDocxTemplateFromBytes(templateBytes)
