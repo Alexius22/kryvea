@@ -6,7 +6,7 @@ type Props = {
 };
 
 export default function FooterBar({ className }: Props) {
-  const heartRef = useRef<HTMLSpanElement>(null);
+  const heartRef = useRef<SVGSVGElement>(null);
   const [clickCount, setClickCount] = useState(0);
   const [exploded, setExploded] = useState(false);
 
@@ -57,9 +57,14 @@ export default function FooterBar({ className }: Props) {
               Kryvea
             </Link>
             &nbsp;made with&nbsp;
-            <span ref={heartRef} className="heart text-red-500 transition-all dark:text-red-500" onClick={handleClick}>
-              ♥
-            </span>
+            <svg ref={heartRef} onClick={handleClick} viewBox="0 0 24 24" className="heart" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 
+                  5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 
+                  3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 
+                  3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
             &nbsp;by&nbsp;
             <Link to="https://github.com/Alexius22" rel="noreferrer" target="_blank">
               Alexius

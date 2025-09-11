@@ -130,14 +130,12 @@ textarea::placeholder {
 }
 
 .heart {
-  @apply inline-block;
-  translate: 0 0%;
-  scale: 1;
+  @apply inline-block h-4 w-4 align-middle text-red-500;
+  transition: transform 160ms ease;
 }
 .heart.heart-up {
-  @apply inline-block;
-  translate: 0 -100%;
-  scale: 3;
+  --y: -70%;
+  transform: translate3d(0, var(--y), 0) scale(1.8);
 }
 .heart.beating {
   animation: heartbeat 0.3s ease;
@@ -149,16 +147,16 @@ textarea::placeholder {
 @keyframes heartbeat {
   0%,
   100% {
-    transform: scale(1);
+    transform: translate3d(0, var(--y), 0) scale(1.8);
   }
   50% {
-    transform: scale(1.2);
+    transform: translate3d(0, var(--y), 0) scale(2.8);
   }
 }
 
 @keyframes explodeAnim {
   to {
-    transform: scale(5) rotate(900deg);
+    transform: translate3d(0, var(--y), 0) scale(5) rotate(900deg);
     opacity: 0;
   }
 }
