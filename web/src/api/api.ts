@@ -40,6 +40,26 @@ const onCatchClosure = (onCatch: OnCatchCallback<AxiosError<HttpErrorData>>) => 
   return onCatch(err);
 };
 
+const onBlobCatchClosure = (onCatch: OnCatchCallback<AxiosError<HttpErrorData>>) => async (err: AxiosError) => {
+  try {
+    const text = await (err.response.data as Blob).text();
+    const json = JSON.parse(text);
+    // replace data with parsed JSON so your handler gets it
+    (err.response as any).data = json;
+  } catch (parseErr) {
+    console.error("Failed to parse JSON error response", parseErr);
+  }
+
+  switch (err.response?.status) {
+    case HttpStatusCode.Unauthorized:
+      toast.error("Session expired, please log in again");
+      navigate("/login", { replace: false, state: { from: window.location.pathname } });
+      break;
+  }
+
+  return onCatch(err as AxiosError<HttpErrorData>);
+};
+
 export function getData<TResponseData>(
   endpoint: string,
   onThen: OnThenCallback<TResponseData> = undefined,
@@ -123,7 +143,7 @@ export function getBlob(
       }
       onThen(data, contentDisposition);
     })
-    .catch(onCatchClosure(onCatch))
+    .catch(onBlobCatchClosure(onCatch))
     .finally(onFinally);
 }
 
@@ -143,7 +163,7 @@ export function postDownloadBlob(
       }
       onThen(data, contentDisposition);
     })
-    .catch(onCatchClosure(onCatch))
+    .catch(onBlobCatchClosure(onCatch))
     .finally(onFinally);
 }
 
