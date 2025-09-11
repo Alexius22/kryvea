@@ -30,6 +30,8 @@ export default function CustomerDetail() {
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
   const [loadingCustomerTemplates, setLoadingCustomerTemplates] = useState(true);
 
+  const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
+
   const [formCustomer, setFormCustomer] = useState({
     name: ctxCustomer?.name,
     language: ctxCustomer?.language,
@@ -178,7 +180,7 @@ export default function CustomerDetail() {
               helperSubtitle="Required"
               placeholder="Company name"
               id="name"
-              disabled
+              disabled={!isAdmin}
               value={formCustomer.name}
               onChange={handleFormCustomerChange}
             />
@@ -187,7 +189,7 @@ export default function CustomerDetail() {
               id="language"
               options={languageOptions}
               value={selectedLanguageOption}
-              disabled
+              disabled={!isAdmin}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
           </Grid>
@@ -196,8 +198,8 @@ export default function CustomerDetail() {
             <Button
               text="Submit"
               onClick={handleSubmit}
-              disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
-              title={getKryveaShadow() !== USER_ROLE_ADMIN ? "Only administrators can perform this action" : ""}
+              disabled={!isAdmin}
+              title={!isAdmin ? "Only administrators can perform this action" : ""}
             />
           </Buttons>
         </Card>

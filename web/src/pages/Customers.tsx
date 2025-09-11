@@ -29,6 +29,8 @@ export default function Customers() {
     language: "en",
   });
 
+  const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
+
   const {
     useCtxCustomer: [, setCtxCustomer],
     useCtxSelectedSidebarItemLabel: [, setCtxSelectedSidebarItemLabel],
@@ -180,23 +182,15 @@ export default function Customers() {
           buttons: (
             <Buttons noWrap>
               <Button
-                title={
-                  getKryveaShadow() !== USER_ROLE_ADMIN
-                    ? "Only administrators can perform this action"
-                    : "Edit customer"
-                }
-                disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
+                title={!isAdmin ? "Only administrators can perform this action" : "Edit customer"}
+                disabled={!isAdmin}
                 small
                 onClick={() => openEditModal(customer)}
                 icon={mdiNoteEdit}
               />
               <Button
-                title={
-                  getKryveaShadow() !== USER_ROLE_ADMIN
-                    ? "Only administrators can perform this action"
-                    : "Delete customer"
-                }
-                disabled={getKryveaShadow() !== USER_ROLE_ADMIN}
+                title={!isAdmin ? "Only administrators can perform this action" : "Delete customer"}
+                disabled={!isAdmin}
                 small
                 variant="danger"
                 onClick={() => openDeleteModal(customer)}
