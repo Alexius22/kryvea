@@ -17,12 +17,22 @@ interface BaseTableProps {
 }
 
 interface WithoutBackendSearchProps {
+  backendCurrentPage?: undefined;
+  backendTotalRows?: undefined;
+  backendTotalPages?: undefined;
   backendSearch?: undefined;
   onBackendSearch?: undefined;
+  onBackendChangePage?: undefined;
+  onBackendChangePerPage?: undefined;
 }
 
 interface WithBackendSearchProps {
+  backendCurrentPage: number;
+  backendTotalRows: number;
+  backendTotalPages: number;
   backendSearch: string;
+  onBackendChangePage: (page: number) => void;
+  onBackendChangePerPage: (perPage: number) => void;
   onBackendSearch: (query: string) => void;
 }
 
@@ -35,8 +45,13 @@ export default function Table({
   wMin,
   maxWidthColumns = {},
   loading,
+  backendCurrentPage,
+  backendTotalRows,
+  backendTotalPages,
   backendSearch,
-  onBackendSearch: onBackendSearch,
+  onBackendSearch,
+  onBackendChangePage,
+  onBackendChangePerPage,
 }: TableProps) {
   const [perPage, setPerPage] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(0);
@@ -86,6 +101,10 @@ export default function Table({
   };
 
   const itemPaginated = (arr: any[]) => {
+    if (backendTotalPages) {
+      return arr;
+    }
+
     switch (keySort?.order) {
       case 1:
         arr = arr.sort(sortAscend);
@@ -104,12 +123,16 @@ export default function Table({
   };
 
   const numPages = useMemo(() => {
-    const num = Math.ceil(filteredData.length / perPage);
+    if (backendTotalPages) {
+      return backendTotalPages;
+    }
+
+    let num = Math.ceil(filteredData.length / perPage);
     if (isNaN(num)) {
       return 0;
     }
     return num;
-  }, [filteredData.length, perPage]);
+  }, [filteredData.length, perPage, backendTotalRows, backendTotalPages]);
   const pagesList = [];
 
   for (let i = 0; i < numPages; i++) {
@@ -251,7 +274,25 @@ export default function Table({
           </table>
         </div>
         <div>
-          <Paginator {...{ currentPage, filteredData, pagesList, perPage, setCurrentPage, setPerPage }} />
+          <Paginator
+            {...{
+              currentPage: backendCurrentPage ? backendCurrentPage : currentPage,
+              filteredData,
+              pagesList,
+              perPage,
+              backendTotalRows,
+              setCurrentPage: selectedPage => {
+                setCurrentPage(selectedPage);
+                onBackendChangePage(selectedPage);
+              },
+              setPerPage: selectedPerPage => {
+                setCurrentPage(0);
+                onBackendChangePage(0);
+                setPerPage(selectedPerPage);
+                onBackendChangePerPage(selectedPerPage);
+              },
+            }}
+          />
         </div>
         <div /> {/* Empty element just to even the last element gap */}
       </div>
