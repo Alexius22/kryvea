@@ -390,6 +390,63 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) UpdateAssessmentStatus(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse assessment param
+	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// parse request body
+	data := &assessmentRequestData{}
+	if err := c.BodyParser(data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// validate data
+	statusError := d.validateAssessmentStatus(data)
+	if statusError != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid status",
+		})
+	}
+
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
+	newAssessmentStatus := &mongo.Assessment{
+		Status: data.Status,
+	}
+
+	// update assessment in database
+	err := d.mongo.Assessment().UpdateStatus(assessment.ID, newAssessmentStatus)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update assessment",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Assessment status updated",
+	})
+}
+
 func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
@@ -647,6 +704,19 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 	return assessment, ""
 }
 
+func (d *Driver) validateAssessmentStatus(data *assessmentRequestData) string {
+	switch data.Status {
+	case
+		mongo.ASSESSMENT_STATUS_ON_HOLD,
+		mongo.ASSESSMENT_STATUS_IN_PROGRESS,
+		mongo.ASSESSMENT_STATUS_COMPLETED:
+	default:
+		return "Invalid status"
+	}
+
+	return ""
+}
+
 func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 	if data.Name == "" {
 		return "Name is required"
@@ -658,6 +728,11 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 
 	if data.EndDateTime.IsZero() {
 		return "End date is required"
+	}
+
+	statusError := d.validateAssessmentStatus(data)
+	if statusError != "" {
+		return statusError
 	}
 
 	// filter valid cvssVersions

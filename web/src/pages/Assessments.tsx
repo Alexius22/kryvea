@@ -141,7 +141,7 @@ export default function Assessments() {
   };
 
   const handleStatusChange = (assessmentId: string, selectedOption: SelectOption) => {
-    patchData<Assessment>(`/api/assessments/${assessmentId}`, { status: selectedOption.value }, updatedAssessment => {
+    patchData<Assessment>(`/api/assessments/${assessmentId}/status`, { status: selectedOption.value }, () => {
       setAssessments(prev => prev.map(a => (a.id === assessmentId ? { ...a, status: selectedOption.value } : a)));
     });
   };

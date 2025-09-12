@@ -66,6 +66,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/assessments/:assessment", api.GetAssessment)
 		apiGroup.Post("/assessments", api.AddAssessment)
 		apiGroup.Patch("/assessments/:assessment", api.UpdateAssessment)
+		apiGroup.Patch("/assessments/:assessment/status", api.UpdateAssessmentStatus)
 		apiGroup.Delete("/assessments/:assessment", api.DeleteAssessment)
 		apiGroup.Post("/assessments/:assessment/clone", api.CloneAssessment)
 		apiGroup.Post("/assessments/:assessment/export", api.ExportAssessment)
