@@ -156,7 +156,7 @@ export default function Table({
       <Input
         className="rounded-t-2xl bg-transparent p-[11px] focus:border-transparent"
         placeholder="Search"
-        id="search"
+        id={getTableElementKey("search")}
         type="text"
         value={backendSearch ?? filterText}
         onChange={e => {

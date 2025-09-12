@@ -95,7 +95,7 @@ export default function Paginator({
         <Input
           type="number"
           className="mr-2 max-h-8 w-[50px] rounded-md text-center"
-          id="paginator-per-page-input"
+          id={`paginator-per-page-input-${v4()}`}
           value={perPage}
           min={1}
           max={backendTotalRows ?? filteredData.length}
