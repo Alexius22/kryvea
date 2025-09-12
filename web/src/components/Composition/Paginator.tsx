@@ -16,13 +16,13 @@ export default function Paginator({
 }) {
   const getPaginatorKey = useCallback((page: number) => `paginator-${page}-${v4()}`, []);
 
-  const isInTheMiddle = currentPage > 1 && currentPage < pagesList.length - 2;
+  const isInTheMiddle = currentPage > 2 && currentPage < pagesList.length - 2;
 
   const isLessThan10 = pagesList.length < 10;
 
-  const EllipsisButton = memo(() => <Button variant="secondary" small text="..." disabled={true} onClick={() => {}} />);
+  const EllipsisButton = memo(() => <Button variant="secondary" small text="..." disabled onClick={() => {}} />);
 
-  const isOverlapping = page => page + 1 < 3 || page > pagesList.length - 3;
+  const isOverlapping = page => page < 3 || page > pagesList.length - 3;
 
   return (
     <div className="flex flex-col items-center justify-between gap-4 px-3 md:flex-row md:py-0">
@@ -31,8 +31,9 @@ export default function Paginator({
           pagesList.map(page => (
             <Button
               small
+              className="aspect-square !max-h-9 !min-w-9 justify-center !p-0 text-center"
               variant={currentPage === page ? "" : "secondary"}
-              text={page + 1}
+              text={page}
               disabled={page === currentPage}
               onClick={() => setCurrentPage(page)}
               key={getPaginatorKey(page)}
@@ -43,8 +44,9 @@ export default function Paginator({
             {pagesList.slice(0, isInTheMiddle ? 2 : 3).map(page => (
               <Button
                 small
+                className="aspect-square !max-h-9 !min-w-9 justify-center !p-0 text-center"
                 variant={currentPage === page ? "" : "secondary"}
-                text={page + 1}
+                text={page}
                 disabled={page === currentPage}
                 onClick={() => setCurrentPage(page)}
                 key={getPaginatorKey(page)}
@@ -55,14 +57,14 @@ export default function Paginator({
               <>
                 <EllipsisButton />
                 {pagesList
-                  .slice(currentPage - 2, currentPage + 3)
+                  .slice(currentPage - 3, currentPage + 2)
                   .map(page =>
                     isOverlapping(page) ? null : (
                       <Button
                         small
-                        className="sticky left-0"
+                        className="sticky left-0 aspect-square !max-h-9 !min-w-9 justify-center !p-0 text-center"
                         variant={currentPage === page ? "" : "secondary"}
-                        text={page + 1}
+                        text={page}
                         disabled={page === currentPage}
                         onClick={() => setCurrentPage(page)}
                         key={getPaginatorKey(page)}
@@ -78,9 +80,9 @@ export default function Paginator({
             {pagesList.splice(isInTheMiddle ? -2 : -3).map(page => (
               <Button
                 small
-                className="sticky right-0"
+                className="sticky right-0 aspect-square !max-h-9 !min-w-9 justify-center !p-0 text-center"
                 variant={currentPage === page ? "" : "secondary"}
-                text={page + 1}
+                text={page}
                 disabled={page === currentPage}
                 onClick={() => setCurrentPage(page)}
                 key={getPaginatorKey(page)}
@@ -92,7 +94,7 @@ export default function Paginator({
       <Flex className="sticky right-0" items="center">
         <Input
           type="number"
-          className="mr-2 h-8 w-[50px] rounded-md text-center"
+          className="mr-2 max-h-8 w-[50px] rounded-md text-center"
           id="paginator-per-page-input"
           value={perPage}
           min={1}
