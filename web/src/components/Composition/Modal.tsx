@@ -1,5 +1,5 @@
 import { mdiClose } from "@mdi/js";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
 import Card from "./Card";
@@ -26,6 +26,8 @@ export default function Modal({
   onConfirm,
   onCancel,
 }: Props) {
+  const mouseDownRef = useRef<any>();
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       switch (event.key) {
@@ -51,8 +53,11 @@ export default function Modal({
   return (
     <div
       className="card-modal glasscard fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center !border-none"
+      onMouseDown={e => {
+        mouseDownRef.current = e.target;
+      }}
       onClick={e => {
-        if (e.target !== e.currentTarget) {
+        if (mouseDownRef.current !== e.currentTarget) {
           return;
         }
 
