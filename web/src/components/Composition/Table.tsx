@@ -18,8 +18,8 @@ interface BaseTableProps {
 
 interface WithoutBackendSearchProps {
   backendCurrentPage?: undefined;
-  backendTotalRows?: undefined;
   backendTotalPages?: undefined;
+  backendTotalRows?: undefined;
   backendSearch?: undefined;
   onBackendSearch?: undefined;
   onBackendChangePage?: undefined;
@@ -28,8 +28,8 @@ interface WithoutBackendSearchProps {
 
 interface WithBackendSearchProps {
   backendCurrentPage: number;
-  backendTotalRows: number;
   backendTotalPages: number;
+  backendTotalRows: number;
   backendSearch: string;
   onBackendChangePage: (page: number) => void;
   onBackendChangePerPage: (perPage: number) => void;
@@ -37,6 +37,8 @@ interface WithBackendSearchProps {
 }
 
 type TableProps = (BaseTableProps & WithoutBackendSearchProps) | (BaseTableProps & WithBackendSearchProps);
+
+const PAGE_FLOOR = 1;
 
 export default function Table({
   data,
@@ -46,15 +48,15 @@ export default function Table({
   maxWidthColumns = {},
   loading,
   backendCurrentPage,
-  backendTotalRows,
   backendTotalPages,
+  backendTotalRows,
   backendSearch,
   onBackendSearch,
   onBackendChangePage,
   onBackendChangePerPage,
 }: TableProps) {
   const [perPage, setPerPage] = useState(perPageCustom);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
   const [filterText, setFilterText] = useState(defaultFilterText);
   const [filteredData, setFilteredData] = useState(data ?? []);
@@ -102,7 +104,7 @@ export default function Table({
 
   const itemPaginated = (arr: any[]) => {
     if (backendTotalPages) {
-      return arr;
+      return arr; // backend already paginated
     }
 
     switch (keySort?.order) {
@@ -113,13 +115,11 @@ export default function Table({
         arr = arr.sort(sortDescend);
         break;
       case undefined:
-        arr = filteredData; // reset to original order
+        arr = filteredData;
         break;
-      default:
-        console.warn("keySort unknown value = ", keySort);
     }
 
-    return arr.slice(perPage * currentPage, perPage * (currentPage + 1));
+    return arr.slice(perPage * (currentPage - PAGE_FLOOR), perPage * currentPage);
   };
 
   const numPages = useMemo(() => {
@@ -133,9 +133,9 @@ export default function Table({
     }
     return num;
   }, [filteredData.length, perPage, backendTotalRows, backendTotalPages]);
-  const pagesList = [];
 
-  for (let i = 0; i < numPages; i++) {
+  const pagesList = [];
+  for (let i = PAGE_FLOOR; i <= numPages; i++) {
     pagesList.push(i);
   }
 
@@ -160,7 +160,8 @@ export default function Table({
         type="text"
         value={backendSearch ?? filterText}
         onChange={e => {
-          setCurrentPage(0);
+          setCurrentPage(PAGE_FLOOR);
+          onBackendChangePage?.(PAGE_FLOOR);
 
           if (onBackendSearch) {
             onBackendSearch(e.target.value);
@@ -276,20 +277,20 @@ export default function Table({
         <div>
           <Paginator
             {...{
-              currentPage: backendCurrentPage ? backendCurrentPage : currentPage,
+              currentPage: backendCurrentPage ?? currentPage,
               filteredData,
               pagesList,
               perPage,
               backendTotalRows,
               setCurrentPage: selectedPage => {
                 setCurrentPage(selectedPage);
-                onBackendChangePage(selectedPage);
+                onBackendChangePage?.(selectedPage);
               },
               setPerPage: selectedPerPage => {
-                setCurrentPage(0);
-                onBackendChangePage(0);
+                setCurrentPage(PAGE_FLOOR);
+                onBackendChangePage?.(PAGE_FLOOR);
                 setPerPage(selectedPerPage);
-                onBackendChangePerPage(selectedPerPage);
+                onBackendChangePerPage?.(selectedPerPage);
               },
             }}
           />
