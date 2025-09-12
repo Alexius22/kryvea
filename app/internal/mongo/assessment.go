@@ -90,6 +90,12 @@ type AssessmentIndex struct {
 	collection *mongo.Collection
 }
 
+const (
+	ASSESSMENT_STATUS_ON_HOLD     = "On Hold"
+	ASSESSMENT_STATUS_IN_PROGRESS = "In Progress"
+	ASSESSMENT_STATUS_COMPLETED   = "Completed"
+)
+
 func (d *Driver) Assessment() *AssessmentIndex {
 	return &AssessmentIndex{
 		driver:     d,
@@ -274,6 +280,20 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 
 	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
 	return enrichError(err)
+}
+
+func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Assessment) error {
+	filter := bson.M{"_id": assessmentID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+			"status":     assessment.Status,
+		},
+	}
+
+	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	return err
 }
 
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
