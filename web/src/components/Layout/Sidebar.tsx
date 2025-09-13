@@ -6,6 +6,8 @@ import { getSidebarItems } from "../../utils/helpers";
 import Flex from "../Composition/Flex";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
+// @ts-ignore
+import logo from "../../assets/logo.svg";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -32,7 +34,10 @@ export default function Sidebar() {
         >
           {!isCollapsed && (
             <Link to="/dashboard" className="text-lg font-black transition-opacity duration-300">
-              Kryvea
+              <Flex>
+                <img className="w-5" src={logo} alt="" />
+                ryvea
+              </Flex>
             </Link>
           )}
           <Button
