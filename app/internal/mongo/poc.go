@@ -20,21 +20,26 @@ type Poc struct {
 	VulnerabilityID uuid.UUID `json:"vulnerability_id" bson:"vulnerability_id"`
 }
 
+// TODO: should be reworked to allow unique relations with filereference
+// maybe a simple ID parameter can work
 type PocItem struct {
-	Index              int               `json:"index" bson:"index"`
-	Type               string            `json:"type" bson:"type"`
-	Description        string            `json:"description" bson:"description"`
-	URI                string            `json:"uri,omitempty" bson:"uri,omitempty"`
-	Request            string            `json:"request,omitempty" bson:"request,omitempty"`
-	RequestHighlights  []HighlightedText `json:"request_highlights,omitempty" bson:"request_highlights,omitempty"`
-	Response           string            `json:"response,omitempty" bson:"response,omitempty"`
-	ResponseHighlights []HighlightedText `json:"response_highlights,omitempty" bson:"response_highlights,omitempty"`
-	ImageID            uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageFilename      string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
-	ImageCaption       string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
-	TextLanguage       string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
-	TextData           string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
-	TextHighlights     []HighlightedText `json:"text_highlights,omitempty" bson:"text_highlights,omitempty"`
+	Index               int               `json:"index" bson:"index"`
+	Type                string            `json:"type" bson:"type"`
+	Description         string            `json:"description" bson:"description"`
+	URI                 string            `json:"uri,omitempty" bson:"uri,omitempty"`
+	Request             string            `json:"request,omitempty" bson:"request,omitempty"`
+	RequestHighlights   []HighlightedText `json:"request_highlights,omitempty" bson:"request_highlights,omitempty"`
+	RequestHighlighted  []Highlighted     `json:"request_highlighted,omitempty" bson:"request_highlighted,omitempty"`
+	Response            string            `json:"response,omitempty" bson:"response,omitempty"`
+	ResponseHighlights  []HighlightedText `json:"response_highlights,omitempty" bson:"response_highlights,omitempty"`
+	ResponseHighlighted []Highlighted     `json:"response_highlighted,omitempty" bson:"response_highlighted,omitempty"`
+	ImageID             uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageFilename       string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageCaption        string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
+	TextLanguage        string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
+	TextData            string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
+	TextHighlights      []HighlightedText `json:"text_highlights,omitempty" bson:"text_highlights,omitempty"`
+	TextHighlighted     []Highlighted     `json:"text_highlighted,omitempty" bson:"text_highlighted,omitempty"`
 	// Only populated on report generation
 	ImageData []byte `json:"-" bson:"-"`
 }
@@ -47,8 +52,13 @@ type HighlightedText struct {
 }
 
 type LineCol struct {
-	Line uint `json:"line" bson:"line"`
-	Col  uint `json:"col" bson:"col"`
+	Line int `json:"line" bson:"line"`
+	Col  int `json:"col" bson:"col"`
+}
+
+type Highlighted struct {
+	Text  string `json:"text,omitempty"`
+	Color string `json:"color,omitempty"`
 }
 
 type PocIndex struct {
