@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="160 160 680 680">
+  <defs>
+    <style>
+      .cls-1 {
+      fill: #f98f45;
+      }
+
+      .cls-1, .cls-2 {
+      fill-rule: evenodd;
+      }
+
+      .cls-2 {
+      fill: #12908e;
+      }
+    </style>
+  </defs>
+  <path id="Colore_riempimento_8" data-name="Colore riempimento 8" class="cls-1"
+    d="M734,712L534,481,757,317S904.922,514.812,734,712Z" />
+  <path id="Colore_riempimento_7" data-name="Colore riempimento 7" class="cls-1"
+    d="M404,801V576l56-42L667,769S550.448,848.366,404,801Z" />
+  <path id="Colore_riempimento_5" data-name="Colore riempimento 5" class="cls-2"
+    d="M310,251V753S185.542,670.12,184,498,310,248,310,248v3Zm94-51V465L692,251S579.1,146.9,404,200Z" />
+</svg>
