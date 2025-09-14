@@ -182,7 +182,7 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 		}
 	}
 
-	rows := strings.Split(s, "\n")
+	rows := strings.SplitAfter(s, "\n")
 	colors := make([][]string, len(rows))
 	for i := range colors {
 		colors[i] = make([]string, len(rows[i]))
@@ -234,7 +234,7 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 	}
 
 	for _, coordinate := range coordinates {
-		for i := coordinate.Start.Col; i <= coordinate.End.Col; i++ {
+		for i := coordinate.Start.Col; i < coordinate.End.Col; i++ {
 			colors[coordinate.Start.Line-1][i-1] = coordinate.Color
 		}
 	}
@@ -250,7 +250,9 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 		for j, color := range colorRow {
 			if color != splitColor.Color {
 				splitColor.Text = builder.String()
-				splitted = append(splitted, splitColor)
+				if splitColor.Text != "" {
+					splitted = append(splitted, splitColor)
+				}
 				splitColor = mongo.Highlighted{}
 				builder = strings.Builder{}
 			}
