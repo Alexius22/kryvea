@@ -32,6 +32,9 @@ export default function Layout() {
       if (contentRef.current && contentRef.current.contains(e.target as Node)) {
         return;
       }
+      if (((e.target as any).classList as DOMTokenList).contains("select-wrapper__option")) {
+        return;
+      }
 
       const delta = e.deltaY;
       const maxScroll = main.scrollHeight - main.clientHeight;
