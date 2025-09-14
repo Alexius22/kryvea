@@ -5,12 +5,15 @@ import { postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
 import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
 import { getPageTitle } from "../utils/helpers";
+// @ts-ignore
+import logo from "../assets/logo_stroke.svg";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -85,7 +88,8 @@ export default function Login() {
   };
 
   return (
-    <div className="card-modal fixed flex min-h-screen w-screen items-center justify-center">
+    <Flex className="card-modal fixed min-h-screen w-screen gap-4" col justify="center" items="center">
+      <img className="w-36" src={logo} alt="" />
       <Card className="glasscard">
         {getKryveaShadow() !== "password_expired" ? (
           // LOGIN FORM
@@ -151,6 +155,6 @@ export default function Login() {
           </form>
         )}
       </Card>
-    </div>
+    </Flex>
   );
 }
