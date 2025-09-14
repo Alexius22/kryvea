@@ -36,55 +36,55 @@ func TestHighlight(t *testing.T) {
 			highlights: []mongo.HighlightedText{
 				{
 					Start: mongo.LineCol{Line: 1, Col: 1},
-					End:   mongo.LineCol{Line: 1, Col: 12},
+					End:   mongo.LineCol{Line: 1, Col: 13},
 					Color: "#00FF00",
 				},
 				{
 					Start: mongo.LineCol{Line: 1, Col: 22},
-					End:   mongo.LineCol{Line: 1, Col: 30},
+					End:   mongo.LineCol{Line: 1, Col: 31},
 					Color: "#0000FF",
 				},
 			},
 			expected: []mongo.Highlighted{
 				{Text: "Highlighting", Color: "#00FF00"},
-				{Text: " multiple "},
-				{Text: "sections", Color: "#0000FF"},
+				{Text: " multiple"},
+				{Text: " sections", Color: "#0000FF"},
 				{Text: " in this text."},
 			},
 		},
-		// {
-		// 	name: "overlapping highlights",
-		// 	text: "Overlapping highlights can be tricky.",
-		// 	highlights: []mongo.HighlightedText{
-		// 		{
-		// 			Start: mongo.LineCol{Line: 1, Col: 1},
-		// 			End:   mongo.LineCol{Line: 1, Col: 12},
-		// 			Color: "#FF00FF",
-		// 		},
-		// 		{
-		// 			Start: mongo.LineCol{Line: 1, Col: 5},
-		// 			End:   mongo.LineCol{Line: 1, Col: 20},
-		// 			Color: "#00FFFF",
-		// 		},
-		// 	},
-		// 	expected: []mongo.Highlighted{
-		// 		{Text: "Over", Color: "#FF00FF"},
-		// 		{Text: "lapping", Color: "#00FFFF"},
-		// 		{Text: " highlights can be tricky."},
-		// 	},
-		// },
+		{
+			name: "overlapping highlights",
+			text: "Overlapping highlights can be tricky.",
+			highlights: []mongo.HighlightedText{
+				{
+					Start: mongo.LineCol{Line: 1, Col: 1},
+					End:   mongo.LineCol{Line: 1, Col: 12},
+					Color: "#FF00FF",
+				},
+				{
+					Start: mongo.LineCol{Line: 1, Col: 5},
+					End:   mongo.LineCol{Line: 1, Col: 23},
+					Color: "#00FFFF",
+				},
+			},
+			expected: []mongo.Highlighted{
+				{Text: "Over", Color: "#FF00FF"},
+				{Text: "lapping highlights", Color: "#00FFFF"},
+				{Text: " can be tricky."},
+			},
+		},
 		{
 			name: "highlight at text boundaries",
 			text: "Boundary highlights.",
 			highlights: []mongo.HighlightedText{
 				{
 					Start: mongo.LineCol{Line: 1, Col: 1},
-					End:   mongo.LineCol{Line: 1, Col: 8},
+					End:   mongo.LineCol{Line: 1, Col: 9},
 					Color: "#123456",
 				},
 				{
 					Start: mongo.LineCol{Line: 1, Col: 10},
-					End:   mongo.LineCol{Line: 1, Col: 19},
+					End:   mongo.LineCol{Line: 1, Col: 20},
 					Color: "#654321",
 				},
 			},
@@ -109,12 +109,12 @@ func TestHighlight(t *testing.T) {
 			highlights: []mongo.HighlightedText{
 				{
 					Start: mongo.LineCol{Line: 2, Col: 6},
-					End:   mongo.LineCol{Line: 2, Col: 10},
+					End:   mongo.LineCol{Line: 2, Col: 11},
 					Color: "#FF5733",
 				},
 			},
 			expected: []mongo.Highlighted{
-				{Text: "TThis is line one.\nThis "},
+				{Text: "This is line one.\nThis "},
 				{Text: "is li", Color: "#FF5733"},
 				{Text: "ne two.\nThis is line three."},
 			},
