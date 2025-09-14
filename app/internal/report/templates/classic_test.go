@@ -206,7 +206,7 @@ func TestClassic(t *testing.T) {
 
 		for _, version := range cvss.CvssVersions {
 			cvssVector := randCVSSVector(version)
-			cvssScore, cvssSeverity, err := cvss.ParseVector(cvssVector, version)
+			cvssScore, cvssSeverity, complexity, err := cvss.ParseVector(cvssVector, version)
 			if err != nil {
 				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
 			}
@@ -219,6 +219,9 @@ func TestClassic(t *testing.T) {
 					Score:   cvssScore,
 					Severity: mongo.LabelColor{
 						Label: cvssSeverity,
+					},
+					Complexity: mongo.LabelColor{
+						Label: complexity,
 					},
 					Description: cvss.GenerateDescription(cvssVector, version, "en"),
 				}

@@ -88,7 +88,7 @@ func TestParseVector(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			score, severity, err := ParseVector(tc.vector, tc.version)
+			score, severity, _, err := ParseVector(tc.vector, tc.version)
 
 			if tc.expectError {
 				if err == nil {
