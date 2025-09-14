@@ -322,7 +322,7 @@ func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
 	return err
 }
 
-func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string) (uuid.UUID, error) {
+func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, includePocs bool) (uuid.UUID, error) {
 	assessment, err := ai.GetByID(assessmentID)
 	if err != nil {
 		return uuid.Nil, err
@@ -350,7 +350,7 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string) 
 	}
 
 	for _, vulnerability := range vulnerabilities {
-		_, err := ai.driver.Vulnerability().Clone(vulnerability.ID, assessment.ID)
+		_, err := ai.driver.Vulnerability().Clone(vulnerability.ID, assessment.ID, includePocs)
 		if err != nil {
 			return uuid.Nil, err
 		}

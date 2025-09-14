@@ -504,7 +504,8 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 
 	// parse request body
 	type reqData struct {
-		Name string `json:"name"`
+		Name        string `json:"name"`
+		IncludePocs bool   `json:"include_pocs"`
 	}
 
 	data := &reqData{}
@@ -521,11 +522,12 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	}
 
 	// clone assessment
-	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name)
+	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name, data.IncludePocs)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot clone assessment",
+			"err":   err.Error(),
 		})
 	}
 

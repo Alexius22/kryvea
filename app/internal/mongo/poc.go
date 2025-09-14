@@ -153,8 +153,8 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	return nil
 }
 
-func (pi *PocIndex) GetByID(vulnerabilityID uuid.UUID) (*Poc, error) {
-	cursor, err := pi.collection.Find(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+func (pi *PocIndex) GetByID(ID uuid.UUID) (*Poc, error) {
+	cursor, err := pi.collection.Find(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return nil, err
 	}
@@ -216,16 +216,11 @@ func (pi *PocIndex) DeleteByVulnerabilityID(vulnerabilityID uuid.UUID) error {
 	return err
 }
 
-func (pi *PocIndex) Clone(poc *Poc) (uuid.UUID, error) {
-	// // Clone Image
-	// if poc.ImageID != uuid.Nil {
-	// 	imageID, err := pi.driver.FileReference().Clone(poc.ImageID)
-	// 	if err != nil {
-	// 		return uuid.Nil, err
-	// 	}
-
-	// 	poc.ImageID = imageID
-	// }
+func (pi *PocIndex) Clone(pocID, vulnerabilityID uuid.UUID) (uuid.UUID, error) {
+	poc, err := pi.GetByID(pocID)
+	if err != nil {
+		return uuid.Nil, err
+	}
 
 	id, err := uuid.NewRandom()
 	if err != nil {
@@ -235,6 +230,7 @@ func (pi *PocIndex) Clone(poc *Poc) (uuid.UUID, error) {
 	poc.ID = id
 	poc.CreatedAt = time.Now()
 	poc.UpdatedAt = poc.CreatedAt
+	poc.VulnerabilityID = vulnerabilityID
 
 	_, err = pi.collection.InsertOne(context.Background(), poc)
 	return poc.ID, err
