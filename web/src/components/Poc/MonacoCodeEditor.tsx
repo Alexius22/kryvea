@@ -128,7 +128,9 @@ export default function MonacoCodeEditor({
 
   const handleBeforeMount = (monaco: Monaco) => {
     monacoRef.current = monaco;
-    monaco.languages.register({ id: "http" });
+    if (!monaco.languages.getLanguages().some(lang => lang.id === "http")) {
+      monaco.languages.register({ id: "http", aliases: ["HTTP"] });
+    }
 
     monaco.languages.setMonarchTokensProvider("http", {
       tokenizer: {
@@ -209,9 +211,11 @@ export default function MonacoCodeEditor({
       ],
     });
 
+    const sortAlphaNum = (a, b) =>
+      (a.aliases?.[0] || a.id).localeCompare(b.aliases?.[0] || b.id, "en", { numeric: true });
     const languages = monaco.languages.getLanguages();
     onLanguageOptionsInit(
-      languages.map(lang => ({
+      languages.sort(sortAlphaNum).map(lang => ({
         label: lang.aliases?.[0] || lang.id,
         value: lang.id,
       }))
