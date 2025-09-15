@@ -35,6 +35,7 @@ func (t DocxTemplate) Render(reportData *reportdata.ReportData, templateBytes []
 
 	DocxTemplate.AddTemplateFuncs(template.FuncMap{
 		"formatDate": formatDate,
+		"debug":      debug,
 	})
 
 	err = DocxTemplate.Apply(reportData)
@@ -47,4 +48,8 @@ func (t DocxTemplate) Render(reportData *reportdata.ReportData, templateBytes []
 
 func formatDate(t time.Time) string {
 	return t.Format("02/01/2006")
+}
+
+func debug(v any) string {
+	return fmt.Sprintf("%#v", v)
 }
