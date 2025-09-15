@@ -1,7 +1,9 @@
-import Button from "../../Button";
-import Buttons from "../../Buttons";
+import { v4 } from "uuid";
+import Grid from "../../Composition/Grid";
+import Button from "../../Form/Button";
+import Buttons from "../../Form/Buttons";
 
-const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues }) => {
+export default function CVSS31Render({ selectedValues, handleButtonClick }) {
   const metricLabels = {
     AttackVector: "Attack Vector (AV)",
     AttackComplexity: "Attack Complexity (AC)",
@@ -52,78 +54,74 @@ const CVSS31Render = ({ updateVectorString, selectedValues, setSelectedValues })
     AvailabilityRequirement: { X: "Not Defined", L: "Low", M: "Medium", H: "High" },
   };
 
-  const handleChange = (key: string, value: string) => {
-    setSelectedValues(prev => {
-      const updatedValues = { ...prev, [key]: value };
-      updateVectorString(updatedValues);
-      return updatedValues;
-    });
-  };
-
   return (
-    <div className="ml-8">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-        {/* Base Score Metrics */}
-        <div>
-          <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Base Score Metrics</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+    <Grid className="pt-4">
+      {/* Base Score Metrics */}
+      <Grid>
+        <div className="rounded-2xl border border-[color:--border-primary] p-4">
+          <h3 className="text-2xl font-bold">Base Score Metrics</h3>
+          <Grid className="grid-cols-2">
             <div>{Object.entries(metricLabels).slice(0, 4).map(renderMetricButtons)}</div>
             <div>{Object.entries(metricLabels).slice(4, 8).map(renderMetricButtons)}</div>
-          </div>
+          </Grid>
         </div>
+      </Grid>
 
-        {/* Temporal Score Metrics */}
-        <div>
-          <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Temporal Score Metrics</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
-          </div>
+      {/* Temporal Score Metrics */}
+      <Grid>
+        <div className="rounded-2xl border border-[color:--border-primary] p-4">
+          <h3 className="text-2xl font-bold">Temporal Score Metrics</h3>
+          {Object.entries(metricLabels).slice(8, 11).map(renderMetricButtons)}
         </div>
-      </div>
+      </Grid>
 
       {/* Environmental Score Metrics */}
-      <div style={{ marginTop: "2rem" }}>
-        <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Environmental Score Metrics</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-          {/* Exploitability Metrics */}
-          <div>
-            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Exploitability Metrics</h4>
-            {Object.entries(metricLabels).slice(11, 16).map(renderMetricButtons)}
-          </div>
+      <Grid>
+        <div className="rounded-2xl border border-[color:--border-primary] p-4">
+          <h3 className="text-2xl font-bold">Environmental Score Metrics</h3>
+          <div className="grid grid-cols-[1fr_2.5rem_1fr_1fr]">
+            {/* Exploitability Metrics */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Exploitability Metrics</h4>
+              {Object.entries(metricLabels).slice(11, 16).map(renderMetricButtons)}
+            </div>
 
-          {/* Impact Metrics */}
-          <div>
-            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Impact Metrics</h4>
-            {Object.entries(metricLabels).slice(16, 19).map(renderMetricButtons)}
-          </div>
+            {/* Spacer column */}
+            <div></div>
 
-          {/* Impact Subscore Modifiers */}
-          <div>
-            <h4 style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Impact Subscore Modifiers</h4>
-            {Object.entries(metricLabels).slice(19).map(renderMetricButtons)}
+            {/* Impact Metrics */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Impact Metrics</h4>
+              {Object.entries(metricLabels).slice(16, 19).map(renderMetricButtons)}
+            </div>
+
+            {/* Impact Subscore Modifiers */}
+            <div>
+              <h4 className="pt-2 text-xl font-bold">Impact Subscore Modifiers</h4>
+              <div>{Object.entries(metricLabels).slice(19).map(renderMetricButtons)}</div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </Grid>
+    </Grid>
   );
 
   function renderMetricButtons([metricKey, metricLabel]) {
+    const cvss31KeyUuid = v4();
     return (
-      <Buttons key={metricKey} label={metricLabel}>
-        {Object.entries(metricValues[metricKey]).map(([optionKey, optionObj]) => (
-          <Button
-            key={`${optionKey}-optionKey`}
-            color={(() => {
-              return selectedValues[metricKey] === optionKey ? "success" : "contrast";
-            })()}
-            label={`${optionObj} (${optionKey})`}
-            onClick={() => handleChange(metricKey, optionKey)}
-            small
-          />
-        ))}
-      </Buttons>
+      <div className="pt-2" key={`container-${cvss31KeyUuid}`}>
+        <Buttons label={metricLabel}>
+          {Object.entries(metricValues[metricKey]).map(([optionKey, optionLabel]) => (
+            <Button
+              small
+              variant={optionKey === selectedValues[metricKey] ? "" : "secondary"}
+              text={`${optionLabel} (${optionKey})`}
+              onClick={() => handleButtonClick(metricKey, optionKey)}
+              key={`${optionLabel}-${cvss31KeyUuid}`}
+            />
+          ))}
+        </Buttons>
+      </div>
     );
   }
-};
-
-export default CVSS31Render;
+}

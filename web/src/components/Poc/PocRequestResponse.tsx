@@ -1,30 +1,43 @@
 import { mdiCableData } from "@mdi/js";
 import React from "react";
-import Icon from "../Icon/Icon";
+import Grid from "../Composition/Grid";
+import Input from "../Form/Input";
+import Label from "../Form/Label";
+import Textarea from "../Form/Textarea";
+import { MonacoTextSelection } from "./MonacoCodeEditor.types";
 import { PocDoc, PocRequestResponseDoc } from "./Poc.types";
+import PocCodeEditor from "./PocCodeEditor";
 import PocTemplate from "./PocTemplate";
 
 type PocRequestResponseProps = {
   pocDoc: PocRequestResponseDoc;
   currentIndex;
   pocList: PocDoc[];
+  selectedPoc: number;
+  setSelectedPoc: (index: number) => void;
   onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
+  onSetCodeSelection: <T>(
+    currentIndex: number,
+    property: keyof Omit<T, "key">,
+    textSelection: MonacoTextSelection[]
+  ) => void;
 };
 
 export default function PocRequestResponse({
   pocDoc,
   currentIndex,
   pocList,
+  selectedPoc,
+  setSelectedPoc,
   onPositionChange,
   onTextChange,
   onRemovePoc,
+  onSetCodeSelection,
 }: PocRequestResponseProps) {
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const urlInputId = `poc-url-${currentIndex}-${pocDoc.key}`;
-  const requestTextareaId = `poc-request-${currentIndex}-${pocDoc.key}`;
-  const responseTextareaId = `poc-response-${currentIndex}-${pocDoc.key}`;
 
   return (
     <PocTemplate
@@ -35,48 +48,63 @@ export default function PocRequestResponse({
         icon: mdiCableData,
         onPositionChange,
         onRemovePoc,
+        selectedPoc,
+        setSelectedPoc,
         title: "Request/Response",
       }}
     >
-      <div className="col-span-8 grid">
-        <label htmlFor={descriptionTextareaId}>Description</label>
-        <textarea
-          className="input-focus rounded dark:bg-slate-800"
-          value={pocDoc.description}
-          id={descriptionTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
-        />
-      </div>
+      <Textarea
+        label="Description"
+        value={pocDoc.description}
+        id={descriptionTextareaId}
+        onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "description")}
+      />
 
-      <div className="col-span-4 grid">
-        <label htmlFor={urlInputId}>URL</label>
-        <input
-          id={urlInputId}
-          className="input-focus rounded dark:bg-slate-800"
-          value={pocDoc.url}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "url")}
-        />
-      </div>
+      <Input
+        type="text"
+        label="URL"
+        id={urlInputId}
+        value={pocDoc.uri}
+        onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "uri")}
+      />
 
-      <div className="col-span-8 grid">
-        <label htmlFor={requestTextareaId}>Request</label>
-        <textarea
-          className="input-focus h-96 rounded dark:bg-slate-800"
-          value={pocDoc.request}
-          id={requestTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "request")}
-        />
-      </div>
+      <Grid className="grid-cols-1 gap-4 2xl:grid-cols-2">
+        <Grid>
+          <Label text="Request" />
+          <PocCodeEditor
+            pocDoc={pocDoc}
+            disableViewHighlights={(pocDoc?.request_highlights ?? []).length <= 0}
+            currentIndex={currentIndex}
+            highlightsProperty="request_highlights"
+            code={pocDoc.request}
+            selectedLanguage="http"
+            ideStartingLineNumber={0}
+            textHighlights={pocDoc.request_highlights}
+            onChange={code =>
+              onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value: code } } as any)
+            }
+            onSetCodeSelection={onSetCodeSelection}
+          />
+        </Grid>
 
-      <div className="col-span-8 grid">
-        <label htmlFor={responseTextareaId}>Response</label>
-        <textarea
-          className="input-focus h-96 rounded dark:bg-slate-800"
-          value={pocDoc.response}
-          id={responseTextareaId}
-          onChange={onTextChange<PocRequestResponseDoc>(currentIndex, "response")}
-        />
-      </div>
+        <Grid>
+          <Label text="Response" />
+          <PocCodeEditor
+            pocDoc={pocDoc}
+            disableViewHighlights={(pocDoc?.response_highlights ?? []).length <= 0}
+            currentIndex={currentIndex}
+            highlightsProperty="response_highlights"
+            code={pocDoc.response}
+            selectedLanguage="http"
+            ideStartingLineNumber={0}
+            textHighlights={pocDoc.response_highlights}
+            onChange={code =>
+              onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value: code } } as any)
+            }
+            onSetCodeSelection={onSetCodeSelection}
+          />
+        </Grid>
+      </Grid>
     </PocTemplate>
   );
 }

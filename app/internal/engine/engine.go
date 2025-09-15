@@ -4,27 +4,31 @@ import (
 	"github.com/Alexius22/kryvea/internal/api"
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/rs/zerolog/log"
+
+	"github.com/bytedance/sonic"
+	"github.com/rs/zerolog"
 )
 
 type Engine struct {
-	addr     string
-	rootPath string
-	mongo    *mongo.Driver
+	addr        string
+	rootPath    string
+	mongo       *mongo.Driver
+	levelWriter *zerolog.LevelWriter
 }
 
-func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string) (*Engine, error) {
-	mongo, err := mongo.NewDriver(mongoURI, adminUser, adminPass)
+func NewEngine(addr, rootPath, mongoURI, adminUser, adminPass string, levelWriter *zerolog.LevelWriter) (*Engine, error) {
+	mongo, err := mongo.NewDriver(mongoURI, adminUser, adminPass, levelWriter)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Engine{
-		addr:     addr,
-		rootPath: rootPath,
-		mongo:    mongo,
+		addr:        addr,
+		rootPath:    rootPath,
+		mongo:       mongo,
+		levelWriter: levelWriter,
 	}, nil
 }
 
@@ -32,81 +36,116 @@ func (e *Engine) Serve() {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		// TODO: this is a temporary solution to allow large files
-		BodyLimit: 50 * 1024 * 1024,
+		BodyLimit: 10000 * 1024 * 1024,
+
+		JSONEncoder: sonic.Marshal,
+		JSONDecoder: sonic.Unmarshal,
 	})
 
-	app.Use(logger.New(logger.Config{
-		Format:     "${time} ${status} - ${latency} ${method} ${path}\n",
-		TimeFormat: "02/01/2006 15:04:05",
-		TimeZone:   "CET",
+	logger := zerolog.New(*e.levelWriter).With().
+		Str("source", "fiber-engine").
+		Timestamp().Logger()
+
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: &logger,
 	}))
 
-	api := api.NewDriver(e.mongo)
+	api := api.NewDriver(e.mongo, e.levelWriter)
 
 	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"))
 	apiGroup.Use(api.SessionMiddleware)
 	apiGroup.Use(api.ContentTypeMiddleware)
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
-		apiGroup.Post("/customers", api.AddCustomer)
-		apiGroup.Patch("/customers/:customer", api.UpdateCustomer)
-		apiGroup.Delete("/customers/:customer", api.DeleteCustomer)
+		apiGroup.Get("/customers/:customer", api.GetCustomer)
+		apiGroup.Post("/customers/:customer/templates/upload", api.AddCustomerTemplate)
 
-		apiGroup.Get("/assessments/search", api.SearchAssessments)
+		apiGroup.Get("/assessments", api.SearchAssessments)
 		apiGroup.Get("/customers/:customer/assessments", api.GetAssessmentsByCustomer)
-		apiGroup.Post("/customers/:customer/assessments", api.AddAssessment)
-		apiGroup.Patch("/customers/:customer/assessments/:assessment", api.UpdateAssessment)
-		apiGroup.Delete("/customers/:customer/assessments/:assessment", api.DeleteAssessment)
-		apiGroup.Post("/customers/:customer/assessments/:assessment/clone", api.CloneAssessment)
-		apiGroup.Post("/customers/:customer/assessments/:assessment/export", api.ExportAssessment)
+		apiGroup.Get("/assessments/owned", api.GetOwnedAssessments)
+		apiGroup.Get("/assessments/:assessment", api.GetAssessment)
+		apiGroup.Post("/assessments", api.AddAssessment)
+		apiGroup.Patch("/assessments/:assessment", api.UpdateAssessment)
+		apiGroup.Patch("/assessments/:assessment/status", api.UpdateAssessmentStatus)
+		apiGroup.Delete("/assessments/:assessment", api.DeleteAssessment)
+		apiGroup.Post("/assessments/:assessment/clone", api.CloneAssessment)
+		apiGroup.Post("/assessments/:assessment/export", api.ExportAssessment)
 
-		apiGroup.Get("/customers/:customer/targets/search", api.SearchTargets)
+		// apiGroup.Get("/targets", api.SearchTargets)
 		apiGroup.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
-		apiGroup.Get("/customers/:customer/targets/:target", api.GetTarget)
-		apiGroup.Post("/customers/:customer/targets", api.AddTarget)
-		apiGroup.Patch("/customers/:customer/targets/:target", api.UpdateTarget)
-		apiGroup.Delete("/customers/:customer/targets/:target", api.DeleteTarget)
+		apiGroup.Get("/targets/:target", api.GetTarget)
+		apiGroup.Post("/targets", api.AddTarget)
+		apiGroup.Patch("/targets/:target", api.UpdateTarget)
+		apiGroup.Delete("/targets/:target", api.DeleteTarget)
 
 		apiGroup.Get("/categories/search", api.SearchCategories)
 		apiGroup.Get("/categories", api.GetCategories)
-		apiGroup.Post("/categories", api.AddCategory)
-		apiGroup.Post("/categories/upload", api.UploadCategories)
-		apiGroup.Patch("/categories/:category", api.UpdateCategory)
-		apiGroup.Delete("/categories/:category", api.DeleteCategory)
+		apiGroup.Get("/categories/:category", api.GetCategory)
 
+		apiGroup.Get("/templates", api.GetTemplates)
+		apiGroup.Get("/templates/:template", api.GetTemplate)
+		apiGroup.Delete("/templates/:template", api.DeleteTemplate)
+
+		apiGroup.Get("/vulnerabilities/user", api.GetUserVulnerabilities)
 		apiGroup.Get("/vulnerabilities/search", api.SearchVulnerabilities)
+		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
-		apiGroup.Post("/assessments/:assessment/vulnerabilities", api.AddVulnerability)
-		apiGroup.Patch("/assessments/:assessment/vulnerabilities/:vulnerability", api.UpdateVulnerability)
-		apiGroup.Delete("/assessments/:assessment/vulnerabilities/:vulnerability", api.DeleteVulnerability)
+		apiGroup.Post("/vulnerabilities", api.AddVulnerability)
+		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
+		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
+		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerbilities)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
-		apiGroup.Post("/vulnerabilities/:vulnerability/pocs", api.AddPoc)
-		apiGroup.Patch("/vulnerabilities/:vulnerability/pocs/:poc", api.UpdatePoc)
-		apiGroup.Delete("/vulnerabilities/:vulnerability/pocs/:poc", api.DeletePoc)
+		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)
 
-		apiGroup.Post("/assessments/:assessment/upload/nessus", api.UploadNessus)
+		apiGroup.Get("/files/images/:file", api.GetImage)
+		apiGroup.Get("/files/templates/:file", api.GetTemplateFile)
 
-		apiGroup.Get("/users", api.GetUsers)
-		apiGroup.Get("/users/:user", api.GetUser)
-		apiGroup.Post("/users", api.AddUser)
+		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Patch("/users/me", api.UpdateMe)
-		apiGroup.Patch("/users/:user", api.UpdateUser)
-		apiGroup.Delete("/users/:user", api.DeleteUser)
+		apiGroup.Patch("/users/me/assessments", api.UpdateOwnedAssessment)
+
+		apiGroup.Post("/password/reset", api.ResetPassword)
 
 		apiGroup.Post("/logout", api.Logout)
 
 		// endpoints that don't require authentication
 		apiGroup.Post("/login", api.Login)
-		apiGroup.Post("/password/reset", api.ResetPassword)
+	}
+
+	adminGroup := apiGroup.Group("/admin")
+	adminGroup.Use(api.AdminMiddleware)
+	{
+		adminGroup.Post("/customers", api.AddCustomer)
+		adminGroup.Patch("/customers/:customer", api.UpdateCustomer)
+		adminGroup.Delete("/customers/:customer", api.DeleteCustomer)
+
+		adminGroup.Get("/categories/export", api.ExportCategories)
+		adminGroup.Post("/categories", api.AddCategory)
+		adminGroup.Post("/categories/upload", api.UploadCategories)
+		adminGroup.Patch("/categories/:category", api.UpdateCategory)
+		adminGroup.Delete("/categories/:category", api.DeleteCategory)
+
+		adminGroup.Post("/templates/upload", api.AddGlobalTemplate)
+
+		adminGroup.Get("/users", api.GetUsers)
+		adminGroup.Get("/users/:user", api.GetUser)
+		adminGroup.Post("/users", api.AddUser)
+		adminGroup.Post("/users/:user/reset-password", api.ResetUserPassword)
+		adminGroup.Patch("/users/:user", api.UpdateUser)
+		adminGroup.Delete("/users/:user", api.DeleteUser)
+
+		adminGroup.Get("/logs", api.GetLog)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Redirect(e.rootPath)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Not Found",
+		})
 	})
 
-	log.Info().Msg("Listening for connections on http://" + e.addr)
+	logger.Info().Msg("Listening for connections on http://" + e.addr)
 	if err := app.Listen(e.addr); err != nil {
-		log.Fatal().Err(err).Msg("Failed to start server")
+		logger.Fatal().Err(err).Msg("Failed to start server")
 	}
 }

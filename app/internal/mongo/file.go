@@ -17,10 +17,10 @@ func (d *Driver) File() *FileIndex {
 	}
 }
 
-func (i *FileIndex) init() {}
+func (i *FileIndex) init() error { return nil }
 
-func (i *FileIndex) Insert(data []byte) (bson.ObjectID, error) {
-	id, err := i.driver.bucket.UploadFromStream(context.Background(), "", bytes.NewReader(data))
+func (i *FileIndex) Insert(data []byte, filename string) (bson.ObjectID, error) {
+	id, err := i.driver.bucket.UploadFromStream(context.Background(), filename, bytes.NewReader(data))
 	return id, err
 }
 
@@ -32,13 +32,4 @@ func (i *FileIndex) GetByID(id bson.ObjectID) ([]byte, error) {
 
 func (i *FileIndex) Delete(id bson.ObjectID) error {
 	return i.driver.bucket.Delete(context.Background(), id)
-}
-
-func (i *FileIndex) Clone(fileID bson.ObjectID) (bson.ObjectID, error) {
-	data, err := i.GetByID(fileID)
-	if err != nil {
-		return bson.NilObjectID, err
-	}
-
-	return i.Insert(data)
 }

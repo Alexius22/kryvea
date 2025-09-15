@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -18,16 +19,7 @@ type userRequestData struct {
 }
 
 func (d *Driver) AddUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
+	// parse request body
 	data := &userRequestData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -45,10 +37,11 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: create function to update the customers only, to avoid the use of mongo.Model
 	// parse customer IDs
-	customers := make([]mongo.UserCustomer, len(data.Customers))
+	customers := make([]mongo.Customer, len(data.Customers))
 	for i, customerID := range data.Customers {
-		parsedCustomerID, err := util.ParseMongoID(customerID)
+		parsedCustomerID, err := util.ParseUUID(customerID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -64,18 +57,30 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 			})
 		}
 
-		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
+		customers[i] = mongo.Customer{
+			Model: mongo.Model{
+				ID: parsedCustomerID,
+			},
+		}
+	}
+
+	user := &mongo.User{
+		Username:  data.Username,
+		Role:      data.Role,
+		Customers: customers,
 	}
 
 	// insert user into database
-	userID, err := d.mongo.User().Insert(&mongo.User{
-		Username:  data.Username,
-		Password:  data.Password,
-		Role:      data.Role,
-		Customers: customers,
-	})
+	userID, err := d.mongo.User().Insert(user, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", user.Username),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot add user",
 		})
@@ -84,7 +89,7 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message": "User added successfully",
-		"user_id": userID.Hex(),
+		"user_id": userID,
 	})
 }
 
@@ -118,21 +123,12 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 	}
 
 	// get session token from database
-	token, expires, err := d.mongo.User().Login(data.Username, data.Password)
+	user, err := d.mongo.User().Login(data.Username, data.Password)
 	if err != nil {
-		if err == mongo.ErrPasswordExpired {
-			resetToken, err := d.mongo.User().ForgotPassword(data.Username)
-			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
-				return c.JSON(fiber.Map{
-					"error": "Password expired, cannot generate reset token",
-				})
-			}
-
+		if err == mongo.ErrDisabledUser {
 			c.Status(fiber.StatusUnauthorized)
 			return c.JSON(fiber.Map{
-				"error":       "Password expired",
-				"reset_token": resetToken,
+				"error": "User is disabled",
 			})
 		}
 
@@ -142,15 +138,18 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	// set cookie with session token
-	c.Cookie(&fiber.Cookie{
-		Name:     "kryvea",
-		Value:    token,
-		Secure:   true,
-		HTTPOnly: true,
-		SameSite: "Strict",
-		Expires:  expires,
-	})
+	if user.PasswordExpiry.Before(time.Now()) {
+		util.SetKryveaCookie(c, user.Token.String(), user.TokenExpiry)
+		util.SetKryveaShadowCookie(c, util.CookiePasswordExpired, user.TokenExpiry)
+
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Password expired",
+		})
+	}
+
+	c.Locals("user", user)
+	util.SetSessionCookies(c, user.Role, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -159,16 +158,6 @@ func (d *Driver) Login(c *fiber.Ctx) error {
 }
 
 func (d *Driver) GetUsers(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// get all users from database
 	users, err := d.mongo.User().GetAll()
 	if err != nil {
@@ -178,25 +167,27 @@ func (d *Driver) GetUsers(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(users) == 0 {
-		users = []mongo.User{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(users)
 }
 
-func (d *Driver) GetUser(c *fiber.Ctx) error {
+func (d *Driver) GetMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
+	// get user from database
+	userData, err := d.mongo.User().Get(user.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Cannot get user",
 		})
 	}
 
+	c.Status(fiber.StatusOK)
+	return c.JSON(userData)
+}
+
+func (d *Driver) GetUser(c *fiber.Ctx) error {
 	// parse user param
 	user, errStr := d.userFromParam(c.Params("user"))
 	if errStr != "" {
@@ -210,19 +201,18 @@ func (d *Driver) GetUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func (d *Driver) UpdateUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
+type updateUserRequestData struct {
+	DisabledAt time.Time `json:"disabled_at"`
+	Username   string    `json:"username"`
+	Role       string    `json:"role"`
+	Customers  []string  `json:"customers"`
+}
 
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
+func (d *Driver) UpdateUser(c *fiber.Ctx) error {
+	currentUser := c.Locals("user").(*mongo.User)
 
 	// parse user param
-	oldUser, errStr := d.userFromParam(c.Params("user"))
+	user, errStr := d.userFromParam(c.Params("user"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -230,8 +220,15 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	if currentUser.ID == user.ID {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update self, use dedicated endpoint",
+		})
+	}
+
 	// parse request body
-	data := &userRequestData{}
+	data := &updateUserRequestData{}
 	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -240,7 +237,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateUserData(data)
+	errStr = d.validateUserUpdateData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -248,38 +245,43 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: create function to update the customers only, to avoid the use of mongo.Model
 	// parse customer IDs
-	customers := make([]mongo.UserCustomer, len(data.Customers))
+	customers := make([]mongo.Customer, len(data.Customers))
 	for i, customerID := range data.Customers {
-		parsedCustomerID, err := util.ParseMongoID(customerID)
-		if err != nil {
+		customer, errStr := d.customerFromParam(customerID)
+		if errStr != "" {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
-				"error": "Invalid customer ID",
+				"error": errStr,
 			})
 		}
 
-		_, err = d.mongo.Customer().GetByID(parsedCustomerID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid customer ID",
-			})
+		customers[i] = mongo.Customer{
+			Model: mongo.Model{
+				ID: customer.ID,
+			},
 		}
+	}
 
-		customers[i] = mongo.UserCustomer{ID: parsedCustomerID}
+	newUser := &mongo.User{
+		DisabledAt: data.DisabledAt,
+		Username:   data.Username,
+		Role:       data.Role,
+		Customers:  customers,
 	}
 
 	// update user in database
-	err := d.mongo.User().Update(oldUser.ID, &mongo.User{
-		DisabledAt:     data.DisabledAt,
-		Username:       data.Username,
-		PasswordExpiry: data.PasswordExpiry,
-		Role:           data.Role,
-		Customers:      customers,
-	})
+	err := d.mongo.User().Update(user.ID, newUser)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update user",
 		})
@@ -291,14 +293,66 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	})
 }
 
+type updateMeData struct {
+	Username        string `json:"username"`
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// parse request body
+	data := &updateMeData{}
+	if err := c.BodyParser(data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// validate data
+	errStr := d.validateUpdateMeData(data, user)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	newUser := &mongo.User{
+		Username: data.Username,
+	}
+
+	// update user in database
+	err := d.mongo.User().UpdateMe(user.ID, newUser, data.NewPassword)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"error": "Cannot update user",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "User updated",
+	})
+}
+
+func (d *Driver) UpdateOwnedAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse request body
 	type reqData struct {
-		Username    string   `json:"username"`
-		Password    string   `json:"password"`
-		Assessments []string `json:"assessments"`
+		Assessment string `json:"assessment"`
+		IsOwned    bool   `json:"is_owned"`
 	}
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
@@ -309,74 +363,39 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.Username == "" && data.Password == "" && len(data.Assessments) == 0 {
+	assessment, errStr := d.assessmentFromParam(data.Assessment)
+	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "No data to update",
+			"error": errStr,
 		})
 	}
 
-	// parse assessment IDs
-	assessments := make([]mongo.UserAssessments, len(data.Assessments))
-	for i, assessmentID := range data.Assessments {
-		parsedAssessmentID, err := util.ParseMongoID(assessmentID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid assessment ID",
-			})
-		}
-
-		assessment, err := d.mongo.Assessment().GetByID(parsedAssessmentID)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Invalid assessment ID",
-			})
-		}
-
-		if user.Role != mongo.ROLE_ADMIN && !util.CanAccessCustomer(user, assessment.Customer.ID) {
-			c.Status(fiber.StatusUnauthorized)
-			return c.JSON(fiber.Map{
-				"error": "Unauthorized",
-			})
-		}
-
-		assessments[i] = mongo.UserAssessments{ID: parsedAssessmentID}
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
 	}
 
-	// update user in database
-	err := d.mongo.User().Update(user.ID, &mongo.User{
-		Username:    data.Username,
-		Password:    data.Password,
-		Assessments: assessments,
-	})
+	// add assessment to user in database
+	err := d.mongo.User().UpdateOwnedAssessment(user.ID, assessment.ID, data.IsOwned)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot update user",
+			"error": "Cannot edit owned assessment",
 		})
 	}
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
-		"message": "User updated",
+		"message": "Owned assessment updated",
 	})
 }
 
 func (d *Driver) DeleteUser(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse user param
-	userID, err := util.ParseMongoID(c.Params("user"))
+	userID, err := util.ParseUUID(c.Params("user"))
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -411,7 +430,7 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 		})
 	}
 
-	c.ClearCookie("kryvea")
+	util.ClearCookies(c)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -419,11 +438,45 @@ func (d *Driver) Logout(c *fiber.Ctx) error {
 	})
 }
 
+func (d *Driver) ResetUserPassword(c *fiber.Ctx) error {
+	// parse user param
+	user, errStr := d.userFromParam(c.Params("user"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	newPassword, err := util.GenerateRandomPassword(20)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot generate new password",
+		})
+	}
+
+	err = d.mongo.User().ResetUserPassword(user.ID, newPassword)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Password expired, cannot generate reset token",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message":  "Password reset successfully",
+		"password": newPassword,
+	})
+}
+
 func (d *Driver) ResetPassword(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
 	// parse request body
 	type reqData struct {
-		ResetToken string `json:"reset_token"`
-		Password   string `json:"password"`
+		Password string `json:"password"`
 	}
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
@@ -434,10 +487,10 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	if data.ResetToken == "" {
+	if data.Password == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Reset token is required",
+			"error": "Password is required",
 		})
 	}
 
@@ -449,13 +502,15 @@ func (d *Driver) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// reset password in database
-	err := d.mongo.User().ResetPassword(data.ResetToken, data.Password)
+	err := d.mongo.User().ResetPassword(user, data.Password)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot reset password",
 		})
 	}
+
+	util.SetSessionCookies(c, user.Role, user.Token, user.TokenExpiry)
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
@@ -468,7 +523,7 @@ func (d *Driver) userFromParam(userParam string) (*mongo.User, string) {
 		return nil, "User ID is required"
 	}
 
-	userID, err := util.ParseMongoID(userParam)
+	userID, err := util.ParseUUID(userParam)
 	if err != nil {
 		return nil, "Invalid user ID"
 	}
@@ -486,13 +541,42 @@ func (d *Driver) validateUserData(data *userRequestData) string {
 		return "Username is required"
 	}
 
-	if !util.IsValidRole(data.Role) {
+	if !mongo.IsValidRole(data.Role) {
 		return "Invalid role"
 	}
 
-	if data.Password != "" {
-		if !util.IsValidPassword(data.Password) {
-			return "Password does not meet policy requirements"
+	if !util.IsValidPassword(data.Password) {
+		return "Password does not meet policy requirements"
+	}
+
+	return ""
+}
+
+func (d *Driver) validateUserUpdateData(data *updateUserRequestData) string {
+	if !mongo.IsValidRole(data.Role) {
+		return "Invalid role"
+	}
+
+	return ""
+}
+
+func (d *Driver) validateUpdateMeData(data *updateMeData, user *mongo.User) string {
+	if data.Username == "" && data.NewPassword == "" {
+		return "No data to update"
+	}
+
+	if data.NewPassword != "" {
+		if data.CurrentPassword == "" {
+			return "Current password is required"
+		}
+
+		if data.NewPassword == data.CurrentPassword {
+			return "New password cannot be the same as current password"
+		}
+
+		err := d.mongo.User().ValidatePassword(user.ID, data.CurrentPassword)
+		if err != nil || !util.IsValidPassword(data.NewPassword) {
+			return "Invalid passwords"
 		}
 	}
 

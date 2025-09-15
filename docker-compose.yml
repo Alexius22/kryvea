@@ -1,56 +1,61 @@
 services:
-  db:
-    image: mongo
-    container_name: kryvea-db
-    restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=kryveauser
-      - MONGO_INITDB_ROOT_PASSWORD=kryveapass
-    volumes:
-      - ./.data/mongodb:/data/db
-    networks:
-      - kryvea-data
-    expose:
-      - 27017
+    db:
+        image: mongo
+        container_name: kryvea-db
+        restart: unless-stopped
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=kryveauser
+            - MONGO_INITDB_ROOT_PASSWORD=kryveapass
+        volumes:
+            - ./.data/mongodb:/data/db
+        networks:
+            - kryvea-data
+        expose:
+            - 27017
 
-  app:
-    build: app
-    container_name: kryvea-app
-    restart: unless-stopped
-    environment:
-      - KRYVEA_ADDR=0.0.0.0:8080
-      - KRYVEA_ROOT_PATH=/
-      - KRYVEA_MONGO_URI=mongodb://kryveauser:kryveapass@kryvea-db:27017
-    volumes:
-      - ./.data/log:/var/log/kryvea/
-    depends_on:
-      - db
-    networks:
-      - kryvea-net
-      - kryvea-data
-    expose:
-      - 8080
+    app:
+        build: app
+        container_name: kryvea-app
+        restart: unless-stopped
+        environment:
+            - KRYVEA_ADDR=0.0.0.0:8080
+            - KRYVEA_ROOT_PATH=/
+            - KRYVEA_MONGO_URI=mongodb://kryveauser:kryveapass@kryvea-db:27017
+            - KRYVEA_LOG_DIRECTORY=/var/log/kryvea/
+            - KRYVEA_LOG_MAX_SIZE_MB=10
+            - KRYVEA_LOG_MAX_BACKUPS=5
+            - KRYVEA_LOG_MAX_AGE_DAYS=0
+            - KRYVEA_LOG_COMPRESS=true
+        volumes:
+            - ./.data/log:/var/log/kryvea/
+        depends_on:
+            - db
+        networks:
+            - kryvea-net
+            - kryvea-data
+        expose:
+            - 8080
 
-  web:
-    build: web
-    container_name: kryvea-web
-    restart: unless-stopped
-    volumes:
-      - ./.data/ssl:/etc/nginx/ssl
-    depends_on:
-      - db
-      - app
-    ports:
-      - 443:443
-    networks:
-      - kryvea-net
+    web:
+        build: web
+        container_name: kryvea-web
+        restart: unless-stopped
+        volumes:
+            - ./.data/ssl:/etc/nginx/ssl
+        depends_on:
+            - db
+            - app
+        ports:
+            - 443:443
+        networks:
+            - kryvea-net
 
 networks:
-  kryvea-net:
-    driver: bridge
-  kryvea-data:
-    driver: bridge
+    kryvea-net:
+        driver: bridge
+    kryvea-data:
+        driver: bridge
 
 volumes:
-  kryvea-db-storage:
-  kryvea-static:
+    kryvea-db-storage:
+    kryvea-static:

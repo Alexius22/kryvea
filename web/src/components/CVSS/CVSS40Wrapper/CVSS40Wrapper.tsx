@@ -1,7 +1,8 @@
-import { Field } from "formik";
 import { useEffect, useMemo, useState } from "react";
+import Grid from "../../Composition/Grid";
+import Subtitle from "../../Composition/Subtitle";
 import Accordion from "../../Form/Accordion";
-import FormField from "../../Form/Field";
+import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
 import Vector, { CVSS40 } from "./CVSS40";
 import CVSS40Render from "./CVSS40Render";
@@ -58,8 +59,9 @@ type Metrics = {
   ProviderUrgency: XClearGreenAmberRed;
 };
 
-export default function CVSS40Wrapper() {
-  const [selectedValues, setSelectedValues] = useState({
+export default function CVSS40Wrapper({ value, onChange }) {
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [metrics, setMetrics] = useState({
     AttackVector: "N",
     AttackComplexity: "L",
     AttackRequirements: "N",
@@ -130,117 +132,118 @@ export default function CVSS40Wrapper() {
     }),
     []
   );
-  const [cvssValue, setCvssValue] = useState<string>("");
+  const [cvssString, setCvssString] = useState<string>("");
   const [cvss4Score, setCvss4Score] = useState(0);
-  const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
 
   const validateCvssVector = (vector: string): boolean => {
-    const vectorInstance = new Vector();
+    const vectorInstance = new Vector({ setError });
     const isValid = vectorInstance.validateStringVector(vector);
-    if (!isValid) {
-      setError("Malformed CVSS Vector");
-    } else {
-      setError("");
-    }
+
     return isValid;
   };
 
-  const cvssVector = useMemo(() => {
+  const calculateRaw = metricsObj => {
     const baseString = "CVSS:4.0";
-    const metricEntries = Object.entries(selectedValues)
+    const metricEntries = Object.entries(metricsObj)
       .filter(([, value]) => value !== "X")
       .map(([key, value]) => `/${metricLabelsShort[key]}:${value}`)
       .join("");
-
     return baseString + metricEntries;
-  }, [selectedValues]);
-
-  const displayCvssVector = isEditing ? cvssValue : cvssVector;
+  };
 
   useEffect(() => {
-    const instance = new CVSS40(cvssVector);
+    if (!value) {
+      return;
+    }
+    handleInputChange({ target: { value } } as any);
+  }, []);
+
+  useEffect(() => {
+    const vectorString = calculateRaw(metrics);
+    const instance = new CVSS40(vectorString);
     setCvss4Score(instance.calculateScore());
-  }, [cvssVector]);
+    setCvssString(vectorString);
+    setError("");
+  }, [metrics]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCvssValue = e.target.value;
-    const parsedCvss = newCvssValue.startsWith("CVSS:4.0/") ? newCvssValue : "CVSS:4.0/" + newCvssValue;
-    setCvssValue(parsedCvss);
-    setIsEditing(true);
-
-    if (validateCvssVector(parsedCvss)) {
-      handleFieldUpdateToSelectedValues(parsedCvss);
-      setIsEditing(false);
+    const prefixedCvss = newCvssValue.startsWith("CVSS:4.0/") ? newCvssValue : "CVSS:4.0/" + newCvssValue;
+    setCvssString(prefixedCvss);
+    onChange?.(prefixedCvss);
+    if (!validateCvssVector(prefixedCvss)) {
+      return;
     }
-  };
 
-  const handleFieldUpdateToSelectedValues = (onChangeCvssValue: string) => {
-    if (validateCvssVector(onChangeCvssValue)) {
-      const parsedVector = new Vector(onChangeCvssValue);
-      const parsedValues: Metrics = {
-        AttackVector: parsedVector.metrics.AV,
-        AttackComplexity: parsedVector.metrics.AC,
-        AttackRequirements: parsedVector.metrics.AT,
-        PrivilegesRequired: parsedVector.metrics.PR,
-        UserInteraction: parsedVector.metrics.UI,
-        Confidentiality: parsedVector.metrics.VC,
-        Integrity: parsedVector.metrics.VI,
-        Availability: parsedVector.metrics.VA,
-        SubsequentConfidentiality: parsedVector.metrics.SC,
-        SubsequentIntegrity: parsedVector.metrics.SI,
-        SubsequentAvailability: parsedVector.metrics.SA,
-        ExploitMaturity: parsedVector.metrics.E,
-        ConfidentialityRequirements: parsedVector.metrics.CR,
-        IntegrityRequirements: parsedVector.metrics.IR,
-        AvailabilityRequirements: parsedVector.metrics.AR,
-        ModifiedAttackVector: parsedVector.metrics.MAV,
-        ModifiedAttackComplexity: parsedVector.metrics.MAC,
-        ModifiedAttackRequirements: parsedVector.metrics.MAT,
-        ModifiedPrivilegesRequired: parsedVector.metrics.MPR,
-        ModifiedUserInteraction: parsedVector.metrics.MUI,
-        ModifiedConfidentiality: parsedVector.metrics.MVC,
-        ModifiedIntegrity: parsedVector.metrics.MVI,
-        ModifiedAvailability: parsedVector.metrics.MVA,
-        ModifiedSubsequentConfidentiality: parsedVector.metrics.MSC,
-        ModifiedSubsequentIntegrity: parsedVector.metrics.MSI,
-        ModifiedSubsequentAvailability: parsedVector.metrics.MSA,
-        Safety: parsedVector.metrics.S,
-        Automatable: parsedVector.metrics.AU,
-        Recovery: parsedVector.metrics.R,
-        ValueDensity: parsedVector.metrics.V,
-        ResponseEffort: parsedVector.metrics.RE,
-        ProviderUrgency: parsedVector.metrics.U,
-      };
-      setSelectedValues(parsedValues);
-      setCvssValue(onChangeCvssValue);
-      setError("");
-    }
-  };
+    const vector = new Vector({ vectorString: prefixedCvss });
+    const parsedValues: Metrics = {
+      AttackVector: vector.metrics.AV,
+      AttackComplexity: vector.metrics.AC,
+      AttackRequirements: vector.metrics.AT,
+      PrivilegesRequired: vector.metrics.PR,
+      UserInteraction: vector.metrics.UI,
+      Confidentiality: vector.metrics.VC,
+      Integrity: vector.metrics.VI,
+      Availability: vector.metrics.VA,
+      SubsequentConfidentiality: vector.metrics.SC,
+      SubsequentIntegrity: vector.metrics.SI,
+      SubsequentAvailability: vector.metrics.SA,
+      ExploitMaturity: vector.metrics.E,
+      ConfidentialityRequirements: vector.metrics.CR,
+      IntegrityRequirements: vector.metrics.IR,
+      AvailabilityRequirements: vector.metrics.AR,
+      ModifiedAttackVector: vector.metrics.MAV,
+      ModifiedAttackComplexity: vector.metrics.MAC,
+      ModifiedAttackRequirements: vector.metrics.MAT,
+      ModifiedPrivilegesRequired: vector.metrics.MPR,
+      ModifiedUserInteraction: vector.metrics.MUI,
+      ModifiedConfidentiality: vector.metrics.MVC,
+      ModifiedIntegrity: vector.metrics.MVI,
+      ModifiedAvailability: vector.metrics.MVA,
+      ModifiedSubsequentConfidentiality: vector.metrics.MSC,
+      ModifiedSubsequentIntegrity: vector.metrics.MSI,
+      ModifiedSubsequentAvailability: vector.metrics.MSA,
+      Safety: vector.metrics.S,
+      Automatable: vector.metrics.AU,
+      Recovery: vector.metrics.R,
+      ValueDensity: vector.metrics.V,
+      ResponseEffort: vector.metrics.RE,
+      ProviderUrgency: vector.metrics.U,
+    };
+    setMetrics(parsedValues);
 
-  const updateVectorString = (updatedValues: string) => {
-    setCvssValue(updatedValues);
     setError("");
   };
 
+  const handleButtonClick = (key: string, value: string) => {
+    setMetrics(prev => {
+      const updatedMetrics = { ...prev, [key]: value };
+      setCvssString(calculateRaw(updatedMetrics));
+      onChange?.(calculateRaw(updatedMetrics));
+      return updatedMetrics;
+    });
+  };
+
   return (
-    <div>
-      <FormField
-        label={["CVSS vector", "Score"]}
-        gridTemplateColumns="grid-cols-[63%_36%]"
-        help={error || ""}
-        isError={!!error}
-      >
-        <Field name="cvss" id="cvss" value={displayCvssVector} onChange={handleInputChange} isError={!!error} />
+    <div className="relative">
+      <Grid className={`top-0 grid-cols-[63%_36%] bg-[color:--bg-tertiary] ${isAccordionOpen ? "sticky z-10" : ""}`}>
+        <Input
+          className={error ? "border-[1px] border-[color:--error]" : ""}
+          type="text"
+          label="CVSSv4.0 vector"
+          id="cvssv4"
+          value={cvssString}
+          onChange={handleInputChange}
+        />
         <ScoreBar score={cvss4Score} />
-      </FormField>
-      <Accordion title={"CVSS Calculator"}>
+        <Subtitle className="text-[color:--error]" text={error} />
+      </Grid>
+      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS40Render
           {...{
-            setCvss4Score,
-            selectedValues,
-            setSelectedValues,
-            updateVectorString,
+            selectedValues: metrics,
+            handleButtonClick,
           }}
         />
       </Accordion>

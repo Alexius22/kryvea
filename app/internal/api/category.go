@@ -5,8 +5,9 @@ import (
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type categoryRequestData struct {
@@ -15,19 +16,11 @@ type categoryRequestData struct {
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
+	References         []string          `json:"references"`
+	Source             string            `json:"source"`
 }
 
 func (d *Driver) AddCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse request body
 	data := &categoryRequestData{}
 	if err := c.BodyParser(data); err != nil {
@@ -46,15 +39,26 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	// insert category into database
-	categoryID, err := d.mongo.Category().Insert(&mongo.Category{
+	category := &mongo.Category{
 		Index:              data.Index,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
-	})
+		References:         data.References,
+		Source:             data.Source,
+	}
+
+	// insert category into database
+	categoryID, err := d.mongo.Category().Insert(category)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create category",
 		})
@@ -63,21 +67,11 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Category created",
-		"category_id": categoryID.Hex(),
+		"category_id": categoryID,
 	})
 }
 
 func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse category param
 	category, errStr := d.categoryFromParam(c.Params("category"))
 	if errStr != "" {
@@ -105,15 +99,26 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	// update category in database
-	err := d.mongo.Category().Update(category.ID, &mongo.Category{
+	newCategory := &mongo.Category{
 		Index:              data.Index,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
-	})
+		References:         data.References,
+		Source:             data.Source,
+	}
+
+	// update category in database
+	err := d.mongo.Category().Update(category.ID, newCategory)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", newCategory.Index, newCategory.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update category",
 		})
@@ -126,16 +131,6 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse category param
 	category, errStr := d.categoryFromParam(c.Params("category"))
 	if errStr != "" {
@@ -161,7 +156,7 @@ func (d *Driver) DeleteCategory(c *fiber.Ctx) error {
 }
 
 func (d *Driver) SearchCategories(c *fiber.Ctx) error {
-	query := c.Query("q")
+	query := c.Query("query")
 	if query == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -177,10 +172,6 @@ func (d *Driver) SearchCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(categories) == 0 {
-		categories = []mongo.Category{}
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
 }
@@ -194,34 +185,54 @@ func (d *Driver) GetCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(categories) == 0 {
-		categories = []mongo.Category{}
-	}
-
-	download := c.Query("download")
-	if download == "true" {
-		c.Set("Content-Disposition", "attachment; filename=categories.json")
-	}
-
 	c.Status(fiber.StatusOK)
 	return c.JSON(categories)
 }
 
-func (d *Driver) UploadCategories(c *fiber.Ctx) error {
-	user := c.Locals("user").(*mongo.User)
-
-	// check if user is admin
-	if user.Role != mongo.ROLE_ADMIN {
-		c.Status(fiber.StatusUnauthorized)
+func (d *Driver) ExportCategories(c *fiber.Ctx) error {
+	categories, err := d.mongo.Category().GetAll()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Cannot get categories",
 		})
 	}
 
+	c.Status(fiber.StatusOK)
+	c.Set("Content-Disposition", "attachment; filename=categories.json")
+	return c.JSON(categories)
+}
+
+func (d *Driver) GetCategory(c *fiber.Ctx) error {
+	// parse category param
+	category, errStr := d.categoryFromParam(c.Params("category"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(category)
+}
+
+func (d *Driver) UploadCategories(c *fiber.Ctx) error {
+	// parse override parameter
+	override := c.FormValue("override")
+
 	// parse request body
+	dataBytes, err := util.ParseFormFile(c, "categories")
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse categories file",
+		})
+	}
+
 	var data []categoryRequestData
-	if err := c.BodyParser(&data); err != nil {
-		fmt.Println(err)
+	err = sonic.Unmarshal(dataBytes, &data)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -240,18 +251,29 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	}
 
 	// insert each category into database
-	categories := make([]bson.ObjectID, 0, len(data))
+	categories := make([]uuid.UUID, 0, len(data))
 	for _, categoryData := range data {
-		categoryID, err := d.mongo.Category().Insert(&mongo.Category{
+		category := &mongo.Category{
 			Index:              categoryData.Index,
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
-		})
+			References:         categoryData.References,
+			Source:             categoryData.Source,
+		}
+
+		categoryID, err := d.mongo.Category().Upsert(category, override == "true")
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
+
+			if err == mongo.ErrDuplicateKey {
+				return c.JSON(fiber.Map{
+					"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+				})
+			}
+
 			return c.JSON(fiber.Map{
-				"error": "Cannot create category",
+				"error": fmt.Sprintf("Cannot create category \"%s %s\"", category.Index, category.Name),
 			})
 		}
 		categories = append(categories, categoryID)
@@ -266,10 +288,10 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 
 func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, string) {
 	if categoryParam == "" {
-		return nil, "category ID is required"
+		return nil, "Category ID is required"
 	}
 
-	categoryID, err := util.ParseMongoID(categoryParam)
+	categoryID, err := util.ParseUUID(categoryParam)
 	if err != nil {
 		return nil, "Invalid category ID"
 	}

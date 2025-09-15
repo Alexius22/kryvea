@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -12,14 +13,29 @@ import (
 
 const (
 	categoryCollection = "category"
+
+	SourceGeneric = "generic"
+	SourceNessus  = "nessus"
+	SourceBurp    = "burp"
+)
+
+var (
+	ImmutableCategoryID uuid.UUID = [16]byte{
+		'K', 'R', 'Y', 'V',
+		'E', 'A', '-', 'I',
+		'M', 'M', 'U', 'T',
+		'A', 'B', 'L', 'E',
+	}
 )
 
 type Category struct {
 	Model              `bson:",inline"`
 	Index              string            `json:"index" bson:"index"`
 	Name               string            `json:"name" bson:"name"`
-	GenericDescription map[string]string `json:"generic_description" bson:"generic_description"`
-	GenericRemediation map[string]string `json:"generic_remediation" bson:"generic_remediation"`
+	GenericDescription map[string]string `json:"generic_description,omitempty" bson:"generic_description"`
+	GenericRemediation map[string]string `json:"generic_remediation,omitempty" bson:"generic_remediation"`
+	References         []string          `json:"references" bson:"references"`
+	Source             string            `json:"source" bson:"source"`
 }
 
 type CategoryIndex struct {
@@ -48,63 +64,99 @@ func (ci CategoryIndex) init() error {
 	return err
 }
 
-func (ci *CategoryIndex) Insert(category *Category) (bson.ObjectID, error) {
+func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	category.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		UpdatedAt: time.Now(),
 		CreatedAt: time.Now(),
 	}
-	_, err := ci.collection.InsertOne(context.Background(), category)
+
+	_, err = ci.collection.InsertOne(context.Background(), category)
+	if err != nil {
+		return uuid.Nil, enrichError(err)
+	}
+
 	return category.ID, err
 }
 
-func (ci *CategoryIndex) FirstOrInsert(category *Category) (bson.ObjectID, bool, error) {
+func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, error) {
+	if !override {
+		return ci.Insert(category)
+	}
+
+	id, isNew, err := ci.FirstOrInsert(category)
+	if err == nil && isNew {
+		return id, nil
+	}
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	err = ci.Update(id, category)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return id, nil
+}
+
+func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, error) {
 	var existingCategory Assessment
 	err := ci.collection.FindOne(context.Background(), bson.M{"index": category.Index, "name": category.Name}).Decode(&existingCategory)
 	if err == nil {
 		return existingCategory.ID, false, nil
 	}
 	if err != mongo.ErrNoDocuments {
-		return bson.NilObjectID, false, err
+		return uuid.Nil, false, err
 	}
 
 	id, err := ci.Insert(category)
 	return id, true, err
 }
 
-func (ci *CategoryIndex) Update(ID bson.ObjectID, category *Category) error {
+func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at": time.Now(),
-			"index":      category.Index,
-			"name":       category.Name,
+			"updated_at":          time.Now(),
+			"index":               category.Index,
+			"name":                category.Name,
+			"generic_description": category.GenericDescription,
+			"generic_remediation": category.GenericRemediation,
+			"references":          category.References,
+			"source":              category.Source,
 		},
 	}
 
-	for key, value := range category.GenericDescription {
-		update["$set"].(bson.M)["generic_description."+key] = value
-	}
-
-	for key, value := range category.GenericRemediation {
-		update["$set"].(bson.M)["generic_remediation."+key] = value
-	}
-
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	return enrichError(err)
 }
 
-func (ci *CategoryIndex) Delete(ID bson.ObjectID) error {
+func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
+	if ID == ImmutableCategoryID {
+		return ErrImmutableCategory
+	}
+
 	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return err
 	}
 
-	filter := bson.M{"category_id": ID}
+	filter := bson.M{"category._id": ID}
 	update := bson.M{
 		"$set": bson.M{
-			"category_id": bson.NilObjectID,
+			"category._id": ImmutableCategoryID,
 		},
 	}
 
@@ -113,10 +165,12 @@ func (ci *CategoryIndex) Delete(ID bson.ObjectID) error {
 }
 
 func (ci *CategoryIndex) GetAll() ([]Category, error) {
-	var categories []Category
-	cursor, err := ci.collection.Find(context.Background(), bson.M{})
+	filter := bson.M{"_id": bson.M{"$ne": ImmutableCategoryID}}
+
+	categories := []Category{}
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
-		return categories, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
@@ -124,7 +178,7 @@ func (ci *CategoryIndex) GetAll() ([]Category, error) {
 	return categories, err
 }
 
-func (ci *CategoryIndex) GetByID(categoryID bson.ObjectID) (*Category, error) {
+func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 	var category Category
 	err := ci.collection.FindOne(context.Background(), bson.M{"_id": categoryID}).Decode(&category)
 	if err != nil {
@@ -135,16 +189,23 @@ func (ci *CategoryIndex) GetByID(categoryID bson.ObjectID) (*Category, error) {
 }
 
 func (ci *CategoryIndex) Search(query string) ([]Category, error) {
-	cursor, err := ci.collection.Find(context.Background(), bson.M{"$or": []bson.M{
-		{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-		{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-	}})
+	filter := bson.M{}
+	if query != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+				{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+			},
+		}
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	var categories []Category
+	categories := []Category{}
 	err = cursor.All(context.Background(), &categories)
 	if err != nil {
 		return nil, err

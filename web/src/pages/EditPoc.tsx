@@ -1,23 +1,78 @@
-import { mdiPlus, mdiSend } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { mdiFloppy, mdiPlus } from "@mdi/js";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router";
+import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import Divider from "../components/Divider";
+import { getData, putData } from "../api/api";
+import Card from "../components/Composition/Card";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import { MonacoTextSelection } from "../components/Poc/MonacoCodeEditor.types";
+import {
+  POC_TYPE_IMAGE,
+  POC_TYPE_REQUEST_RESPONSE,
+  POC_TYPE_RICH_TEXT,
+  POC_TYPE_TEXT,
+} from "../components/Poc/Poc.consts";
 import { PocDoc, PocImageDoc, PocType } from "../components/Poc/Poc.types";
 import PocImage, { PocImageProps } from "../components/Poc/PocImage";
 import PocRequestResponse from "../components/Poc/PocRequestResponse";
+import PocRichText from "../components/Poc/PocRichText";
 import PocText from "../components/Poc/PocText";
-import { getPageTitle } from "../config";
+import { getPageTitle } from "../utils/helpers";
 
-const EditPoc = () => {
+export default function EditPoc() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
+  const [selectedPoc, setSelectedPoc] = useState<number>(0);
+  const [goToBottom, setGoToBottom] = useState(false);
+
+  const pocListParent = useRef<HTMLDivElement>(null);
+
+  const { vulnerabilityId } = useParams();
+
+  const getPocKeyByType = (type: PocType) => `poc-${type}-${v4()}`;
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
   }, []);
+  useEffect(() => {
+    getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs => {
+      setPocList(pocs.sort((a, b) => a.index - b.index).map(poc => ({ ...poc, key: getPocKeyByType(poc.type) })));
+    });
+  }, []);
+  useEffect(() => {
+    const handleDragStart = () => {
+      pocListParent.current?.classList.add("dragging");
+    };
+    const handleDragEnd = () => {
+      pocListParent.current?.classList.remove("dragging");
+    };
+    document.addEventListener("dragover", handleDragStart);
+    document.addEventListener("dragend", handleDragEnd);
+    document.addEventListener("visibilitychange", handleDragEnd);
+    return () => {
+      document.removeEventListener("dragstart", handleDragStart);
+      document.removeEventListener("visibilitychange", handleDragEnd);
+    };
+  }, []);
+  useEffect(() => {
+    if (pocListParent.current?.lastElementChild == null) {
+      return;
+    }
+    pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
+  }, [goToBottom]);
+
+  function onSetCodeSelection<T>(currentIndex, property: keyof Omit<T, "key">, highlights: MonacoTextSelection[]) {
+    setPocList(prev => {
+      const newPocList = [...prev];
+      newPocList[currentIndex] = {
+        ...newPocList[currentIndex],
+        [property]: highlights,
+      };
+      return newPocList;
+    });
+  }
 
   function onTextChange<T>(currentIndex, property: keyof Omit<T, "key">) {
     return e => {
@@ -29,16 +84,25 @@ const EditPoc = () => {
       });
     };
   }
-  function onImageChange(currentIndex, image: File) {
+
+  async function onImageChange(currentIndex, image_file: File | null) {
     setPocList(prev => {
       const newPocList = [...prev];
-      newPocList[currentIndex] = { ...newPocList[currentIndex], choseImage: image } as PocImageDoc;
+
+      const image_reference = image_file != null ? `poc-${currentIndex}-image` : undefined;
+
+      newPocList[currentIndex] = {
+        ...newPocList[currentIndex],
+        image_reference,
+        image_file,
+      } as PocImageDoc;
+
       return newPocList;
     });
   }
 
   const onPositionChange = currentIndex => e => {
-    const num = e.target.value.toString().replace(/^0+(?!$)/, "");
+    const num = e;
     const newIndex = +num;
     const shift = (prev: PocDoc[]) => {
       if (newIndex < 0 || newIndex >= prev.length) {
@@ -76,6 +140,7 @@ const EditPoc = () => {
     };
     setPocList(onPositionChangeMode === "shift" ? shift : swap);
   };
+
   const onRemovePoc = (currentIndex: number) => () => {
     setPocList(prev => {
       const newPocList = [...prev];
@@ -85,86 +150,125 @@ const EditPoc = () => {
   };
 
   const addPoc = (type: PocType) => () => {
-    const key = `poc-${type}-${v4()}`;
+    const key = getPocKeyByType(type);
     switch (type) {
-      case "text":
+      case POC_TYPE_TEXT:
         setPocList(prev => [
           ...prev,
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
-            language: "",
-            text: "",
+            text_language: "",
+            text_data: "",
+            text_highlights: [],
           },
         ]);
         break;
-      case "image":
+      case POC_TYPE_IMAGE:
         setPocList(prev => [
           ...prev,
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
-            caption: "",
-            choseImage: null,
-            title: "",
+            image_caption: "",
+            image_reference: null,
           },
         ]);
         break;
-      case "request/response":
+      case POC_TYPE_REQUEST_RESPONSE:
         setPocList(prev => [
           ...prev,
           {
             key,
             type,
-            position: prev.length,
+            index: prev.length,
             description: "",
             request: "",
             response: "",
-            url: "",
+            uri: "",
+            request_highlights: [],
+            response_highlights: [],
+          },
+        ]);
+        break;
+      case POC_TYPE_RICH_TEXT:
+        setPocList(prev => [
+          ...prev,
+          {
+            key,
+            type,
+            index: prev.length,
+            description: "",
+            rich_text_data: "",
           },
         ]);
         break;
     }
+    setGoToBottom(prev => !prev);
   };
 
   const switchPocType = (pocDoc: PocDoc, i: number) => {
     switch (pocDoc.type) {
-      case "text":
+      case POC_TYPE_TEXT:
         return (
           <PocText
             {...{
               currentIndex: i,
               pocDoc,
               pocList,
+              selectedPoc,
+              setSelectedPoc,
               onPositionChange,
               onTextChange,
               onRemovePoc,
+              onSetCodeSelection,
             }}
             key={pocDoc.key}
           />
         );
-      case "image":
+      case POC_TYPE_IMAGE:
         const pocImageProps: PocImageProps = {
           currentIndex: i,
           pocDoc,
           pocList,
+          selectedPoc,
+          setSelectedPoc,
           onPositionChange,
           onTextChange,
           onRemovePoc,
           onImageChange,
         };
         return <PocImage {...pocImageProps} key={pocDoc.key} />;
-      case "request/response":
+      case POC_TYPE_REQUEST_RESPONSE:
         return (
           <PocRequestResponse
             {...{
               currentIndex: i,
               pocDoc,
               pocList,
+              selectedPoc,
+              setSelectedPoc,
+              onPositionChange,
+              onTextChange,
+              onRemovePoc,
+              onSetCodeSelection,
+            }}
+            key={pocDoc.key}
+          />
+        );
+      case POC_TYPE_RICH_TEXT:
+        return (
+          <PocRichText
+            {...{
+              currentIndex: i,
+              pocDoc,
+              pocList,
+              selectedPoc,
+              setSelectedPoc,
               onPositionChange,
               onTextChange,
               onRemovePoc,
@@ -177,29 +281,49 @@ const EditPoc = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="sticky top-0 z-10 rounded-b-3xl bg-slate-300 dark:bg-slate-800">
-        <CardBox
-          noPadding
-          className="rounded-3xl border-[1px] border-slate-400/55 p-4 px-6 dark:border-slate-600/90 dark:!bg-slate-900"
-        >
+      <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
+        <Card className="!border-2 !border-[color:--bg-active] !bg-transparent">
           <h1 className="mb-3 text-2xl">Edit PoC</h1>
           <Buttons>
+            <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
+            <Button text="Image" icon={mdiPlus} onClick={addPoc(POC_TYPE_IMAGE)} small />
+            <Button text="Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_TEXT)} small />
+            {/* <Button text="Rich Text" icon={mdiPlus} onClick={addPoc(POC_TYPE_RICH_TEXT)} small /> */}
             <Button
-              label="Request/Response"
-              color="contrast"
-              icon={mdiPlus}
-              onClick={addPoc("request/response")}
-              small
+              className="ml-auto gap-2"
+              text="Save"
+              icon={mdiFloppy}
+              onClick={() => {
+                const formData = new FormData();
+
+                formData.append(
+                  "pocs",
+                  JSON.stringify(
+                    pocList.map((poc, index) => {
+                      if (poc.type === POC_TYPE_IMAGE && poc.image_reference != null) {
+                        formData.append(poc.image_reference, poc.image_file, poc.image_file.name);
+                      }
+                      return {
+                        ...poc,
+                        index,
+                        image_file: undefined,
+                        key: undefined,
+                      };
+                    })
+                  )
+                );
+
+                putData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, formData, () => {
+                  toast.success("PoCs updated successfully");
+                });
+              }}
             />
-            <Button label="Image" color="contrast" icon={mdiPlus} onClick={addPoc("image")} small />
-            <Button label="Text" color="contrast" icon={mdiPlus} onClick={addPoc("text")} small />
-            <Button className="ml-auto" label="Submit" color="info" icon={mdiSend} />
           </Buttons>
-        </CardBox>
+        </Card>
       </div>
-      <div className="relative flex w-full flex-col gap-3">{pocList.map(switchPocType)}</div>
+      <div ref={pocListParent} className="relative flex w-full flex-col gap-3">
+        {pocList.map(switchPocType)}
+      </div>
     </div>
   );
-};
-
-export default EditPoc;
+}

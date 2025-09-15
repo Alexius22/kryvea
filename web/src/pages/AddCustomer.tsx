@@ -1,52 +1,85 @@
-import { Field, Form, Formik } from "formik";
-import { useEffect } from "react";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import Divider from "../components/Divider";
-import FormField from "../components/Form/Field";
-import { getPageTitle } from "../config";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { postData } from "../api/api";
+import Card from "../components/Composition/Card";
+import Divider from "../components/Composition/Divider";
+import Grid from "../components/Composition/Grid";
+import Button from "../components/Form/Button";
+import Buttons from "../components/Form/Buttons";
+import Input from "../components/Form/Input";
+import SelectWrapper from "../components/Form/SelectWrapper";
+import { SelectOption } from "../components/Form/SelectWrapper.types";
+import { Customer } from "../types/common.types";
+import { languageMapping } from "../utils/constants";
+import { getPageTitle } from "../utils/helpers";
 
-const AddCustomer = () => {
+export default function AddCustomer() {
+  const navigate = useNavigate();
+
+  const [companyName, setCompanyName] = useState("");
+  const [language, setLanguage] = useState("en");
+
+  const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([code, label]) => ({
+    value: code,
+    label,
+  }));
+
   useEffect(() => {
-    document.title = getPageTitle("Add Customer");
+    document.title = getPageTitle("New Customer");
   }, []);
+
+  const handleSubmit = () => {
+    if (!companyName.trim()) {
+      toast.error("Company name is required");
+      return;
+    }
+
+    const payload = {
+      name: companyName.trim(),
+      language,
+    };
+
+    postData<Customer>("/api/admin/customers", payload, () => {
+      toast.success(`Customer "${payload.name}" added successfully`);
+      navigate("/customers");
+    });
+  };
+
+  const handleCancel = () => {
+    navigate("/customers");
+  };
 
   return (
     <div>
-      <CardBox>
-        <Formik initialValues={{}} onSubmit={undefined}>
-          <Form>
-            <FormField label="Company Name" help="Required">
-              <Field name="companyName" placeholder="Company name" id="companyName" />
-            </FormField>
+      <Card>
+        <Grid className="gap-4">
+          <Input
+            type="text"
+            label="Company name"
+            helperSubtitle="Required"
+            placeholder="Company name"
+            id="companyName"
+            value={companyName}
+            onChange={e => setCompanyName(e.target.value)}
+          />
 
-            <FormField label="Language" labelFor="language">
-              <Field name="language" id="language" component="select">
-                <option value="italian">Italian</option>
-                <option value="english">English</option>
-              </Field>
-            </FormField>
+          <SelectWrapper
+            label="Language"
+            id="language"
+            options={languageOptions}
+            value={languageOptions.find(opt => opt.value === language) || null}
+            onChange={option => setLanguage(option.value)}
+          />
 
-            <FormField label="Default CVSS Version" labelFor="cvss">
-              <Field name="cvss" id="cvss" component="select">
-                <option value="4">4</option>
-                <option value="3.1">3.1</option>
-                <option value="2">2</option>
-              </Field>
-            </FormField>
+          <Divider />
 
-            <Divider />
-
-            <Buttons>
-              <Button type="submit" color="info" label="Submit" />
-              <Button type="cancel" color="info" outline label="Cancel" />
-            </Buttons>
-          </Form>
-        </Formik>
-      </CardBox>
+          <Buttons>
+            <Button text="Submit" onClick={handleSubmit} />
+            <Button variant="secondary" text="Cancel" onClick={handleCancel} />
+          </Buttons>
+        </Grid>
+      </Card>
     </div>
   );
-};
-
-export default AddCustomer;
+}

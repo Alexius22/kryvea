@@ -1,89 +1,160 @@
-import { Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
-import Buttons from "../components/Buttons";
-import CardBox from "../components/CardBox";
-import Divider from "../components/Divider";
-import FormCheckRadio from "../components/Form/CheckRadio";
-import FormField from "../components/Form/Field";
-import SectionFullScreen from "../components/Section/FullScreen";
-import { getPageTitle } from "../config";
-import axios from "axios";
+import { toast } from "react-toastify";
+import { postData } from "../api/api";
+import { getKryveaShadow } from "../api/cookie";
+import { GlobalContext } from "../App";
+import Card from "../components/Composition/Card";
+import Flex from "../components/Composition/Flex";
+import Grid from "../components/Composition/Grid";
+import Subtitle from "../components/Composition/Subtitle";
+import Button from "../components/Form/Button";
+import Checkbox from "../components/Form/Checkbox";
+import Input from "../components/Form/Input";
+import { getPageTitle } from "../utils/helpers";
+// @ts-ignore
+import logo from "../assets/logo_stroke.svg";
 
-type LoginForm = {
-  login: string;
-  password: string;
-  remember: boolean;
-};
-
-const Login = () => {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
+
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const {
+    useCtxLastPage: [ctxLastPage],
+  } = useContext(GlobalContext);
 
   const navigate = useNavigate();
 
-  const handleSubmit = _ => {
-    axios
-      .post("/api/login", {
-        username,
-        password,
-      })
-      .then(r => {
-        console.log(r);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  };
-
-  const initialValues: LoginForm = {
-    login: "TestUser",
-    password: "secretpassword",
-    remember: true,
-  };
-
   useEffect(() => {
+    const kryveaShadow = getKryveaShadow();
+
+    if (kryveaShadow && kryveaShadow !== "password_expired") {
+      navigate(ctxLastPage, { replace: true });
+      return;
+    }
+
     document.title = getPageTitle("Login");
   }, []);
 
+  const handleSubmit = () => {
+    setError("");
+    postData(
+      "/api/login",
+      { username, password, remember },
+      () => navigate(ctxLastPage, { replace: true }),
+      err => {
+        // Check for password expired case
+        const data = err.response?.data as { error: string };
+        if (data?.error === "Password expired") {
+          setError("");
+          // Clear password input for reset
+          setPassword("");
+        } else {
+          setError(data?.error || "Login failed");
+        }
+      }
+    );
+  };
+
+  // Password reset submit handler
+  const handlePasswordReset = () => {
+    setError("");
+
+    if (!password) {
+      setError("New password is required");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    postData(
+      "/api/password/reset",
+      { password },
+      () => {
+        toast.success("Password change successful");
+        navigate(ctxLastPage, { replace: true });
+      },
+      err => {
+        setError(err.response?.data?.error || "Failed to reset password");
+      }
+    );
+  };
+
   return (
-    <SectionFullScreen bg="purplePink">
-      <CardBox className="w-[500px]">
-        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-          <Form className="flex flex-col gap-2">
-            <div className="grid">
-              <label htmlFor="username">Username</label>
-              <Field
-                className="no-spinner w-full max-w-full rounded px-3 py-2 dark:placeholder-gray-400"
-                name="login"
+    <Flex className="card-modal fixed min-h-screen w-screen gap-4" col justify="center" items="center">
+      <img className="w-36" src={logo} alt="" />
+      <Card className="glasscard">
+        {getKryveaShadow() !== "password_expired" ? (
+          // LOGIN FORM
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            <Grid className="gap-4 p-1">
+              <Input
+                type="text"
                 id="username"
+                label="Username"
                 onChange={e => setUsername(e.target.value)}
                 value={username}
+                autoFocus
               />
-            </div>
-
-            <div className="grid">
-              <label htmlFor="password">Password</label>
-              <Field name="password" type="password" onChange={e => setPassword(e.target.value)} value={password} />
-            </div>
-
-            <FormCheckRadio type="checkbox" label="Remember">
-              <Field type="checkbox" name="remember" value={error} onChange={e => setError(e.target.checkbox)} />
-            </FormCheckRadio>
-
-            <Divider />
-
-            <Buttons>
-              <Button type="submit" label="Login" color="info" onClick={() => {}} />
-            </Buttons>
-          </Form>
-        </Formik>
-      </CardBox>
-    </SectionFullScreen>
+              <Input
+                type="password"
+                id="password"
+                label="Password"
+                onChange={e => setPassword(e.target.value)}
+                value={password}
+              />
+              <Checkbox id={"remember_me"} onChange={e => setRemember(e.target.checked)} label={"Remember me"} />
+              <Subtitle className="text-[color:--error]" text={error} />
+              <Button text="Login" className="justify-center" formSubmit />
+            </Grid>
+          </form>
+        ) : (
+          // PASSWORD RESET FORM
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handlePasswordReset();
+            }}
+          >
+            <Grid className="gap-4 p-1">
+              <p className="text-center">
+                Your password has expired.
+                <br />
+                Please enter a new password to reset it.
+              </p>
+              <Input
+                type="password"
+                id="password"
+                label="New Password"
+                onChange={e => setPassword(e.target.value)}
+                value={password}
+                autoFocus
+              />
+              <Input
+                type="password"
+                id="confirm_password"
+                label="Confirm New Password"
+                onChange={e => setConfirmPassword(e.target.value)}
+                value={confirmPassword}
+              />
+              <Subtitle className="text-[color:--error]" text={error} />
+              <Button text="Reset Password" className="justify-center" formSubmit />
+            </Grid>
+          </form>
+        )}
+      </Card>
+    </Flex>
   );
-};
-
-export default Login;
+}

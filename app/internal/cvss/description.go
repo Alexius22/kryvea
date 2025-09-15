@@ -3,171 +3,256 @@ package cvss
 import (
 	"fmt"
 	"strings"
+
+	"golang.org/x/text/language"
+)
+
+// To handle multiple languages, we could use go-i18n
+// or even better, insert all the GenerateDesciption logic
+// inside the docx template
+const (
+	// CVSS 3.1
+	AV_N = "AV:N"
+	AV_A = "AV:A"
+	AV_L = "AV:L"
+	AV_P = "AV:P"
+	AC_L = "AC:L"
+	AC_H = "AC:H"
+	PR_N = "PR:N"
+	PR_L = "PR:L"
+	PR_H = "PR:H"
+	UI_N = "UI:N"
+	UI_R = "UI:R"
+	S_C  = "S:C"
+	S_U  = "S:U"
+	C_H  = "C:H"
+	C_L  = "C:L"
+	C_N  = "C:N"
+	I_H  = "I:H"
+	I_L  = "I:L"
+	I_N  = "I:N"
+	A_H  = "A:H"
+	A_L  = "A:L"
+	A_N  = "A:N"
+
+	PR = "PR"
+	AV = "AV"
+	AC = "AC"
+	C  = "C"
+	I  = "I"
+	A  = "A"
+	UI = "UI"
+	S  = "S"
+
+	// CVSS 4.0
+	// AV_N = "AV:N"
+	// AV_A = "AV:A"
+	// AV_L = "AV:L"
+	// AV_P = "AV:P"
+	// AC_L = "AC:L"
+	// AC_H = "AC:H"
+	AT_N = "AT:N"
+	AT_P = "AT:P"
+	// PR_N = "PR:N"
+	// PR_L = "PR:L"
+	// PR_H = "PR:H"
+	// UI_N = "UI:N"
+	UI_P = "UI:P"
+	UI_A = "UI:A"
+	VC_H = "VC:H"
+	VC_L = "VC:L"
+	VC_N = "VC:N"
+	VI_H = "VI:H"
+	VI_L = "VI:L"
+	VI_N = "VI:N"
+	VA_H = "VA:H"
+	VA_L = "VA:L"
+	VA_N = "VA:N"
+	SC_H = "SC:H"
+	SC_L = "SC:L"
+	SC_N = "SC:N"
+	SI_H = "SI:H"
+	SI_L = "SI:L"
+	SI_N = "SI:N"
+	SA_H = "SA:H"
+	SA_L = "SA:L"
+	SA_N = "SA:N"
+
+	// PR = "PR"
+	// AV = "AV"
+	// AC = "AC"
+	AT = "AT"
+	// UI = "UI"
+	VC = "VC"
+	VI = "VI"
+	VA = "VA"
+	SC = "SC"
+	SI = "SI"
+	SA = "SA"
 )
 
 var cvssMap = map[string]map[string]map[string]string{
-	"3.1": {
-		"it": {
-			"AV:N": "Network",
-			"AV:A": "Adiacente alla rete",
-			"AV:L": "Locale",
-			"AV:P": "Fisico",
-			"AC:L": "bassa",
-			"AC:H": "alta",
-			"PR:N": "non autenticato",
-			"PR:L": "con privilegi limitati",
-			"PR:H": "con privilegi elevati",
-			"UI:N": "non richiedono l'interazione dell'utente",
-			"UI:R": "richiedono l'interazione dell'utente",
-			"S:C":  "portare a un cambio di scope",
-			"S:U":  "rimanere confinato nella stessa componente",
-			"C:H":  "alto",
-			"C:L":  "basso",
-			"C:N":  "nessun impatto",
-			"I:H":  "alto",
-			"I:L":  "basso",
-			"I:N":  "nessun impatto",
-			"A:H":  "alto",
-			"A:L":  "basso",
-			"A:N":  "nessun impatto",
+	Cvss31: {
+		language.Italian.String(): {
+			AV_N: "Network",
+			AV_A: "Adiacente alla rete",
+			AV_L: "Locale",
+			AV_P: "Fisico",
+			AC_L: "bassa",
+			AC_H: "alta",
+			PR_N: "non autenticato",
+			PR_L: "con privilegi limitati",
+			PR_H: "con privilegi elevati",
+			UI_N: "non richiedono l'interazione dell'utente",
+			UI_R: "richiedono l'interazione dell'utente",
+			S_C:  "portare a un cambio di scope",
+			S_U:  "rimanere confinato nella stessa componente",
+			C_H:  "alto",
+			C_L:  "basso",
+			C_N:  "nessun impatto",
+			I_H:  "alto",
+			I_L:  "basso",
+			I_N:  "nessun impatto",
+			A_H:  "alto",
+			A_L:  "basso",
+			A_N:  "nessun impatto",
 		},
-		"en": {
-			"AV:N": "Network",
-			"AV:A": "Adjacent Network",
-			"AV:L": "Local",
-			"AV:P": "Physical",
-			"AC:L": "low",
-			"AC:H": "high",
-			"PR:N": "unauthenticated",
-			"PR:L": "with limited privileges",
-			"PR:H": "with high privileges",
-			"UI:N": "do not require user interaction",
-			"UI:R": "require user interaction",
-			"S:C":  "lead to a scope change",
-			"S:U":  "remain confined within the same component",
-			"C:H":  "high",
-			"C:L":  "low",
-			"C:N":  "no impact",
-			"I:H":  "high",
-			"I:L":  "low",
-			"I:N":  "no impact",
-			"A:H":  "high",
-			"A:L":  "low",
-			"A:N":  "no impact",
+		language.English.String(): {
+			AV_N: "Network",
+			AV_A: "Adjacent Network",
+			AV_L: "Local",
+			AV_P: "Physical",
+			AC_L: "low",
+			AC_H: "high",
+			PR_N: "unauthenticated",
+			PR_L: "with limited privileges",
+			PR_H: "with high privileges",
+			UI_N: "do not require user interaction",
+			UI_R: "require user interaction",
+			S_C:  "lead to a scope change",
+			S_U:  "remain confined within the same component",
+			C_H:  "high",
+			C_L:  "low",
+			C_N:  "no impact",
+			I_H:  "high",
+			I_L:  "low",
+			I_N:  "no impact",
+			A_H:  "high",
+			A_L:  "low",
+			A_N:  "no impact",
 		},
 	},
-	"4.0": {
-		"it": {
-			"AV:N": "Network",
-			"AV:A": "Adiacente",
-			"AV:L": "Locale",
-			"AV:P": "Fisico",
-			"AC:L": "bassa",
-			"AC:H": "alta",
-			"AT:N": "senza requisiti aggiuntivi",
-			"AT:P": "con requisiti aggiuntivi",
-			"PR:N": "non autenticato",
-			"PR:L": "con privilegi limitati",
-			"PR:H": "con privilegi elevati",
-			"UI:N": "non richiedono l'interazione dell'utente",
-			"UI:P": "richiedono interazione passiva",
-			"UI:A": "richiedono interazione attiva",
-			"VC:H": "alto",
-			"VC:L": "basso",
-			"VC:N": "nessun impatto",
-			"VI:H": "alto",
-			"VI:L": "basso",
-			"VI:N": "nessun impatto",
-			"VA:H": "alto",
-			"VA:L": "basso",
-			"VA:N": "nessun impatto",
-			"SC:H": "alto",
-			"SC:L": "basso",
-			"SC:N": "nessun impatto",
-			"SI:H": "alto",
-			"SI:L": "basso",
-			"SI:N": "nessun impatto",
-			"SA:H": "alto",
-			"SA:L": "basso",
-			"SA:N": "nessun impatto",
+	Cvss4: {
+		language.Italian.String(): {
+			AV_N: "Network",
+			AV_A: "Adiacente",
+			AV_L: "Locale",
+			AV_P: "Fisico",
+			AC_L: "bassa",
+			AC_H: "alta",
+			AT_N: "senza requisiti aggiuntivi",
+			AT_P: "con requisiti aggiuntivi",
+			PR_N: "non autenticato",
+			PR_L: "con privilegi limitati",
+			PR_H: "con privilegi elevati",
+			UI_N: "non richiedono l'interazione dell'utente",
+			UI_P: "richiedono interazione passiva",
+			UI_A: "richiedono interazione attiva",
+			VC_H: "alto",
+			VC_L: "basso",
+			VC_N: "nessun impatto",
+			VI_H: "alto",
+			VI_L: "basso",
+			VI_N: "nessun impatto",
+			VA_H: "alto",
+			VA_L: "basso",
+			VA_N: "nessun impatto",
+			SC_H: "alto",
+			SC_L: "basso",
+			SC_N: "nessun impatto",
+			SI_H: "alto",
+			SI_L: "basso",
+			SI_N: "nessun impatto",
+			SA_H: "alto",
+			SA_L: "basso",
+			SA_N: "nessun impatto",
 		},
-		"en": {
-			"AV:N": "Network",
-			"AV:A": "Adjacent",
-			"AV:L": "Local",
-			"AV:P": "Physical",
-			"AC:L": "low",
-			"AC:H": "high",
-			"AT:N": "no additional",
-			"AT:P": "additional",
-			"PR:N": "unauthenticated",
-			"PR:L": "with limited privileges",
-			"PR:H": "with high privileges",
-			"UI:N": "do not require user interaction",
-			"UI:P": "require passive interaction",
-			"UI:A": "require active interaction",
-			"VC:H": "high",
-			"VC:L": "low",
-			"VC:N": "no impact",
-			"VI:H": "high",
-			"VI:L": "low",
-			"VI:N": "no impact",
-			"VA:H": "high",
-			"VA:L": "low",
-			"VA:N": "no impact",
-			"SC:H": "high",
-			"SC:L": "low",
-			"SC:N": "no impact",
-			"SI:H": "high",
-			"SI:L": "low",
-			"SI:N": "no impact",
-			"SA:H": "high",
-			"SA:L": "low",
-			"SA:N": "no impact",
+		language.English.String(): {
+			AV_N: "Network",
+			AV_A: "Adjacent",
+			AV_L: "Local",
+			AV_P: "Physical",
+			AC_L: "low",
+			AC_H: "high",
+			AT_N: "no additional",
+			AT_P: "additional",
+			PR_N: "unauthenticated",
+			PR_L: "with limited privileges",
+			PR_H: "with high privileges",
+			UI_N: "do not require user interaction",
+			UI_P: "require passive interaction",
+			UI_A: "require active interaction",
+			VC_H: "high",
+			VC_L: "low",
+			VC_N: "no impact",
+			VI_H: "high",
+			VI_L: "low",
+			VI_N: "no impact",
+			VA_H: "high",
+			VA_L: "low",
+			VA_N: "no impact",
+			SC_H: "high",
+			SC_L: "low",
+			SC_N: "no impact",
+			SI_H: "high",
+			SI_L: "low",
+			SI_N: "no impact",
+			SA_H: "high",
+			SA_L: "low",
+			SA_N: "no impact",
 		},
 	},
 }
 
 var descriptions = map[string]map[string]string{
-	CVSS31: {
-		"it": "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
-		"en": "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
+	Cvss31: {
+		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
+		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
 	},
-	CVSS4: {
-		"it": "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s %s. Gli attacchi %s. L'impatto risultante è %s sulla confidenzialità, %s sull'integrità, %s sulla disponibilità. Impatto successivo: %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità.",
-		"en": "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks with %s requirements. The attacks %s. The resulting impact is %s on confidentiality, %s on integrity, %s on availability. Subsequent impact: %s on confidentiality, %s on integrity, and %s on availability.",
+	Cvss4: {
+		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s %s. Gli attacchi %s. L'impatto risultante è %s sulla confidenzialità, %s sull'integrità, %s sulla disponibilità. Impatto successivo: %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità.",
+		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks with %s requirements. The attacks %s. The resulting impact is %s on confidentiality, %s on integrity, %s on availability. Subsequent impact: %s on confidentiality, %s on integrity, and %s on availability.",
 	},
 }
 
-func GenerateDescription(vector, version, language string) string {
-	if version == CVSS3 {
-		version = CVSS31
+func GenerateDescription(vector, version, lang string) string {
+	if version == Cvss3 {
+		version = Cvss31
+	}
+
+	if _, exists := cvssMap[version][lang]; !exists {
+		lang = language.English.String()
 	}
 
 	fields := strings.Split(vector, "/")[1:]
 	vector_map := make(map[string]string)
-
-	if _, exists := cvssMap[version][language]; !exists {
-		language = "en"
-	}
-
 	for _, field := range fields {
-		if desc, exists := cvssMap[version][language][field]; exists {
+		if desc, exists := cvssMap[version][lang][field]; exists {
 			metric := strings.Split(field, ":")[0]
 			vector_map[metric] = desc
 		}
 	}
 
 	switch version {
-	case CVSS31:
+	case Cvss31:
 		return fmt.Sprintf(
-			descriptions[version][language],
-			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["C"], vector_map["I"], vector_map["A"], vector_map["UI"], vector_map["S"],
+			descriptions[version][lang],
+			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[C], vector_map[I], vector_map[A], vector_map[UI], vector_map[S],
 		)
-	case CVSS4:
+	case Cvss4:
 		return fmt.Sprintf(
-			descriptions[version][language],
-			vector_map["PR"], vector_map["AV"], vector_map["AC"], vector_map["AT"], vector_map["UI"], vector_map["VC"], vector_map["VI"], vector_map["VA"], vector_map["SC"], vector_map["SI"], vector_map["SA"],
+			descriptions[version][lang],
+			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[AT], vector_map[UI], vector_map[VC], vector_map[VI], vector_map[VA], vector_map[SC], vector_map[SI], vector_map[SA],
 		)
 	default:
 		return ""

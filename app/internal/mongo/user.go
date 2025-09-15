@@ -13,133 +13,78 @@ import (
 )
 
 var (
-	ErrPasswordExpired    = errors.New("password expired")
+	ErrDisabledUser       = errors.New("user is disabled")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+
+	TimeNever = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 )
 
 const (
 	userCollection = "user"
 
-	ROLE_ADMIN = "admin"
-	ROLE_USER  = "user"
+	RoleAdmin = "admin"
+	RoleUser  = "user"
+
+	TokenExpireTime         = 9 * time.Hour
+	TokenExpireTimePwdReset = 15 * time.Minute
+	TokenExtendTime         = 2 * time.Hour
+	TokenRefreshThreshold   = 1 * time.Hour
 )
 
 var (
-	ROLES = []string{ROLE_ADMIN, ROLE_USER}
+	Roles = []string{RoleAdmin, RoleUser}
 )
 
 var UserPipeline = mongo.Pipeline{
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "customer"},
-		{Key: "localField", Value: "customers._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "customerData"},
-	}}},
-	bson.D{{Key: "$set", Value: bson.D{
-		{Key: "customers", Value: bson.D{
-			{Key: "$map", Value: bson.D{
-				{Key: "input", Value: "$customers"},
-				{Key: "as", Value: "customer"},
-				{Key: "in", Value: bson.D{
-					{Key: "_id", Value: "$$customer._id"},
-					{Key: "name", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$customerData"},
-											{Key: "as", Value: "cust"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$cust._id", "$$customer._id"}},
-											}},
-										}}},
-										0,
-									}},
-								}},
-							}},
-							{Key: "in", Value: "$$matched.name"},
-						}},
-					}},
-				}},
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "customer"},
+			{Key: "localField", Value: "customers._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "customers"},
+		}},
+	},
+
+	bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "assessment"},
+			{Key: "localField", Value: "assessments._id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "assessments"},
+			{Key: "pipeline", Value: mongo.Pipeline{
+				bson.D{{Key: "$project", Value: bson.D{
+					{Key: "_id", Value: 1},
+					{Key: "name", Value: 1},
+				}}},
 			}},
 		}},
-	}}},
-	bson.D{{Key: "$unset", Value: "customerData"}},
+	},
 
-	bson.D{{Key: "$lookup", Value: bson.D{
-		{Key: "from", Value: "assessment"},
-		{Key: "localField", Value: "assessments._id"},
-		{Key: "foreignField", Value: "_id"},
-		{Key: "as", Value: "assessmentData"},
-	}}},
-	bson.D{{Key: "$set", Value: bson.D{
-		{Key: "assessments", Value: bson.D{
-			{Key: "$map", Value: bson.D{
-				{Key: "input", Value: "$assessments"},
-				{Key: "as", Value: "assessment"},
-				{Key: "in", Value: bson.D{
-					{Key: "_id", Value: "$$assessment._id"},
-					{Key: "name", Value: bson.D{
-						{Key: "$let", Value: bson.D{
-							{Key: "vars", Value: bson.D{
-								{Key: "matched", Value: bson.D{
-									{Key: "$arrayElemAt", Value: bson.A{
-										bson.D{{Key: "$filter", Value: bson.D{
-											{Key: "input", Value: "$assessmentData"},
-											{Key: "as", Value: "assess"},
-											{Key: "cond", Value: bson.D{
-												{Key: "$eq", Value: bson.A{"$$assess._id", "$$assessment._id"}},
-											}},
-										}}},
-										0,
-									}},
-								}},
-							}},
-							{Key: "in", Value: "$$matched.name"},
-						}},
-					}},
-				}},
-			}},
+	bson.D{
+		{Key: "$project", Value: bson.D{
+			{Key: "_id", Value: 1},
+			{Key: "created_at", Value: 1},
+			{Key: "updated_at", Value: 1},
+			{Key: "disabled_at", Value: 1},
+			{Key: "username", Value: 1},
+			{Key: "role", Value: 1},
+			{Key: "customers", Value: 1},
+			{Key: "assessments", Value: 1},
 		}},
-	}}},
-	bson.D{{Key: "$unset", Value: "assessmentData"}},
-
-	bson.D{{Key: "$project", Value: bson.D{
-		{Key: "_id", Value: 1},
-		{Key: "created_at", Value: 1},
-		{Key: "updated_at", Value: 1},
-		{Key: "disabled_at", Value: 1},
-		{Key: "username", Value: 1},
-		{Key: "role", Value: 1},
-		{Key: "customers", Value: 1},
-		{Key: "assessments", Value: 1},
-	}}},
+	},
 }
 
 type User struct {
-	Model            `bson:",inline"`
-	DisabledAt       time.Time         `json:"disabled_at" bson:"disabled_at"`
-	Username         string            `json:"username" bson:"username"`
-	Password         string            `json:"-" bson:"password"`
-	PasswordExpiry   time.Time         `json:"-" bson:"password_expiry"`
-	ResetToken       string            `json:"-" bson:"reset_token"`
-	ResetTokenExpiry time.Time         `json:"-" bson:"reset_token_expiry"`
-	Token            string            `json:"-" bson:"token"`
-	TokenExpiry      time.Time         `json:"-" bson:"token_expiry"`
-	Role             string            `json:"role" bson:"role"`
-	Customers        []UserCustomer    `json:"customers" bson:"customers"`
-	Assessments      []UserAssessments `json:"assessments" bson:"assessments"`
-}
-
-type UserCustomer struct {
-	ID   bson.ObjectID `json:"id" bson:"_id"`
-	Name string        `json:"name" bson:"name"`
-}
-
-type UserAssessments struct {
-	ID   bson.ObjectID `json:"id" bson:"_id"`
-	Name string        `json:"name" bson:"name"`
+	Model          `bson:",inline"`
+	DisabledAt     time.Time    `json:"disabled_at,omitempty" bson:"disabled_at"`
+	Username       string       `json:"username" bson:"username"`
+	Password       []byte       `json:"-" bson:"password"`
+	PasswordExpiry time.Time    `json:"-" bson:"password_expiry"`
+	Token          crypto.Token `json:"-" bson:"token"`
+	TokenExpiry    time.Time    `json:"-" bson:"token_expiry"`
+	Role           string       `json:"role" bson:"role"`
+	Customers      []Customer   `json:"customers,omitempty" bson:"customers"`
+	Assessments    []Assessment `json:"assessments,omitempty" bson:"assessments"`
 }
 
 type UserIndex struct {
@@ -167,88 +112,115 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User) (bson.ObjectID, error) {
+func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
 	user.Model = Model{
-		ID:        bson.NewObjectID(),
+		ID:        id,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	user.DisabledAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
-	user.PasswordExpiry = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
+	user.DisabledAt = TimeNever
+	user.PasswordExpiry = TimeNever
 
 	if user.Customers == nil {
-		user.Customers = []UserCustomer{}
+		user.Customers = []Customer{}
 	}
 
 	if user.Assessments == nil {
-		user.Assessments = []UserAssessments{}
+		user.Assessments = []Assessment{}
 	}
 
-	hash, err := crypto.Encrypt(user.Password)
+	hash, err := crypto.Encrypt(password)
 	if err != nil {
-		return bson.NilObjectID, err
+		return uuid.UUID{}, err
 	}
 	user.Password = hash
 
 	_, err = ui.collection.InsertOne(context.Background(), user)
-	return user.ID, err
+	if err != nil {
+		return uuid.Nil, enrichError(err)
+	}
+
+	return user.ID, nil
 }
 
-func (ui *UserIndex) Login(username, password string) (string, time.Time, error) {
+func (ui *UserIndex) Login(username, password string) (*User, error) {
 	var user User
 	err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
 	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	if !user.PasswordExpiry.IsZero() && user.PasswordExpiry.Before(time.Now()) {
-		return "", time.Time{}, ErrPasswordExpired
+		return nil, err
 	}
 
 	if !crypto.Compare(password, user.Password) {
-		return "", time.Time{}, ErrInvalidCredentials
+		return nil, ErrInvalidCredentials
 	}
 
-	token := uuid.New().String()
-	expires := time.Now().Add(9 * time.Hour)
+	if user.DisabledAt.Before(time.Now()) {
+		return nil, ErrDisabledUser
+	}
+
+	user.Token = crypto.NewToken()
+
+	user.TokenExpiry = time.Now().Add(TokenExpireTime)
+	if user.PasswordExpiry.Before(time.Now()) {
+		user.TokenExpiry = time.Now().Add(TokenExpireTimePwdReset)
+	}
 
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
 		"$set": bson.M{
-			"token":        token,
-			"token_expiry": expires,
+			"token":        user.Token,
+			"token_expiry": user.TokenExpiry,
 		}})
 	if err != nil {
-		return "", time.Time{}, err
+		return nil, err
 	}
 
-	return token, expires, nil
+	return &user, nil
 }
 
-func (ui *UserIndex) Logout(ID bson.ObjectID) error {
+func (ui *UserIndex) RefreshUserToken(user *User) error {
+	user.TokenExpiry = user.TokenExpiry.Add(TokenExtendTime)
+
+	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+		"$set": bson.M{
+			"token_expiry": user.TokenExpiry,
+		}})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
-			"token":        "",
+			"token":        crypto.TokenNil,
 			"token_expiry": time.Time{},
 		}})
 	return err
 }
 
-func (ui *UserIndex) Get(ID bson.ObjectID) (*User, error) {
+func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 	pipeline := append(
 		UserPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": ID}}},
 		bson.D{{Key: "$limit", Value: 1}})
 	cursor, err := ui.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		return nil, err
+		return &User{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var user User
+	user := User{}
 	if cursor.Next(context.Background()) {
 		if err := cursor.Decode(&user); err != nil {
-			return nil, err
+			return &User{}, err
 		}
 		return &user, nil
 	}
@@ -259,16 +231,16 @@ func (ui *UserIndex) Get(ID bson.ObjectID) (*User, error) {
 func (ui *UserIndex) GetAll() ([]User, error) {
 	cursor, err := ui.collection.Aggregate(context.Background(), UserPipeline)
 	if err != nil {
-		return nil, err
+		return []User{}, err
 	}
 	defer cursor.Close(context.Background())
 
-	var users []User
+	users := []User{}
 	err = cursor.All(context.Background(), &users)
 	return users, err
 }
 
-func (ui *UserIndex) GetByToken(token string) (*User, error) {
+func (ui *UserIndex) GetByToken(token crypto.Token) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,
 	})
@@ -294,96 +266,165 @@ func (ui *UserIndex) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (ui *UserIndex) Update(ID bson.ObjectID, user *User) error {
+func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
-		"$set": bson.M{},
+		"$set": bson.M{
+			"updated_at": time.Now(),
+		},
 	}
 
 	if !user.DisabledAt.IsZero() {
 		update["$set"].(bson.M)["disabled_at"] = user.DisabledAt
 	}
-
 	if user.Username != "" {
 		update["$set"].(bson.M)["username"] = user.Username
 	}
-
-	if user.Password != "" {
-		hash, err := crypto.Encrypt(user.Password)
-		if err != nil {
-			return err
-		}
-
-		update["$set"].(bson.M)["password"] = hash
-	}
-
-	if !user.PasswordExpiry.IsZero() {
-		update["$set"].(bson.M)["password_expiry"] = user.PasswordExpiry
-	}
-
 	if user.Role != "" {
 		update["$set"].(bson.M)["role"] = user.Role
 	}
-
 	if user.Customers != nil {
 		update["$set"].(bson.M)["customers"] = user.Customers
 	}
 
-	if user.Assessments != nil {
-		update["$set"].(bson.M)["assessments"] = user.Assessments
+	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	return enrichError(err)
+}
+
+func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) error {
+	filter := bson.M{"_id": userID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+		},
 	}
 
-	update["$set"].(bson.M)["updated_at"] = time.Now()
+	if newUser.Username != "" {
+		update["$set"].(bson.M)["username"] = newUser.Username
+	}
+
+	if password != "" {
+		hash, err := crypto.Encrypt(password)
+		if err != nil {
+			return err
+		}
+		update["$set"].(bson.M)["password"] = hash
+	}
+
+	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	return enrichError(err)
+}
+
+func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addToOwned bool) error {
+	filter := bson.M{"_id": userID}
+
+	op := "$pull"
+	if addToOwned {
+		op = "$addToSet"
+	}
+
+	update := bson.M{
+		op: bson.M{
+			"assessments": bson.M{
+				"_id": assessmentID,
+			},
+		},
+	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }
 
-func (ui *UserIndex) Delete(ID bson.ObjectID) error {
+func (ui *UserIndex) Delete(ID uuid.UUID) error {
 	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	return err
 }
 
-func (ui *UserIndex) ForgotPassword(username string) (string, error) {
-	user, err := ui.GetByUsername(username)
-	if err != nil {
-		return "", err
-	}
-
-	token := uuid.New().String()
-	expires := time.Now().Add(30 * time.Minute)
-
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
-		"$set": bson.M{
-			"reset_token":        token,
-			"reset_token_expiry": expires,
-		}})
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
-}
-
-func (ui *UserIndex) ResetPassword(reset_token, password string) error {
-	var user User
-	err := ui.collection.FindOne(context.Background(), bson.M{"reset_token": reset_token}).Decode(&user)
+func (ui *UserIndex) ResetUserPassword(userID uuid.UUID, newPassword string) error {
+	hash, err := crypto.Encrypt(newPassword)
 	if err != nil {
 		return err
 	}
 
+	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
+		"$set": bson.M{
+			"updated_at":      time.Now(),
+			"password":        hash,
+			"password_expiry": time.Now(),
+		}})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ui *UserIndex) ResetPassword(user *User, password string) error {
 	hash, err := crypto.Encrypt(password)
 	if err != nil {
 		return err
 	}
 
+	user.UpdatedAt = time.Now()
+	user.PasswordExpiry = TimeNever
+
+	user.Token = crypto.NewToken()
+	user.TokenExpiry = time.Now().Add(TokenExpireTime)
+
 	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			"password":           hash,
-			"password_expiry":    time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC),
-			"reset_token":        "",
-			"reset_token_expiry": time.Time{},
+			"updated_at":      user.UpdatedAt,
+			"password":        hash,
+			"password_expiry": user.PasswordExpiry,
+			"token":           user.Token,
+			"token_expiry":    user.TokenExpiry,
 		}})
 	return err
+}
+
+func (ui *UserIndex) ValidatePassword(ID uuid.UUID, currentPassword string) error {
+	opts := options.FindOne().SetProjection(bson.M{
+		"password": 1,
+	})
+
+	var user User
+	err := ui.collection.FindOne(context.Background(), bson.M{"_id": ID}, opts).Decode(&user)
+	if err != nil {
+		return err
+	}
+
+	if !crypto.Compare(currentPassword, user.Password) {
+		return ErrInvalidCredentials
+	}
+
+	return nil
+}
+
+func (u *User) CanAccessCustomer(customer uuid.UUID) bool {
+	if u.Role == RoleAdmin {
+		return true
+	}
+
+	for _, allowedCustomer := range u.Customers {
+		if allowedCustomer.ID == customer {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidRole(role string) bool {
+	if role == "" {
+		return false
+	}
+
+	for _, r := range Roles {
+		if r == role {
+			return true
+		}
+	}
+
+	return false
 }

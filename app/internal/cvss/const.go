@@ -3,20 +3,34 @@ package cvss
 import "sort"
 
 const (
-	CVSS2  = "2.0"
-	CVSS3  = "3.0"
-	CVSS31 = "3.1"
-	CVSS4  = "4.0"
+	Cvss2  = "2.0"
+	Cvss3  = "3.0"
+	Cvss31 = "3.1"
+	Cvss4  = "4.0"
 
-	CVSS_CRITICAL = "Critical"
-	CVSS_HIGH     = "High"
-	CVSS_MEDIUM   = "Medium"
-	CVSS_LOW      = "Low"
-	CVSS_NONE     = "None"
+	CvssSeverityCritical = "Critical"
+	CvssSeverityHigh     = "High"
+	CvssSeverityMedium   = "Medium"
+	CvssSeverityLow      = "Low"
+	CvssSeverityNone     = "Informational"
 )
 
 var (
-	CVSSVersions = []string{CVSS2, CVSS3, CVSS31, CVSS4}
+	CvssVersions   = []string{Cvss2, Cvss3, Cvss31, Cvss4}
+	VersionToValue = map[string]int{
+		Cvss2:  20,
+		Cvss3:  30,
+		Cvss31: 31,
+		Cvss4:  40,
+	}
+
+	CvssSeverities = []string{
+		CvssSeverityCritical,
+		CvssSeverityHigh,
+		CvssSeverityMedium,
+		CvssSeverityLow,
+		CvssSeverityNone,
+	}
 )
 
 type SeverityThreshold struct {
@@ -25,31 +39,31 @@ type SeverityThreshold struct {
 }
 
 var severityLevels = map[string][]SeverityThreshold{
-	CVSS2: {
-		{7.0, CVSS_HIGH},
-		{4.0, CVSS_MEDIUM},
-		{0.0, CVSS_LOW},
+	Cvss2: {
+		{7.0, CvssSeverityHigh},
+		{4.0, CvssSeverityMedium},
+		{0.0, CvssSeverityLow},
 	},
-	CVSS3: {
-		{9.0, CVSS_CRITICAL},
-		{7.0, CVSS_HIGH},
-		{4.0, CVSS_MEDIUM},
-		{0.1, CVSS_LOW},
-		{0.0, CVSS_NONE},
+	Cvss3: {
+		{9.0, CvssSeverityCritical},
+		{7.0, CvssSeverityHigh},
+		{4.0, CvssSeverityMedium},
+		{0.1, CvssSeverityLow},
+		{0.0, CvssSeverityNone},
 	},
-	CVSS31: {
-		{9.0, CVSS_CRITICAL},
-		{7.0, CVSS_HIGH},
-		{4.0, CVSS_MEDIUM},
-		{0.1, CVSS_LOW},
-		{0.0, CVSS_NONE},
+	Cvss31: {
+		{9.0, CvssSeverityCritical},
+		{7.0, CvssSeverityHigh},
+		{4.0, CvssSeverityMedium},
+		{0.1, CvssSeverityLow},
+		{0.0, CvssSeverityNone},
 	},
-	CVSS4: {
-		{9.0, CVSS_CRITICAL},
-		{7.0, CVSS_HIGH},
-		{4.0, CVSS_MEDIUM},
-		{0.1, CVSS_LOW},
-		{0.0, CVSS_NONE},
+	Cvss4: {
+		{9.0, CvssSeverityCritical},
+		{7.0, CvssSeverityHigh},
+		{4.0, CvssSeverityMedium},
+		{0.1, CvssSeverityLow},
+		{0.0, CvssSeverityNone},
 	},
 }
 

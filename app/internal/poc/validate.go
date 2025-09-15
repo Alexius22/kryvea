@@ -1,10 +1,8 @@
 package poc
 
 func IsValidType(t string) bool {
-	for _, v := range POCTypes {
-		if v == t {
-			return true
-		}
+	if _, ok := PocTypes[t]; ok {
+		return true
 	}
 	return false
 }

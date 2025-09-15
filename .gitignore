@@ -7,3 +7,12 @@
 **/tsconfig.tsbuildinfo
 
 .data/
+
+app/internal/report/*/reports/
+app/internal/nessus/reports/
+
+scripts/venv/
+scripts/populate_db/images/
+__pycache__/
+
+*.burp*

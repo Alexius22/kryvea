@@ -1,47 +1,57 @@
-import { useContext, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Select, { ActionMeta, InputActionMeta } from "react-select";
 import makeAnimated from "react-select/animated";
-import { GlobalContext } from "../../App";
+import Grid from "../Composition/Grid";
+import Label from "./Label";
 import { SelectOption } from "./SelectWrapper.types";
 
-type SelectWrapperProps = {
-  className?: string;
+interface CommonProps {
   options: SelectOption[];
+  defaultValue?: SelectOption | SelectOption[];
+  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
+  disabled?: boolean;
+  small?: boolean;
+  widthFixed?: boolean;
+  closeMenuOnSelect?: boolean;
+  id?: string;
+  label?: string;
+  className?: string;
+}
+interface SelectWrapperSingleProps extends CommonProps {
+  isMulti?: false | undefined;
+  value?: SelectOption;
   onChange: (newValue: SelectOption, actionMeta: ActionMeta<any>) => any;
-  value?: SelectOption | SelectOption[];
-  defaultValue?;
-  isMulti?: false;
-  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
-  closeMenuOnSelect?: boolean;
-  id?: string;
-};
-type SelectWrapperMultiProps = {
-  className?: string;
-  options: SelectOption[];
-  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
-  value?: SelectOption | SelectOption[];
-  defaultValue?;
-  isMulti?: true;
-  onInputChange?: (input: string, actionMeta?: InputActionMeta) => any;
-  closeMenuOnSelect?: boolean;
-  id?: string;
-};
+}
 
+interface SelectWrapperMultiProps extends CommonProps {
+  isMulti: true;
+  value?: SelectOption[];
+  onChange: (newValue: SelectOption[], actionMeta: ActionMeta<any>) => any;
+}
 export default function SelectWrapper({
-  className,
   options,
-  defaultValue,
   value,
+  defaultValue,
   onChange,
-  isMulti,
   onInputChange,
+  isMulti,
+  disabled,
+  small,
+  widthFixed,
   closeMenuOnSelect,
   id,
-}: SelectWrapperProps | SelectWrapperMultiProps) {
-  const {
-    useDarkTheme: [darkTheme],
-  } = useContext(GlobalContext);
+  label,
+  className,
+}: SelectWrapperSingleProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
+  const [width, setWidth] = useState<number>(0);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    if (measureRef.current) {
+      setWidth(measureRef.current.offsetWidth + 48); // extra space for arrow + padding
+    }
+  }, []);
 
   const handleOnInputChange = (input: string, actionMeta: InputActionMeta) => {
     setInputValue(input);
@@ -49,95 +59,101 @@ export default function SelectWrapper({
       onInputChange(input, actionMeta);
     }
   };
+
+  const onChangeWrapper = (newValue: any, actionMeta: ActionMeta<any>) => {
+    if (isMulti && newValue.some(option => option.value === "all")) {
+      newValue = options.filter(option => option.value !== "all");
+      onChange(newValue, actionMeta);
+      return;
+    }
+    onChange(newValue, actionMeta);
+  };
+
+  if (isMulti) {
+    options = [{ label: "Select all", value: "all" }, ...options];
+  }
+  if (isMulti && value.length === options.length - 1) {
+    options = [];
+  }
+
   const animatedComponents = makeAnimated();
-  return (
-    <Select
-      {...{
-        className,
-        isMulti,
-        value,
-        onInputChange: handleOnInputChange,
-        inputValue,
-        options,
-        onChange,
-        defaultValue,
-        closeMenuOnSelect,
-        inputId: id,
-      }}
-      components={animatedComponents}
-      styles={{
-        control: (base, state) => ({
+
+  const longestLabel = options.length ? options.reduce((a, b) => (a.label.length > b.label.length ? a : b)).label : "";
+
+  const longestLabelFixedWidth = widthFixed
+    ? {
+        container: base => ({
           ...base,
-          transition: "all 0.025s ease",
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
-          borderColor: state.isFocused ? "#3F4E65" : "#374151",
-          borderRadius: "4px",
-          boxShadow: state.isFocused ? "none" : "none",
-          outline: "none",
-          color: "#FFFFFF",
-          padding: "2px",
-          "&:hover": {
-            borderColor: "#3F4E65",
-          },
-          height: "3rem",
-          overflowX: "auto",
+          width,
+        }),
+        control: base => ({
+          ...base,
+          width: "100%",
+          minWidth: width,
         }),
         menu: base => ({
           ...base,
-          backgroundColor: darkTheme ? "#1E293B" : "#FFFFFF",
-          borderRadius: "6px",
-          overflow: "hidden",
-          border: "1px solid #2E3B4E",
-          marginTop: 0,
-          color: darkTheme ? "whitesmoke" : "black",
+          width: "100%",
+          minWidth: width,
         }),
-        menuList: base => ({
+      }
+    : {};
+
+  const controlStyleSmall = small
+    ? {
+        control: (base: any) => ({
           ...base,
           padding: 0,
+          paddingLeft: "8px",
+          paddingRight: "8px",
         }),
-        option: (base, state) => ({
-          ...base,
-          backgroundColor: state.isFocused ? "#2064d4" : darkTheme ? "#1E293B" : "#FFFFFF",
-          color: state.isFocused ? "white" : darkTheme ? "#FFFFFF" : "black",
-          cursor: "pointer",
-          "&:active": {
-            backgroundColor: "#3F4E65",
-          },
-        }),
-        singleValue: base => ({
-          ...base,
-          color: darkTheme ? "white" : "black",
-        }),
-        multiValue: base => ({
-          ...base,
-          backgroundColor: darkTheme ? "#3E495B" : "#cccccc",
-        }),
-        multiValueLabel: base => ({
-          ...base,
-          color: darkTheme ? "white" : "black",
-        }),
-        placeholder: base => ({
-          ...base,
-          color: "#6c757d",
-        }),
-        dropdownIndicator: base => ({
-          ...base,
-          color: "#6c757d",
-          "&:hover": {
-            color: darkTheme ? "white" : "black",
-          },
-        }),
-        indicatorSeparator: () => ({
-          display: "none",
-        }),
-        input: base => ({
-          ...base,
-          color: darkTheme ? "whitesmoke" : "black",
-          "input:focus": {
-            boxShadow: "none",
-          },
-        }),
-      }}
-    />
+      }
+    : {};
+
+  const combinedStyles = {
+    menuPortal: (base: any) => ({ ...base, zIndex: 10 }),
+    ...longestLabelFixedWidth,
+    ...controlStyleSmall,
+  };
+
+  return (
+    <Grid>
+      {label && <Label text={label} htmlFor={id} />}
+      {widthFixed && (
+        <span
+          ref={measureRef}
+          style={{
+            position: "fixed",
+            visibility: "hidden",
+            whiteSpace: "nowrap",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            fontWeight: "inherit",
+          }}
+        >
+          {longestLabel}
+        </span>
+      )}
+      <Select
+        {...{
+          options,
+          value,
+          inputValue,
+          defaultValue,
+          onChange: onChangeWrapper,
+          onInputChange: handleOnInputChange,
+          isMulti,
+          isDisabled: disabled,
+          closeMenuOnSelect,
+          inputId: id,
+          classNamePrefix: "select-wrapper",
+          className: `${className} ${disabled ? "opacity-40" : ""}`,
+        }}
+        unstyled
+        components={animatedComponents}
+        menuPortalTarget={document.body}
+        styles={combinedStyles}
+      />
+    </Grid>
   );
 }

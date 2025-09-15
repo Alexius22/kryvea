@@ -2,9 +2,9 @@ package mongo
 
 import (
 	"context"
-	"encoding/base64"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -16,18 +16,49 @@ const (
 
 type Poc struct {
 	Model           `bson:",inline"`
-	Index           int           `json:"index" bson:"index"`
-	Type            string        `json:"type" bson:"type"`
-	Description     string        `json:"description" bson:"description"`
-	URI             string        `json:"uri,omitempty" bson:"uri,omitempty"`
-	Request         string        `json:"request,omitempty" bson:"request,omitempty"`
-	Response        string        `json:"response,omitempty" bson:"response,omitempty"`
-	ImageID         bson.ObjectID `json:"image_id,omitempty" bson:"image_id,omitempty"`
-	ImageData       string        `json:"image_data,omitempty" bson:"image_data,omitempty"`
-	ImageCaption    string        `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
-	TextLanguage    string        `json:"text_language,omitempty" bson:"text_language,omitempty"`
-	TextData        string        `json:"text_data,omitempty" bson:"text_data,omitempty"`
-	VulnerabilityID bson.ObjectID `json:"vulnerability_id" bson:"vulnerability_id"`
+	Pocs            []PocItem `json:"pocs" bson:"pocs"`
+	VulnerabilityID uuid.UUID `json:"vulnerability_id" bson:"vulnerability_id"`
+}
+
+// TODO: should be reworked to allow unique relations with filereference
+// maybe a simple ID parameter can work
+type PocItem struct {
+	Index               int               `json:"index" bson:"index"`
+	Type                string            `json:"type" bson:"type"`
+	Description         string            `json:"description" bson:"description"`
+	URI                 string            `json:"uri,omitempty" bson:"uri,omitempty"`
+	Request             string            `json:"request,omitempty" bson:"request,omitempty"`
+	RequestHighlights   []HighlightedText `json:"request_highlights,omitempty" bson:"request_highlights,omitempty"`
+	RequestHighlighted  []Highlighted     `json:"request_highlighted,omitempty" bson:"request_highlighted,omitempty"`
+	Response            string            `json:"response,omitempty" bson:"response,omitempty"`
+	ResponseHighlights  []HighlightedText `json:"response_highlights,omitempty" bson:"response_highlights,omitempty"`
+	ResponseHighlighted []Highlighted     `json:"response_highlighted,omitempty" bson:"response_highlighted,omitempty"`
+	ImageID             uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageFilename       string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageCaption        string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
+	TextLanguage        string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
+	TextData            string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
+	TextHighlights      []HighlightedText `json:"text_highlights,omitempty" bson:"text_highlights,omitempty"`
+	TextHighlighted     []Highlighted     `json:"text_highlighted,omitempty" bson:"text_highlighted,omitempty"`
+	// Only populated on report generation
+	ImageData []byte `json:"-" bson:"-"`
+}
+
+type HighlightedText struct {
+	Start           LineCol `json:"start" bson:"start"`
+	End             LineCol `json:"end" bson:"end"`
+	SelectedPreview string  `json:"selectionPreview" bson:"selection_preview"`
+	Color           string  `json:"color" bson:"color"`
+}
+
+type LineCol struct {
+	Line int `json:"line" bson:"line"`
+	Col  int `json:"col" bson:"col"`
+}
+
+type Highlighted struct {
+	Text  string `json:"text,omitempty"`
+	Color string `json:"color,omitempty"`
 }
 
 type PocIndex struct {
@@ -47,7 +78,6 @@ func (pi PocIndex) init() error {
 		context.Background(),
 		mongo.IndexModel{
 			Keys: bson.D{
-				{Key: "index", Value: 1},
 				{Key: "vulnerability_id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
@@ -56,162 +86,150 @@ func (pi PocIndex) init() error {
 	return err
 }
 
-func (pi *PocIndex) Insert(poc *Poc) (bson.ObjectID, error) {
-	err := pi.driver.Vulnerability().collection.FindOne(context.Background(), bson.M{"_id": poc.VulnerabilityID}).Err()
-	if err != nil {
-		return bson.NilObjectID, err
+func (pi *PocIndex) Upsert(poc *Poc) error {
+	// retrieve existing POCs
+	oldPoc, err := pi.GetByID(poc.ID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
 	}
 
-	poc.Model = Model{
-		ID:        bson.NewObjectID(),
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
-	}
-	_, err = pi.collection.InsertOne(context.Background(), poc)
-	return poc.ID, err
-}
-
-func (pi *PocIndex) Update(ID bson.ObjectID, poc *Poc) error {
-	filter := bson.M{"_id": ID}
-
-	update := bson.M{
-		"$set": bson.M{},
-	}
-
-	if poc.Index != 0 {
-		update["$set"].(bson.M)["index"] = poc.Index
-	}
-
-	if poc.Type != "" {
-		update["$set"].(bson.M)["type"] = poc.Type
-	}
-
-	if poc.Description != "" {
-		update["$set"].(bson.M)["description"] = poc.Description
-	}
-
-	if poc.URI != "" {
-		update["$set"].(bson.M)["uri"] = poc.URI
-	}
-
-	if poc.Request != "" {
-		update["$set"].(bson.M)["request"] = poc.Request
-	}
-
-	if poc.Response != "" {
-		update["$set"].(bson.M)["response"] = poc.Response
-	}
-
-	if poc.ImageID != bson.NilObjectID {
-		update["$set"].(bson.M)["image_id"] = poc.ImageID
-	}
-
-	if poc.ImageCaption != "" {
-		update["$set"].(bson.M)["caption"] = poc.ImageCaption
-	}
-
-	if poc.TextLanguage != "" {
-		update["$set"].(bson.M)["language"] = poc.TextLanguage
-	}
-
-	if poc.TextData != "" {
-		update["$set"].(bson.M)["text"] = poc.TextData
-	}
-
-	update["$set"].(bson.M)["updated_at"] = time.Now()
-
-	_, err := pi.collection.UpdateOne(context.Background(), filter, update)
-	return err
-}
-
-func (pi *PocIndex) Delete(ID bson.ObjectID) error {
-	_, err := pi.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
-	return err
-}
-
-func (pi *PocIndex) GetByID(pocID bson.ObjectID) (*Poc, error) {
-	var poc Poc
-	err := pi.collection.FindOne(context.Background(), bson.M{"_id": pocID}).Decode(&poc)
-	if err != nil {
-		return nil, err
-	}
-
-	if poc.ImageID != bson.NilObjectID {
-		image, err := pi.driver.File().GetByID(poc.ImageID)
-		if err != nil {
-			return nil, err
+	// map new POC image IDs
+	newImageIDs := make(map[uuid.UUID]struct{}, len(poc.Pocs))
+	for _, newPocs := range poc.Pocs {
+		if newPocs.ImageID == uuid.Nil {
+			continue
 		}
-		poc.ImageData = base64.StdEncoding.EncodeToString(image)
+
+		newImageIDs[newPocs.ImageID] = struct{}{}
 	}
 
-	return &poc, nil
+	// retrieve old POC images IDs that are not in the new POC
+	oldImageIDs := make(map[uuid.UUID]struct{}, len(oldPoc.Pocs))
+	for _, oldPocs := range oldPoc.Pocs {
+		if _, exists := newImageIDs[oldPocs.ImageID]; !exists {
+			oldImageIDs[oldPocs.ImageID] = struct{}{}
+		}
+	}
+
+	poc.UpdatedAt = time.Now()
+
+	// Serialize without _id
+	updateSet := bson.M{
+		"pocs":             poc.Pocs,
+		"vulnerability_id": poc.VulnerabilityID,
+		"updated_at":       poc.UpdatedAt,
+	}
+	insertSet := bson.M{
+		"_id":        uuid.New(),
+		"created_at": time.Now(),
+	}
+
+	filter := bson.M{"vulnerability_id": poc.VulnerabilityID}
+	upsert := bson.M{
+		"$set":         updateSet,
+		"$setOnInsert": insertSet,
+	}
+
+	_, err = pi.collection.UpdateOne(
+		context.Background(),
+		filter,
+		upsert,
+		options.UpdateOne().SetUpsert(true),
+	)
+	if err != nil {
+		return err
+	}
+
+	// delete old images that are not in the new POC
+	for imageID := range oldImageIDs {
+		if imageID != uuid.Nil {
+			err = pi.driver.FileReference().Delete(imageID, poc.ID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
-func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID bson.ObjectID) ([]Poc, error) {
-	cursor, err := pi.collection.Find(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+func (pi *PocIndex) GetByID(ID uuid.UUID) (*Poc, error) {
+	cursor, err := pi.collection.Find(context.Background(), bson.M{"_id": ID})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	var pocs []Poc
-	for cursor.Next(context.Background()) {
-		var poc Poc
-		if err := cursor.Decode(&poc); err != nil {
+	poc := &Poc{
+		Pocs: []PocItem{},
+	}
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(poc); err != nil {
 			return nil, err
 		}
+	}
 
-		if poc.ImageID != bson.NilObjectID {
-			image, err := pi.driver.File().GetByID(poc.ImageID)
-			if err != nil {
-				return nil, err
-			}
-			poc.ImageData = base64.StdEncoding.EncodeToString(image)
+	return poc, nil
+}
+
+func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error) {
+	filter := bson.M{"vulnerability_id": vulnerabilityID}
+	opts := options.Find().SetLimit(1)
+
+	cursor, err := pi.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	poc := &Poc{
+		Pocs: []PocItem{},
+	}
+	if cursor.Next(context.Background()) {
+		if err := cursor.Decode(poc); err != nil {
+			return nil, err
 		}
+	}
 
-		pocs = append(pocs, poc)
+	return poc, nil
+}
+
+func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
+	cursor, err := pi.collection.Find(context.Background(), bson.M{"pocs.image_id": imageID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	pocs := []Poc{}
+	err = cursor.All(context.Background(), &pocs)
+	if err != nil {
+		return []Poc{}, err
 	}
 
 	return pocs, nil
 }
 
-func (pi *PocIndex) GetByVulnerabilityAndID(vulnerabilityID, pocID bson.ObjectID) (*Poc, error) {
-	var poc Poc
-	err := pi.collection.FindOne(context.Background(), bson.M{"_id": pocID, "vulnerability_id": vulnerabilityID}).Decode(&poc)
-	if err != nil {
-		return nil, err
-	}
-
-	if poc.ImageID != bson.NilObjectID {
-		image, err := pi.driver.File().GetByID(poc.ImageID)
-		if err != nil {
-			return nil, err
-		}
-		poc.ImageData = base64.StdEncoding.EncodeToString(image)
-	}
-
-	return &poc, nil
+func (pi *PocIndex) DeleteByVulnerabilityID(vulnerabilityID uuid.UUID) error {
+	// TODO: add deletion of FileReferences
+	_, err := pi.collection.DeleteOne(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+	return err
 }
 
-func (pi *PocIndex) Clone(pocID, vulnerabilityID bson.ObjectID) (bson.ObjectID, error) {
+func (pi *PocIndex) Clone(pocID, vulnerabilityID uuid.UUID) (uuid.UUID, error) {
 	poc, err := pi.GetByID(pocID)
 	if err != nil {
-		return bson.NilObjectID, err
+		return uuid.Nil, err
 	}
 
-	// Clone Image
-	if poc.ImageID != bson.NilObjectID {
-		imageID, err := pi.driver.File().Clone(poc.ImageID)
-		if err != nil {
-			return bson.NilObjectID, err
-		}
-
-		poc.ImageID = imageID
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
 	}
 
-	poc.ID = bson.NewObjectID()
-	poc.UpdatedAt = time.Now()
+	poc.ID = id
 	poc.CreatedAt = time.Now()
+	poc.UpdatedAt = poc.CreatedAt
 	poc.VulnerabilityID = vulnerabilityID
 
 	_, err = pi.collection.InsertOne(context.Background(), poc)

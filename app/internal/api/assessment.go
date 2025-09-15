@@ -1,47 +1,37 @@
 package api
 
 import (
+	"bytes"
+	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"github.com/Alexius22/kryvea/internal/report/xlsx"
+	"github.com/Alexius22/kryvea/internal/report"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/google/uuid"
 )
 
 type assessmentRequestData struct {
-	Name           string    `json:"name"`
-	StartDateTime  time.Time `json:"start_date_time"`
-	EndDateTime    time.Time `json:"end_date_time"`
-	Status         string    `json:"status"`
-	Targets        []string  `json:"targets"`
-	AssessmentType string    `json:"assessment_type"`
-	CVSSVersion    string    `json:"cvss_version"`
-	Environment    string    `json:"environment"`
-	TestingType    string    `json:"testing_type"`
-	OSSTMMVector   string    `json:"osstmm_vector"`
+	Name            string               `json:"name"`
+	StartDateTime   time.Time            `json:"start_date_time"`
+	EndDateTime     time.Time            `json:"end_date_time"`
+	KickoffDateTime time.Time            `json:"kickoff_date_time"`
+	Status          string               `json:"status"`
+	Targets         []string             `json:"targets"`
+	Type            mongo.AssessmentType `json:"type"`
+	CVSSVersions    map[string]bool      `json:"cvss_versions"`
+	Environment     string               `json:"environment"`
+	TestingType     string               `json:"testing_type"`
+	OSSTMMVector    string               `json:"osstmm_vector"`
+	CustomerID      string               `json:"customer_id"`
 }
 
 func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
-
-	// check if user has access to customer
-	customer, errStr := d.customerFromParam(c.Params("customer"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
 
 	// parse request body
 	data := &assessmentRequestData{}
@@ -52,8 +42,24 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	// check if user has access to customer
+	customer, errStr := d.customerFromParam(data.CustomerID)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	if !user.CanAccessCustomer(customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersion)
+	errStr = d.validateAssessmentData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -62,36 +68,47 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	targets := []mongo.Target{}
 	for _, target := range data.Targets {
-		targetID, err := util.ParseMongoID(target)
+		targetID, err := util.ParseUUID(target)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
+	}
+
+	assessment := &mongo.Assessment{
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
 	}
 
 	// insert assessment into database
-	assessmentID, err := d.mongo.Assessment().Insert(&mongo.Assessment{
-		Name:           data.Name,
-		StartDateTime:  data.StartDateTime,
-		EndDateTime:    data.EndDateTime,
-		Targets:        targets,
-		Status:         data.Status,
-		AssessmentType: data.AssessmentType,
-		CVSSVersion:    data.CVSSVersion,
-		Environment:    data.Environment,
-		TestingType:    data.TestingType,
-		OSSTMMVector:   data.OSSTMMVector,
-		Customer: mongo.AssessmentCustomer{
-			ID: customer.ID,
-		},
-	})
+	assessmentID, err := d.mongo.Assessment().Insert(assessment, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", assessment.Name, customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot create assessment",
 		})
@@ -100,42 +117,54 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":       "Assessment created",
-		"assessment_id": assessmentID.Hex(),
+		"assessment_id": assessmentID,
 	})
 }
 
 func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// parse name param
-	name := c.Query("name")
-	if name == "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Name is required",
-		})
+	// parse query parameters
+	customerParam := c.Query("customer")
+	nameParam := c.Query("name")
+
+	var customerID uuid.UUID
+	if customerParam != "" {
+		// check if user can access the customer
+		customer, errStr := d.customerFromParam(customerParam)
+		if errStr != "" {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": errStr,
+			})
+		}
+
+		if !user.CanAccessCustomer(customer.ID) {
+			c.Status(fiber.StatusForbidden)
+			return c.JSON(fiber.Map{
+				"error": "Forbidden",
+			})
+		}
+
+		customerID = customer.ID
 	}
 
 	// retrieve user's customers
-	var customers []bson.ObjectID
+	customers := []uuid.UUID{}
 	for _, uc := range user.Customers {
 		customers = append(customers, uc.ID)
 	}
-	if user.Role == mongo.ROLE_ADMIN {
+	if user.Role == mongo.RoleAdmin {
 		customers = nil
 	}
 
 	// retrieve assessments
-	assessments, err := d.mongo.Assessment().Search(customers, name)
+	assessments, err := d.mongo.Assessment().Search(customers, customerID, nameParam)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot search assessments",
 		})
-	}
-
-	if len(assessments) == 0 {
-		assessments = []mongo.Assessment{}
 	}
 
 	c.Status(fiber.StatusOK)
@@ -145,7 +174,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// check if user has access to customer
+	// check if user can access the customer
 	customer, errStr := d.customerFromParam(c.Params("customer"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
@@ -154,10 +183,10 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
+	if !user.CanAccessCustomer(customer.ID) {
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
@@ -166,27 +195,104 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Cannot get assessments",
+			"error": "Cannot retrieve assessments",
 		})
 	}
 
-	// retrieve target data
+	// set owned assessments
+	owned := make(map[uuid.UUID]struct{}, len(user.Assessments))
+	for _, ua := range user.Assessments {
+		owned[ua.ID] = struct{}{}
+	}
 	for i := range assessments {
-		for j := range assessments[i].Targets {
-			target, err := d.mongo.Target().GetByID(assessments[i].Targets[j].ID)
-			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
-				return c.JSON(fiber.Map{
-					"error": "Cannot get target",
-				})
-			}
-			assessments[i].Targets[j].IP = target.IP
-			assessments[i].Targets[j].Hostname = target.Hostname
+		if _, ok := owned[assessments[i].ID]; ok {
+			assessments[i].IsOwned = true
 		}
 	}
 
-	if len(assessments) == 0 {
-		assessments = []mongo.Assessment{}
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessments)
+}
+
+func (d *Driver) GetAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+	// parse assessment param
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Assessment ID is required",
+		})
+	}
+
+	assessmentID, err := util.ParseUUID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid assessment ID",
+		})
+	}
+
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
+	// set owned assessment
+	for _, userAssessment := range user.Assessments {
+		if userAssessment.ID == assessment.ID {
+			assessment.IsOwned = true
+			break
+		}
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(assessment)
+}
+
+func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	if len(user.Assessments) == 0 {
+		c.Status(fiber.StatusOK)
+		return c.JSON([]mongo.Assessment{})
+	}
+
+	// map user assessments IDs
+	userAssessments := make([]uuid.UUID, len(user.Assessments))
+	for i, userAssessment := range user.Assessments {
+		userAssessments[i] = userAssessment.ID
+	}
+
+	// get assessments from database
+	assessments, err := d.mongo.Assessment().GetMultipleByID(userAssessments)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot get owned assessments",
+		})
+	}
+
+	// set owned assessments
+	owned := make(map[uuid.UUID]struct{}, len(user.Assessments))
+	for _, ua := range user.Assessments {
+		owned[ua.ID] = struct{}{}
+	}
+	for i := range assessments {
+		if _, ok := owned[assessments[i].ID]; ok {
+			assessments[i].IsOwned = true
+		}
 	}
 
 	c.Status(fiber.StatusOK)
@@ -195,22 +301,6 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 
 func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
-
-	// check if user has access to customer
-	customer, errStr := d.customerFromParam(c.Params("customer"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
 
 	// parse assessment param
 	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
@@ -231,7 +321,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	errStr = d.validateAssessmentData(data, customer.DefaultCVSSVersion)
+	errStr = d.validateAssessmentData(data)
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -239,34 +329,56 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
 	// parse targets
-	var targets []mongo.AssessmentTarget
+	targets := []mongo.Target{}
 	for _, target := range data.Targets {
-		targetID, err := util.ParseMongoID(target)
+		targetID, err := util.ParseUUID(target)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"error": "Invalid target ID",
 			})
 		}
-		targets = append(targets, mongo.AssessmentTarget{ID: targetID})
+		targets = append(targets, mongo.Target{
+			Model: mongo.Model{
+				ID: targetID,
+			},
+		})
+	}
+
+	newAssessment := &mongo.Assessment{
+		Name:            data.Name,
+		StartDateTime:   data.StartDateTime,
+		EndDateTime:     data.EndDateTime,
+		KickoffDateTime: data.KickoffDateTime,
+		Targets:         targets,
+		Status:          data.Status,
+		Type:            data.Type,
+		CVSSVersions:    data.CVSSVersions,
+		Environment:     data.Environment,
+		TestingType:     data.TestingType,
+		OSSTMMVector:    data.OSSTMMVector,
 	}
 
 	// update assessment in database
-	err := d.mongo.Assessment().Update(assessment.ID, &mongo.Assessment{
-		Name:           data.Name,
-		StartDateTime:  data.StartDateTime,
-		EndDateTime:    data.EndDateTime,
-		Targets:        targets,
-		Status:         data.Status,
-		AssessmentType: data.AssessmentType,
-		CVSSVersion:    data.CVSSVersion,
-		Environment:    data.Environment,
-		TestingType:    data.TestingType,
-		OSSTMMVector:   data.OSSTMMVector,
-	})
+	err := d.mongo.Assessment().Update(assessment.ID, newAssessment)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", newAssessment.Name, assessment.Customer.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot update assessment",
 		})
@@ -278,24 +390,8 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	})
 }
 
-func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
+func (d *Driver) UpdateAssessmentStatus(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
-
-	// check if user has access to customer
-	customer, errStr := d.customerFromParam(c.Params("customer"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
 
 	// parse assessment param
 	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
@@ -303,6 +399,71 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": errStr,
+		})
+	}
+
+	// parse request body
+	data := &assessmentRequestData{}
+	if err := c.BodyParser(data); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	// validate data
+	statusError := d.validateAssessmentStatus(data)
+	if statusError != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid status",
+		})
+	}
+
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
+	newAssessmentStatus := &mongo.Assessment{
+		Status: data.Status,
+	}
+
+	// update assessment in database
+	err := d.mongo.Assessment().UpdateStatus(assessment.ID, newAssessmentStatus)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot update assessment",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Assessment status updated",
+	})
+}
+
+func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse assessment param
+	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
 		})
 	}
 
@@ -324,22 +485,6 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// check if user has access to customer
-	customer, errStr := d.customerFromParam(c.Params("customer"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse assessment param
 	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
 	if errStr != "" {
@@ -349,17 +494,18 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// check if assessment belongs to customer
-	if assessment.Customer.ID != customer.ID {
-		c.Status(fiber.StatusUnauthorized)
+	// check if user has access to customer
+	if !user.CanAccessCustomer(assessment.Customer.ID) {
+		c.Status(fiber.StatusForbidden)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Forbidden",
 		})
 	}
 
 	// parse request body
 	type reqData struct {
-		Name string `json:"name"`
+		Name        string `json:"name"`
+		IncludePocs bool   `json:"include_pocs"`
 	}
 
 	data := &reqData{}
@@ -376,64 +522,77 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	}
 
 	// clone assessment
-	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name)
+	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name, data.IncludePocs)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Cannot clone assessment",
+			"err":   err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"message":       "Assessment cloned",
-		"assessment_id": cloneAssessmentID.Hex(),
+		"assessment_id": cloneAssessmentID,
 	})
 }
 
 func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
-	// check if user has access to customer
-	customer, errStr := d.customerFromParam(c.Params("customer"))
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	if !util.CanAccessCustomer(user, customer.ID) {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
-	}
-
 	// parse assessment param
-	assessment, errStr := d.assessmentFromParam(c.Params("assessment"))
-	if errStr != "" {
+	assessmentParam := c.Params("assessment")
+	if assessmentParam == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": errStr,
+			"error": "Assessment ID is required",
 		})
 	}
 
-	// check if assessment belongs to customer
-	if assessment.Customer.ID != customer.ID {
-		c.Status(fiber.StatusUnauthorized)
+	assessmentID, err := util.ParseUUID(assessmentParam)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Unauthorized",
+			"error": "Invalid Assessment ID",
+		})
+	}
+
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid Assessment ID",
+		})
+	}
+
+	// check if user has access to customer
+	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid customer ID",
+		})
+	}
+
+	if !user.CanAccessCustomer(customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
 		})
 	}
 
 	// parse request body
 	type reqData struct {
-		Type string `json:"type"`
+		Type                                string    `json:"type"`
+		Template                            string    `json:"template"`
+		DeliveryDateTime                    time.Time `json:"delivery_date_time"`
+		IncludeInformationalVulnerabilities bool      `json:"include_informational_vulnerabilities"`
 	}
 
 	data := &reqData{}
 	if err := c.BodyParser(data); err != nil {
+		d.logger.Info().Msg(err.Error())
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -448,8 +607,27 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	// validate template
+	template, errStr := d.templateFromParam(data.Template)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	templateBytes, _, err := d.mongo.FileReference().ReadByID(template.FileID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": "Invalid template ID",
+		})
+	}
+
+	maxVersion := util.GetMaxCvssVersion(assessment.CVSSVersions)
+
 	// retrieve vulnerabilities
-	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentID(assessment.ID)
+	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(assessment.ID, data.IncludeInformationalVulnerabilities, maxVersion)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -458,47 +636,72 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	// retrieve pocs
-	var pocs []mongo.Poc
-	for _, v := range vulnerabilities {
-		switch assessment.CVSSVersion {
-		case cvss.CVSS2:
-			v.CVSSReport = v.CVSSv2
-		case cvss.CVSS3:
-			v.CVSSReport = v.CVSSv3
-		case cvss.CVSS31:
-			v.CVSSReport = v.CVSSv31
-		case cvss.CVSS4:
-			v.CVSSReport = v.CVSSv4
-		}
-
-		pocsByVuln, err := d.mongo.Poc().GetByVulnerabilityID(v.ID)
+	for i, v := range vulnerabilities {
+		// TODO: make a function for this or move in the database vulnerability retrieval
+		category, err := d.mongo.Category().GetByID(vulnerabilities[i].Category.ID)
 		if err != nil {
-			c.Status(fiber.StatusBadRequest)
+			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
-				"error": "Failed to retrieve pocs",
+				"error": "Cannot get category",
 			})
 		}
-		pocs = append(pocs, pocsByVuln...)
+
+		if vulnerabilities[i].GenericDescription.Enabled {
+			vulnerabilities[i].GenericDescription.Text = category.GenericDescription[assessment.Customer.Language]
+		}
+
+		if vulnerabilities[i].GenericRemediation.Enabled {
+			vulnerabilities[i].GenericRemediation.Text = category.GenericRemediation[assessment.Customer.Language]
+		}
+
+		for j, item := range v.Poc.Pocs {
+			if item.ImageID != uuid.Nil {
+				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
+				if err != nil {
+					c.Status(fiber.StatusInternalServerError)
+					return c.JSON(fiber.Map{
+						"error": "Failed to read image data",
+					})
+				}
+				vulnerabilities[i].Poc.Pocs[j].ImageData = imageData
+				vulnerabilities[i].Poc.Pocs[j].ImageFilename = imageFilename
+			}
+		}
 	}
 
-	// generate report
-	var fileName string
-	switch data.Type {
-	case "xlsx":
-		fileName, err = xlsx.GenerateReport(customer, assessment, vulnerabilities, pocs)
+	reportData := &reportdata.ReportData{
+		Customer:         customer,
+		Assessment:       assessment,
+		Vulnerabilities:  vulnerabilities,
+		DeliveryDateTime: data.DeliveryDateTime,
 	}
+
+	report, err := report.New(data.Type)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Failed to generate report",
+			"error": "Invalid template type",
 		})
 	}
 
+	// render report
+	renderedTemplate, err := report.Render(reportData, templateBytes)
+	if err != nil {
+		d.logger.Error().Msg(err.Error())
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to generate report",
+			// TODO: remove
+			"err": err.Error(),
+		})
+	}
+
+	filename := fmt.Sprintf("%s - %s - %s.%s", assessment.Type.Short, customer.Name, assessment.Name, data.Type)
+
 	c.Status(fiber.StatusOK)
-	return c.JSON(fiber.Map{
-		"message": "Report generated",
-		"file":    fileName,
-	})
+	c.Set("Content-Type", mimetype.Detect(renderedTemplate).String())
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	return c.SendStream(bytes.NewBuffer(renderedTemplate))
 }
 
 func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment, string) {
@@ -506,7 +709,7 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 		return nil, "Assessment ID is required"
 	}
 
-	assessmentID, err := util.ParseMongoID(assessmentParam)
+	assessmentID, err := util.ParseUUID(assessmentParam)
 	if err != nil {
 		return nil, "Invalid assessment ID"
 	}
@@ -519,7 +722,20 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 	return assessment, ""
 }
 
-func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSSVersion string) string {
+func (d *Driver) validateAssessmentStatus(data *assessmentRequestData) string {
+	switch data.Status {
+	case
+		mongo.ASSESSMENT_STATUS_ON_HOLD,
+		mongo.ASSESSMENT_STATUS_IN_PROGRESS,
+		mongo.ASSESSMENT_STATUS_COMPLETED:
+	default:
+		return "Invalid status"
+	}
+
+	return ""
+}
+
+func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 	if data.Name == "" {
 		return "Name is required"
 	}
@@ -532,13 +748,29 @@ func (d *Driver) validateAssessmentData(data *assessmentRequestData, defaultCVSS
 		return "End date is required"
 	}
 
-	if data.CVSSVersion == "" {
-		data.CVSSVersion = defaultCVSSVersion
+	statusError := d.validateAssessmentStatus(data)
+	if statusError != "" {
+		return statusError
 	}
 
-	if !cvss.IsValidVersion(data.CVSSVersion) {
-		return "Invalid CVSS version"
-	}
+	// filter valid cvssVersions
+	data.CVSSVersions = d.filterValidCvssVersions(data.CVSSVersions)
 
 	return ""
+}
+
+func (d *Driver) filterValidCvssVersions(cvssVersions map[string]bool) map[string]bool {
+	validCvssVersions := make(map[string]bool)
+	for _, version := range cvss.CvssVersions {
+		validCvssVersions[version] = false
+	}
+
+	for version, enabled := range cvssVersions {
+		if !enabled {
+			continue
+		}
+		validCvssVersions[version] = true
+	}
+
+	return validCvssVersions
 }
