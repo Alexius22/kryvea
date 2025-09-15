@@ -64,7 +64,7 @@ export default function PocImage({
   }, []);
 
   useEffect(() => {
-    if (pocDoc.image_id === uuidZero) {
+    if (pocDoc.image_id == undefined || pocDoc.image_id === uuidZero) {
       return;
     }
     getBlob(`/api/files/images/${pocDoc.image_id}`, data => {
