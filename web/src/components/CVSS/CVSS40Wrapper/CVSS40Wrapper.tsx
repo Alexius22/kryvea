@@ -132,7 +132,7 @@ export default function CVSS40Wrapper({ value, onChange }) {
     }),
     []
   );
-  const [cvssString, setCvssString] = useState<string>("");
+  const [cvssString, setCvssString] = useState<string>(value);
   const [cvss4Score, setCvss4Score] = useState(0);
   const [error, setError] = useState("");
 
@@ -156,8 +156,57 @@ export default function CVSS40Wrapper({ value, onChange }) {
     if (!value) {
       return;
     }
-    handleInputChange({ target: { value } } as any);
-  }, []);
+
+    const prefixed = value.startsWith("CVSS:4.0/") ? value : "CVSS:4.0/" + value;
+    if (!validateCvssVector(prefixed)) {
+      setError("Invalid vector");
+      return;
+    }
+
+    const vector = new Vector({ vectorString: prefixed });
+    const parsedValues: Metrics = {
+      AttackVector: vector.metrics.AV,
+      AttackComplexity: vector.metrics.AC,
+      AttackRequirements: vector.metrics.AT,
+      PrivilegesRequired: vector.metrics.PR,
+      UserInteraction: vector.metrics.UI,
+      Confidentiality: vector.metrics.VC,
+      Integrity: vector.metrics.VI,
+      Availability: vector.metrics.VA,
+      SubsequentConfidentiality: vector.metrics.SC,
+      SubsequentIntegrity: vector.metrics.SI,
+      SubsequentAvailability: vector.metrics.SA,
+      ExploitMaturity: vector.metrics.E,
+      ConfidentialityRequirements: vector.metrics.CR,
+      IntegrityRequirements: vector.metrics.IR,
+      AvailabilityRequirements: vector.metrics.AR,
+      ModifiedAttackVector: vector.metrics.MAV,
+      ModifiedAttackComplexity: vector.metrics.MAC,
+      ModifiedAttackRequirements: vector.metrics.MAT,
+      ModifiedPrivilegesRequired: vector.metrics.MPR,
+      ModifiedUserInteraction: vector.metrics.MUI,
+      ModifiedConfidentiality: vector.metrics.MVC,
+      ModifiedIntegrity: vector.metrics.MVI,
+      ModifiedAvailability: vector.metrics.MVA,
+      ModifiedSubsequentConfidentiality: vector.metrics.MSC,
+      ModifiedSubsequentIntegrity: vector.metrics.MSI,
+      ModifiedSubsequentAvailability: vector.metrics.MSA,
+      Safety: vector.metrics.S,
+      Automatable: vector.metrics.AU,
+      Recovery: vector.metrics.R,
+      ValueDensity: vector.metrics.V,
+      ResponseEffort: vector.metrics.RE,
+      ProviderUrgency: vector.metrics.U,
+    };
+
+    setCvssString(prefixed);
+    setMetrics(parsedValues);
+
+    const instance = new CVSS40(prefixed);
+    setCvss4Score(instance.calculateScore());
+
+    setError("");
+  }, [value]);
 
   useEffect(() => {
     const vectorString = calculateRaw(metrics);
