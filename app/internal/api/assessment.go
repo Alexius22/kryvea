@@ -637,7 +637,23 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 	// retrieve pocs
 	for i, v := range vulnerabilities {
-		fmt.Printf("%s %s %s %s\n", v.CVSSv2.Severity.Label, v.CVSSv3.Severity.Label, v.CVSSv31.Severity.Label, v.CVSSv4.Severity.Label)
+		// TODO: make a function for this or move in the database vulnerability retrieval
+		category, err := d.mongo.Category().GetByID(vulnerabilities[i].Category.ID)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error": "Cannot get category",
+			})
+		}
+
+		if vulnerabilities[i].GenericDescription.Enabled {
+			vulnerabilities[i].GenericDescription.Text = category.GenericDescription[assessment.Customer.Language]
+		}
+
+		if vulnerabilities[i].GenericRemediation.Enabled {
+			vulnerabilities[i].GenericRemediation.Text = category.GenericRemediation[assessment.Customer.Language]
+		}
+
 		for j, item := range v.Poc.Pocs {
 			if item.ImageID != uuid.Nil {
 				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
@@ -657,7 +673,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		Customer:         customer,
 		Assessment:       assessment,
 		Vulnerabilities:  vulnerabilities,
-		DeliveryDateTime: data.DeliveryDateTime,
+		DeliveryDateTime: &data.DeliveryDateTime,
 	}
 
 	report, err := report.New(data.Type)
