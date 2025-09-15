@@ -673,7 +673,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		Customer:         customer,
 		Assessment:       assessment,
 		Vulnerabilities:  vulnerabilities,
-		DeliveryDateTime: &data.DeliveryDateTime,
+		DeliveryDateTime: data.DeliveryDateTime,
 	}
 
 	report, err := report.New(data.Type)
