@@ -49,4 +49,7 @@ func (rd *ReportData) Prepare() {
 	rd.TargetsCategoryCounter = getTargetsCategoryCounter(rd.Vulnerabilities, maxVersion)
 
 	rd.OWASPCounter = getOWASPCounter(rd.Vulnerabilities, maxVersion)
+
+	// parse pocitem Highlights
+	parseHighlights(rd.Vulnerabilities)
 }

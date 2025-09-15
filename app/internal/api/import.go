@@ -436,7 +436,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if len(vectorParts) > 1 {
 					vector = vectorParts[1]
 				}
-				cvssScore, cvssSeverity, err := cvss.ParseVector(vector, cvss.Cvss2)
+				cvssScore, cvssSeverity, cvssComplexity, err := cvss.ParseVector(vector, cvss.Cvss2)
 				if err != nil {
 					return err
 				}
@@ -446,12 +446,14 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 					Label: cvssSeverity,
 				}
 				// TODO: complexity
-				vulnerability.CVSSv2.Complexity = mongo.LabelColor{}
+				vulnerability.CVSSv2.Complexity = mongo.LabelColor{
+					Label: cvssComplexity,
+				}
 				vulnerability.CVSSv2.Description = cvss.GenerateDescription(vector, cvss.Cvss2, customer.Language)
 			}
 
 			if item.Cvss3Vector != "" {
-				cvssScore, cvssSeverity, err := cvss.ParseVector(item.Cvss3Vector, cvss.Cvss3)
+				cvssScore, cvssSeverity, cvssComplexity, err := cvss.ParseVector(item.Cvss3Vector, cvss.Cvss3)
 				if err != nil {
 					return err
 				}
@@ -459,6 +461,9 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				vulnerability.CVSSv31.Score = cvssScore
 				vulnerability.CVSSv31.Severity = mongo.LabelColor{
 					Label: cvssSeverity,
+				}
+				vulnerability.CVSSv31.Complexity = mongo.LabelColor{
+					Label: cvssComplexity,
 				}
 				vulnerability.CVSSv31.Description = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
 			}
