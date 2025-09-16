@@ -1,9 +1,10 @@
-package cvss
+package reportdata
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/Alexius22/kryvea/internal/cvss"
 	"golang.org/x/text/language"
 )
 
@@ -92,7 +93,7 @@ const (
 )
 
 var cvssMap = map[string]map[string]map[string]string{
-	Cvss31: {
+	cvss.Cvss31: {
 		language.Italian.String(): {
 			AV_N: "Network",
 			AV_A: "Adiacente alla rete",
@@ -142,7 +143,7 @@ var cvssMap = map[string]map[string]map[string]string{
 			A_N:  "no impact",
 		},
 	},
-	Cvss4: {
+	cvss.Cvss4: {
 		language.Italian.String(): {
 			AV_N: "Network",
 			AV_A: "Adiacente",
@@ -215,46 +216,53 @@ var cvssMap = map[string]map[string]map[string]string{
 }
 
 var descriptions = map[string]map[string]string{
-	Cvss31: {
+	cvss.Cvss3: {
 		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
 		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
 	},
-	Cvss4: {
+	cvss.Cvss31: {
+		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
+		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
+	},
+	cvss.Cvss4: {
 		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s %s. Gli attacchi %s. L'impatto risultante è %s sulla confidenzialità, %s sull'integrità, %s sulla disponibilità. Impatto successivo: %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità.",
 		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks with %s requirements. The attacks %s. The resulting impact is %s on confidentiality, %s on integrity, %s on availability. Subsequent impact: %s on confidentiality, %s on integrity, and %s on availability.",
 	},
 }
 
-func GenerateDescription(vector, version, lang string) string {
-	if version == Cvss3 {
-		version = Cvss31
+func GenerateVectorDescription(vector cvss.Vector, lang string) string {
+	if _, exists := cvssMap[vector.Version]; !exists {
+		return ""
 	}
 
-	if _, exists := cvssMap[version][lang]; !exists {
+	if _, exists := cvssMap[vector.Version][lang]; !exists {
 		lang = language.English.String()
 	}
 
-	fields := strings.Split(vector, "/")[1:]
+	fields := strings.Split(vector.Vector, "/")[1:]
 	vector_map := make(map[string]string)
 	for _, field := range fields {
-		if desc, exists := cvssMap[version][lang][field]; exists {
+		if desc, exists := cvssMap[vector.Version][lang][field]; exists {
 			metric := strings.Split(field, ":")[0]
 			vector_map[metric] = desc
 		}
 	}
 
-	switch version {
-	case Cvss31:
-		return fmt.Sprintf(
-			descriptions[version][lang],
+	description := ""
+
+	switch vector.Version {
+	case cvss.Cvss3:
+	case cvss.Cvss31:
+		description = fmt.Sprintf(
+			descriptions[vector.Version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[C], vector_map[I], vector_map[A], vector_map[UI], vector_map[S],
 		)
-	case Cvss4:
-		return fmt.Sprintf(
-			descriptions[version][lang],
+	case cvss.Cvss4:
+		description = fmt.Sprintf(
+			descriptions[vector.Version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[AT], vector_map[UI], vector_map[VC], vector_map[VI], vector_map[VA], vector_map[SC], vector_map[SI], vector_map[SA],
 		)
-	default:
-		return ""
 	}
+
+	return description
 }
