@@ -204,7 +204,7 @@ export default function CustomerDetail() {
           </Buttons>
         </Card>
         <Card>
-          <CardTitle title="Custom templates" />
+          <CardTitle title="Custom report templates" />
           <Grid className="gap-4">
             <Grid className="grid-cols-2">
               <Input
