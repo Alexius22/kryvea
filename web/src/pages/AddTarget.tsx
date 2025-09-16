@@ -18,7 +18,7 @@ export default function AddTarget() {
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
-  const [hostName, setHostName] = useState("");
+  const [tag, setTag] = useState("");
 
   useEffect(() => {
     document.title = getPageTitle("New Target");
@@ -29,7 +29,7 @@ export default function AddTarget() {
       ipv4: ipv4.trim(),
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
-      name: hostName.trim(),
+      name: tag.trim(),
       customer_id: customerId,
     };
 
@@ -61,18 +61,18 @@ export default function AddTarget() {
         <Input
           type="text"
           id="fqdn"
-          label="FQDN"
-          placeholder="Fully Qualified Domain Name"
+          label="FQDN | Target name"
+          placeholder="Fully Qualified Domain Name or target name"
           value={fqdn}
           onChange={e => setFqdn(e.target.value)}
         />
         <Input
           type="text"
-          id="name"
-          label="Name"
-          placeholder="This name is used to differentiate between duplicate entries"
-          value={hostName}
-          onChange={e => setHostName(e.target.value)}
+          id="tag"
+          label="Tag"
+          placeholder="This value is used to differentiate between duplicate entries"
+          value={tag}
+          onChange={e => setTag(e.target.value)}
         />
         <Divider />
         <Buttons>

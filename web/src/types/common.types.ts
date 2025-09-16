@@ -85,7 +85,7 @@ export type Target = {
   port: number;
   protocol: string;
   fqdn: string;
-  name: string;
+  tag: string;
   customer: Customer;
 };
 

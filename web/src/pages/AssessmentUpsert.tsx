@@ -110,7 +110,7 @@ export default function AssessmentUpsert() {
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
-  const [hostName, setHostName] = useState("");
+  const [tag, setTag] = useState("");
   const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
 
   const [form, setForm] = useState<AssessmentPayload>({
@@ -171,8 +171,8 @@ export default function AssessmentUpsert() {
     value: target.id,
     label:
       target.fqdn && (target.ipv4 || target.ipv6)
-        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.name ? ` (${target.name})` : ""}`
-        : (target.fqdn || target.ipv4 || target.ipv6) + (target.name ? ` (${target.name})` : ""),
+        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
+        : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
   }));
 
   const handleChange = (field: keyof typeof form, value: any) => {
@@ -243,7 +243,7 @@ export default function AssessmentUpsert() {
       ipv4: ipv4.trim(),
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
-      name: hostName.trim(),
+      tag: tag.trim(),
       customer_id: customerId,
     };
 
@@ -253,7 +253,7 @@ export default function AssessmentUpsert() {
       setIpv4("");
       setIpv6("");
       setFqdn("");
-      setHostName("");
+      setTag("");
       fetchTargets();
     });
   };
@@ -287,18 +287,18 @@ export default function AssessmentUpsert() {
             <Input
               type="text"
               id="fqdn"
-              label="FQDN"
-              placeholder="Fully Qualified Domain Name"
+              label="FQDN | Target name"
+              placeholder="Fully Qualified Domain Name or target name"
               value={fqdn}
               onChange={e => setFqdn(e.target.value)}
             />
             <Input
               type="text"
-              id="name"
-              label="Name"
-              placeholder="This name is used to differentiate between duplicate entries"
-              value={hostName}
-              onChange={e => setHostName(e.target.value)}
+              id="tag"
+              label="Tag"
+              placeholder="This value is used to differentiate between duplicate entries"
+              value={tag}
+              onChange={e => setTag(e.target.value)}
             />
           </Grid>
         </Modal>
