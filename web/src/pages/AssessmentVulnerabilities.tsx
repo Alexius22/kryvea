@@ -162,18 +162,32 @@ export default function AssessmentVulnerabilities() {
     formData.append("import_data", `{"source": "${source}"}`);
 
     const toastId = toast.loading("Uploading...");
-    postData<{ message: string }>(`/api/assessments/${assessmentId}/upload`, formData, () => {
-      toast.update(toastId, {
-        render: "Vulnerabilities uploaded successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-        closeButton: true,
-      });
-      setIsModalUploadActive(false);
-      setFileObj(null);
-      fetchVulnerabilities();
-    });
+    postData<{ message: string }>(
+      `/api/assessments/${assessmentId}/upload`,
+      formData,
+      () => {
+        toast.update(toastId, {
+          render: "Vulnerabilities uploaded successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+        setIsModalUploadActive(false);
+        setFileObj(null);
+        fetchVulnerabilities();
+      },
+      err => {
+        toast.update(toastId, {
+          render: err.response.data.error,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+        setFileObj(null);
+      }
+    );
   };
 
   return (
@@ -271,6 +285,7 @@ export default function AssessmentVulnerabilities() {
           onCancel={() => setIsModalUploadActive(false)}
         >
           <Flex col className="gap-2">
+            <p>Upload vulnerability scan export files from the available sources.</p>
             <UploadFile
               label="Choose bulk file"
               inputId={"file"}
