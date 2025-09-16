@@ -176,10 +176,11 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Input
               type="text"
-              label="Company name"
+              label="Customer name"
               helperSubtitle="Required"
-              placeholder="Company name"
-              id="name"
+              placeholder="Customer name"
+              id="customer-name"
+              name="name"
               disabled={!isAdmin}
               value={formCustomer.name}
               onChange={handleFormCustomerChange}
@@ -211,7 +212,8 @@ export default function CustomerDetail() {
                 type="text"
                 label="Template Name"
                 placeholder="Insert name for the template"
-                id="name"
+                id="template-name"
+                name="name"
                 value={newTemplateData.name || ""}
                 onChange={handleFormTemplateChange}
               />
@@ -220,6 +222,7 @@ export default function CustomerDetail() {
                 label="Template Type"
                 placeholder="e.g., Template for assessments"
                 id="type"
+                name="type"
                 value={newTemplateData.type}
                 onChange={handleFormTemplateChange}
               />
