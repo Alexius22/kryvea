@@ -33,9 +33,9 @@ export default function Sidebar() {
           className={`flex items-center p-4 transition-all ${isCollapsed ? "justify-center" : "justify-between"} `}
         >
           {!isCollapsed && (
-            <Link to="/dashboard" className="text-lg font-black transition-opacity duration-300">
+            <Link to="/dashboard" className="text-xl font-black transition-opacity duration-300">
               <Flex>
-                <img className="w-5" src={logo} alt="" />
+                <img className="w-7" src={logo} alt="" />
                 ryvea
               </Flex>
             </Link>
