@@ -37,7 +37,7 @@ func sanitizeTarget(target *mongo.Target) {
 	target.IPv6 = escapeXMLString(target.IPv6)
 	target.Protocol = escapeXMLString(target.Protocol)
 	target.FQDN = escapeXMLString(target.FQDN)
-	target.Name = escapeXMLString(target.Name)
+	target.Tag = escapeXMLString(target.Tag)
 }
 
 func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, maxVersion string, language string) {

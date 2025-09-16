@@ -143,7 +143,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		target := &mongo.Target{
 			IPv4: issue.Host.IP,
 			FQDN: issue.Host.Name,
-			Name: "burp",
+			Tag:  "burp",
 		}
 		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target, customer.ID)
 		if err != nil {
@@ -361,7 +361,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 		target := &mongo.Target{
 			IPv4: hostIP,
 			FQDN: hostFQDN,
-			Name: "nessus",
+			Tag:  "nessus",
 		}
 
 		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target, customer.ID)
