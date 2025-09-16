@@ -257,7 +257,7 @@ export default function CategoryUpsert() {
             label="Source"
             id="source"
             options={sourceCategoryOptions}
-            value={source ? { label: source, value: source } : null}
+            value={sourceCategoryOptions.find(option => option.value === source) || undefined}
             onChange={option => setSource(option.value)}
           />
         </Grid>
