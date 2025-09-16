@@ -36,7 +36,7 @@ export default function Templates() {
   }));
 
   useEffect(() => {
-    document.title = getPageTitle("Templates");
+    document.title = getPageTitle("Report Templates");
     fetchTemplates();
   }, []);
 
@@ -169,7 +169,7 @@ export default function Templates() {
         </Modal>
       )}
 
-      <PageHeader icon={mdiFileChart} title="Templates">
+      <PageHeader icon={mdiFileChart} title="Report Templates">
         <Button icon={mdiPlus} text="New template" small onClick={() => setIsModalUploadActive(true)} />
       </PageHeader>
 
