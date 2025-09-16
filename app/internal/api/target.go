@@ -12,7 +12,7 @@ type targetRequestData struct {
 	Port       int    `json:"port"`
 	Protocol   string `json:"protocol"`
 	FQDN       string `json:"fqdn"`
-	Name       string `json:"name"`
+	Tag        string `json:"tag"`
 	CustomerID string `json:"customer_id"`
 }
 
@@ -59,7 +59,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
-		Name:     data.Name,
+		Tag:      data.Tag,
 	}
 
 	// inseert target into database
@@ -129,7 +129,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 		Port:     data.Port,
 		Protocol: data.Protocol,
 		FQDN:     data.FQDN,
-		Name:     data.Name,
+		Tag:      data.Tag,
 	}
 
 	// update target in database
