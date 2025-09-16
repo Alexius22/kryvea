@@ -26,7 +26,7 @@ export default function Targets() {
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
-  const [hostName, setHostName] = useState("");
+  const [tag, setTag] = useState("");
 
   const navigate = useNavigate();
   const { customerId } = useParams<{ customerId: string }>();
@@ -46,7 +46,7 @@ export default function Targets() {
     setIpv4(target.ipv4 || "");
     setIpv6(target.ipv6 || "");
     setFqdn(target.fqdn || "");
-    setHostName(target.name || "");
+    setTag(target.tag || "");
     setIsModalEditActive(true);
   };
 
@@ -55,7 +55,7 @@ export default function Targets() {
       ipv4: ipv4.trim(),
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
-      name: hostName.trim(),
+      tag: tag.trim(),
     };
 
     patchData<Target>(`/api/targets/${editingTarget.id}`, payload, () => {
@@ -74,7 +74,7 @@ export default function Targets() {
   const handleDeleteConfirm = () => {
     deleteData(`/api/targets/${targetToDelete.id}`, () => {
       toast.success(
-        `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
+        `Target "${targetToDelete.tag || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
       );
       setIsModalTrashActive(false);
       setTargetToDelete(null);
@@ -112,18 +112,18 @@ export default function Targets() {
             <Input
               type="text"
               id="fqdn"
-              label="FQDN"
-              placeholder="Fully Qualified Domain Name"
+              label="FQDN | Target name"
+              placeholder="Fully Qualified Domain Name or target name"
               value={fqdn}
               onChange={e => setFqdn(e.target.value)}
             />
             <Input
               type="text"
-              id="name"
-              label="Name"
-              placeholder="This name is used to differentiate between duplicate entries"
-              value={hostName}
-              onChange={e => setHostName(e.target.value)}
+              id="tag"
+              label="Tag"
+              placeholder="This value is used to differentiate between duplicate entries"
+              value={tag}
+              onChange={e => setTag(e.target.value)}
             />
           </Grid>
         </Modal>
@@ -140,7 +140,7 @@ export default function Targets() {
           <p>
             Are you sure to delete{" "}
             <strong>
-              {targetToDelete?.name || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
+              {targetToDelete?.tag || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
             </strong>{" "}
             target?
           </p>
@@ -162,7 +162,7 @@ export default function Targets() {
           FQDN: target.fqdn,
           IPv4: target.ipv4,
           IPv6: target.ipv6,
-          Name: target.name,
+          Tag: target.tag,
           buttons: (
             <Buttons noWrap>
               <Button icon={mdiPencil} onClick={() => openEditModal(target)} small />
