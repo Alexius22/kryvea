@@ -206,55 +206,20 @@ func TestClassic(t *testing.T) {
 
 		for _, version := range cvss.CvssVersions {
 			cvssVector := randCVSSVector(version)
-			cvssScore, cvssSeverity, complexity, err := cvss.ParseVector(cvssVector, version)
+			vector, err := cvss.ParseVector(cvssVector, version)
 			if err != nil {
 				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
 			}
 
 			switch version {
 			case cvss.Cvss2:
-				vulnerability.CVSSv2 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Complexity: mongo.LabelColor{
-						Label: complexity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv2 = *vector
 			case cvss.Cvss3:
-				vulnerability.CVSSv3 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv3 = *vector
 			case cvss.Cvss31:
-				vulnerability.CVSSv31 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv31 = *vector
 			case cvss.Cvss4:
-				vulnerability.CVSSv4 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv4 = *vector
 			}
 		}
 
