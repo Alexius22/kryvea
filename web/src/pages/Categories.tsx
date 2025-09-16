@@ -160,6 +160,7 @@ export default function Categories() {
             Name: category.name,
             Source: sourceCategoryMap[category.source],
             Languages: Object.keys(category.generic_description || {})
+              .sort()
               .join(" | ")
               .toUpperCase(),
             buttons: (
