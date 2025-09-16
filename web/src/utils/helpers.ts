@@ -1,21 +1,23 @@
 import {
   mdiAccountMultiple,
+  mdiCogs,
+  mdiDomain,
   mdiFileChart,
   mdiListBox,
   mdiMagnify,
+  mdiMathLog,
   mdiMonitor,
   mdiPencil,
   mdiResponsive,
   mdiShapePlus,
   mdiTabSearch,
-  mdiViewList,
 } from "@mdi/js";
 import { NavigateFunction } from "react-router";
 import { getKryveaShadow } from "../api/cookie";
 import { Customer } from "../types/common.types";
 import { appTitle, USER_ROLE_ADMIN } from "./constants";
 
-export const getPageTitle = (currentPageTitle: string) => `${currentPageTitle} — ${appTitle}`;
+export const getPageTitle = (currentPageTitle: string) => `${currentPageTitle} - ${appTitle}`;
 
 export function getBrowser() {
   if (navigator.userAgent.indexOf("Chrome") != -1) {
@@ -42,7 +44,7 @@ export type SidebarItemLabel =
   | "Categories"
   | "Users"
   | "Logs"
-  | "Templates";
+  | "Report Templates";
 export type SidebarItem = {
   icon: string;
   label: SidebarItemLabel;
@@ -50,25 +52,22 @@ export type SidebarItem = {
   onClick?: () => void;
   menu?: SidebarItem[];
 };
-export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction) => SidebarItem[] = (
-  ctxCustomer,
-  navigate
-) => [
+export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction) => SidebarItem[] = ctxCustomer => [
   { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
   { href: "/customers", icon: mdiListBox, label: "Customers" },
   ...(ctxCustomer != null
     ? [
         {
           label: ctxCustomer.name,
-          icon: mdiViewList,
-          onClick: () => navigate(`/customers/${ctxCustomer.id}`),
+          icon: mdiDomain,
+          href: `/customers/${ctxCustomer.id}/assessments`,
           menu: [
             {
               href: `/customers/${ctxCustomer.id}/assessments`,
               icon: mdiTabSearch,
               label: "Assessments",
             },
-            { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiListBox, label: "Targets" },
+            { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiResponsive, label: "Targets" },
             {
               href: `/customers/${ctxCustomer.id}`,
               icon: mdiPencil,
@@ -81,12 +80,12 @@ export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction
   { href: "/vulnerability_search", icon: mdiMagnify, label: "Vulnerability Search" },
   getKryveaShadow() === USER_ROLE_ADMIN && {
     label: "Administration",
-    icon: mdiResponsive,
+    icon: mdiCogs,
     menu: [
       { href: "/categories", icon: mdiShapePlus, label: "Categories" },
       { href: "/users", icon: mdiAccountMultiple, label: "Users" },
-      { href: "/logs", icon: mdiListBox, label: "Logs" },
-      { href: "/templates", icon: mdiFileChart, label: "Templates" },
+      { href: "/logs", icon: mdiMathLog, label: "Logs" },
+      { href: "/templates", icon: mdiFileChart, label: "Report Templates" },
     ],
   },
 ];

@@ -67,7 +67,13 @@ export default function Sidebar() {
               <Fragment key={`sidebar-${item.label}`}>
                 <a
                   className={`sidebar-item flex-col ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square justify-center" : "!pl-2"}`}
-                  onClick={() => setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }))}
+                  onClick={e => {
+                    setDropdownMenus(prev => ({ ...prev, [item.label]: !prev[item.label] }));
+                    if (item.href) {
+                      navigate(item.href);
+                      setCtxSelectedSidebarItemLabel("Assessments");
+                    }
+                  }}
                   title={`${item.label} menu`}
                 >
                   <Flex className={`cursor-pointer gap-4 ${isCollapsed ? "justify-center" : ""}`}>
