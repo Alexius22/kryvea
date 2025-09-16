@@ -88,7 +88,7 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 			continue
 		}
 
-		targetsCategoryCounter[vulnerability.Target.Name] += 1
+		targetsCategoryCounter[vulnerability.Target.Tag] += 1
 	}
 
 	fmt.Printf("targetsCategoryCounter: %+v\n", targetsCategoryCounter)

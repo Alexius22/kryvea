@@ -43,7 +43,7 @@ type Target struct {
 	Port     int      `json:"port,omitempty" bson:"port"`
 	Protocol string   `json:"protocol,omitempty" bson:"protocol"`
 	FQDN     string   `json:"fqdn" bson:"fqdn"`
-	Name     string   `json:"name,omitempty" bson:"name"`
+	Tag      string   `json:"tag,omitempty" bson:"tag"`
 	Customer Customer `json:"customer,omitempty" bson:"customer"`
 }
 
@@ -67,7 +67,7 @@ func (ti TargetIndex) init() error {
 				{Key: "ipv4", Value: 1},
 				{Key: "ipv6", Value: 1},
 				{Key: "fqdn", Value: 1},
-				{Key: "name", Value: 1},
+				{Key: "tag", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
@@ -113,7 +113,12 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 	}
 
 	var existingTarget Assessment
-	err = ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "fqdn": target.FQDN, "name": target.Name}).Decode(&existingTarget)
+	err = ti.collection.FindOne(context.Background(), bson.M{
+		"ipv4": target.IPv4,
+		"ipv6": target.IPv6,
+		"fqdn": target.FQDN,
+		"tag":  target.Tag,
+	}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
@@ -136,7 +141,7 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 			"port":       target.Port,
 			"protocol":   target.Protocol,
 			"fqdn":       target.FQDN,
-			"name":       target.Name,
+			"tag":        target.Tag,
 		},
 	}
 
