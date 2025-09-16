@@ -109,9 +109,9 @@ export default function CVSS31Wrapper({ value, onChange }) {
           onChange={handleInputChange}
         />
         <ScoreBar score={cvssScore} />
-        <Subtitle className="text-[color:--error]" text={error} />
+        <Subtitle className="pb-1 text-[color:--error]" text={error} />
       </Grid>
-      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
+      <Accordion title={"CVSSv3.1 Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS31Render
           {...{
             selectedValues,
