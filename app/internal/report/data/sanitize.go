@@ -3,7 +3,6 @@ package reportdata
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"sort"
 	"strings"
 
@@ -38,89 +37,25 @@ func sanitizeTarget(target *mongo.Target) {
 	target.IPv6 = escapeXMLString(target.IPv6)
 	target.Protocol = escapeXMLString(target.Protocol)
 	target.FQDN = escapeXMLString(target.FQDN)
-	target.Name = escapeXMLString(target.Name)
+	target.Tag = escapeXMLString(target.Tag)
 }
 
-func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, version string) {
+func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, maxVersion string, language string) {
 	if len(vulnerabilities) == 0 {
 		return
-	}
-
-	complexityColors := map[string]string{
-		"Low":    "#EE0000",
-		"Medium": "#FFC000",
-		"High":   "#92d050",
-	}
-
-	severityColors := map[string]string{
-		cvss.CvssSeverityCritical: "#7030A0",
-		cvss.CvssSeverityHigh:     "#EE0000",
-		cvss.CvssSeverityMedium:   "#FFC000",
-		cvss.CvssSeverityLow:      "#FFFF00",
-		cvss.CvssSeverityNone:     "#92d050",
 	}
 
 	for i := range vulnerabilities {
 		sanitizeVulnerability(&vulnerabilities[i])
 
-		// TODO: consider moving elsewhere
-		if color, ok := complexityColors[vulnerabilities[i].CVSSv2.Complexity.Label]; ok {
-			vulnerabilities[i].CVSSv2.Complexity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv2.Complexity.Color = "#000000"
-		}
-		if color, ok := complexityColors[vulnerabilities[i].CVSSv3.Complexity.Label]; ok {
-			vulnerabilities[i].CVSSv3.Complexity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv3.Complexity.Color = "#000000"
-		}
-		if color, ok := complexityColors[vulnerabilities[i].CVSSv31.Complexity.Label]; ok {
-			vulnerabilities[i].CVSSv31.Complexity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv31.Complexity.Color = "#000000"
-		}
-		if color, ok := complexityColors[vulnerabilities[i].CVSSv4.Complexity.Label]; ok {
-			vulnerabilities[i].CVSSv4.Complexity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv4.Complexity.Color = "#000000"
-		}
+		addComplexityColor(&vulnerabilities[i])
 
-		fmt.Printf("Complexity colors: CVSSv2: %s, CVSSv3: %s, CVSSv31: %s, CVSSv4: %s\n",
-			vulnerabilities[i].CVSSv2.Complexity.Color,
-			vulnerabilities[i].CVSSv3.Complexity.Color,
-			vulnerabilities[i].CVSSv31.Complexity.Color,
-			vulnerabilities[i].CVSSv4.Complexity.Color,
-		)
+		addSeverityColor(&vulnerabilities[i])
 
-		if color, ok := severityColors[vulnerabilities[i].CVSSv2.Severity.Label]; ok {
-			vulnerabilities[i].CVSSv2.Severity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv2.Severity.Color = "#000000"
-		}
-		if color, ok := severityColors[vulnerabilities[i].CVSSv3.Severity.Label]; ok {
-			vulnerabilities[i].CVSSv3.Severity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv3.Severity.Color = "#000000"
-		}
-		if color, ok := severityColors[vulnerabilities[i].CVSSv31.Severity.Label]; ok {
-			vulnerabilities[i].CVSSv31.Severity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv31.Severity.Color = "#000000"
-		}
-		if color, ok := severityColors[vulnerabilities[i].CVSSv4.Severity.Label]; ok {
-			vulnerabilities[i].CVSSv4.Severity.Color = color
-		} else {
-			vulnerabilities[i].CVSSv4.Severity.Color = "#000000"
-		}
+		addCvssDescription(&vulnerabilities[i], language)
 
-		fmt.Printf("Severity colors: CVSSv2: %s, CVSSv3: %s, CVSSv31: %s, CVSSv4: %s\n",
-			vulnerabilities[i].CVSSv2.Severity.Color,
-			vulnerabilities[i].CVSSv3.Severity.Color,
-			vulnerabilities[i].CVSSv31.Severity.Color,
-			vulnerabilities[i].CVSSv4.Severity.Color,
-		)
-
-		switch version {
+		// Sort by maxVersion score
+		switch maxVersion {
 		case cvss.Cvss2:
 			sort.Slice(vulnerabilities, func(j, k int) bool {
 				return vulnerabilities[j].CVSSv2.Score < vulnerabilities[k].CVSSv2.Score
@@ -141,24 +76,36 @@ func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, versi
 	}
 }
 
-// TODO: add remaining fields
 func sanitizeVulnerability(item *mongo.Vulnerability) {
-	references := make([]string, len(item.References))
-	for i, reference := range item.References {
-		references[i] = escapeXMLString(reference)
-	}
-
 	SanitizeAndSortPoc(&item.Poc)
 
 	item.Category.Name = escapeXMLString(item.Category.Name)
 	item.Category.Index = escapeXMLString(item.Category.Index)
 	item.DetailedTitle = escapeXMLString(item.DetailedTitle)
 	item.Status = escapeXMLString(item.Status)
-	item.References = references
+
+	sanitizeVector(&item.CVSSv2)
+	sanitizeVector(&item.CVSSv3)
+	sanitizeVector(&item.CVSSv31)
+	sanitizeVector(&item.CVSSv4)
+
+	for i, reference := range item.References {
+		item.References[i] = escapeXMLString(reference)
+	}
+
 	item.GenericDescription.Text = escapeXMLString(item.GenericDescription.Text)
 	item.GenericRemediation.Text = escapeXMLString(item.GenericRemediation.Text)
 	item.Description = escapeXMLString(item.Description)
 	item.Remediation = escapeXMLString(item.Remediation)
+	sanitizeTarget(&item.Target)
+}
+
+func sanitizeVector(item *cvss.Vector) {
+	item.Version = escapeXMLString(item.Version)
+	item.Vector = escapeXMLString(item.Vector)
+	item.Severity.Label = escapeXMLString(item.Severity.Label)
+	item.Complexity.Label = escapeXMLString(item.Complexity.Label)
+	item.Description = escapeXMLString(item.Description)
 }
 
 func SanitizeAndSortPoc(poc *mongo.Poc) {

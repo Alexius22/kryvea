@@ -8,8 +8,8 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 )
 
-func getMaxCvss(vulnerabilities []mongo.Vulnerability, cvssVersions map[string]bool) map[string]mongo.VulnerabilityCVSS {
-	maxCvss := make(map[string]mongo.VulnerabilityCVSS)
+func getMaxCvss(vulnerabilities []mongo.Vulnerability, cvssVersions map[string]bool) map[string]cvss.Vector {
+	maxCvss := make(map[string]cvss.Vector)
 
 	for _, vulnerability := range vulnerabilities {
 		for version, enabled := range cvssVersions {
@@ -70,7 +70,6 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 				vulnerabilityOverview[version][vulnerability.CVSSv4.Severity.Label] += 1
 			}
 		}
-
 	}
 
 	fmt.Printf("vulnerabilityOverview: %+v\n", vulnerabilityOverview)
@@ -89,7 +88,7 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 			continue
 		}
 
-		targetsCategoryCounter[vulnerability.Target.Name] += 1
+		targetsCategoryCounter[vulnerability.Target.Tag] += 1
 	}
 
 	fmt.Printf("targetsCategoryCounter: %+v\n", targetsCategoryCounter)
@@ -101,14 +100,6 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 	owaspCounter := make(map[string]OWASPCounter)
 
 	highestSeverityByCategoryType := make(map[string]float64)
-
-	severityColors := map[string]string{
-		cvss.CvssSeverityCritical: "#7030A0",
-		cvss.CvssSeverityHigh:     "#EE0000",
-		cvss.CvssSeverityMedium:   "#FFC000",
-		cvss.CvssSeverityLow:      "#FFFF00",
-		cvss.CvssSeverityNone:     "#92d050",
-	}
 
 	for _, vulnerability := range vulnerabilities {
 		if _, ok := owaspCounter[vulnerability.Category.Source]; !ok {
@@ -266,4 +257,11 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 	}
 
 	return splitted
+}
+
+func addCvssDescription(vulnerability *mongo.Vulnerability, language string) {
+	vulnerability.CVSSv2.Description = GenerateVectorDescription(vulnerability.CVSSv2, language)
+	vulnerability.CVSSv3.Description = GenerateVectorDescription(vulnerability.CVSSv3, language)
+	vulnerability.CVSSv31.Description = GenerateVectorDescription(vulnerability.CVSSv31, language)
+	vulnerability.CVSSv4.Description = GenerateVectorDescription(vulnerability.CVSSv4, language)
 }

@@ -8,6 +8,8 @@ const (
 	Cvss31 = "3.1"
 	Cvss4  = "4.0"
 
+	Cvss2Prefix = "CVSS2#"
+
 	CvssSeverityCritical = "Critical"
 	CvssSeverityHigh     = "High"
 	CvssSeverityMedium   = "Medium"
