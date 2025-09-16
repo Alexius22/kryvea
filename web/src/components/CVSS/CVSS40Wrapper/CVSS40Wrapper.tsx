@@ -286,9 +286,9 @@ export default function CVSS40Wrapper({ value, onChange }) {
           onChange={handleInputChange}
         />
         <ScoreBar score={cvss4Score} />
-        <Subtitle className="text-[color:--error]" text={error} />
+        <Subtitle className="pb-1 text-[color:--error]" text={error} />
       </Grid>
-      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
+      <Accordion title={"CVSSv4.0 Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS40Render
           {...{
             selectedValues: metrics,
