@@ -131,8 +131,13 @@ export default function AssessmentUpsert() {
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
 
-  const fetchTargets = () => {
-    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+  const fetchTargets = (callback?: (targets: Target[]) => void) => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, targets => {
+      setTargets(targets);
+      if (callback) {
+        callback(targets);
+      }
+    });
   };
 
   useEffect(() => {
@@ -247,14 +252,24 @@ export default function AssessmentUpsert() {
       customer_id: customerId,
     };
 
-    postData<Target>(`/api/targets`, payload, () => {
-      toast.success("Target added successfully");
+    postData<{ message: string; target_id: string }>("/api/targets", payload, data => {
+      toast.success(data.message);
       setIsModalTargetActive(false);
       setIpv4("");
       setIpv6("");
       setFqdn("");
       setTag("");
-      fetchTargets();
+
+      fetchTargets(newTargets => {
+        // Find the new one and preselect it
+        const newTarget = newTargets.find(t => t.id === data.target_id);
+        if (newTarget) {
+          setForm(prev => ({
+            ...prev,
+            targets: [...prev.targets, newTarget],
+          }));
+        }
+      });
     });
   };
 
