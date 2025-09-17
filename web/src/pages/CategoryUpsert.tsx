@@ -41,7 +41,7 @@ export default function CategoryUpsert() {
   const [identifier, setIdentifier] = useState("");
   const [name, setName] = useState("");
   const [source, setSource] = useState<Category["source"]>();
-  const [category, setCategory] = useState<Category>();
+  const [category, setCategory] = useState<Category>({} as Category);
   const [references, setReferences] = useState<string[]>([]);
 
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
