@@ -100,6 +100,7 @@ export type Customer = {
 
 export type Category = {
   id: string;
+  updated_at: string;
   index: string;
   name: string;
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
