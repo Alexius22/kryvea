@@ -27,8 +27,8 @@ export default function Settings() {
 
   const selectedLanguageOption = languageOptions.find(opt => opt.value === settings.default_category_language);
 
-  const handleSizeUpload = e => {
-    setSettings(prev => ({ ...prev, max_image_size: e.target.value }));
+  const handleSizeUpload = max_image_size => {
+    setSettings(prev => ({ ...prev, max_image_size }));
   };
 
   const handleSubmit = () => {
