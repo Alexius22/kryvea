@@ -42,3 +42,9 @@ table td:has(div:has(.select-wrapper__control)) {
   min-width: max-content;
   will-change: contents;
 }
+
+.vulnerability-detail-cvss-table {
+  td:empty {
+    text-align: center;
+  }
+}
