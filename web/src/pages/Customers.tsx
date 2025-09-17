@@ -84,10 +84,10 @@ export default function Customers() {
       language: formData.language,
     };
 
-    patchData<Customer>(`/api/admin/customers/${selectedCustomer.id}`, payload, updatedCustomer => {
+    patchData<Customer>(`/api/admin/customers/${selectedCustomer.id}`, formData, () => {
       toast.success("Customer updated successfully");
       setIsModalCustomerActive(false);
-      setCustomers(prev => prev.map(c => (c.id === updatedCustomer.id ? updatedCustomer : c)));
+      setCtxCustomer({ ...selectedCustomer, ...payload });
       fetchCustomers();
     });
   };
@@ -127,9 +127,9 @@ export default function Customers() {
           <Grid className="gap-4">
             <Input
               type="text"
-              label="Company name"
+              label="Customer name"
               helperSubtitle="Required"
-              placeholder="Company name"
+              placeholder="Customer name"
               id="name"
               value={formData.name}
               onChange={handleInputChange}
