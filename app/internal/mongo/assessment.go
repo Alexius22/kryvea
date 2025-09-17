@@ -340,7 +340,7 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, 
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, enrichError(err)
 	}
 
 	// Clone vulnerabilities
