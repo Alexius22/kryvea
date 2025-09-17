@@ -1,13 +1,15 @@
-import { mdiDatabaseEdit, mdiPlus, mdiTrashCan } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { mdiDatabaseEdit, mdiTrashCan } from "@mdi/js";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import PageHeader from "../components/Composition/PageHeader";
+import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -27,87 +29,52 @@ export const sourceCategoryOptions: SelectOption[] = [
   { value: "burp", label: "Burp" },
 ];
 
+const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([value, label]) => ({ value, label }));
+
 export default function CategoryUpsert() {
-  const navigate = useNavigate();
-  const { categoryId } = useParams<{ categoryId?: string }>();
-
-  const languageOptions: SelectOption[] = Object.entries(languageMapping)
-    .filter(([code]) => code !== "en")
-    .map(([value, label]) => ({ value, label }));
-
-  const [isModalInfoActive, setIsModalInfoActive] = useState(false);
-  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-
-  const [selectedLanguageOption, setSelectedLanguageOption] = useState<SelectOption | null>(null);
-  const [additionalFields, setAdditionalFields] = useState<SelectOption[]>([]);
+  const defaultLanguageFromSettings = "en";
+  const defaultLanguageOption = useMemo(
+    () => languageOptions.find(option => option.value === defaultLanguageFromSettings),
+    []
+  );
 
   const [identifier, setIdentifier] = useState("");
   const [name, setName] = useState("");
   const [source, setSource] = useState<Category["source"]>();
-  const [genericDescription, setGenericDescription] = useState("");
-  const [genericRemediation, setGenericRemediation] = useState("");
-  const [genericDescriptions, setGenericDescriptions] = useState<Record<string, string>>({});
-  const [genericRemediations, setGenericRemediations] = useState<Record<string, string>>({});
+  const [category, setCategory] = useState<Category>();
   const [references, setReferences] = useState<string[]>([]);
+
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [selectedLanguagesOptions, setSelectedLanguagesOptions] = useState<SelectOption[]>(
+    defaultLanguageFromSettings ? [defaultLanguageOption] : []
+  );
+
+  const navigate = useNavigate();
+  const { categoryId } = useParams<{ categoryId?: string }>();
 
   useEffect(() => {
     document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
 
-    if (categoryId) {
-      getData<Category[]>("/api/categories", categories => {
-        const category = categories.find(c => c.id === categoryId);
-        if (!category) {
-          toast.error("Category not found");
-          navigate("/categories");
-          return;
-        }
-
-        setIdentifier(category.index);
-        setName(category.name);
-        setSource(category.source);
-        setGenericDescription(category.generic_description?.en || "");
-        setGenericRemediation(category.generic_remediation?.en || "");
-        setReferences(category.references || []);
-
-        const otherLangs = Object.keys(category.generic_description || {}).filter(l => l !== "en");
-        setAdditionalFields(
-          otherLangs.map(lang => ({
-            value: lang,
-            label: languageMapping[lang] || lang,
-          }))
-        );
-
-        setGenericDescriptions(
-          otherLangs.reduce(
-            (acc, lang) => {
-              acc[lang] = category.generic_description?.[lang] || "";
-              return acc;
-            },
-            {} as Record<string, string>
-          )
-        );
-        setGenericRemediations(
-          otherLangs.reduce(
-            (acc, lang) => {
-              acc[lang] = category.generic_remediation?.[lang] || "";
-              return acc;
-            },
-            {} as Record<string, string>
-          )
-        );
-      });
-    } else {
-      // New category: initialize empty form
-      setIdentifier("");
-      setName("");
-      setGenericDescription("");
-      setGenericRemediation("");
-      setReferences([]);
-      setAdditionalFields([]);
-      setGenericDescriptions({});
-      setGenericRemediations({});
+    if (categoryId == undefined) {
+      return;
     }
-  }, [categoryId, navigate]);
+
+    getData<Category>(`/api/categories/${categoryId}`, category => {
+      setIdentifier(category.index);
+      setName(category.name);
+      setSource(category.source);
+      setReferences(category.references || []);
+
+      setCategory(category);
+      const selectableLanguages = Object.keys(category.generic_description).filter(
+        lang => lang !== defaultLanguageFromSettings
+      );
+      setSelectedLanguagesOptions([
+        defaultLanguageOption,
+        ...selectableLanguages.map(lang => languageOptions.find(option => option.value === lang)),
+      ]);
+    });
+  }, []);
 
   const confirmDeleteCategory = () => {
     if (!categoryId) {
@@ -121,37 +88,17 @@ export default function CategoryUpsert() {
     });
   };
 
-  const handleModalAction = () => {
-    if (selectedLanguageOption && !additionalFields.some(f => f.value === selectedLanguageOption.value)) {
-      setAdditionalFields(prev => [...prev, selectedLanguageOption]);
-    }
-    setIsModalInfoActive(false);
-  };
-
-  const handleModalTrashConfirm = () => {
+  const handleTrashConfirm = () => {
     confirmDeleteCategory();
   };
 
-  const removeAdditionalLanguage = (value: string) => {
-    setAdditionalFields(prev => prev.filter(f => f.value !== value));
-    setGenericDescriptions(prev => {
-      const copy = { ...prev };
-      delete copy[value];
-      return copy;
-    });
-    setGenericRemediations(prev => {
-      const copy = { ...prev };
-      delete copy[value];
-      return copy;
-    });
+  const removeLanguage = (value: string) => {
+    setSelectedLanguagesOptions(prev => prev.filter(option => option.value !== value));
   };
 
-  const updateAdditionalField = (lang: string, field: "description" | "remediation", value: string) => {
-    if (field === "description") {
-      setGenericDescriptions(prev => ({ ...prev, [lang]: value }));
-    } else {
-      setGenericRemediations(prev => ({ ...prev, [lang]: value }));
-    }
+  const onChangeLanguageField = (lang: string, field: "description" | "remediation", value: string) => {
+    const genericX = `generic_${field}`;
+    setCategory(prev => ({ ...prev, [genericX]: { ...prev[genericX], [lang]: value } }));
   };
 
   // Submit handler
@@ -161,18 +108,27 @@ export default function CategoryUpsert() {
       return;
     }
 
-    const payload: Omit<Category, "id"> = {
+    if (selectedLanguagesOptions.length < 1) {
+      toast.error("At least one language is required");
+      return;
+    }
+
+    const generic_description = {};
+    selectedLanguagesOptions.forEach(lang => {
+      generic_description[lang.value] = category?.generic_description?.[lang.value] || "";
+    });
+
+    const generic_remediation = {};
+    selectedLanguagesOptions.forEach(lang => {
+      generic_remediation[lang.value] = category?.generic_remediation?.[lang.value] || "";
+    });
+
+    const payload: Omit<Category, "id" | "updated_at"> = {
       index: identifier.trim(),
       name: name.trim(),
       source: source,
-      generic_description: {
-        en: genericDescription,
-        ...genericDescriptions,
-      },
-      generic_remediation: {
-        en: genericRemediation,
-        ...genericRemediations,
-      },
+      generic_description,
+      generic_remediation,
       references: references,
     };
 
@@ -181,39 +137,32 @@ export default function CategoryUpsert() {
         toast.success("Category updated successfully");
         navigate("/categories");
       });
-    } else {
-      postData<Category>("/api/admin/categories", payload, () => {
-        toast.success("Category created successfully");
-        navigate("/categories");
-      });
+
+      return;
     }
+
+    postData<Category>("/api/admin/categories", payload, () => {
+      toast.success("Category created successfully");
+      navigate("/categories");
+    });
+  };
+
+  const getGenericDescription = (lang: string) => {
+    return category?.generic_description?.[lang] || "";
+  };
+
+  const getGenericRemediation = (lang: string) => {
+    return category?.generic_remediation?.[lang] || "";
   };
 
   return (
     <div>
-      {isModalInfoActive && (
-        <Modal
-          title="Add language"
-          confirmButtonLabel="Add"
-          onConfirm={handleModalAction}
-          onCancel={() => setIsModalInfoActive(false)}
-        >
-          <p>The English language option is not available, as it is the default language.</p>
-          <SelectWrapper
-            label="Select language"
-            options={languageOptions.filter(option => !additionalFields.some(f => f.value === option.value))}
-            onChange={option => setSelectedLanguageOption(option)}
-            value={selectedLanguageOption}
-          />
-        </Modal>
-      )}
-
       {/* Delete single category modal */}
       {isModalTrashActive && (
         <Modal
           title="Please confirm: action irreversible"
           confirmButtonLabel="Confirm"
-          onConfirm={handleModalTrashConfirm}
+          onConfirm={handleTrashConfirm}
           onCancel={() => setIsModalTrashActive(false)}
         >
           <p>Are you sure you want to delete this category?</p>
@@ -222,7 +171,6 @@ export default function CategoryUpsert() {
 
       <PageHeader icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
         <Buttons>
-          <Button icon={mdiPlus} text="New language" small onClick={() => setIsModalInfoActive(true)} />
           {categoryId && (
             <Button
               icon={mdiTrashCan}
@@ -234,8 +182,26 @@ export default function CategoryUpsert() {
           )}
         </Buttons>
       </PageHeader>
-
       <Card>
+        <Grid className="grid-cols-2 items-center">
+          <Grid>
+            <SelectWrapper
+              isMulti
+              label="Languages"
+              options={languageOptions}
+              onChange={setSelectedLanguagesOptions}
+              value={selectedLanguagesOptions}
+            />
+            <Subtitle
+              text={
+                <>
+                  Default: <b>English</b>
+                </>
+              }
+            />
+          </Grid>
+        </Grid>
+        <Divider />
         <Grid className="grid-cols-3 gap-4">
           <Input
             type="text"
@@ -271,54 +237,33 @@ export default function CategoryUpsert() {
         />
         <Divider />
 
-        <Label text="English" />
-        <Grid className="grid-cols-2 gap-4">
-          <Textarea
-            label="Generic description"
-            id="gen_desc_en"
-            placeholder="Description here"
-            value={genericDescription}
-            onChange={e => setGenericDescription(e.target.value)}
-            rows={10}
-          />
-          <Textarea
-            label="Generic remediation"
-            id="gen_rem_en"
-            placeholder="Remediation here"
-            value={genericRemediation}
-            onChange={e => setGenericRemediation(e.target.value)}
-            rows={10}
-          />
-        </Grid>
-
-        <Divider />
-
-        {additionalFields.map(language => (
+        {selectedLanguagesOptions.map(language => (
           <div key={language.value}>
-            <div className="flex items-center justify-between">
+            <Flex items="center" justify="between">
               <Label text={language.label} />
               <Button
                 variant="danger"
                 icon={mdiTrashCan}
                 small
-                onClick={() => removeAdditionalLanguage(language.value)}
+                title="Delete language category"
+                onClick={() => removeLanguage(language.value)}
               />
-            </div>
+            </Flex>
             <Grid className="grid-cols-2 gap-4">
               <Textarea
                 label="Generic description"
                 id={`gen_desc_${language.value}`}
                 placeholder="Description here"
-                value={genericDescriptions[language.value] || ""}
-                onChange={e => updateAdditionalField(language.value, "description", e.target.value)}
+                value={getGenericDescription(language.value)}
+                onChange={e => onChangeLanguageField(language.value, "description", e.target.value)}
                 rows={10}
               />
               <Textarea
                 label="Generic remediation"
                 id={`gen_rem_${language.value}`}
                 placeholder="Remediation here"
-                value={genericRemediations[language.value] || ""}
-                onChange={e => updateAdditionalField(language.value, "remediation", e.target.value)}
+                value={getGenericRemediation(language.value)}
+                onChange={e => onChangeLanguageField(language.value, "remediation", e.target.value)}
                 rows={10}
               />
             </Grid>
