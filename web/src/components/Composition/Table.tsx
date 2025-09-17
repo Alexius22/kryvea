@@ -39,6 +39,7 @@ interface WithBackendSearchProps {
 type TableProps = (BaseTableProps & WithoutBackendSearchProps) | (BaseTableProps & WithBackendSearchProps);
 
 const PAGE_FLOOR = 1;
+const BUTTONS_KEY = "buttons";
 
 export default function Table({
   data,
@@ -61,7 +62,6 @@ export default function Table({
   const [filterText, setFilterText] = useState(defaultFilterText);
   const [filteredData, setFilteredData] = useState(data ?? []);
 
-  const BUTTONS_KEY = useMemo(() => "buttons", []);
   const getTableElementKey = useCallback((element: string) => `table-${element}-${v4()}`, []);
 
   useEffect(() => {
@@ -107,19 +107,18 @@ export default function Table({
       return arr; // backend already paginated
     }
 
+    let result = [...arr]; // always copy
+
     switch (keySort?.order) {
       case 1:
-        arr = arr.sort(sortAscend);
+        result.sort(sortAscend);
         break;
       case 2:
-        arr = arr.sort(sortDescend);
-        break;
-      case undefined:
-        arr = filteredData;
+        result.sort(sortDescend);
         break;
     }
 
-    return arr.slice(perPage * (currentPage - PAGE_FLOOR), perPage * currentPage);
+    return result.slice(perPage * (currentPage - PAGE_FLOOR), perPage * currentPage);
   };
 
   const numPages = useMemo(() => {
@@ -139,13 +138,13 @@ export default function Table({
     pagesList.push(i);
   }
 
-  const onHeaderClick = key => () => {
+  const onHeaderClick = header => () => {
     setKeySort(prev => {
-      if (prev === undefined || prev.header !== key) {
-        return { header: key, order: 1 };
+      if (prev === undefined || prev.header !== header) {
+        return { header, order: 1 };
       }
-      if (prev.header === key && prev.order === 1) {
-        return { header: key, order: 2 };
+      if (prev.header === header && prev.order === 1) {
+        return { header, order: 2 };
       }
       return undefined;
     });
