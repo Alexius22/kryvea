@@ -240,6 +240,31 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 	return users, err
 }
 
+func (ui *UserIndex) GetAllUsernames() ([]string, error) {
+	opts := options.Find().SetProjection(bson.M{
+		"username": 1,
+	}).SetSort(bson.M{
+		"username": 1,
+	})
+	cursor, err := ui.collection.Find(context.Background(), bson.M{}, opts)
+	if err != nil {
+		return []string{}, err
+	}
+	defer cursor.Close(context.Background())
+
+	usernames := make([]string, 0, cursor.RemainingBatchLength())
+	for cursor.Next(context.Background()) {
+		var user User
+		if err := cursor.Decode(&user); err != nil {
+			return []string{}, err
+		}
+
+		usernames = append(usernames, user.Username)
+	}
+
+	return usernames, err
+}
+
 func (ui *UserIndex) GetByToken(token crypto.Token) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,

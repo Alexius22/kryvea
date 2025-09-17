@@ -101,6 +101,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/files/images/:file", api.GetImage)
 		apiGroup.Get("/files/templates/:file", api.GetTemplateFile)
 
+		apiGroup.Get("/users/names", api.GetUsernames)
 		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Patch("/users/me", api.UpdateMe)
 		apiGroup.Patch("/users/me/assessments", api.UpdateOwnedAssessment)
