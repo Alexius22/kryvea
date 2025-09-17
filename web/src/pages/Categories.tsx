@@ -165,10 +165,11 @@ export default function Categories() {
               .toUpperCase(),
             buttons: (
               <Buttons noWrap key={category.id}>
-                <Button icon={mdiPencil} small onClick={() => navigate(`${category.id}`)} />
+                <Button icon={mdiPencil} small title="Edit category" onClick={() => navigate(`${category.id}`)} />
                 <Button
                   variant="danger"
                   icon={mdiTrashCan}
+                  title="Delete category"
                   small
                   onClick={() => {
                     setCategoryToDelete(category);
