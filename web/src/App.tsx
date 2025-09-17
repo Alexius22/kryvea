@@ -28,9 +28,6 @@ import {
   VulnerabilitySearch,
   VulnerabilityUpsert,
 } from "./pages";
-import LiveEditor from "./pages/LiveEditor";
-import Logs from "./pages/Logs";
-import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 import { getBrowser, SidebarItemLabel } from "./utils/helpers";
