@@ -120,6 +120,11 @@ export type Template = {
   customer: Customer;
 };
 
+export type Settings = {
+  image_upload_size: number;
+  default_language_category: string;
+};
+
 export const exportTypes = [
   { value: "docx", label: "Word (.docx)" },
   { value: "xlsx", label: "Excel (.xlsx)" },

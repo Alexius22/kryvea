@@ -21,6 +21,7 @@ import {
   Login,
   Logs,
   Profile,
+  Settings,
   Targets,
   Templates,
   Users,
@@ -175,6 +176,7 @@ export default function App() {
               <Route path="/live_editor" element={<LiveEditor />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/templates" element={<Templates />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="/login" element={<Login />} />
           </Route>
