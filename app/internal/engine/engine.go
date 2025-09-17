@@ -136,6 +136,9 @@ func (e *Engine) Serve() {
 		adminGroup.Delete("/users/:user", api.DeleteUser)
 
 		adminGroup.Get("/logs", api.GetLog)
+
+		adminGroup.Get("/settings", api.GetSettings)
+		adminGroup.Put("/settings", api.UpdateSettings)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
