@@ -524,10 +524,16 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	// clone assessment
 	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name, data.IncludePocs)
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		c.Status(fiber.StatusBadRequest)
+
+		if err == mongo.ErrDuplicateKey {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Assessment \"%s\" already exists", assessment.Name),
+			})
+		}
+
 		return c.JSON(fiber.Map{
 			"error": "Cannot clone assessment",
-			"err":   err.Error(),
 		})
 	}
 
