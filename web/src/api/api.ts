@@ -32,8 +32,10 @@ const defaultHandleCatch: OnCatchCallback<AxiosError<HttpErrorData>> = err => to
 const onCatchClosure = (onCatch: OnCatchCallback<AxiosError<HttpErrorData>>) => (err: AxiosError<HttpErrorData>) => {
   switch (err.response?.status) {
     case HttpStatusCode.Unauthorized:
-      toast.error("Session expired, please log in again");
-      navigate("/login", { replace: false, state: { from: window.location.pathname } });
+      navigate("/login");
+      break;
+    case HttpStatusCode.BadGateway:
+      toast.error("Server unreachable");
       break;
   }
 

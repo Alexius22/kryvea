@@ -7,11 +7,10 @@ import {
   mdiWeatherNight,
   mdiWhiteBalanceSunny,
 } from "@mdi/js";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../../App";
-import { getData, postData } from "../../api/api";
-import { User } from "../../types/common.types";
+import { postData } from "../../api/api";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
@@ -25,10 +24,6 @@ export default function NavBar() {
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getData<User>("/api/users/me", user => setUsername(user.username));
-  }, []);
 
   const handleLogout = () => {
     postData("/api/logout", undefined, () => {
