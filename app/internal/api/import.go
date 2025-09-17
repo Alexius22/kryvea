@@ -441,7 +441,8 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 
 			// Parse cvss3 as cvss31
 			if item.Cvss3Vector != "" {
-				vector, err := cvss.ParseVector(item.Cvss3Vector, cvss.Cvss31)
+				vectorString := strings.Replace(item.Cvss3Vector, cvss.Cvss3, cvss.Cvss31, 1)
+				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31)
 				if err != nil {
 					return err
 				}
