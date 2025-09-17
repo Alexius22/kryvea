@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"time"
 
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -55,15 +56,20 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 	}
 
 	if !isInitialized {
-		err = d.CreateNilCategory()
-		if err != nil {
-			return nil, err
-		}
-
 		err = d.CreateAdminUser(adminUser, adminPass)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	err = d.CreateNilCategory()
+	if err != nil {
+		return nil, err
+	}
+
+	err = d.CreateSetting()
+	if err != nil {
+		return nil, err
 	}
 
 	return d, nil
@@ -80,6 +86,36 @@ func (d *Driver) IsDbInitialized() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (d *Driver) CreateSetting() error {
+	setting, err := d.Setting().Get()
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+
+	// setting already exists
+	if setting != nil {
+		return nil
+	}
+
+	now := time.Now()
+
+	_, err = d.Setting().collection.InsertOne(context.Background(), &Setting{
+		Model: Model{
+			ID:        SettingID,
+			CreatedAt: now,
+			UpdatedAt: now,
+		},
+		MaxImageSize:            20 * 1024 * 1024, // 20 MB
+		DefaultCategoryLanguage: "en",
+	})
+	if err != nil {
+		return err
+	}
+	d.logger.Debug().Msg("Created setting")
+
+	return nil
 }
 
 func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
@@ -116,9 +152,13 @@ func (d *Driver) CreateNilCategory() error {
 		return nil
 	}
 
+	now := time.Now()
+
 	_, err = d.Category().collection.InsertOne(context.Background(), &Category{
 		Model: Model{
-			ID: ImmutableCategoryID,
+			ID:        ImmutableCategoryID,
+			CreatedAt: now,
+			UpdatedAt: now,
 		},
 		Index: "KRYVEA",
 		Name:  "DELETED-CATEGORY",
