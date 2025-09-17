@@ -18,17 +18,17 @@ const languageOptions = Object.entries(languageMapping).map(([code, label]) => (
 }));
 
 export default function Settings() {
-  const [settings, setSettings] = useState<Settings>({ image_upload_size: 100, default_language_category: "en" });
+  const [settings, setSettings] = useState<Settings>({ max_image_size: 100, default_category_language: "en" });
 
   useEffect(() => {
     document.title = getPageTitle("Settings");
     getData("/api/admin/settings", setSettings);
   }, []);
 
-  const selectedLanguageOption = languageOptions.find(opt => opt.value === settings.default_language_category);
+  const selectedLanguageOption = languageOptions.find(opt => opt.value === settings.default_category_language);
 
   const handleSizeUpload = e => {
-    setSettings(prev => ({ ...prev, image_upload_size: e.target.value }));
+    setSettings(prev => ({ ...prev, max_image_size: e.target.value }));
   };
 
   const handleSubmit = () => {
@@ -46,7 +46,7 @@ export default function Settings() {
             helperSubtitle="Required"
             placeholder="100 MB"
             id="image_upload_size"
-            value={settings.image_upload_size}
+            value={settings.max_image_size}
             onChange={handleSizeUpload}
           />
           <SelectWrapper
@@ -54,7 +54,7 @@ export default function Settings() {
             id="language"
             options={languageOptions}
             value={selectedLanguageOption}
-            onChange={option => setSettings(prev => ({ ...prev, default_language_category: option.value }))}
+            onChange={option => setSettings(prev => ({ ...prev, default_category_language: option.value }))}
           />
         </Grid>
         <Divider />

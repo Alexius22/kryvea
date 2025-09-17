@@ -121,8 +121,8 @@ export type Template = {
 };
 
 export type Settings = {
-  image_upload_size: number;
-  default_language_category: string;
+  max_image_size: number;
+  default_category_language: string;
 };
 
 export const exportTypes = [
