@@ -115,7 +115,7 @@ export default function Assessments() {
   const confirmClone = () => {
     postData<Assessment>(
       `/api/assessments/${assessmentToClone.id}/clone`,
-      { name: cloneName, include_pocs: checkIncludePoc },
+      { name: cloneName.trim(), include_pocs: checkIncludePoc },
       _ => {
         fetchAssessments();
         setIsModalCloneActive(false);
@@ -369,7 +369,13 @@ export default function Assessments() {
                 small
                 title="Download assessment"
               />
-              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(assessment)} small />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                onClick={() => openDeleteModal(assessment)}
+                small
+                title="Delete assessment"
+              />
             </Buttons>
           ),
         }))}

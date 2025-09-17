@@ -159,14 +159,20 @@ export default function Targets() {
       <Table
         loading={loadingTargets}
         data={targets.map(target => ({
-          FQDN: target.fqdn,
+          "FQDN | Target name": target.fqdn,
           IPv4: target.ipv4,
           IPv6: target.ipv6,
           Tag: target.tag,
           buttons: (
             <Buttons noWrap>
-              <Button icon={mdiPencil} onClick={() => openEditModal(target)} small />
-              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(target)} small />
+              <Button icon={mdiPencil} title="Edit target" onClick={() => openEditModal(target)} small />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                title="Delete target"
+                onClick={() => openDeleteModal(target)}
+                small
+              />
             </Buttons>
           ),
         }))}
