@@ -12,6 +12,7 @@ import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import UploadFile from "../components/Form/UploadFile";
 import { Category } from "../types/common.types";
+import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 import { sourceCategoryOptions } from "./CategoryUpsert";
 
@@ -163,6 +164,7 @@ export default function Categories() {
               .sort()
               .join(" | ")
               .toUpperCase(),
+            "Last update": formatDate(category.updated_at),
             buttons: (
               <Buttons noWrap key={category.id}>
                 <Button icon={mdiPencil} small title="Edit category" onClick={() => navigate(`${category.id}`)} />
