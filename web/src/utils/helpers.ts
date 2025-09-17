@@ -1,5 +1,6 @@
 import {
   mdiAccountMultiple,
+  mdiCog,
   mdiCogs,
   mdiDomain,
   mdiFileChart,
@@ -44,7 +45,8 @@ export type SidebarItemLabel =
   | "Categories"
   | "Users"
   | "Logs"
-  | "Report Templates";
+  | "Report Templates"
+  | "Settings";
 export type SidebarItem = {
   icon: string;
   label: SidebarItemLabel;
@@ -86,6 +88,7 @@ export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction
       { href: "/users", icon: mdiAccountMultiple, label: "Users" },
       { href: "/logs", icon: mdiMathLog, label: "Logs" },
       { href: "/templates", icon: mdiFileChart, label: "Report Templates" },
+      { href: "/settings", icon: mdiCog, label: "Settings" },
     ],
   },
 ];
