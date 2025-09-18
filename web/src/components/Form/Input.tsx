@@ -71,7 +71,7 @@ export default function Input({
         {type === "number" ? (
           <input
             disabled={disabled}
-            className={`${className} ${disabled ? "opacity-40" : ""}`}
+            className={className}
             type={type}
             id={id}
             placeholder={placeholder}
@@ -117,7 +117,7 @@ export default function Input({
             <div className="relative w-full">
               <input
                 disabled={disabled}
-                className={`${className} ${disabled ? "opacity-40" : ""} ${type === "password" ? "pr-10" : ""} w-full`}
+                className={`${className} ${type === "password" ? "pr-10" : ""} w-full`}
                 type={type === "password" ? (showPassword ? "text" : "password") : type}
                 id={id}
                 placeholder={placeholder}
