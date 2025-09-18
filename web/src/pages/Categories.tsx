@@ -182,6 +182,7 @@ export default function Categories() {
             ),
           }))}
           perPageCustom={50}
+          maxWidthColumns={{ Name: "30rem" }}
         />
       </div>
     </div>
