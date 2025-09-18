@@ -1,6 +1,10 @@
 @use "vars.scss";
 @use "base.scss";
 
+.select-wrapper-class {
+  min-width: 0px;
+}
+
 /* Control (input box) */
 .select-wrapper__control {
   display: flex;

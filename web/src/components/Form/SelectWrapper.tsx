@@ -147,7 +147,7 @@ export default function SelectWrapper({
           closeMenuOnSelect,
           inputId: id,
           classNamePrefix: "select-wrapper",
-          className: `${className} ${disabled ? "opacity-40" : ""}`,
+          className: `select-wrapper-class ${className} ${disabled ? "opacity-40" : ""}`,
         }}
         unstyled
         components={animatedComponents}
