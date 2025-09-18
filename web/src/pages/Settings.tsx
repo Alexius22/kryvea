@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { getData, putData } from "../api/api";
 import Card from "../components/Composition/Card";
 import CardTitle from "../components/Composition/CardTitle";
@@ -32,7 +33,9 @@ export default function Settings() {
   };
 
   const handleSubmit = () => {
-    putData("/api/admin/settings", settings);
+    putData("/api/admin/settings", settings, () => {
+      toast.success("Settings updated");
+    });
   };
 
   return (
