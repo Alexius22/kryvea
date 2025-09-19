@@ -1,5 +1,5 @@
 [disabled],
-[aria-disabled] {
+.select-wrapper__control[aria-disabled] {
   opacity: 0.5;
 
   &:hover {
