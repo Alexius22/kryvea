@@ -90,6 +90,7 @@ export default function PocCodeEditor({
       <Buttons containerClassname="flex-grow" className="justify-between">
         <Buttons>
           <Button
+            disabled={selectedText.length < 1}
             small
             variant="warning"
             title="Add highlight"
