@@ -17,7 +17,7 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import Textarea from "../components/Form/Textarea";
-import { Category } from "../types/common.types";
+import { Category, Settings } from "../types/common.types";
 import { languageMapping } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 
@@ -32,7 +32,7 @@ export const sourceCategoryOptions: SelectOption[] = [
 const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([value, label]) => ({ value, label }));
 
 export default function CategoryUpsert() {
-  const defaultLanguageFromSettings = "en";
+  const [defaultLanguageFromSettings, setDefaultLanguageFromSettings] = useState(null);
   const defaultLanguageOption = useMemo(
     () => languageOptions.find(option => option.value === defaultLanguageFromSettings),
     []
@@ -54,6 +54,12 @@ export default function CategoryUpsert() {
 
   useEffect(() => {
     document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
+    getData<Settings>("/api/admin/settings", data => {
+      setDefaultLanguageFromSettings(data.default_category_language);
+      if (categoryId == undefined) {
+        setSelectedLanguagesOptions([languageOptions.find(option => option.value === data.default_category_language)]);
+      }
+    });
 
     if (categoryId == undefined) {
       return;
@@ -64,15 +70,17 @@ export default function CategoryUpsert() {
       setName(category.name);
       setSource(category.source);
       setReferences(category.references || []);
-
       setCategory(category);
+
       const selectableLanguages = Object.keys(category.generic_description).filter(
         lang => lang !== defaultLanguageFromSettings
       );
-      setSelectedLanguagesOptions([
-        defaultLanguageOption,
-        ...selectableLanguages.map(lang => languageOptions.find(option => option.value === lang)),
-      ]);
+      setSelectedLanguagesOptions(
+        [
+          defaultLanguageOption,
+          ...selectableLanguages.map(lang => languageOptions.find(option => option.value === lang)),
+        ].filter(Boolean)
+      );
     });
   }, []);
 
@@ -195,7 +203,7 @@ export default function CategoryUpsert() {
             <Subtitle
               text={
                 <>
-                  Default: <b>English</b>
+                  Default: <b>{languageMapping[defaultLanguageFromSettings]}</b>
                 </>
               }
             />
