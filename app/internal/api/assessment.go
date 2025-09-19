@@ -103,7 +103,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", assessment.Name, customer.Name),
 			})
@@ -373,7 +373,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("Assessment \"%s\" already exists under customer \"%s\"", newAssessment.Name, assessment.Customer.Name),
 			})
@@ -526,7 +526,7 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("Assessment \"%s\" already exists", assessment.Name),
 			})

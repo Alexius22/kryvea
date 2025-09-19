@@ -75,7 +75,7 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("User \"%s\" already exists", user.Username),
 			})
@@ -290,7 +290,7 @@ func (d *Driver) UpdateUser(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
 			})
@@ -343,7 +343,7 @@ func (d *Driver) UpdateMe(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("User \"%s\" already exists", newUser.Username),
 			})

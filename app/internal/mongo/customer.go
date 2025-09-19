@@ -82,7 +82,7 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 
 	_, err = ci.collection.InsertOne(context.Background(), customer)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return customer.ID, nil
@@ -100,7 +100,7 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 	}
 
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {

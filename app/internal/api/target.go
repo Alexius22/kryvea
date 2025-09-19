@@ -67,7 +67,7 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Target with provided data already exists",
 			})
@@ -137,7 +137,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Target with provided data already exists",
 			})
