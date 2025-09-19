@@ -143,7 +143,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return assessment.ID, nil
@@ -279,7 +279,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 	}
 
 	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Assessment) error {
@@ -340,7 +340,7 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, 
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	// Clone vulnerabilities

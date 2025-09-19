@@ -100,7 +100,7 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return target.ID, nil
@@ -146,7 +146,7 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 	}
 
 	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ti *TargetIndex) Delete(targetID uuid.UUID) error {

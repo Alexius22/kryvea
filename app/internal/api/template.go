@@ -83,7 +83,7 @@ func (d *Driver) AddGlobalTemplate(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Template with provided data already exists",
 			})
@@ -143,7 +143,7 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Template with provided data already exists",
 			})

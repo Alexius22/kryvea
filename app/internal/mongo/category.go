@@ -78,7 +78,7 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 
 	_, err = ci.collection.InsertOne(context.Background(), category)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return category.ID, err
@@ -140,7 +140,7 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 	}
 
 	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
