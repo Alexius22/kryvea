@@ -73,7 +73,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 		})
 	}
 
-	data, _, err := util.FormDataReadFile(c, "file")
+	data, _, err := d.formDataReadFile(c, "file")
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
