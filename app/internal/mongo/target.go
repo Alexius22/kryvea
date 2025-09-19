@@ -68,6 +68,7 @@ func (ti TargetIndex) init() error {
 				{Key: "ipv6", Value: 1},
 				{Key: "fqdn", Value: 1},
 				{Key: "tag", Value: 1},
+				{Key: "customer._id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
