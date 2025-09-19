@@ -241,20 +241,21 @@ export default function MonacoCodeEditor({
     }
 
     editor.onDidChangeCursorSelection(e => {
-      const { selection, secondarySelections } = e;
-      const selectedText = editor.getModel()?.getValueInRange(selection);
-      if (selectedText === "") {
-        return;
-      }
+      let { selection, secondarySelections } = e;
+      const allCursorSelections = [selection, ...secondarySelections];
 
-      const toMonacoTextSelection = (sel: monaco.Selection): MonacoTextSelection => ({
-        start: { line: sel.startLineNumber, col: sel.startColumn },
-        end: { line: sel.endLineNumber, col: sel.endColumn },
-        selectionPreview: `${editor.getModel()?.getValueInRange(sel)}`,
-      });
+      const toMonacoTextSelection = (sel: monaco.Selection): MonacoTextSelection[] =>
+        sel.startLineNumber === sel.endLineNumber && sel.startColumn === sel.endColumn
+          ? []
+          : [
+              {
+                start: { line: sel.startLineNumber, col: sel.startColumn },
+                end: { line: sel.endLineNumber, col: sel.endColumn },
+                selectionPreview: `${editor.getModel()?.getValueInRange(sel)}`,
+              },
+            ];
 
-      const secondaryTextSelections = secondarySelections.map(toMonacoTextSelection);
-      const allSelections = [...secondaryTextSelections, toMonacoTextSelection(selection)];
+      const allSelections = allCursorSelections.flatMap(toMonacoTextSelection);
 
       onTextSelection(allSelections);
     });
