@@ -30,7 +30,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 	}
 
 	// parse template data from form
-	templateData, filename, err := util.FormDataReadFile(c, "template")
+	templateData, filename, err := d.formDataReadFile(c, "template")
 	if err != nil {
 		return nil, "Cannot read template data"
 	}
