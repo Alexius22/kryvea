@@ -10,15 +10,6 @@ a:hover {
   color: var(--link-hover);
 }
 
-[disabled],
-[aria-disabled] {
-  opacity: 0.5;
-
-  &:hover {
-    filter: none;
-  }
-}
-
 button {
   @apply rounded border border-white/0 px-4 py-2;
   background-color: var(--button-bg);
@@ -59,8 +50,8 @@ input {
 }
 input::placeholder {
   color: var(--text-secondary);
-  font-weight: 300;
-  font-style: italic;
+  font-weight: 100;
+  font-style: normal;
 }
 input:focus {
   border: 1px solid var(--border-primary);
@@ -80,7 +71,7 @@ textarea:focus {
 }
 textarea::placeholder {
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 100;
   font-style: normal;
 }
 
