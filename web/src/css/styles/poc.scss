@@ -40,7 +40,7 @@
   background-color: var(--bg-tertiary);
 
   &[data-focused="true"] {
-    border-color: var(--border-primary-highlight);
+    border-color: var(--link);
   }
 }
 
