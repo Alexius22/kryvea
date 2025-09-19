@@ -11,17 +11,17 @@ import (
 )
 
 type Vector struct {
-	Version     string     `json:"version,omitempty" bson:"version"`
-	Vector      string     `json:"vector,omitempty" bson:"vector"`
-	Score       float64    `json:"score,omitempty" bson:"score"`
-	Severity    LabelColor `json:"severity,omitempty" bson:"severity"`
-	Complexity  LabelColor `json:"complexity,omitempty" bson:"complexity"`
-	Description string     `json:"description,omitempty" bson:"description"`
+	Version     string     `json:"version" bson:"version"`
+	Vector      string     `json:"vector" bson:"vector"`
+	Score       float64    `json:"score" bson:"score"`
+	Severity    LabelColor `json:"severity" bson:"severity"`
+	Complexity  LabelColor `json:"complexity" bson:"complexity"`
+	Description string     `json:"description" bson:"description"`
 }
 
 type LabelColor struct {
-	Label string `json:"label,omitempty" bson:"label"`
-	Color string `json:"color,omitempty" bson:"color"`
+	Label string `json:"label" bson:"label"`
+	Color string `json:"color" bson:"color"`
 }
 
 // ParseVector parses a CVSS vector string and returns a pointer to
