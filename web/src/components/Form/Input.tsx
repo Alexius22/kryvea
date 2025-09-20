@@ -15,6 +15,7 @@ interface BaseInputProps {
   autoFocus?: boolean;
   disabled?: boolean;
   name?: string;
+  onEnter?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 interface InputProps extends BaseInputProps {
@@ -56,6 +57,7 @@ export default function Input({
   autoFocus,
   name,
   onChange,
+  onEnter,
 }: InputProps | FileInputProps | NumberInputProps) {
   const [numberPreview, setNumberPreview] = useState(value);
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +73,7 @@ export default function Input({
         {type === "number" ? (
           <input
             disabled={disabled}
-            className={`${className} ${disabled ? "opacity-40" : ""}`}
+            className={className}
             type={type}
             id={id}
             placeholder={placeholder}
@@ -86,6 +88,7 @@ export default function Input({
                   setNumberPreview(value);
                   break;
                 case "Enter":
+                  onEnter?.(e);
                   e.currentTarget.blur();
                   break;
               }
@@ -117,15 +120,22 @@ export default function Input({
             <div className="relative w-full">
               <input
                 disabled={disabled}
-                className={`${className} ${disabled ? "opacity-40" : ""} ${type === "password" ? "pr-10" : ""} w-full`}
+                className={`${className} ${type === "password" ? "pr-10" : ""} w-full`}
                 type={type === "password" ? (showPassword ? "text" : "password") : type}
                 id={id}
                 placeholder={placeholder}
                 value={value}
-                onChange={onChange}
                 accept={accept}
                 autoFocus={autoFocus}
                 name={name}
+                onChange={onChange}
+                onKeyDown={e => {
+                  switch (e.key) {
+                    case "Enter":
+                      onEnter?.(e);
+                      break;
+                  }
+                }}
               />
               {type === "password" && (
                 <Button
@@ -138,7 +148,7 @@ export default function Input({
                 />
               )}
             </div>
-            {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
+            {(helperSubtitle || helperSubtitle === "") && <Subtitle disabled={disabled} text={helperSubtitle} />}
           </>
         )}
       </div>

@@ -29,11 +29,11 @@ export default function Textarea({
       {label && <Label text={label} htmlFor={id} />}
       <div className="grid">
         <textarea
-          className={`resize-y p-2 ${disabled ? "opacity-75" : ""}`}
+          disabled={disabled}
+          className="resize-y p-2"
           rows={rows}
           placeholder={placeholder}
           value={value}
-          disabled={disabled}
           onChange={onChange}
           id={id}
         />

@@ -29,11 +29,9 @@ export default function Sidebar() {
     <aside className={`layout-sidebar ${isCollapsed ? "w-min" : "min-w-[280px] max-w-[280px]"}`}>
       <Flex className="h-full w-full" col>
         {/* Header */}
-        <header
-          className={`flex items-center p-4 transition-all ${isCollapsed ? "justify-center" : "justify-between"} `}
-        >
+        <header className={`flex items-center p-4 ${isCollapsed ? "justify-center" : "justify-between"} `}>
           {!isCollapsed && (
-            <Link to="/dashboard" className="text-xl font-black transition-opacity duration-300">
+            <Link to="/dashboard" className="text-xl font-black">
               <Flex>
                 <img className="w-7" src={logo} alt="" />
                 ryvea

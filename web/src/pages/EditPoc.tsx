@@ -35,19 +35,18 @@ export default function EditPoc() {
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
-  }, []);
-  useEffect(() => {
+
     getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs => {
       setPocList(pocs.sort((a, b) => a.index - b.index).map(poc => ({ ...poc, key: getPocKeyByType(poc.type) })));
     });
-  }, []);
-  useEffect(() => {
+
     const handleDragStart = () => {
       pocListParent.current?.classList.add("dragging");
     };
     const handleDragEnd = () => {
       pocListParent.current?.classList.remove("dragging");
     };
+
     document.addEventListener("dragover", handleDragStart);
     document.addEventListener("dragend", handleDragEnd);
     document.addEventListener("visibilitychange", handleDragEnd);
@@ -56,6 +55,7 @@ export default function EditPoc() {
       document.removeEventListener("visibilitychange", handleDragEnd);
     };
   }, []);
+
   useEffect(() => {
     if (pocListParent.current?.lastElementChild == null) {
       return;

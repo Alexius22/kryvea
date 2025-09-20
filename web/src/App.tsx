@@ -17,17 +17,18 @@ import {
   Dashboard,
   EditPoc,
   EditReport,
+  LiveEditor,
   Login,
+  Logs,
   Profile,
+  Settings,
   Targets,
+  Templates,
   Users,
   VulnerabilityDetail,
   VulnerabilitySearch,
   VulnerabilityUpsert,
 } from "./pages";
-import LiveEditor from "./pages/LiveEditor";
-import Logs from "./pages/Logs";
-import Templates from "./pages/Templates";
 import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 import { getBrowser, SidebarItemLabel } from "./utils/helpers";
@@ -175,6 +176,7 @@ export default function App() {
               <Route path="/live_editor" element={<LiveEditor />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/templates" element={<Templates />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="/login" element={<Login />} />
           </Route>

@@ -107,6 +107,7 @@ html.dark {
   --border-primary-highlight: #{color.adjust($border, $alpha: -0.6)};
   --border-secondary: #{color.adjust($border, $alpha: -0.9)};
   --border-secondary-highlight: #{color.adjust($border, $alpha: -0.7)};
+  --border-accent: #{$border};
 
   /* Links */
   --link: #{$link};

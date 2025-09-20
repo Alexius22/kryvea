@@ -193,6 +193,7 @@ export default function Templates() {
                 }}
                 variant="danger"
                 small
+                title="Delete template"
               />
             </Buttons>
           ),

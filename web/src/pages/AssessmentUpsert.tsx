@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -129,10 +129,13 @@ export default function AssessmentUpsert() {
 
   const [kickoffDate, setKickoffDate] = useState(new Date().toISOString());
 
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
-
-  const fetchTargets = () => {
-    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
+  const fetchTargets = (callback?: (targets: Target[]) => void) => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, targets => {
+      setTargets(targets);
+      if (callback) {
+        callback(targets);
+      }
+    });
   };
 
   useEffect(() => {
@@ -143,7 +146,6 @@ export default function AssessmentUpsert() {
       getData<Assessment>(
         `/api/assessments/${assessmentId}`,
         data => {
-          setAssessment(data);
           setForm({
             type: data.type,
             name: data.name,
@@ -167,13 +169,17 @@ export default function AssessmentUpsert() {
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
-  const targetOptions: SelectOption[] = targets.map(target => ({
-    value: target.id,
-    label:
-      target.fqdn && (target.ipv4 || target.ipv6)
-        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
-        : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
-  }));
+  const targetOptions: SelectOption[] = useMemo(
+    () =>
+      targets.map(target => ({
+        value: target.id,
+        label:
+          target.fqdn && (target.ipv4 || target.ipv6)
+            ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
+            : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
+      })),
+    [targets]
+  );
 
   const handleChange = (field: keyof typeof form, value: any) => {
     setForm(f => ({ ...f, [field]: value }));
@@ -247,14 +253,24 @@ export default function AssessmentUpsert() {
       customer_id: customerId,
     };
 
-    postData<Target>(`/api/targets`, payload, () => {
-      toast.success("Target added successfully");
+    postData<{ message: string; target_id: string }>("/api/targets", payload, data => {
+      toast.success(data.message);
       setIsModalTargetActive(false);
       setIpv4("");
       setIpv6("");
       setFqdn("");
       setTag("");
-      fetchTargets();
+
+      fetchTargets(newTargets => {
+        // Find the new one and preselect it
+        const newTarget = newTargets.find(t => t.id === data.target_id);
+        if (newTarget) {
+          setForm(prev => ({
+            ...prev,
+            targets: [...prev.targets, newTarget],
+          }));
+        }
+      });
     });
   };
 
@@ -376,7 +392,7 @@ export default function AssessmentUpsert() {
                 onChange={handleTargetsChange}
                 closeMenuOnSelect={false}
               />
-              <Button icon={mdiPlus} text="New Target" onClick={() => openTargetModal()} />
+              <Button icon={mdiPlus} text="New Target" onClick={openTargetModal} />
             </Grid>
             <SelectWrapper
               label="Environment"
