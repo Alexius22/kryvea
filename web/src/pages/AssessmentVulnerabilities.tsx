@@ -45,7 +45,6 @@ export default function AssessmentVulnerabilities() {
   const [fileObj, setFileObj] = useState<File | null>(null);
 
   const [selectedExportTypeOption, setSelectedExportTypeOption] = useState<SelectOption>(exportTypes[0]);
-  const [templatesByTypeAndLanguage, setTemplatesByTypeAndLanguage] = useState<Template[]>([]);
   const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([]);
   const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
@@ -78,7 +77,6 @@ export default function AssessmentVulnerabilities() {
   useEffect(() => {
     const filteredTemplates = getTemplatesByTypeAndLanguage();
 
-    setTemplatesByTypeAndLanguage(filteredTemplates);
     setTemplateOptions(
       filteredTemplates.map(t => ({
         value: t.id,
