@@ -296,6 +296,24 @@ func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Asse
 	return err
 }
 
+func (ai *AssessmentIndex) UpdateTargets(assessmentID uuid.UUID, target uuid.UUID) error {
+	filter := bson.M{"_id": assessmentID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+		},
+		"$addToSet": bson.M{
+			"targets": bson.M{
+				"_id": target,
+			},
+		},
+	}
+
+	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
 	// Remove the assessment from the user's list
 	filter := bson.M{"assessments._id": assessmentID}
