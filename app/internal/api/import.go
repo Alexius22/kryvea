@@ -440,6 +440,21 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				},
 			}
 
+			if item.CvssVector == "" && item.Cvss3Vector == "" {
+				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2)
+				if err != nil {
+					return err
+				}
+				vulnerability.CVSSv2 = *vector2
+
+				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31)
+				if err != nil {
+					return err
+				}
+				vulnerability.CVSSv31 = *vector31
+			}
+
+			// Parse cvss2
 			if item.CvssVector != "" {
 				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2)
 				if err != nil {
