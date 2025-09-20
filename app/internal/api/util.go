@@ -4,7 +4,7 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -38,8 +38,8 @@ func (d *Driver) formDataReadImage(c *fiber.Ctx, fieldName string) (data []byte,
 		return nil, "", err
 	}
 
-	if !util.IsImageTypeAllowed(data) {
-		return nil, "", util.ErrImageTypeNotAllowed
+	if !mongo.IsImageTypeAllowed(data) {
+		return nil, "", mongo.ErrImageTypeNotAllowed
 	}
 
 	return data, file.Filename, nil
