@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -93,9 +94,14 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
 
-				if err == mongo.ErrFileSizeTooLarge {
+				switch err {
+				case mongo.ErrFileSizeTooLarge:
 					return c.JSON(fiber.Map{
 						"error": "Image file size is too large",
+					})
+				case util.ErrImageTypeNotAllowed:
+					return c.JSON(fiber.Map{
+						"error": "Image type is not allowed",
 					})
 				}
 
