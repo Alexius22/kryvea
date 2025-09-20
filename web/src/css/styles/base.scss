@@ -15,7 +15,7 @@ button {
   background-color: var(--button-bg);
 }
 button[disabled] {
-  @apply cursor-not-allowed opacity-50;
+  @apply cursor-not-allowed;
 
   &:hover {
     filter: none;
@@ -50,8 +50,8 @@ input {
 }
 input::placeholder {
   color: var(--text-secondary);
-  font-weight: 300;
-  font-style: italic;
+  font-weight: 100;
+  font-style: normal;
 }
 input:focus {
   border: 1px solid var(--border-primary);
@@ -71,7 +71,7 @@ textarea:focus {
 }
 textarea::placeholder {
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 100;
   font-style: normal;
 }
 

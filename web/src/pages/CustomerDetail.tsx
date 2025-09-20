@@ -249,8 +249,18 @@ export default function CustomerDetail() {
                 "Template Type": template.type,
                 buttons: (
                   <Buttons noWrap>
-                    <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
-                    <Button icon={mdiTrashCan} onClick={() => deleteTemplate(template.id)} variant="danger" />
+                    <Button
+                      icon={mdiDownload}
+                      title="Download template"
+                      onClick={() => downloadTemplate(template)}
+                      variant="secondary"
+                    />
+                    <Button
+                      icon={mdiTrashCan}
+                      title="Delete template"
+                      onClick={() => deleteTemplate(template.id)}
+                      variant="danger"
+                    />
                   </Buttons>
                 ),
               }))}

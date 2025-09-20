@@ -66,7 +66,7 @@ export type Assessment = {
   start_date_time: string;
   end_date_time: string;
   kickoff_date_time: string;
-  targets: { id: string; ipv4: string; ipv6: string; fqdn: string }[];
+  targets: Target[];
   status: string;
   type: { short: string; full: string };
   cvss_versions: { "3.1": boolean; "4.0": boolean };
@@ -100,6 +100,7 @@ export type Customer = {
 
 export type Category = {
   id: string;
+  updated_at: string;
   index: string;
   name: string;
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
@@ -117,6 +118,11 @@ export type Template = {
   mime_type: string;
   file_id: string;
   customer: Customer;
+};
+
+export type Settings = {
+  max_image_size: number;
+  default_category_language: string;
 };
 
 export const exportTypes = [

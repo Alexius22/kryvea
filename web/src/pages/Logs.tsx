@@ -1,6 +1,5 @@
 import { mdiListBox } from "@mdi/js";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { getData } from "../api/api";
 import Card from "../components/Composition/Card";
 import Flex from "../components/Composition/Flex";
@@ -30,28 +29,14 @@ export default function Logs() {
       setLogs([]);
       return;
     }
-    const toastId = toast.loading("Loading logs...");
 
     setLoadingLogs(true);
     getData<{ logs: Log[] }>(
       `/api/admin/logs?levels=${selectedLevels.join(",")}`,
       data => {
         setLogs(data.logs);
-        toast.update(toastId, {
-          render: "Logs loaded successfully",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
       },
-      () => {
-        toast.update(toastId, {
-          render: "Failed to load logs",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      },
+      undefined,
       () => setLoadingLogs(false)
     );
   }

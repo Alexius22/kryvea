@@ -22,6 +22,7 @@ import UploadFile from "../components/Form/UploadFile";
 import { Category, exportTypes, Template, Vulnerability } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
+import { getTargetLabel } from "../utils/targetLabel";
 
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ export default function AssessmentVulnerabilities() {
   const [fileObj, setFileObj] = useState<File | null>(null);
 
   const [selectedExportTypeOption, setSelectedExportTypeOption] = useState<SelectOption>(exportTypes[0]);
-  const [templatesByTypeAndLanguage, setTemplatesByTypeAndLanguage] = useState<Template[]>([]);
   const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([]);
   const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
@@ -77,7 +77,6 @@ export default function AssessmentVulnerabilities() {
   useEffect(() => {
     const filteredTemplates = getTemplatesByTypeAndLanguage();
 
-    setTemplatesByTypeAndLanguage(filteredTemplates);
     setTemplateOptions(
       filteredTemplates.map(t => ({
         value: t.id,
@@ -352,16 +351,7 @@ export default function AssessmentVulnerabilities() {
                 {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
               </Link>
             ),
-            Target: (() => {
-              const ip = vulnerability.target.ipv4 || vulnerability.target.ipv6 || "";
-              const fqdn = vulnerability.target.fqdn || "";
-              const name = vulnerability.target.name ? ` (${vulnerability.target.name})` : "";
-
-              if (ip) {
-                return `${ip}${fqdn ? ` - ${fqdn}` : ""}${name}`;
-              }
-              return `${fqdn}${name}`;
-            })(),
+            Target: getTargetLabel(vulnerability.target),
 
             ...cvssColumns,
 
