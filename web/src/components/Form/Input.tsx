@@ -15,6 +15,7 @@ interface BaseInputProps {
   autoFocus?: boolean;
   disabled?: boolean;
   name?: string;
+  onEnter?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 interface InputProps extends BaseInputProps {
@@ -56,6 +57,7 @@ export default function Input({
   autoFocus,
   name,
   onChange,
+  onEnter,
 }: InputProps | FileInputProps | NumberInputProps) {
   const [numberPreview, setNumberPreview] = useState(value);
   const [showPassword, setShowPassword] = useState(false);
@@ -86,6 +88,7 @@ export default function Input({
                   setNumberPreview(value);
                   break;
                 case "Enter":
+                  onEnter?.(e);
                   e.currentTarget.blur();
                   break;
               }
@@ -122,10 +125,17 @@ export default function Input({
                 id={id}
                 placeholder={placeholder}
                 value={value}
-                onChange={onChange}
                 accept={accept}
                 autoFocus={autoFocus}
                 name={name}
+                onChange={onChange}
+                onKeyDown={e => {
+                  switch (e.key) {
+                    case "Enter":
+                      onEnter?.(e);
+                      break;
+                  }
+                }}
               />
               {type === "password" && (
                 <Button
@@ -138,7 +148,7 @@ export default function Input({
                 />
               )}
             </div>
-            {(helperSubtitle || helperSubtitle === "") && <Subtitle text={helperSubtitle} />}
+            {(helperSubtitle || helperSubtitle === "") && <Subtitle disabled={disabled} text={helperSubtitle} />}
           </>
         )}
       </div>
