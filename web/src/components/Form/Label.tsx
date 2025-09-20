@@ -1,9 +1,11 @@
-export default function Label({ className = "", text, htmlFor = undefined }) {
+export default function Label({ disabled = undefined, className = "", text, htmlFor = undefined }) {
   return htmlFor ? (
-    <label className={`font-bold ${className}`} htmlFor={htmlFor}>
+    <label data-disabled={disabled} className={`font-bold ${className}`} htmlFor={htmlFor}>
       {text}
     </label>
   ) : (
-    <span className={`font-bold ${className}`}>{text}</span>
+    <span data-disabled={disabled} className={`font-bold ${className}`}>
+      {text}
+    </span>
   );
 }
