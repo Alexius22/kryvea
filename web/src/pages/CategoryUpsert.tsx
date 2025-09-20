@@ -1,5 +1,5 @@
 import { mdiDatabaseEdit, mdiTrashCan } from "@mdi/js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
@@ -33,11 +33,6 @@ const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([va
 
 export default function CategoryUpsert() {
   const [defaultLanguageFromSettings, setDefaultLanguageFromSettings] = useState(null);
-  const defaultLanguageOption = useMemo(
-    () => languageOptions.find(option => option.value === defaultLanguageFromSettings),
-    []
-  );
-
   const [identifier, setIdentifier] = useState("");
   const [name, setName] = useState("");
   const [source, setSource] = useState<Category["source"]>();
@@ -45,20 +40,24 @@ export default function CategoryUpsert() {
   const [references, setReferences] = useState<string[]>([]);
 
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-  const [selectedLanguagesOptions, setSelectedLanguagesOptions] = useState<SelectOption[]>(
-    defaultLanguageFromSettings ? [defaultLanguageOption] : []
-  );
+  const [selectedLanguagesOptions, setSelectedLanguagesOptions] = useState<SelectOption[]>([]);
 
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId?: string }>();
 
   useEffect(() => {
     document.title = getPageTitle(categoryId ? "Edit Category" : "New Category");
-    getData<Settings>("/api/admin/settings", data => {
-      setDefaultLanguageFromSettings(data.default_category_language);
-      if (categoryId == undefined) {
-        setSelectedLanguagesOptions([languageOptions.find(option => option.value === data.default_category_language)]);
+
+    getData<Settings>("/api/admin/settings", ({ default_category_language }) => {
+      setDefaultLanguageFromSettings(default_category_language);
+
+      const languageOption = languageOptions.find(option => option.value === default_category_language);
+      if (languageOption == undefined) {
+        console.warn("Default language option not found in language options:", { defaultLanguageFromSettings });
+        return;
       }
+
+      setSelectedLanguagesOptions([languageOption]);
     });
 
     if (categoryId == undefined) {
@@ -72,14 +71,8 @@ export default function CategoryUpsert() {
       setReferences(category.references || []);
       setCategory(category);
 
-      const selectableLanguages = Object.keys(category.generic_description).filter(
-        lang => lang !== defaultLanguageFromSettings
-      );
       setSelectedLanguagesOptions(
-        [
-          defaultLanguageOption,
-          ...selectableLanguages.map(lang => languageOptions.find(option => option.value === lang)),
-        ].filter(Boolean)
+        languageOptions.filter(option => Object.keys(category.generic_description || {}).includes(option.value))
       );
     });
   }, []);
