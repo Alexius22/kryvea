@@ -4,6 +4,7 @@ import (
 	"io"
 	"mime/multipart"
 
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,6 +36,10 @@ func (d *Driver) formDataReadImage(c *fiber.Ctx, fieldName string) (data []byte,
 	data, err = d.readFile(file)
 	if err != nil {
 		return nil, "", err
+	}
+
+	if !util.IsImageTypeAllowed(data) {
+		return nil, "", util.ErrImageTypeNotAllowed
 	}
 
 	return data, file.Filename, nil
