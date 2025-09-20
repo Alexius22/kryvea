@@ -43,7 +43,6 @@ const BUTTONS_KEY = "buttons";
 
 export default function Table({
   data,
-  defaultFilterText = "",
   perPageCustom = 5,
   wMin,
   maxWidthColumns = {},
@@ -59,7 +58,7 @@ export default function Table({
   const [perPage, setPerPage] = useState(perPageCustom);
   const [currentPage, setCurrentPage] = useState(1);
   const [keySort, setKeySort] = useState<{ header: string; order: 1 | 2 }>();
-  const [filterText, setFilterText] = useState(defaultFilterText);
+  const [filterText, setFilterText] = useState("");
   const [filteredData, setFilteredData] = useState(data ?? []);
 
   const getTableElementKey = useCallback((element: string) => `table-${element}-${v4()}`, []);
