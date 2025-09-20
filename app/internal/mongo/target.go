@@ -137,10 +137,11 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 
 	var existingTarget Assessment
 	err = ti.collection.FindOne(context.Background(), bson.M{
-		"ipv4": target.IPv4,
-		"ipv6": target.IPv6,
-		"fqdn": target.FQDN,
-		"tag":  target.Tag,
+		"ipv4":         target.IPv4,
+		"ipv6":         target.IPv6,
+		"fqdn":         target.FQDN,
+		"tag":          target.Tag,
+		"customer._id": customerID,
 	}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil

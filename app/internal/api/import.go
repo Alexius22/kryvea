@@ -153,6 +153,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			targets = append(targets, targetID)
 		}
 
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
+		}
+
 		category := &mongo.Category{
 			Index:              issue.Type,
 			Name:               issue.Name,
@@ -370,6 +375,11 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 		}
 		if isNew {
 			targets = append(targets, targetID)
+		}
+
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
 		}
 
 		for _, item := range host.ReportItems {
