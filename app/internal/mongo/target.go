@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"time"
 
@@ -76,10 +77,24 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, error) {
+func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID, assessmentID uuid.UUID) (uuid.UUID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
+	}
+
+	var assessment *Assessment
+	if assessmentID != uuid.Nil {
+		assessment, err = ti.driver.Assessment().GetByID(assessmentID)
+		if err != nil {
+			ti.driver.logger.Error().Err(err).Msg("failed to get assessment by ID")
+			return uuid.Nil, err
+		}
+
+		if assessment.Customer.ID != customerID {
+			ti.driver.logger.Error().Err(err).Msg("target does not belong to customer")
+			return uuid.Nil, errors.New("target does not belong to customer")
+		}
 	}
 
 	id, err := uuid.NewRandom()
@@ -102,6 +117,13 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	if err != nil {
 		return uuid.Nil, err
+	}
+
+	if assessment != nil {
+		err = ti.driver.Assessment().UpdateTargets(assessment.ID, target.ID)
+		if err != nil {
+			return uuid.Nil, err
+		}
 	}
 
 	return target.ID, nil
@@ -127,7 +149,7 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 		return uuid.Nil, false, err
 	}
 
-	id, err := ti.Insert(target, customerID)
+	id, err := ti.Insert(target, customerID, uuid.Nil)
 	return id, true, err
 }
 
