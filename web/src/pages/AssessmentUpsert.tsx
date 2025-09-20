@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -129,8 +129,6 @@ export default function AssessmentUpsert() {
 
   const [kickoffDate, setKickoffDate] = useState(new Date().toISOString());
 
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
-
   const fetchTargets = (callback?: (targets: Target[]) => void) => {
     getData<Target[]>(`/api/customers/${customerId}/targets`, targets => {
       setTargets(targets);
@@ -148,7 +146,6 @@ export default function AssessmentUpsert() {
       getData<Assessment>(
         `/api/assessments/${assessmentId}`,
         data => {
-          setAssessment(data);
           setForm({
             type: data.type,
             name: data.name,
@@ -172,13 +169,17 @@ export default function AssessmentUpsert() {
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
-  const targetOptions: SelectOption[] = targets.map(target => ({
-    value: target.id,
-    label:
-      target.fqdn && (target.ipv4 || target.ipv6)
-        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
-        : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
-  }));
+  const targetOptions: SelectOption[] = useMemo(
+    () =>
+      targets.map(target => ({
+        value: target.id,
+        label:
+          target.fqdn && (target.ipv4 || target.ipv6)
+            ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
+            : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
+      })),
+    [targets]
+  );
 
   const handleChange = (field: keyof typeof form, value: any) => {
     setForm(f => ({ ...f, [field]: value }));
