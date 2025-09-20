@@ -392,7 +392,7 @@ export default function AssessmentUpsert() {
                 onChange={handleTargetsChange}
                 closeMenuOnSelect={false}
               />
-              <Button icon={mdiPlus} text="New Target" onClick={() => openTargetModal()} />
+              <Button icon={mdiPlus} text="New Target" onClick={openTargetModal} />
             </Grid>
             <SelectWrapper
               label="Environment"
