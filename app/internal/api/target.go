@@ -4,16 +4,18 @@ import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type targetRequestData struct {
-	IPv4       string `json:"ipv4"`
-	IPv6       string `json:"ipv6"`
-	Port       int    `json:"port"`
-	Protocol   string `json:"protocol"`
-	FQDN       string `json:"fqdn"`
-	Tag        string `json:"tag"`
-	CustomerID string `json:"customer_id"`
+	IPv4         string `json:"ipv4"`
+	IPv6         string `json:"ipv6"`
+	Port         int    `json:"port"`
+	Protocol     string `json:"protocol"`
+	FQDN         string `json:"fqdn"`
+	Tag          string `json:"tag"`
+	CustomerID   string `json:"customer_id"`
+	AssessmentID string `json:"assessment_id"`
 }
 
 func (d *Driver) AddTarget(c *fiber.Ctx) error {
@@ -53,6 +55,22 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		})
 	}
 
+	assessment := &mongo.Assessment{
+		Model: mongo.Model{
+			ID: uuid.Nil,
+		},
+	}
+	// if assessment is not empty retrieve it from database
+	if data.AssessmentID != "" {
+		assessment, errStr = d.assessmentFromParam(data.AssessmentID)
+		if errStr != "" {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": errStr,
+			})
+		}
+	}
+
 	target := &mongo.Target{
 		IPv4:     data.IPv4,
 		IPv6:     data.IPv6,
@@ -63,11 +81,11 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 	}
 
 	// inseert target into database
-	targetID, err := d.mongo.Target().Insert(target, customer.ID)
+	targetID, err := d.mongo.Target().Insert(target, customer.ID, assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Target with provided data already exists",
 			})
@@ -137,7 +155,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Target with provided data already exists",
 			})

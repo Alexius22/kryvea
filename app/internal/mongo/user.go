@@ -143,7 +143,7 @@ func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
 
 	_, err = ui.collection.InsertOne(context.Background(), user)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return user.ID, nil
@@ -314,7 +314,7 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) error {
@@ -339,7 +339,7 @@ func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) 
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addToOwned bool) error {

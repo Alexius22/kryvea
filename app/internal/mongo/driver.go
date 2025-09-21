@@ -107,7 +107,8 @@ func (d *Driver) CreateSetting() error {
 			CreatedAt: now,
 			UpdatedAt: now,
 		},
-		MaxImageSize:            20 * 1024 * 1024, // 20 MB
+		MaxImageSize:            20 * 1024 * 1024,
+		MaxImageSizeMB:          20,
 		DefaultCategoryLanguage: "en",
 	})
 	if err != nil {
