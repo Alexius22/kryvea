@@ -91,6 +91,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
 		apiGroup.Post("/vulnerabilities", api.AddVulnerability)
+		apiGroup.Post("/vulnerabilities/:vulnerability/copy", api.CopyVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
 		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerbilities)

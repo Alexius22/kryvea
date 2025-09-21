@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"time"
 
@@ -68,6 +69,7 @@ func (ti TargetIndex) init() error {
 				{Key: "ipv6", Value: 1},
 				{Key: "fqdn", Value: 1},
 				{Key: "tag", Value: 1},
+				{Key: "customer._id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
@@ -75,10 +77,24 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, error) {
+func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID, assessmentID uuid.UUID) (uuid.UUID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
+	}
+
+	var assessment *Assessment
+	if assessmentID != uuid.Nil {
+		assessment, err = ti.driver.Assessment().GetByID(assessmentID)
+		if err != nil {
+			ti.driver.logger.Error().Err(err).Msg("failed to get assessment by ID")
+			return uuid.Nil, err
+		}
+
+		if assessment.Customer.ID != customerID {
+			ti.driver.logger.Error().Err(err).Msg("target does not belong to customer")
+			return uuid.Nil, errors.New("target does not belong to customer")
+		}
 	}
 
 	id, err := uuid.NewRandom()
@@ -100,7 +116,14 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
+	}
+
+	if assessment != nil {
+		err = ti.driver.Assessment().UpdateTargets(assessment.ID, target.ID)
+		if err != nil {
+			return uuid.Nil, err
+		}
 	}
 
 	return target.ID, nil
@@ -114,10 +137,11 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 
 	var existingTarget Assessment
 	err = ti.collection.FindOne(context.Background(), bson.M{
-		"ipv4": target.IPv4,
-		"ipv6": target.IPv6,
-		"fqdn": target.FQDN,
-		"tag":  target.Tag,
+		"ipv4":         target.IPv4,
+		"ipv6":         target.IPv6,
+		"fqdn":         target.FQDN,
+		"tag":          target.Tag,
+		"customer._id": customerID,
 	}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
@@ -126,7 +150,7 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 		return uuid.Nil, false, err
 	}
 
-	id, err := ti.Insert(target, customerID)
+	id, err := ti.Insert(target, customerID, uuid.Nil)
 	return id, true, err
 }
 
@@ -146,7 +170,7 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 	}
 
 	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ti *TargetIndex) Delete(targetID uuid.UUID) error {

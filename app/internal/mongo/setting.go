@@ -24,8 +24,9 @@ var (
 
 type Setting struct {
 	Model                   `bson:",inline"`
-	MaxImageSize            int    `json:"max_image_size" bson:"max_image_size"`
-	DefaultCategoryLanguage string `json:"default_category_language" bson:"default_category_language"`
+	MaxImageSize            int64   `json:"-" bson:"max_image_size"`
+	MaxImageSizeMB          float64 `json:"max_image_size" bson:"max_image_size_mb"` // Used for APIs
+	DefaultCategoryLanguage string  `json:"default_category_language" bson:"default_category_language"`
 }
 
 type SettingIndex struct {
@@ -59,10 +60,24 @@ func (si *SettingIndex) Update(setting *Setting) error {
 		"$set": bson.M{
 			"updated_at":                time.Now(),
 			"max_image_size":            setting.MaxImageSize,
+			"max_image_size_mb":         setting.MaxImageSizeMB,
 			"default_category_language": setting.DefaultCategoryLanguage,
 		},
 	}
 
 	_, err := si.collection.UpdateOne(context.Background(), filter, update)
 	return err
+}
+
+func (si *SettingIndex) ValidateImageSize(size int64) error {
+	settings, err := si.Get()
+	if err != nil {
+		return err
+	}
+
+	if size > settings.MaxImageSize {
+		return ErrFileSizeTooLarge
+	}
+
+	return nil
 }

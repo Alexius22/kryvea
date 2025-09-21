@@ -73,7 +73,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 		})
 	}
 
-	data, _, err := util.FormDataReadFile(c, "file")
+	data, _, err := d.formDataReadFile(c, "file")
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -151,6 +151,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		}
 		if isNew {
 			targets = append(targets, targetID)
+		}
+
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
 		}
 
 		category := &mongo.Category{
@@ -372,6 +377,11 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			targets = append(targets, targetID)
 		}
 
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
+		}
+
 		for _, item := range host.ReportItems {
 			if item == nil {
 				continue
@@ -430,6 +440,21 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				},
 			}
 
+			if item.CvssVector == "" && item.Cvss3Vector == "" {
+				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2)
+				if err != nil {
+					return err
+				}
+				vulnerability.CVSSv2 = *vector2
+
+				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31)
+				if err != nil {
+					return err
+				}
+				vulnerability.CVSSv31 = *vector31
+			}
+
+			// Parse cvss2
 			if item.CvssVector != "" {
 				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2)
 				if err != nil {

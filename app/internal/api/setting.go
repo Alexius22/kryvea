@@ -6,9 +6,12 @@ import (
 	"golang.org/x/text/language"
 )
 
+// MaxImageSize is expressed as float64 MB
+// Collective wisdom dictated this
+// I, however, remain in dignified dissent
 type settingRequestData struct {
-	MaxImageSize            int    `json:"max_image_size" bson:"max_image_size"`
-	DefaultCategoryLanguage string `json:"default_category_language" bson:"default_category_language"`
+	MaxImageSize            float64 `json:"max_image_size" bson:"max_image_size"`
+	DefaultCategoryLanguage string  `json:"default_category_language" bson:"default_category_language"`
 }
 
 func (d *Driver) GetSettings(c *fiber.Ctx) error {
@@ -19,6 +22,8 @@ func (d *Driver) GetSettings(c *fiber.Ctx) error {
 			"error": "Cannot retrieve settings",
 		})
 	}
+
+	settings.MaxImageSize /= 1024 * 1024
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(settings)
@@ -43,8 +48,12 @@ func (d *Driver) UpdateSettings(c *fiber.Ctx) error {
 		})
 	}
 
+	// Image size is received as Mbytes, convert to bytes
+	maxImageSize := int64(data.MaxImageSize * 1024 * 1024)
+
 	setting := &mongo.Setting{
-		MaxImageSize:            data.MaxImageSize,
+		MaxImageSize:            maxImageSize,
+		MaxImageSizeMB:          data.MaxImageSize,
 		DefaultCategoryLanguage: data.DefaultCategoryLanguage,
 	}
 
