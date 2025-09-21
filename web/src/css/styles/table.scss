@@ -1,3 +1,7 @@
+div:has(table) {
+  @apply show-scrollbar;
+}
+
 table thead {
   background-color: rgba(var(--bg-quinary-rgb), 0.6);
 }
