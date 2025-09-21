@@ -19,6 +19,7 @@ import { SelectOption } from "../components/Form/SelectWrapper.types";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
 import { getPageTitle } from "../utils/helpers";
+import { getTargetLabel } from "../utils/targetLabel";
 
 type AssessmentPayload = Omit<
   Assessment,
@@ -173,10 +174,7 @@ export default function AssessmentUpsert() {
     () =>
       targets.map(target => ({
         value: target.id,
-        label:
-          target.fqdn && (target.ipv4 || target.ipv6)
-            ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.tag ? ` (${target.tag})` : ""}`
-            : (target.fqdn || target.ipv4 || target.ipv6) + (target.tag ? ` (${target.tag})` : ""),
+        label: getTargetLabel(target),
       })),
     [targets]
   );
