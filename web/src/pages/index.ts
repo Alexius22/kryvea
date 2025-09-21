@@ -1,5 +1,4 @@
 import AddCustomer from "./AddCustomer";
-import AddTarget from "./AddTarget";
 import AddUser from "./AddUser";
 import Assessments from "./Assessments";
 import AssessmentUpsert from "./AssessmentUpsert";
@@ -25,7 +24,6 @@ import VulnerabilityUpsert from "./VulnerabilityUpsert";
 
 export {
   AddCustomer,
-  AddTarget,
   AddUser,
   Assessments,
   AssessmentUpsert,
