@@ -12,14 +12,14 @@ export default function Checkbox({ disabled, id, checked, onChange, label }: Che
   return (
     <div data-disabled={disabled} className="inline-flex items-center gap-2">
       <input
-        disabled
+        disabled={disabled}
         type="checkbox"
         id={id}
         checked={checked}
         onChange={onChange}
         className="checkbox h-5 w-5 cursor-pointer"
       />
-      <Label disabled text={label} htmlFor={id} className="cursor-pointer text-sm" />
+      <Label disabled={disabled} text={label} htmlFor={id} className="cursor-pointer text-sm" />
     </div>
   );
 }
