@@ -95,13 +95,16 @@ export default function AssessmentVulnerabilities() {
   };
 
   const exportAssessment = () => {
-    const payload = {
+    const payload: any = {
       type: selectedExportTypeOption.value,
-      template: selectedExportTemplate.id,
       password: exportEncryption.value === "password" ? exportPassword : undefined,
       delivery_date_time: deliveryDate,
       include_informational_vulnerabilities: checkIncludeInfo,
     };
+
+    if (selectedExportTypeOption.value !== "zip" && selectedExportTemplate) {
+      payload.template = selectedExportTemplate.id;
+    }
 
     const toastDownload = toast.loading("Generating report...");
     setIsModalDownloadActive(false);
@@ -210,6 +213,7 @@ export default function AssessmentVulnerabilities() {
             <SelectWrapper
               label="Template Type"
               id="template"
+              disabled={selectedExportTypeOption.value === "zip"}
               options={templateOptions}
               value={
                 selectedExportTemplate
@@ -240,7 +244,6 @@ export default function AssessmentVulnerabilities() {
             <Input
               type="password"
               id="password"
-              className={exportEncryption.value !== "password" && "opacity-50"}
               disabled={exportEncryption.value !== "password"}
               placeholder="Insert password"
               value={exportPassword}
