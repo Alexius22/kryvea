@@ -7,7 +7,6 @@ import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
-import Modal from "../components/Composition/Modal";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -16,6 +15,7 @@ import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
+import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
 import { getPageTitle } from "../utils/helpers";
@@ -108,10 +108,6 @@ export default function AssessmentUpsert() {
   const isEdit = Boolean(assessmentId);
   const [isModalTargetActive, setIsModalTargetActive] = useState(false);
 
-  const [ipv4, setIpv4] = useState("");
-  const [ipv6, setIpv6] = useState("");
-  const [fqdn, setFqdn] = useState("");
-  const [tag, setTag] = useState("");
   const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
 
   const [form, setForm] = useState<AssessmentPayload>({
@@ -130,13 +126,8 @@ export default function AssessmentUpsert() {
 
   const [kickoffDate, setKickoffDate] = useState(new Date().toISOString());
 
-  const fetchTargets = (callback?: (targets: Target[]) => void) => {
-    getData<Target[]>(`/api/customers/${customerId}/targets`, targets => {
-      setTargets(targets);
-      if (callback) {
-        callback(targets);
-      }
-    });
+  const fetchTargets = () => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
   };
 
   useEffect(() => {
@@ -242,80 +233,27 @@ export default function AssessmentUpsert() {
     setIsModalTargetActive(true);
   };
 
-  const handleModalConfirm = () => {
-    const payload = {
-      ipv4: ipv4.trim(),
-      ipv6: ipv6.trim(),
-      fqdn: fqdn.trim(),
-      tag: tag.trim(),
-      customer_id: customerId,
-    };
-
-    postData<{ message: string; target_id: string }>("/api/targets", payload, data => {
-      toast.success(data.message);
-      setIsModalTargetActive(false);
-      setIpv4("");
-      setIpv6("");
-      setFqdn("");
-      setTag("");
-
-      fetchTargets(newTargets => {
-        // Find the new one and preselect it
-        const newTarget = newTargets.find(t => t.id === data.target_id);
-        if (newTarget) {
-          setForm(prev => ({
-            ...prev,
-            targets: [...prev.targets, newTarget],
-          }));
-        }
-      });
+  const handleTargetCreated = createdTargetId => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, newTargets => {
+      setTargets(newTargets);
+      const newTarget = newTargets.find(t => t.id === createdTargetId);
+      if (newTarget) {
+        setForm(prev => ({
+          ...prev,
+          targets: [...prev.targets, newTarget],
+        }));
+      }
     });
   };
 
   return (
     <>
       {isModalTargetActive && (
-        <Modal
-          title="New Target"
-          confirmButtonLabel="Save"
-          onConfirm={handleModalConfirm}
-          onCancel={() => setIsModalTargetActive(false)}
-        >
-          <Grid className="grid-cols-1 gap-4">
-            <Input
-              type="text"
-              id="ipv4"
-              label="IPv4"
-              placeholder="IPv4 address"
-              value={ipv4}
-              onChange={e => setIpv4(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="ipv6"
-              label="IPv6"
-              placeholder="IPv6 address"
-              value={ipv6}
-              onChange={e => setIpv6(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="fqdn"
-              label="FQDN | Target name"
-              placeholder="Fully Qualified Domain Name or target name"
-              value={fqdn}
-              onChange={e => setFqdn(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="tag"
-              label="Tag"
-              placeholder="This value is used to differentiate between duplicate entries"
-              value={tag}
-              onChange={e => setTag(e.target.value)}
-            />
-          </Grid>
-        </Modal>
+        <AddTargetModal
+          setShowModal={setIsModalTargetActive}
+          assessmentId={assessmentId}
+          onTargetCreated={handleTargetCreated}
+        />
       )}
 
       <Card>

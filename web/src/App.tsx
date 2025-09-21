@@ -5,7 +5,6 @@ import Layout from "./components/Layout/Layout";
 import RouteWatcher from "./components/Layout/RouteWatcher";
 import {
   AddCustomer,
-  AddTarget,
   AddUser,
   Assessments,
   AssessmentUpsert,
@@ -136,7 +135,6 @@ export default function App() {
               <Route path="/customers/new" element={<AddCustomer />} />
               <Route path="/customers/:customerId" element={<CustomerDetail />} />
               <Route path="/customers/:customerId/targets" element={<Targets />} />
-              <Route path="/customers/:customerId/targets/new" element={<AddTarget />} />
               <Route path="/customers/:customerId/assessments" element={<Assessments />} />
               <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
               <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />

@@ -19,6 +19,7 @@ import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
+import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Category, exportTypes, Template, Vulnerability } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
@@ -33,6 +34,7 @@ export default function AssessmentVulnerabilities() {
   } = useContext(GlobalContext);
   const { assessmentId } = useParams<{ assessmentId: string }>();
 
+  const [isModalTargetActive, setIsModalTargetActive] = useState(false);
   const [isModalDownloadActive, setIsModalDownloadActive] = useState(false);
   const [isModalUploadActive, setIsModalUploadActive] = useState(false);
   const [isModalTrashActive, setIsModalTrashActive] = useState(false);
@@ -120,6 +122,10 @@ export default function AssessmentVulnerabilities() {
     });
   };
 
+  const openTargetModal = () => {
+    setIsModalTargetActive(true);
+  };
+
   const openDeleteModal = (vulnerability: Vulnerability) => {
     setVulnerabilityToDelete(vulnerability);
     setIsModalTrashActive(true);
@@ -194,6 +200,9 @@ export default function AssessmentVulnerabilities() {
 
   return (
     <div>
+      {/* Add Target Modal */}
+      {isModalTargetActive && <AddTargetModal setShowModal={setIsModalTargetActive} assessmentId={assessmentId} />}
+
       {/* Download Modal */}
       {isModalDownloadActive && (
         <Modal
@@ -324,12 +333,7 @@ export default function AssessmentVulnerabilities() {
       <PageHeader icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
           <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
-          <Button
-            icon={mdiPlus}
-            text="New Target"
-            small
-            onClick={() => navigate(`/customers/${ctxCustomer.id}/targets/new`)}
-          />
+          <Button icon={mdiPlus} text="New Target" small onClick={openTargetModal} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />
           <Button icon={mdiDownload} text="Download report" small onClick={openExportModal} />
           {/* <Button icon={mdiFileEye} text="Live editor" small disabled onClick={() => navigate("/live_editor")} /> */}
