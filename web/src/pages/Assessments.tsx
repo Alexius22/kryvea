@@ -2,8 +2,7 @@ import { mdiContentDuplicate, mdiDownload, mdiFileEdit, mdiPlus, mdiStar, mdiTab
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { deleteData, getData, patchData, postData, postDownloadBlob } from "../api/api";
-import { curryDownloadReport } from "../api/curries";
+import { deleteData, getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -12,12 +11,11 @@ import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
-import DateCalendar from "../components/Form/DateCalendar";
 import Input from "../components/Form/Input";
-import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
-import { Assessment, exportTypes, Template } from "../types/common.types";
+import ExportReportModal from "../components/Modals/ExportReportModal";
+import { Assessment, Template } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 
@@ -35,16 +33,7 @@ export default function Assessments() {
 
   const [cloneName, setCloneName] = useState("");
 
-  const [selectedExportTypeOption, setSelectedExportTypeOption] = useState<SelectOption>(exportTypes[0]);
-  const [templatesByTypeAndLanguage, setTemplatesByTypeAndLanguage] = useState<Template[]>([]);
-  const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([]);
-  const [selectedExportTemplate, setSelectedExportTemplate] = useState<Template | null>(null);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
-
-  const [exportEncryption, setExportEncryption] = useState<SelectOption>({ value: "none", label: "None" });
-  const [exportPassword, setExportPassword] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString());
-  const [checkIncludeInfo, setCheckIncludeInfo] = useState(false);
 
   const [statusSelectOptions] = useState<SelectOption[]>([
     { label: "On Hold", value: "On Hold" },
@@ -72,31 +61,6 @@ export default function Assessments() {
     fetchAssessments();
     getData<Template[]>("/api/templates", setAllTemplates);
   }, []);
-
-  const getTemplatesByTypeAndLanguage = () =>
-    allTemplates.filter(
-      t => t.language === assessments[0].customer.language && t.mime_type === selectedExportTypeOption.value
-    );
-
-  useEffect(() => {
-    if (assessments.length <= 0) {
-      return;
-    }
-
-    const filteredTemplates = getTemplatesByTypeAndLanguage();
-    setTemplatesByTypeAndLanguage(filteredTemplates);
-    setTemplateOptions(
-      filteredTemplates.map(t => ({
-        value: t.id,
-        label: t.type ? `${t.name} (${t.type})` : t.name,
-      }))
-    );
-
-    setSelectedExportTemplate(null);
-    if (filteredTemplates.length > 0 && !selectedExportTemplate) {
-      setSelectedExportTemplate(filteredTemplates[0]);
-    }
-  }, [allTemplates, selectedExportTypeOption, assessments]);
 
   const handleOwnedToggle = assessment => () => {
     patchData(
@@ -151,37 +115,6 @@ export default function Assessments() {
     setIsModalDownloadActive(true);
   };
 
-  const exportAssessment = () => {
-    const payload: any = {
-      type: selectedExportTypeOption.value,
-      password: exportEncryption.value === "password" ? exportPassword : undefined,
-      delivery_date_time: deliveryDate,
-      include_informational_vulnerabilities: checkIncludeInfo,
-    };
-
-    if (selectedExportTypeOption.value !== "zip" && selectedExportTemplate) {
-      payload.template = selectedExportTemplate.id;
-    }
-
-    const toastDownload = toast.loading("Generating report...");
-    setIsModalDownloadActive(false);
-
-    postDownloadBlob(
-      `/api/assessments/${selectedAssessmentId}/export`,
-      payload,
-      curryDownloadReport(toastDownload),
-      err => {
-        toast.update(toastDownload, {
-          render: err.response.data.error,
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-          closeButton: true,
-        });
-      }
-    );
-  };
-
   return (
     <div>
       {/* Clone Modal */}
@@ -215,82 +148,12 @@ export default function Assessments() {
 
       {/* Download Modal */}
       {isModalDownloadActive && (
-        <Modal
-          title="Download report"
-          confirmButtonLabel="Confirm"
-          onConfirm={exportAssessment}
-          onCancel={() => setIsModalDownloadActive(false)}
-        >
-          <Grid className="grid-cols-2">
-            <SelectWrapper
-              label="Type"
-              id="type"
-              options={exportTypes}
-              value={selectedExportTypeOption}
-              onChange={setSelectedExportTypeOption}
-            />
-            <SelectWrapper
-              label="Template Type"
-              id="template"
-              disabled={selectedExportTypeOption.value === "zip"}
-              options={templateOptions}
-              value={
-                selectedExportTemplate
-                  ? {
-                      value: selectedExportTemplate.id,
-                      label: selectedExportTemplate.type
-                        ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
-                        : selectedExportTemplate.name,
-                    }
-                  : null
-              }
-              onChange={option => {
-                const selected = allTemplates.find(t => t.id === option.value) || null;
-                setSelectedExportTemplate(selected);
-              }}
-            />
-
-            <SelectWrapper
-              label="Encryption"
-              id="encryption"
-              options={[
-                { value: "none", label: "None" },
-                { value: "password", label: "Password" },
-              ]}
-              value={exportEncryption}
-              onChange={option => setExportEncryption(option)}
-            />
-            <Input
-              type="password"
-              id="password"
-              disabled={exportEncryption.value !== "password"}
-              placeholder="Insert password"
-              value={exportPassword}
-              onChange={e => setExportPassword(e.target.value)}
-            />
-            <DateCalendar
-              idStart="delivery_date"
-              label="Report delivery date"
-              value={{ start: deliveryDate }}
-              onChange={val => {
-                if (typeof val === "string") {
-                  setDeliveryDate(val);
-                }
-              }}
-            />
-            <Grid className="h-full !items-start">
-              <Label text={<>&nbsp;</>} />
-              <Checkbox
-                id="include_informational_vulnerabilities"
-                label="Include informational vulnerabilities"
-                checked={checkIncludeInfo}
-                onChange={e => {
-                  setCheckIncludeInfo(e.target.checked);
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Modal>
+        <ExportReportModal
+          setShowModal={setIsModalDownloadActive}
+          assessmentId={selectedAssessmentId}
+          templates={allTemplates}
+          language={assessments[0]?.customer.language}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
