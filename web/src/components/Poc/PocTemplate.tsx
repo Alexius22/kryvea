@@ -29,35 +29,27 @@ export default function PocTemplate({
 
   return (
     <div
+      ref={dropRef}
       className="poc-template"
+      data-type={pocDoc.type}
       data-focused={selectedPoc === currentIndex}
       onDragEnter={e => {
         e.preventDefault();
-        e.stopPropagation();
-        dragCounter.current++;
         dropRef.current?.classList.add("dragged-over");
       }}
       onDragLeave={e => {
         e.preventDefault();
-        e.stopPropagation();
-        dragCounter.current--;
-        if (dragCounter.current === 0) {
-          dropRef.current?.classList.remove("dragged-over");
-        }
-      }}
-      onDrop={e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dragCounter.current = 0;
         dropRef.current?.classList.remove("dragged-over");
-        handleDrop(dropRef)(e); // Pass event down
       }}
       onDragOver={e => {
         e.preventDefault();
-        e.stopPropagation();
+        dropRef.current?.classList.add("dragged-over");
+      }}
+      onDrop={e => {
+        e.preventDefault();
+        handleDrop(dropRef)(e); // Pass event down
       }}
       onClick={() => setSelectedPoc(currentIndex)}
-      ref={dropRef}
       data-name="poc-template"
     >
       <div className="drop-image-over-hinter">
@@ -72,7 +64,7 @@ export default function PocTemplate({
         <Button variant="danger" small icon={mdiDelete} onClick={onRemovePoc(currentIndex)} />
       </Flex>
       <Flex col className="gap-2">
-        <div className="poc-template-children-sibling flex gap-6">
+        <div className="flex gap-6">
           <Input
             label="Index"
             type="number"

@@ -40,19 +40,26 @@ export default function EditPoc() {
       setPocList(pocs.sort((a, b) => a.index - b.index).map(poc => ({ ...poc, key: getPocKeyByType(poc.type) })));
     });
 
-    const handleDragStart = () => {
+    const handleDragStart = e => {
+      e.preventDefault();
       pocListParent.current?.classList.add("dragging");
     };
-    const handleDragEnd = () => {
+    const handleDragEnd = e => {
+      e.preventDefault();
       pocListParent.current?.classList.remove("dragging");
     };
 
-    document.addEventListener("dragover", handleDragStart);
-    document.addEventListener("dragend", handleDragEnd);
-    document.addEventListener("visibilitychange", handleDragEnd);
+    window.addEventListener("dragover", handleDragStart);
+    window.addEventListener("dragstart", handleDragStart);
+    window.addEventListener("dragend", handleDragEnd);
+    window.addEventListener("visibilitychange", handleDragEnd);
+    window.addEventListener("drop", handleDragEnd);
     return () => {
-      document.removeEventListener("dragstart", handleDragStart);
-      document.removeEventListener("visibilitychange", handleDragEnd);
+      window.removeEventListener("dragover", handleDragStart);
+      window.removeEventListener("dragstart", handleDragStart);
+      window.removeEventListener("dragend", handleDragEnd);
+      window.removeEventListener("visibilitychange", handleDragEnd);
+      window.removeEventListener("drop", handleDragEnd);
     };
   }, []);
 
