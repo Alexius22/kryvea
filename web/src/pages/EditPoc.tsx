@@ -303,13 +303,38 @@ export default function EditPoc() {
               onClick={() => {
                 const formData = new FormData();
 
+                let ok = true;
                 formData.append(
                   "pocs",
                   JSON.stringify(
                     pocList.map((poc, index) => {
+                      switch (poc.type) {
+                        case POC_TYPE_TEXT:
+                          if (poc.text_data == undefined || poc.text_data.trim() === "") {
+                            toast.error(`Text PoC at index ${index + 1} cannot be empty`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_REQUEST_RESPONSE:
+                          if (poc?.request?.trim() === "" && poc?.response?.trim() === "") {
+                            toast.error(`Request/Response PoC at index ${index + 1} cannot be both empty`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_IMAGE:
+                          if (poc?.image_file == null) {
+                            toast.error(`Image PoC at index ${index + 1} must have an image`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_RICH_TEXT:
+                          break;
+                      }
+
                       if (poc.type === POC_TYPE_IMAGE && poc.image_reference != null) {
                         formData.append(poc.image_reference, poc.image_file, poc.image_file.name);
                       }
+
                       return {
                         ...poc,
                         index,
@@ -319,6 +344,9 @@ export default function EditPoc() {
                     })
                   )
                 );
+                if (!ok) {
+                  return;
+                }
 
                 putData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, formData, () => {
                   toast.success("PoCs updated successfully");
