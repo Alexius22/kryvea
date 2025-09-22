@@ -69,7 +69,7 @@ func (columns *Columns) getColumn(header string) Column {
 	return columns.Columns[columns.NameToColumn[header]]
 }
 
-func (t *CustomClassicTemplate) renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
+func (t *CustomClassicTemplate) renderReport(assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
 	var zipBuf bytes.Buffer
 	zipWriter := zip.NewWriter(&zipBuf)
 	defer zipWriter.Close()
@@ -269,18 +269,18 @@ func (t *CustomClassicTemplate) renderReport(customer *mongo.Customer, assessmen
 		row := i + 2
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnID).Letter, row), i)
 
-		maxVersion := util.GetMaxCvssVersion(assessment.CVSSVersions)
-
 		severity := ""
-		switch maxVersion {
-		case cvss.Cvss2:
-			severity = vuln.CVSSv2.Severity.Label
-		case cvss.Cvss3:
-			severity = vuln.CVSSv3.Severity.Label
-		case cvss.Cvss31:
-			severity = vuln.CVSSv31.Severity.Label
-		case cvss.Cvss4:
-			severity = vuln.CVSSv4.Severity.Label
+		// get severity of the most recent cvss version
+		for version := range assessment.CVSSVersions {
+			labels := map[string]string{
+				cvss.Cvss2:  vuln.CVSSv2.Severity.Label,
+				cvss.Cvss3:  vuln.CVSSv3.Severity.Label,
+				cvss.Cvss31: vuln.CVSSv31.Severity.Label,
+				cvss.Cvss4:  vuln.CVSSv4.Severity.Label,
+			}
+			if label, ok := labels[version]; ok && label != "" {
+				severity = label
+			}
 		}
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnSeverity).Letter, row), severity)
 
@@ -292,7 +292,6 @@ func (t *CustomClassicTemplate) renderReport(customer *mongo.Customer, assessmen
 		pocEntries := []string{}
 		pocCount := 0
 
-		// TODO: embed poc inside vulnerability
 		// Process PoCs for this vulnerability
 		for _, pocItem := range vuln.Poc.Pocs {
 			// Append new PoCs at the end
@@ -440,7 +439,7 @@ func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byt
 
 	}
 
-	return t.renderReport(reportData.Customer, reportData.Assessment, reportData.Vulnerabilities)
+	return t.renderReport(reportData.Assessment, reportData.Vulnerabilities)
 }
 
 func (t *CustomClassicTemplate) Filename() string {
