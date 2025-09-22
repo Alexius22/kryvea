@@ -184,6 +184,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			CVSSv3:      cvss.Vector{Version: cvss.Cvss3},
 			CVSSv31:     cvss.Vector{Version: cvss.Cvss31},
 			CVSSv4:      cvss.Vector{Version: cvss.Cvss4},
+			Status:      mongo.VulnearbilityStatusOpen,
 			References:  []string{issue.References},
 			Description: issue.IssueDetail,
 			Remediation: issue.RemediationDetail,
@@ -422,6 +423,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				CVSSv31:       cvss.Vector{Version: cvss.Cvss31},
 				CVSSv4:        cvss.Vector{Version: cvss.Cvss4},
 				DetailedTitle: "",
+				Status:        mongo.VulnearbilityStatusOpen,
 				References:    []string{},
 				Description:   item.Synopsis,
 				Remediation:   item.Solution,
@@ -441,13 +443,13 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			}
 
 			if item.CvssVector == "" && item.Cvss3Vector == "" {
-				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2)
+				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2, customer.Language)
 				if err != nil {
 					return err
 				}
 				vulnerability.CVSSv2 = *vector2
 
-				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31)
+				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31, customer.Language)
 				if err != nil {
 					return err
 				}
@@ -456,7 +458,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 
 			// Parse cvss2
 			if item.CvssVector != "" {
-				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2)
+				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2, customer.Language)
 				if err != nil {
 					return err
 				}
@@ -467,7 +469,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			// Parse cvss3 as cvss31
 			if item.Cvss3Vector != "" {
 				vectorString := strings.Replace(item.Cvss3Vector, cvss.Cvss3, cvss.Cvss31, 1)
-				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31)
+				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31, customer.Language)
 				if err != nil {
 					return err
 				}

@@ -1,11 +1,38 @@
 package templates
 
 import (
+	"fmt"
+
 	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 )
 
-type XlsxTemplate struct{}
+type XlsxTemplate struct {
+	TemplateBytes []byte
+	filename      string
+	extension     string
+}
 
-func (t XlsxTemplate) Render(reportData *reportdata.ReportData, template []byte) ([]byte, error) {
+func NewXlsxTemplate(templateBytes []byte) (*XlsxTemplate, error) {
+	if templateBytes == nil {
+		return nil, ErrTemplateByteRequired
+	}
+
+	return &XlsxTemplate{
+		TemplateBytes: templateBytes,
+		extension:     "xlsx",
+	}, nil
+}
+
+func (t *XlsxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+	t.filename = fmt.Sprintf("%s - %s - %s", reportData.Assessment.Type.Short, reportData.Customer.Name, reportData.Assessment.Name)
+
 	return []byte{}, nil
+}
+
+func (t *XlsxTemplate) Filename() string {
+	return fmt.Sprintf("%s.%s", t.filename, t.extension)
+}
+
+func (t *XlsxTemplate) Extension() string {
+	return t.extension
 }

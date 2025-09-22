@@ -12,8 +12,8 @@ var (
 	MimeTypeJpeg            = "image/jpeg"
 	MimeTypePng             = "image/png"
 	SupportedImageMimeTypes = map[string]string{
-		ImageTypeJpeg: MimeTypeJpeg,
-		ImageTypePng:  MimeTypePng,
+		MimeTypeJpeg: ImageTypeJpeg,
+		MimeTypePng:  ImageTypePng,
 	}
 )
 
