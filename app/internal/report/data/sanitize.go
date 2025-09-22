@@ -52,8 +52,6 @@ func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, maxVe
 
 		addSeverityColor(&vulnerabilities[i])
 
-		addCvssDescription(&vulnerabilities[i], language)
-
 		// Sort by maxVersion score
 		switch maxVersion {
 		case cvss.Cvss2:
