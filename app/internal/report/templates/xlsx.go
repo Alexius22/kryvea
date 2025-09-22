@@ -21,3 +21,7 @@ func NewXlsxTemplate(templateBytes []byte) (*XlsxTemplate, error) {
 func (t *XlsxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
 	return []byte{}, nil
 }
+
+func (t *XlsxTemplate) Extension() string {
+	return "xlsx"
+}
