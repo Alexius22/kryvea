@@ -148,7 +148,7 @@ func randUrl() string {
 	return urls[rand.Intn(len(urls))]
 }
 
-func TestClassic(t *testing.T) {
+func TestDefault(t *testing.T) {
 	customer := &mongo.Customer{
 		Name:     randName(3),
 		Language: randLanguage(),
@@ -265,12 +265,12 @@ func TestClassic(t *testing.T) {
 		Vulnerabilities: vulnerabilities,
 	}
 
-	report, _ := NewCustomClassicTemplate()
+	report, _ := NewZipDefaultTemplate()
 
 	t.Run("test", func(t *testing.T) {
 		data, err := report.Render(reportData)
 		if err != nil {
-			t.Errorf("GenerateReportClassic() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
+			t.Errorf("Render() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
 		}
 
 		err = os.WriteFile("report.zip", data, 0644)
