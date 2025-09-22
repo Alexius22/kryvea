@@ -8,7 +8,7 @@ import { Assessment, Category, Customer, User, Vulnerability } from "../../types
 
 export default function RouteWatcher() {
   const {
-    useUsername: [username, setUsername],
+    useCtxUsername: [ctxUsername, setCtxUsername],
     useCtxCustomer: [ctxCustomer, setCtxCustomer],
     useCtxAssessment: [ctxAssessment, setCtxAssessment],
     useCtxVulnerability: [ctxVulnerability, setCtxVulnerability],
@@ -24,8 +24,8 @@ export default function RouteWatcher() {
     setNavigate(navigate);
   }, [navigate]);
   useEffect(() => {
-    if (username == undefined || "") {
-      getData<User>("/api/users/me", user => setUsername(user.username));
+    if (ctxUsername == undefined || ctxUsername === "") {
+      getData<User>("/api/users/me", user => setCtxUsername(user.username));
     }
     if (customerId != undefined && ctxCustomer?.id !== customerId) {
       getData<Customer>(`/api/customers/${customerId}`, setCtxCustomer, () =>

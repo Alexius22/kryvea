@@ -35,7 +35,7 @@ import { getBrowser, SidebarItemLabel } from "./utils/helpers";
 export type GlobalContextType = {
   useThemeMode: [ThemeMode, Dispatch<SetStateAction<ThemeMode>>];
   useBrowser: [string, Dispatch<SetStateAction<string>>];
-  useUsername: [string, Dispatch<SetStateAction<string>>];
+  useCtxUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
@@ -52,7 +52,7 @@ export default function App() {
   const useThemeMode = useState<ThemeMode>(() => getLocalStorageCtxState("useThemeMode") ?? "os");
   const [themeMode] = useThemeMode;
   const useBrowser = useState<string>(getBrowser);
-  const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
+  const useCtxUsername = useState<string>(() => getLocalStorageCtxState("useCtxUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
@@ -109,7 +109,7 @@ export default function App() {
       value={{
         useThemeMode: bindToLocalStorage(useThemeMode, "useThemeMode"),
         useBrowser,
-        useUsername: bindToLocalStorage(useUsername, "useUsername"),
+        useCtxUsername: bindToLocalStorage(useCtxUsername, "useCtxUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
