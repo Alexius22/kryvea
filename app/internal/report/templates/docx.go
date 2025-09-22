@@ -58,6 +58,10 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 	return DocxTemplate.Bytes(), nil
 }
 
+func (t *DocxTemplate) Extension() string {
+	return "docx"
+}
+
 func formatDate(t time.Time) string {
 	return t.Format("02/01/2006")
 }

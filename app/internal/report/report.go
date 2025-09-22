@@ -17,6 +17,12 @@ const (
 var (
 	ErrTemplateTypeNA error = errors.New("template type not available")
 
+	ReportExtension map[string]string = map[string]string{
+		ReportTemplateXlsx:  "xlsx",
+		ReportTemplateDocx:  "docx",
+		ReportCustomClassic: "zip",
+	}
+
 	ReportTemplateMap map[string]struct{} = map[string]struct{}{
 		ReportTemplateXlsx: {},
 		ReportTemplateDocx: {},
@@ -29,6 +35,7 @@ var (
 
 type Report interface {
 	Render(reportData *reportdata.ReportData) ([]byte, error)
+	Extension() string
 }
 
 func New(reportType string, templateBytes []byte) (Report, error) {

@@ -355,7 +355,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnReferences).Letter, row), strings.Join(vuln.References, "\n"))
 	}
 
-	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0", assessment.Type.Short, customer.Name, assessment.Name)
+	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.xlsx", assessment.Type.Short, customer.Name, assessment.Name)
 	baseFileName = sanitizeFileName(baseFileName)
 
 	zipWriter.AddExcelize(xl, baseFileName)
@@ -387,7 +387,7 @@ func NewCustomClassicTemplate() (*CustomClassicTemplate, error) {
 }
 
 // TODO: try writing directly to ResponseWriter, instead of returning bytes
-func (t CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
 	// Sort assessment.CVSSVersions
 	maxVersion := util.GetMaxCvssVersion(reportData.Assessment.CVSSVersions)
 
@@ -435,4 +435,8 @@ func (t CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byte
 	}
 
 	return renderReport(reportData.Customer, reportData.Assessment, reportData.Vulnerabilities)
+}
+
+func (t *CustomClassicTemplate) Extension() string {
+	return "zip"
 }
