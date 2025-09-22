@@ -69,7 +69,7 @@ func (columns *Columns) getColumn(header string) Column {
 	return columns.Columns[columns.NameToColumn[header]]
 }
 
-func (t *CustomClassicTemplate) renderReport(assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
+func (t *ZipDefaultTemplate) renderReport(assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
 	var zipBuf bytes.Buffer
 	zipWriter := zip.NewWriter(&zipBuf)
 	defer zipWriter.Close()
@@ -378,19 +378,19 @@ func sanitizeFileName(name string) string {
 	return replacer.Replace(name)
 }
 
-type CustomClassicTemplate struct {
+type ZipDefaultTemplate struct {
 	filename  string
 	extension string
 }
 
-func NewCustomClassicTemplate() (*CustomClassicTemplate, error) {
-	return &CustomClassicTemplate{
+func NewZipDefaultTemplate() (*ZipDefaultTemplate, error) {
+	return &ZipDefaultTemplate{
 		extension: "zip",
 	}, nil
 }
 
 // TODO: try writing directly to ResponseWriter, instead of returning bytes
-func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+func (t *ZipDefaultTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
 	t.filename = fmt.Sprintf("%s - %s - %s", reportData.Assessment.Type.Short, reportData.Customer.Name, reportData.Assessment.Name)
 
 	// Sort assessment.CVSSVersions
@@ -442,10 +442,10 @@ func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byt
 	return t.renderReport(reportData.Assessment, reportData.Vulnerabilities)
 }
 
-func (t *CustomClassicTemplate) Filename() string {
+func (t *ZipDefaultTemplate) Filename() string {
 	return fmt.Sprintf("%s.%s", t.filename, t.extension)
 }
 
-func (t *CustomClassicTemplate) Extension() string {
+func (t *ZipDefaultTemplate) Extension() string {
 	return t.extension
 }
