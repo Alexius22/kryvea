@@ -19,7 +19,10 @@ const languageOptions = Object.entries(languageMapping).map(([code, label]) => (
 }));
 
 export default function Settings() {
-  const [settings, setSettings] = useState<Settings>({ max_image_size: 100, default_category_language: "en" });
+  const [settings, setSettings] = useState<Settings>({
+    max_image_size: 0,
+    default_category_language: "",
+  });
 
   useEffect(() => {
     document.title = getPageTitle("Settings");
