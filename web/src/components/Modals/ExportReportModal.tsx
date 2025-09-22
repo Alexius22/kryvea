@@ -59,7 +59,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
       include_informational_vulnerabilities: checkIncludeInfo,
     };
 
-    if (selectedExportTypeOption.value !== "zip" && selectedExportTemplate) {
+    if (selectedExportTypeOption.value !== "zip-default" && selectedExportTemplate) {
       payload.template = selectedExportTemplate.id;
     }
 
@@ -95,7 +95,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
         <SelectWrapper
           label="Template Type"
           id="template"
-          disabled={selectedExportTypeOption.value === "zip"}
+          disabled={selectedExportTypeOption.value === "zip-default"}
           options={templateOptions}
           value={
             selectedExportTemplate
