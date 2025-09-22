@@ -10,12 +10,24 @@ import (
 	gotemplatedocx "github.com/JJJJJJack/go-template-docx"
 )
 
-type DocxTemplate struct{}
+type DocxTemplate struct {
+	TemplateBytes []byte
+}
 
-func (t DocxTemplate) Render(reportData *reportdata.ReportData, templateBytes []byte) ([]byte, error) {
+func NewDocxTemplate(templateBytes []byte) (*DocxTemplate, error) {
+	if templateBytes == nil {
+		return nil, ErrTemplateByteRequired
+	}
+
+	return &DocxTemplate{
+		TemplateBytes: templateBytes,
+	}, nil
+}
+
+func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
 	reportData.Prepare()
 
-	DocxTemplate, err := gotemplatedocx.NewDocxTemplateFromBytes(templateBytes)
+	DocxTemplate, err := gotemplatedocx.NewDocxTemplateFromBytes(t.TemplateBytes)
 	if err != nil {
 		return nil, err
 	}

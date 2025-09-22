@@ -4,11 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 	"github.com/google/uuid"
 )
 
@@ -184,7 +186,6 @@ func TestClassic(t *testing.T) {
 	}
 
 	var vulnerabilities []mongo.Vulnerability
-	pocs := []mongo.Poc{}
 	for i := 0; i < 5; i++ {
 		vulnerability := mongo.Vulnerability{
 			Model:         mongo.Model{ID: uuid.New()},
@@ -223,8 +224,6 @@ func TestClassic(t *testing.T) {
 			}
 		}
 
-		vulnerabilities = append(vulnerabilities, vulnerability)
-
 		for j := 0; j < 3; j++ {
 			poc.Pocs = append(poc.Pocs, mongo.PocItem{
 				Index:       j + 1,
@@ -253,15 +252,30 @@ func TestClassic(t *testing.T) {
 			TextData:     randName(20),
 		})
 
-		pocs = append(pocs, poc)
+		vulnerability.Poc = poc
+
+		vulnerabilities = append(vulnerabilities, vulnerability)
 	}
 
 	assessment.VulnerabilityCount = len(vulnerabilities)
 
+	reportData := &reportdata.ReportData{
+		Customer:        customer,
+		Assessment:      assessment,
+		Vulnerabilities: vulnerabilities,
+	}
+
+	report, _ := NewCustomClassicTemplate()
+
 	t.Run("test", func(t *testing.T) {
-		_, err := GenerateReportClassic(customer, assessment, vulnerabilities, pocs)
+		data, err := report.Render(reportData)
 		if err != nil {
 			t.Errorf("GenerateReportClassic() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
+		}
+
+		err = os.WriteFile("report.zip", data, 0644)
+		if err != nil {
+			t.Errorf("os.WriteFile() = %v, want %v", err, nil)
 		}
 	})
 }
