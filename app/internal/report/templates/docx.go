@@ -12,6 +12,8 @@ import (
 
 type DocxTemplate struct {
 	TemplateBytes []byte
+	filename      string
+	extension     string
 }
 
 func NewDocxTemplate(templateBytes []byte) (*DocxTemplate, error) {
@@ -21,10 +23,13 @@ func NewDocxTemplate(templateBytes []byte) (*DocxTemplate, error) {
 
 	return &DocxTemplate{
 		TemplateBytes: templateBytes,
+		extension:     "docx",
 	}, nil
 }
 
 func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+	t.filename = fmt.Sprintf("%s - %s - %s", reportData.Assessment.Type.Short, reportData.Customer.Name, reportData.Assessment.Name)
+
 	reportData.Prepare()
 
 	DocxTemplate, err := gotemplatedocx.NewDocxTemplateFromBytes(t.TemplateBytes)
@@ -58,8 +63,12 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 	return DocxTemplate.Bytes(), nil
 }
 
+func (t *DocxTemplate) Filename() string {
+	return fmt.Sprintf("%s.%s", t.filename, t.extension)
+}
+
 func (t *DocxTemplate) Extension() string {
-	return "docx"
+	return t.extension
 }
 
 func formatDate(t time.Time) string {
