@@ -35,6 +35,7 @@ var (
 
 type Report interface {
 	Render(reportData *reportdata.ReportData) ([]byte, error)
+	Filename() string
 	Extension() string
 }
 

@@ -69,7 +69,7 @@ func (columns *Columns) getColumn(header string) Column {
 	return columns.Columns[columns.NameToColumn[header]]
 }
 
-func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
+func (t *CustomClassicTemplate) renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
 	var zipBuf bytes.Buffer
 	zipWriter := zip.NewWriter(&zipBuf)
 	defer zipWriter.Close()
@@ -355,8 +355,7 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnReferences).Letter, row), strings.Join(vuln.References, "\n"))
 	}
 
-	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0.xlsx", assessment.Type.Short, customer.Name, assessment.Name)
-	baseFileName = sanitizeFileName(baseFileName)
+	baseFileName := sanitizeFileName(t.filename) + ".xlsx"
 
 	zipWriter.AddExcelize(xl, baseFileName)
 
@@ -380,14 +379,21 @@ func sanitizeFileName(name string) string {
 	return replacer.Replace(name)
 }
 
-type CustomClassicTemplate struct{}
+type CustomClassicTemplate struct {
+	filename  string
+	extension string
+}
 
 func NewCustomClassicTemplate() (*CustomClassicTemplate, error) {
-	return &CustomClassicTemplate{}, nil
+	return &CustomClassicTemplate{
+		extension: "zip",
+	}, nil
 }
 
 // TODO: try writing directly to ResponseWriter, instead of returning bytes
 func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+	t.filename = fmt.Sprintf("%s - %s - %s", reportData.Assessment.Type.Short, reportData.Customer.Name, reportData.Assessment.Name)
+
 	// Sort assessment.CVSSVersions
 	maxVersion := util.GetMaxCvssVersion(reportData.Assessment.CVSSVersions)
 
@@ -428,15 +434,19 @@ func (t *CustomClassicTemplate) Render(reportData *reportdata.ReportData) ([]byt
 	// Sort poc.Pocs for each poc in pocs
 	for i := range reportData.Vulnerabilities {
 
-		sort.Slice(reportData.Vulnerabilities[i].Poc.Pocs, func(i, j int) bool {
-			return reportData.Vulnerabilities[i].Poc.Pocs[i].Index < reportData.Vulnerabilities[i].Poc.Pocs[j].Index
+		sort.Slice(reportData.Vulnerabilities[i].Poc.Pocs, func(j, k int) bool {
+			return reportData.Vulnerabilities[i].Poc.Pocs[j].Index < reportData.Vulnerabilities[i].Poc.Pocs[k].Index
 		})
 
 	}
 
-	return renderReport(reportData.Customer, reportData.Assessment, reportData.Vulnerabilities)
+	return t.renderReport(reportData.Customer, reportData.Assessment, reportData.Vulnerabilities)
+}
+
+func (t *CustomClassicTemplate) Filename() string {
+	return fmt.Sprintf("%s.%s", t.filename, t.extension)
 }
 
 func (t *CustomClassicTemplate) Extension() string {
-	return "zip"
+	return t.extension
 }
