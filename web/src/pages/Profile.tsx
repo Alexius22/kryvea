@@ -13,7 +13,7 @@ import { getPageTitle } from "../utils/helpers";
 
 export default function Profile() {
   const {
-    useUsername: [username, setUsername],
+    useCtxUsername: [, setCtxUsername],
   } = useContext(GlobalContext);
 
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +34,7 @@ export default function Profile() {
 
     patchData<{ message: string }>("/api/users/me", { username: user.username }, () => {
       toast.success("Username updated successfully");
-      setUsername(user.username);
+      setCtxUsername(user.username);
     });
   };
 

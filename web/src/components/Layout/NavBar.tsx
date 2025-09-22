@@ -19,7 +19,7 @@ import Breadcrumb from "./Breadcrumb";
 
 export default function NavBar() {
   const {
-    useUsername: [username, setUsername],
+    useCtxUsername: [ctxUsername],
     useThemeMode: [themeMode, setThemeMode],
     useFullscreen: [fullscreen, setFullScreen],
   } = useContext(GlobalContext);
@@ -54,7 +54,7 @@ export default function NavBar() {
         <Button
           onClick={() => navigate("/profile")}
           icon={mdiAccount}
-          text={username}
+          text={ctxUsername}
           className="gap-1 bg-transparent p-2 text-[color:--link]"
         />
         <Button
