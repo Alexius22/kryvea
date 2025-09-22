@@ -130,7 +130,7 @@ export type ThemeMode = "light" | "dark" | "os";
 export const exportTypes = [
   { value: "docx", label: "Word (.docx)" },
   { value: "xlsx", label: "Excel (.xlsx)" },
-  { value: "zip", label: "Zip Archive (.zip)" },
+  { value: "zip-default", label: "Zip Archive (.zip)" },
 ];
 
 export const uuidZero = "00000000-0000-0000-0000-000000000000";
