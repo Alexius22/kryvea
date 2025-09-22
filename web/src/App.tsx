@@ -28,12 +28,12 @@ import {
   VulnerabilitySearch,
   VulnerabilityUpsert,
 } from "./pages";
-import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
+import { Assessment as AssessmentObj, Category, Customer, ThemeMode, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 import { getBrowser, SidebarItemLabel } from "./utils/helpers";
 
 export type GlobalContextType = {
-  useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useThemeMode: [ThemeMode, Dispatch<SetStateAction<ThemeMode>>];
   useBrowser: [string, Dispatch<SetStateAction<string>>];
   useUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
@@ -49,8 +49,8 @@ export type GlobalContextType = {
 export const GlobalContext = createContext<GlobalContextType>(null);
 
 export default function App() {
-  const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
-  const [darkTheme] = useDarkTheme;
+  const useThemeMode = useState<ThemeMode>(() => getLocalStorageCtxState("useThemeMode") ?? "os");
+  const [themeMode] = useThemeMode;
   const useBrowser = useState<string>(getBrowser);
   const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
@@ -67,8 +67,21 @@ export default function App() {
   );
 
   useLayoutEffect(() => {
-    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
-  }, [darkTheme]);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const effectiveDark = themeMode === "os" ? mediaQuery.matches : themeMode === "dark";
+    document.documentElement.classList[effectiveDark ? "add" : "remove"]("dark");
+
+    if (themeMode !== "os") {
+      return;
+    }
+
+    const handler = (event: MediaQueryListEvent) => {
+      document.documentElement.classList[event.matches ? "add" : "remove"]("dark");
+    };
+
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, [themeMode]);
 
   const bindToLocalStorage = useCallback(function <T>(
     [state, setState]: [T, Dispatch<SetStateAction<T>>],
@@ -94,7 +107,7 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useThemeMode: bindToLocalStorage(useThemeMode, "useThemeMode"),
         useBrowser,
         useUsername: bindToLocalStorage(useUsername, "useUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),

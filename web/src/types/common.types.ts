@@ -125,6 +125,8 @@ export type Settings = {
   default_category_language: string;
 };
 
+export type ThemeMode = "light" | "dark" | "os";
+
 export const exportTypes = [
   { value: "docx", label: "Word (.docx)" },
   { value: "xlsx", label: "Excel (.xlsx)" },
