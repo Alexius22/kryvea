@@ -544,6 +544,13 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 	})
 }
 
+type exportRequestData struct {
+	Type                                string    `json:"type"`
+	Template                            string    `json:"template"`
+	DeliveryDateTime                    time.Time `json:"delivery_date_time"`
+	IncludeInformationalVulnerabilities bool      `json:"include_informational_vulnerabilities"`
+}
+
 func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
@@ -589,14 +596,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	// parse request body
-	type reqData struct {
-		Type                                string    `json:"type"`
-		Template                            string    `json:"template"`
-		DeliveryDateTime                    time.Time `json:"delivery_date_time"`
-		IncludeInformationalVulnerabilities bool      `json:"include_informational_vulnerabilities"`
-	}
-
-	data := &reqData{}
+	data := &exportRequestData{}
 	if err := c.BodyParser(data); err != nil {
 		d.logger.Info().Msg(err.Error())
 		c.Status(fiber.StatusBadRequest)
@@ -613,21 +613,26 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// validate template
-	template, errStr := d.templateFromParam(data.Template)
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
+	var templateBytes []byte
 
-	templateBytes, _, err := d.mongo.FileReference().ReadByID(template.FileID)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": "Invalid template ID",
-		})
+	if _, ok := report.ReportTemplateMap[data.Type]; ok {
+		// validate template
+		template, errStr := d.templateFromParam(data.Template)
+		if errStr != "" {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": errStr,
+			})
+		}
+
+		// retrieve template from database
+		templateBytes, _, err = d.mongo.FileReference().ReadByID(template.FileID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Invalid template ID",
+			})
+		}
 	}
 
 	maxVersion := util.GetMaxCvssVersion(assessment.CVSSVersions)
@@ -682,7 +687,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		DeliveryDateTime: data.DeliveryDateTime,
 	}
 
-	report, err := report.New(data.Type)
+	report, err := report.New(data.Type, templateBytes)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -691,7 +696,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	// render report
-	renderedTemplate, err := report.Render(reportData, templateBytes)
+	renderedTemplate, err := report.Render(reportData)
 	if err != nil {
 		d.logger.Error().Msg(err.Error())
 		c.Status(fiber.StatusInternalServerError)
@@ -702,11 +707,9 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	filename := fmt.Sprintf("%s - %s - %s.%s", assessment.Type.Short, customer.Name, assessment.Name, data.Type)
-
 	c.Status(fiber.StatusOK)
 	c.Set("Content-Type", mimetype.Detect(renderedTemplate).String())
-	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Filename()))
 	return c.SendStream(bytes.NewBuffer(renderedTemplate))
 }
 

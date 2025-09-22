@@ -8,28 +8,45 @@ import (
 )
 
 const (
-	ReportXlsx string = "xlsx"
-	ReportDocx string = "docx"
+	ReportTemplateXlsx string = "xlsx"
+	ReportTemplateDocx string = "docx"
 
-	ReportCustomClassic string = "custom-classic"
+	ReportZipDefault string = "zip-default"
 )
 
 var (
 	ErrTemplateTypeNA error = errors.New("template type not available")
+
+	ReportExtension map[string]string = map[string]string{
+		ReportTemplateXlsx: "xlsx",
+		ReportTemplateDocx: "docx",
+		ReportZipDefault:   "zip",
+	}
+
+	ReportTemplateMap map[string]struct{} = map[string]struct{}{
+		ReportTemplateXlsx: {},
+		ReportTemplateDocx: {},
+	}
+
+	ReportZipMap map[string]struct{} = map[string]struct{}{
+		ReportZipDefault: {},
+	}
 )
 
 type Report interface {
-	Render(reportData *reportdata.ReportData, template []byte) ([]byte, error)
+	Render(reportData *reportdata.ReportData) ([]byte, error)
+	Filename() string
+	Extension() string
 }
 
-func New(reportType string) (Report, error) {
+func New(reportType string, templateBytes []byte) (Report, error) {
 	switch reportType {
-	case ReportXlsx:
-		return templates.XlsxTemplate{}, nil
-	case ReportDocx:
-		return templates.DocxTemplate{}, nil
-		// case ReportCustomClassic:
-		// return templates.CustomClassicTemplate{}, nil
+	case ReportTemplateXlsx:
+		return templates.NewXlsxTemplate(templateBytes)
+	case ReportTemplateDocx:
+		return templates.NewDocxTemplate(templateBytes)
+	case ReportZipDefault:
+		return templates.NewZipDefaultTemplate()
 	}
 
 	return nil, ErrTemplateTypeNA
