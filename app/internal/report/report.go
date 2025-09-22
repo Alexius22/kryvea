@@ -41,9 +41,9 @@ type Report interface {
 func New(reportType string, templateBytes []byte) (Report, error) {
 	switch reportType {
 	case ReportTemplateXlsx:
-		return templates.NewDocxTemplate(templateBytes)
-	case ReportTemplateDocx:
 		return templates.NewXlsxTemplate(templateBytes)
+	case ReportTemplateDocx:
+		return templates.NewDocxTemplate(templateBytes)
 	case ReportCustomClassic:
 		return templates.NewCustomClassicTemplate()
 	}
