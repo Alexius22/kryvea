@@ -207,7 +207,7 @@ func TestClassic(t *testing.T) {
 
 		for _, version := range cvss.CvssVersions {
 			cvssVector := randCVSSVector(version)
-			vector, err := cvss.ParseVector(cvssVector, version)
+			vector, err := cvss.ParseVector(cvssVector, version, customer.Language)
 			if err != nil {
 				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
 			}

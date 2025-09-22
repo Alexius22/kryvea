@@ -27,7 +27,7 @@ type LabelColor struct {
 // ParseVector parses a CVSS vector string and returns a pointer to
 // a Vector calculated based on the specified CVSS version.
 // Description field should be generated separately.
-func ParseVector(vectorString string, version string) (*Vector, error) {
+func ParseVector(vectorString, version, language string) (*Vector, error) {
 	if _, ok := VersionToValue[version]; !ok {
 		return nil, errors.New("no severity levels found for given CVSS version")
 	}
@@ -63,6 +63,8 @@ func ParseVector(vectorString string, version string) (*Vector, error) {
 			break
 		}
 	}
+
+	vector.Description = vector.GenerateVectorDescription(language)
 
 	// Sanity check
 	if vector.Severity.Label == "" {

@@ -258,10 +258,3 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 
 	return splitted
 }
-
-func addCvssDescription(vulnerability *mongo.Vulnerability, language string) {
-	vulnerability.CVSSv2.Description = GenerateVectorDescription(vulnerability.CVSSv2, language)
-	vulnerability.CVSSv3.Description = GenerateVectorDescription(vulnerability.CVSSv3, language)
-	vulnerability.CVSSv31.Description = GenerateVectorDescription(vulnerability.CVSSv31, language)
-	vulnerability.CVSSv4.Description = GenerateVectorDescription(vulnerability.CVSSv4, language)
-}
