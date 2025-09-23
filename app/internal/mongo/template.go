@@ -170,13 +170,12 @@ func (ti *TemplateIndex) Delete(id uuid.UUID) error {
 func (ti *TemplateIndex) hydrate(template *Template) error {
 	// customer is optional
 	if template.Customer.ID != uuid.Nil {
-		var customer Customer
-		err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": template.Customer.ID}).Decode(&customer)
+		customer, err := ti.driver.Customer().GetByIDForHydrate(template.Customer.ID)
 		if err != nil {
 			return err
 		}
 
-		template.Customer = &customer
+		template.Customer = customer
 	}
 
 	return nil

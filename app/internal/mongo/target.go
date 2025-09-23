@@ -293,13 +293,12 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 
 // hydrate fills in the nested fields for a Target
 func (ti *TargetIndex) hydrate(target *Target) error {
-	var customer Customer
-	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": target.Customer.ID}).Decode(&customer)
+	customer, err := ti.driver.Customer().GetByIDForHydrate(target.Customer.ID)
 	if err != nil {
 		return err
 	}
 
-	target.Customer = customer
+	target.Customer = *customer
 
 	return nil
 }

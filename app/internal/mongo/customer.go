@@ -161,6 +161,47 @@ func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 	return &customer, nil
 }
 
+func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, error) {
+	filter := bson.M{"_id": customerID}
+	opts := options.FindOne().SetProjection(bson.M{
+		"templates": 0,
+	})
+
+	var customer Customer
+	err := ci.collection.FindOne(context.Background(), filter, opts).Decode(&customer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &customer, nil
+}
+
+func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, error) {
+	customerIDs := make([]uuid.UUID, len(customers))
+	for i := range customers {
+		customerIDs[i] = customers[i].ID
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": customerIDs}}
+	opts := options.Find().SetProjection(bson.M{
+		"templates": 0,
+	})
+
+	cursor, err := ci.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	customersMongo := []Customer{}
+	err = cursor.All(context.Background(), &customersMongo)
+	if err != nil {
+		return nil, err
+	}
+
+	return customersMongo, nil
+}
+
 func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
 	pipeline := append(CustomerPipeline,
 		bson.D{{Key: "$match", Value: bson.M{"_id": customerID}}},
