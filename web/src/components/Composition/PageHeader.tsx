@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Icon from "./Icon";
 
 type Props = {
-  icon: string;
+  icon?: string;
   title: string;
   main?: boolean;
   children?: ReactNode;

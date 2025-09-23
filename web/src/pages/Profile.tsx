@@ -6,6 +6,7 @@ import Card from "../components/Composition/Card";
 import CardTitle from "../components/Composition/CardTitle";
 import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Input from "../components/Form/Input";
 import { User } from "../types/common.types";
@@ -63,6 +64,7 @@ export default function Profile() {
 
   return (
     <div>
+      <PageHeader title="Profile" />
       <Grid className="grid-cols-2 !items-start gap-4">
         <Card>
           <CardTitle title={"Change username"} />

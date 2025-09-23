@@ -7,6 +7,7 @@ import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -247,7 +248,7 @@ export default function AssessmentUpsert() {
   };
 
   return (
-    <>
+    <div>
       {isModalTargetActive && (
         <AddTargetModal
           setShowModal={setIsModalTargetActive}
@@ -256,10 +257,10 @@ export default function AssessmentUpsert() {
         />
       )}
 
+      <PageHeader title={isEdit ? "Edit Assessment" : "New Assessment"} />
       <Card>
         <form onSubmit={handleSubmit}>
           <Grid>
-            <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
             <Grid className="grid-cols-2">
               <Input
                 type="text"
@@ -362,6 +363,6 @@ export default function AssessmentUpsert() {
           </Grid>
         </form>
       </Card>
-    </>
+    </div>
   );
 }
