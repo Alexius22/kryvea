@@ -55,7 +55,7 @@ export default function NavBar() {
           onClick={() => navigate("/profile")}
           icon={mdiAccount}
           text={ctxUsername}
-          className="gap-1 bg-transparent p-2 text-[color:--link]"
+          className="bg-transparent p-2 text-[color:--link]"
         />
         <Button
           onClick={() => setThemeMode(prev => (prev === "light" ? "dark" : prev === "dark" ? "os" : "light"))}
@@ -85,7 +85,7 @@ export default function NavBar() {
           onClick={handleLogout}
           icon={mdiLogout}
           text="Logout"
-          className="gap-1 bg-transparent p-2 text-[color:--link]"
+          className="bg-transparent p-2 text-[color:--link]"
         />
       </Buttons>
     </nav>
