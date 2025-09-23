@@ -95,14 +95,50 @@ func (ti *TemplateIndex) GetByID(id uuid.UUID) (*Template, error) {
 		return nil, err
 	}
 
+	err = ti.hydrate(&template)
+	if err != nil {
+		return nil, err
+	}
+
 	return &template, nil
 }
 
 func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
-		bson.D{{Key: "$match", Value: bson.D{{Key: "customer._id", Value: customerID}}}},
-		bson.D{{Key: "$sort", Value: bson.D{{Key: "created_at", Value: -1}}}},
+	filter := bson.M{"customer._id": customerID}
+	opts := options.Find().SetSort(bson.D{
+		{Key: "created_at", Value: -1},
 	})
+
+	cursor, err := ti.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	templates := []Template{}
+	if err = cursor.All(context.Background(), &templates); err != nil {
+		return nil, err
+	}
+
+	for i := range templates {
+		err = ti.hydrate(&templates[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return templates, nil
+}
+
+func (ti *TemplateIndex) GetByCustomerIDForHydrate(customerID uuid.UUID) ([]Template, error) {
+	filter := bson.M{"customer._id": customerID}
+	opts := options.Find().SetSort(bson.D{
+		{Key: "created_at", Value: -1},
+	}).SetProjection(bson.M{
+		"customer": 0,
+	})
+
+	cursor, err := ti.collection.Find(context.Background(), filter, opts)
 	if err != nil {
 		return nil, err
 	}
