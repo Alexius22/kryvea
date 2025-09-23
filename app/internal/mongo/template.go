@@ -28,27 +28,6 @@ var (
 	}
 )
 
-var TemplatePipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customer._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customerData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "customer", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
-			}},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "customerData"},
-	},
-}
-
 type Template struct {
 	Model    `bson:",inline"`
 	Name     string    `json:"name" bson:"name"`
@@ -148,17 +127,24 @@ func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
 }
 
 func (ti *TemplateIndex) GetAll() ([]Template, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), TemplatePipeline)
+	filter := bson.M{}
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
-		ti.driver.logger.Error().Err(err).Msg("Failed to aggregate templates")
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	templates := []Template{}
-	if err = cursor.All(context.Background(), &templates); err != nil {
-		ti.driver.logger.Error().Err(err).Msg("Failed to decode templates")
+	err = cursor.All(context.Background(), &templates)
+	if err != nil {
 		return nil, err
+	}
+
+	for i := range templates {
+		err = ti.hydrate(&templates[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return templates, nil
@@ -178,4 +164,20 @@ func (ti *TemplateIndex) Delete(id uuid.UUID) error {
 
 	_, err = ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
 	return err
+}
+
+// hydrate fills in the nested fields for a Template
+func (ti *TemplateIndex) hydrate(template *Template) error {
+	// customer is optional
+	if template.Customer.ID != uuid.Nil {
+		var customer Customer
+		err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": template.Customer.ID}).Decode(&customer)
+		if err != nil {
+			return err
+		}
+
+		template.Customer = &customer
+	}
+
+	return nil
 }
