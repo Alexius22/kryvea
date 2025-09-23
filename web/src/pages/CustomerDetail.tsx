@@ -1,4 +1,4 @@
-import { mdiAccountEdit, mdiDownload, mdiListBox, mdiTarget, mdiTrashCan } from "@mdi/js";
+import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -158,7 +158,7 @@ export default function CustomerDetail() {
           <Button
             small
             text="Assessments"
-            icon={mdiListBox}
+            icon={mdiTabSearch}
             onClick={() => navigate(`/customers/${ctxCustomer?.id}/assessments`)}
           />
           <Button

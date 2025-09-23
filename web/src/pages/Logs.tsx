@@ -1,4 +1,4 @@
-import { mdiListBox } from "@mdi/js";
+import { mdiMathLog } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { getData } from "../api/api";
 import Card from "../components/Composition/Card";
@@ -52,7 +52,7 @@ export default function Logs() {
 
   return (
     <div>
-      <PageHeader icon={mdiListBox} title="Logs" />
+      <PageHeader icon={mdiMathLog} title="Logs" />
       <Grid>
         <Card>
           <Flex className="gap-2">

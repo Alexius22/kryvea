@@ -1,10 +1,11 @@
+import { mdiCog } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getData, putData } from "../api/api";
 import Card from "../components/Composition/Card";
-import CardTitle from "../components/Composition/CardTitle";
 import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -43,8 +44,8 @@ export default function Settings() {
 
   return (
     <div>
+      <PageHeader icon={mdiCog} title="Settings" />
       <Card>
-        <CardTitle title="Settings" />
         <Grid className="gap-4">
           <Input
             type="number"

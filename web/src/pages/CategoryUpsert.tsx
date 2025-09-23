@@ -1,4 +1,4 @@
-import { mdiDatabaseEdit, mdiTrashCan } from "@mdi/js";
+import { mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -170,7 +170,7 @@ export default function CategoryUpsert() {
         </Modal>
       )}
 
-      <PageHeader icon={mdiDatabaseEdit} title={categoryId ? "Edit Category" : "New Category"}>
+      <PageHeader title={categoryId ? "Edit Category" : "New Category"}>
         <Buttons>
           {categoryId && (
             <Button

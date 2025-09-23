@@ -1,4 +1,4 @@
-import { mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiPencil, mdiPlus, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -156,7 +156,7 @@ export default function Targets() {
         </Modal>
       )}
 
-      <PageHeader icon={mdiListBox} title="Targets">
+      <PageHeader icon={mdiTarget} title="Targets">
         <Button icon={mdiPlus} text="New target" small onClick={openAddModal} />
       </PageHeader>
 
