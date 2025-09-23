@@ -241,7 +241,7 @@ export default function AssessmentVulnerabilities() {
             ),
           };
         })}
-        perPageCustom={10}
+        perPageCustom={25}
         maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
       />
     </div>
