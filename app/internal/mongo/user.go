@@ -433,6 +433,7 @@ func IsValidRole(role string) bool {
 	return false
 }
 
+// hydrate fills in the nested fields for a User
 func (ui *UserIndex) hydrate(user *User) error {
 	// customers are optional
 	if len(user.Customers) > 0 {

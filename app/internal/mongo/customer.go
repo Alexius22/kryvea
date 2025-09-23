@@ -14,28 +14,6 @@ const (
 	customerCollection = "customer"
 )
 
-var CustomerPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "template"},
-			{Key: "localField", Value: "_id"},
-			{Key: "foreignField", Value: "customer._id"},
-			{Key: "as", Value: "templates"},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "templates.customer"},
-	},
-}
-
-var AllCustomerPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "templates", Value: []bson.A{}},
-		}},
-	},
-}
-
 type Customer struct {
 	Model     `bson:",inline"`
 	Name      string     `json:"name" bson:"name"`
@@ -203,51 +181,60 @@ func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, er
 }
 
 func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
-	pipeline := append(CustomerPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": customerID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
+	filter := bson.M{"_id": customerID}
 
-	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
+	customer := &Customer{}
+	err := ci.collection.FindOne(context.Background(), filter).Decode(customer)
 	if err != nil {
-		ci.driver.logger.Error().Err(err).Msg("Failed to aggregate customer by ID")
+		return nil, err
+	}
+
+	err = ci.hydrate(customer)
+	if err != nil {
+		return nil, err
+	}
+
+	return customer, nil
+}
+
+func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
+	filter := bson.M{}
+	if customerIDs != nil {
+		filter = bson.M{
+			"_id": bson.M{"$in": customerIDs},
+		}
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
+	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	var customer Customer
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&customer); err != nil {
-			ci.driver.logger.Error().Err(err).Msg("Failed to decode customer")
+	customers := []Customer{}
+	err = cursor.All(context.Background(), &customers)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range customers {
+		err = ci.hydrate(&customers[i])
+		if err != nil {
 			return nil, err
 		}
-
-		return &customer, nil
-	}
-
-	return nil, mongo.ErrNoDocuments
-}
-
-func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
-	pipeline := AllCustomerPipeline
-	if customerIDs != nil {
-		pipeline = append(pipeline, bson.D{
-			{Key: "$match", Value: bson.M{
-				"_id": bson.M{"$in": customerIDs},
-			}},
-		})
-	}
-
-	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
-	if err != nil {
-		return []Customer{}, err
-	}
-	defer cursor.Close(context.Background())
-
-	customers := []Customer{}
-	if err := cursor.All(context.Background(), &customers); err != nil {
-		return []Customer{}, err
 	}
 
 	return customers, nil
+}
+
+// hydrate fills in the nested fields for a Customer
+func (ci *CustomerIndex) hydrate(customer *Customer) error {
+	templates, err := ci.driver.Template().GetByCustomerIDForHydrate(customer.ID)
+	if err != nil {
+		return err
+	}
+
+	customer.Templates = templates
+
+	return nil
 }
