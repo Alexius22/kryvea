@@ -674,5 +674,101 @@
     "references": [
       "https://owasp.org/www-project-mobile-top-10/2023-risks/m10-insufficient-cryptography.html"
     ]
+  },
+  {
+    "index": "API1:2023",
+    "name": "Broken Object Level Authorization",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Broken Object Level Authorization occurs when an API fails to properly verify that a user has permission to access a specific object or record. Attackers can manipulate object identifiers in requests to access data or perform actions on resources they are not authorized to, leading to unauthorized data exposure, modification, or deletion.",
+      "it": "La Broken Object Level Authorization si verifica quando un'API non verifica correttamente che un utente abbia il permesso di accedere a un oggetto o record specifico. Gli utenti malintenzionati possono manipolare gli identificatori degli oggetti nelle richieste per accedere a dati o eseguire azioni su risorse per le quali non sono autorizzati, causando esposizione non autorizzata, modifica o cancellazione dei dati."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to enforce strict object-level authorization on the server for every request using object identifiers, verifying the user's permissions for each specific object before granting access or allowing modifications.",
+      "it": "Si consiglia di controllare l'autorizzazione a livello di oggetto sul server per ogni richiesta che utilizza identificatori di oggetti, verificando i permessi dell'utente per ciascun oggetto prima di concedere l'accesso o consentire le modifiche."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+    ]
+  },
+  {
+    "index": "API2:2023",
+    "name": "Broken Authentication",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Broken Authentication occurs when an API's authentication mechanisms are flawed, allowing attackers to bypass authentication controls. This can happen due to weak passwords, lack of account lockout, improper session management, or exposure of sensitive authentication data. Attackers can gain unauthorized access to accounts, leading to account takeover.",
+      "it": "La Broken Authentication si verifica quando i meccanismi di autenticazione di un'API sono difettosi, permettendo agli utenti malintenzionati di bypassare i controlli di autenticazione. Ciò può succedere a causa di password deboli, mancata applicazione del blocco dell'account dopo tentativi falliti, gestione errata delle sessioni o esposizione di dati sensibili di autenticazione. Gli utenti malintenzionati possono ottenere accesso non autorizzato agli account, conducendo a furto d'identità e abuso."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to enforce strong authentication controls such as multi-factor authentication, account lockout on repeated failed attempts, secure session handling, and proper validation of authentication tokens.",
+      "it": "Si consiglia di implementare i controlli sull'autenticazione, incluso l'uso dell'autenticazione a più fattori, il blocco dell'account dopo ripetuti tentativi falliti, una gestione sicura delle sessioni e la corretta validazione dei token di autenticazione."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/"
+    ]
+  },
+  {
+    "index": "API4:2023",
+    "name": "Unrestricted Resource Consumption",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Unrestricted Resource Consumption occurs when an API does not properly limit the amount of resources that can be consumed by clients, such as CPU, memory, bandwidth, or request rate. This allows attackers to overwhelm the API by sending excessive requests or large data payloads, causing denial of service, degraded performance, or excessive costs.",
+      "it": "Il consumo illimitato di risorse si verifica quando un'API non limita correttamente la quantità di risorse che i client possono utilizzare, come CPU, memoria, larghezza di banda o frequenza delle richieste. Questo permette agli attaccanti di sovraccaricare l'API inviando richieste eccessive o dati di grandi dimensioni, causando interruzioni del servizio, degrado delle prestazioni o costi elevati."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to limits on resource consumption including rate limiting, request size limits, execution timeouts, and memory usage caps.",
+      "it": "Si consiglia di limitare il consumo di risorse, inclusi limiti di velocità, limiti di dimensione delle richieste, timeout di esecuzione e limiti di utilizzo della memoria."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    ]
+  },
+  {
+    "index": "API5:2023",
+    "name": "Broken Function Level Authorization",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Broken Function Level Authorization happens when APIs with complex access control policies fail to properly restrict users from accessing functions or actions outside their permissions. Attackers can exploit this to perform unauthorized actions, including sensitive administrative functions, leading to data leaks, data corruption, or service disruption.",
+      "it": "Broken Function Level Authorization si verifica quando API con politiche di controllo accessi complesse non riescono a limitare correttamente gli utenti dall'accesso a funzioni o azioni oltre i loro permessi. Gli utenti malintenzionati possono sfruttare questa falla per effettuare azioni non autorizzate, incluse funzioni amministrative sensibili, causando perdite di dati, corruzione o interruzione del servizio."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to implement strict role-based access controls verifying user permissions for every function or endpoint.",
+      "it": "Si consiglia di implementare controlli di accesso basati sui ruoli verificando i permessi degli utenti per ogni funzione o endpoint."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/"
+    ]
+  },
+  {
+    "index": "API8:2023",
+    "name": "Security Misconfiguration",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Security misconfiguration is commonly a result of unsecure default configurations, incomplete or ad-hoc configurations, open cloud storage, misconfigured HTTP headers, unnecessary HTTP methods, permissive Cross-Origin Resource Sharing (CORS), and verbose error messages containing sensitive information.",
+      "it": "Una security misconfiguration è il risultato di configurazioni predefinite non sicure, configurazioni incomplete o ad hoc, cloud storage non protetti, intestazioni HTTP non configurate correttamente, metodi HTTP non necessari, Cross-Origin Resource Sharing (CORS) permissive e messaggi di errore verbosi contenenti informazioni sensibili."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to harden configurations across all layers, disable unnecessary features and apply security patches.",
+      "it": "Si consiglia di rafforzare le configurazioni su tutti i livelli, disabilitare le funzionalità non necessarie ed applicare le patch di sicurezza."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/"
+    ]
+  },
+  {
+    "index": "API10:2023",
+    "name": "Unsafe Consumption of APIs",
+    "source": "owasp_api",
+    "generic_description": {
+      "en": "Unsafe Consumption of APIs occurs when developers trust external or third-party APIs without proper validation or security assessment. This can lead to security risks such as injection attacks, data exposure, or compromise through vulnerable third-party services, impacting the security of the consuming application.",
+      "it": "Il consumo non sicuro delle API si verifica quando gli sviluppatori si fidano di API esterne o di terze parti senza una corretta validazione o valutazione della sicurezza. Questo può causare rischi come manipolazione di codice, esposizione di dati o compromissione tramite servizi terzi vulnerabili, mettendo a rischio la sicurezza dell'applicazione utilizzatrice."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to validate and sanitize data received from third-party APIs.",
+      "it": "Si consiglia di convalidare e sanificare i dati ricevuti da API di terze parti."
+    },
+    "references": [
+      "https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/"
+    ]
   }
 ]
