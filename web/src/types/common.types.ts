@@ -39,6 +39,7 @@ export type Vulnerability = {
     severity: { label: string };
     description: string;
   };
+  customer: Customer;
   references: string[];
   generic_description: { enabled: boolean; text: string };
   generic_remediation: { enabled: boolean; text: string };

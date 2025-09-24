@@ -1,6 +1,6 @@
 import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
@@ -24,6 +24,7 @@ export default function CustomerDetail() {
   const {
     useCtxCustomer: [ctxCustomer, setCtxCustomer],
   } = useContext(GlobalContext);
+  const { customerId } = useParams();
   const navigate = useNavigate();
 
   const [fileObj, setFileObj] = useState<File | null>(null);
@@ -51,24 +52,24 @@ export default function CustomerDetail() {
   const selectedLanguageOption = languageOptions.find(opt => opt.value === formCustomer.language);
 
   useEffect(() => {
-    if (formCustomer.name != undefined) {
-      return;
-    }
     setFormCustomer({ name: ctxCustomer?.name, language: ctxCustomer?.language });
-  }, []);
+  }, [ctxCustomer]);
 
   useEffect(() => {
     document.title = getPageTitle("Customer detail");
-    if (ctxCustomer?.id) {
-      fetchTemplates();
+    if (customerId) {
+      fetchCustomer();
     }
-  }, [ctxCustomer?.id]);
+  }, [customerId]);
 
-  function fetchTemplates() {
+  function fetchCustomer() {
     setLoadingCustomerTemplates(true);
     getData<Customer>(
-      `/api/customers/${ctxCustomer?.id}`,
-      data => setCustomerTemplates(data.templates),
+      `/api/customers/${customerId}`,
+      data => {
+        setCtxCustomer(data);
+        setCustomerTemplates(data.templates);
+      },
       undefined,
       () => setLoadingCustomerTemplates(false)
     );
@@ -133,7 +134,7 @@ export default function CustomerDetail() {
       toast.success("Template uploaded successfully");
       setFileObj(null);
       setNewTemplateData({ name: "", type: "", file: null });
-      fetchTemplates();
+      fetchCustomer();
     });
   };
 
