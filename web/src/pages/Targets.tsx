@@ -1,6 +1,6 @@
 import { mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
@@ -10,6 +10,7 @@ import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
+import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Target } from "../types/common.types";
 import { getPageTitle } from "../utils/helpers";
 
@@ -17,18 +18,19 @@ export default function Targets() {
   const [targets, setTargets] = useState<Target[]>([]);
   const [loadingTargets, setLoadingTargets] = useState(true);
 
-  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
+  const [isModalAddActive, setIsModalAddActive] = useState(false);
 
   const [isModalEditActive, setIsModalEditActive] = useState(false);
   const [editingTarget, setEditingTarget] = useState<Target | null>(null);
+
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
 
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
   const [tag, setTag] = useState("");
 
-  const navigate = useNavigate();
   const { customerId } = useParams<{ customerId: string }>();
 
   const fetchTargets = () => {
@@ -40,6 +42,10 @@ export default function Targets() {
     document.title = getPageTitle("Targets");
     fetchTargets();
   }, [customerId]);
+
+  const openAddModal = () => {
+    setIsModalAddActive(true);
+  };
 
   const openEditModal = (target: Target) => {
     setEditingTarget(target);
@@ -84,6 +90,9 @@ export default function Targets() {
 
   return (
     <div>
+      {/* Add Target Modal */}
+      {isModalAddActive && <AddTargetModal setShowModal={setIsModalAddActive} onTargetCreated={fetchTargets} />}
+
       {/* Edit Target Modal */}
       {isModalEditActive && (
         <Modal
@@ -148,12 +157,7 @@ export default function Targets() {
       )}
 
       <PageHeader icon={mdiListBox} title="Targets">
-        <Button
-          icon={mdiPlus}
-          text="New target"
-          small
-          onClick={() => navigate(`/customers/${customerId}/targets/new`)}
-        />
+        <Button icon={mdiPlus} text="New target" small onClick={openAddModal} />
       </PageHeader>
 
       <Table

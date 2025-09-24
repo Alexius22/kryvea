@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useState } from "react";
+import { useParams } from "react-router";
 import { toast } from "react-toastify";
-import { postData } from "../api/api";
-import Card from "../components/Composition/Card";
-import Divider from "../components/Composition/Divider";
-import Grid from "../components/Composition/Grid";
-import Button from "../components/Form/Button";
-import Buttons from "../components/Form/Buttons";
-import Input from "../components/Form/Input";
-import { Target } from "../types/common.types";
-import { getPageTitle } from "../utils/helpers";
+import { postData } from "../../api/api";
+import Grid from "../Composition/Grid";
+import Modal from "../Composition/Modal";
+import Input from "../Form/Input";
 
-export default function AddTarget() {
-  const navigate = useNavigate();
+interface AddTargetModalProps {
+  setShowModal;
+  assessmentId?: string;
+  onTargetCreated?;
+}
+
+export default function AddTargetModal({ setShowModal, assessmentId, onTargetCreated }: AddTargetModalProps) {
   const { customerId } = useParams<{ customerId: string }>();
 
   const [ipv4, setIpv4] = useState("");
@@ -20,28 +20,38 @@ export default function AddTarget() {
   const [fqdn, setFqdn] = useState("");
   const [tag, setTag] = useState("");
 
-  useEffect(() => {
-    document.title = getPageTitle("New Target");
-  }, []);
-
-  const handleSubmit = () => {
+  const handleModalConfirm = () => {
     const payload = {
       ipv4: ipv4.trim(),
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
-      name: tag.trim(),
+      tag: tag.trim(),
       customer_id: customerId,
+      assessment_id: assessmentId,
     };
 
-    postData<Target>(`/api/targets`, payload, () => {
-      toast.success("Target added successfully");
-      navigate(-1);
+    postData<{ message: string; target_id: string }>("/api/targets", payload, data => {
+      toast.success(data.message);
+      setShowModal(false);
+      setIpv4("");
+      setIpv6("");
+      setFqdn("");
+      setTag("");
+
+      if (onTargetCreated) {
+        onTargetCreated(data.target_id);
+      }
     });
   };
 
   return (
-    <Card>
-      <Grid className="gap-4">
+    <Modal
+      title="New Target"
+      confirmButtonLabel="Save"
+      onConfirm={handleModalConfirm}
+      onCancel={() => setShowModal(false)}
+    >
+      <Grid className="grid-cols-1 gap-4">
         <Input
           type="text"
           id="ipv4"
@@ -74,12 +84,7 @@ export default function AddTarget() {
           value={tag}
           onChange={e => setTag(e.target.value)}
         />
-        <Divider />
-        <Buttons>
-          <Button text={"Submit"} onClick={handleSubmit} />
-          <Button variant="outline-only" text="Cancel" onClick={() => navigate(-1)} />
-        </Buttons>
       </Grid>
-    </Card>
+    </Modal>
   );
 }
