@@ -1,0 +1,10 @@
+.editor-hover-gate {
+  /* Disable editor interaction until hovered, so page scrolls normally */
+  .monaco-editor {
+    pointer-events: none;
+  }
+  &:hover .monaco-editor {
+    pointer-events: auto;
+  }
+}
+
