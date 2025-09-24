@@ -39,6 +39,7 @@ func (ci CustomerIndex) init() error {
 		mongo.IndexModel{
 			Keys: bson.D{
 				{Key: "name", Value: 1},
+				{Key: "language", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
