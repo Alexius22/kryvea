@@ -196,6 +196,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 					ID: assessment.ID,
 				},
 			},
+			Customer: mongo.Customer{
+				Model: mongo.Model{
+					ID: customer.ID,
+				},
+			},
 			User: mongo.User{
 				Model: mongo.Model{
 					ID: userID,
@@ -433,6 +438,11 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				Assessment: mongo.Assessment{
 					Model: mongo.Model{
 						ID: assessment.ID,
+					},
+				},
+				Customer: mongo.Customer{
+					Model: mongo.Model{
+						ID: customer.ID,
 					},
 				},
 				User: mongo.User{
