@@ -16,27 +16,6 @@ const (
 	targetCollection = "target"
 )
 
-var TargetPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customer._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customerData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "customer", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
-			}},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "customerData"},
-	},
-}
-
 type Target struct {
 	Model    `bson:",inline"`
 	IPv4     string   `json:"ipv4,omitempty" bson:"ipv4"`
@@ -210,31 +189,25 @@ func (ti *TargetIndex) GetByID(targetID uuid.UUID) (*Target, error) {
 	return &target, nil
 }
 func (ti *TargetIndex) GetByIDPipeline(targetID uuid.UUID) (*Target, error) {
-	pipeline := append(TargetPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"_id": targetID}
+
+	target := &Target{}
+	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	var target Target
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&target); err != nil {
-			return nil, err
-		}
-
-		return &target, nil
+	err = ti.hydrate(target)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return target, nil
 }
 
 func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
-	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"customer._id": customerID}
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -242,30 +215,38 @@ func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 
 	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
-	return targets, err
-}
-
-func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
-	pipeline := append(TargetPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID, "_id": targetID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	var target Target
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&target); err != nil {
+	for i := range targets {
+		err = ti.hydrate(&targets[i])
+		if err != nil {
 			return nil, err
 		}
-
-		return &target, nil
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return targets, nil
+}
+
+func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
+	filter := bson.M{
+		"customer._id": customerID,
+		"_id":          targetID,
+	}
+
+	target := &Target{}
+	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ti.hydrate(target)
+	if err != nil {
+		return nil, err
+	}
+
+	return target, nil
 }
 
 func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
@@ -288,18 +269,36 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 		"$and": conditions,
 	}
 
-	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: filter}})
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
-		return []Target{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
 	if err != nil {
-		return []Target{}, err
+		return nil, err
+	}
+
+	for i := range targets {
+		err = ti.hydrate(&targets[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return targets, nil
+}
+
+// hydrate fills in the nested fields for a Target
+func (ti *TargetIndex) hydrate(target *Target) error {
+	customer, err := ti.driver.Customer().GetByIDForHydrate(target.Customer.ID)
+	if err != nil {
+		return err
+	}
+
+	target.Customer = *customer
+
+	return nil
 }

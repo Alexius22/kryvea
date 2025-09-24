@@ -14,28 +14,6 @@ const (
 	customerCollection = "customer"
 )
 
-var CustomerPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "template"},
-			{Key: "localField", Value: "_id"},
-			{Key: "foreignField", Value: "customer._id"},
-			{Key: "as", Value: "templates"},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "templates.customer"},
-	},
-}
-
-var AllCustomerPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "templates", Value: []bson.A{}},
-		}},
-	},
-}
-
 type Customer struct {
 	Model     `bson:",inline"`
 	Name      string     `json:"name" bson:"name"`
@@ -161,52 +139,102 @@ func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
-	pipeline := append(CustomerPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": customerID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
+func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, error) {
+	filter := bson.M{"_id": customerID}
+	opts := options.FindOne().SetProjection(bson.M{
+		"templates": 0,
+	})
 
-	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
+	var customer Customer
+	err := ci.collection.FindOne(context.Background(), filter, opts).Decode(&customer)
 	if err != nil {
-		ci.driver.logger.Error().Err(err).Msg("Failed to aggregate customer by ID")
+		return nil, err
+	}
+
+	return &customer, nil
+}
+
+func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, error) {
+	customerIDs := make([]uuid.UUID, len(customers))
+	for i := range customers {
+		customerIDs[i] = customers[i].ID
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": customerIDs}}
+	opts := options.Find().SetProjection(bson.M{
+		"templates": 0,
+	})
+
+	cursor, err := ci.collection.Find(context.Background(), filter, opts)
+	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	var customer Customer
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&customer); err != nil {
-			ci.driver.logger.Error().Err(err).Msg("Failed to decode customer")
-			return nil, err
-		}
-
-		return &customer, nil
+	customersMongo := []Customer{}
+	err = cursor.All(context.Background(), &customersMongo)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return customersMongo, nil
+}
+
+func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
+	filter := bson.M{"_id": customerID}
+
+	customer := &Customer{}
+	err := ci.collection.FindOne(context.Background(), filter).Decode(customer)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ci.hydrate(customer)
+	if err != nil {
+		return nil, err
+	}
+
+	return customer, nil
 }
 
 func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
-	pipeline := AllCustomerPipeline
+	filter := bson.M{}
 	if customerIDs != nil {
-		pipeline = append(pipeline, bson.D{
-			{Key: "$match", Value: bson.M{
-				"_id": bson.M{"$in": customerIDs},
-			}},
-		})
+		filter = bson.M{
+			"_id": bson.M{"$in": customerIDs},
+		}
 	}
 
-	cursor, err := ci.collection.Aggregate(context.Background(), pipeline)
+	cursor, err := ci.collection.Find(context.Background(), filter)
 	if err != nil {
-		return []Customer{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	customers := []Customer{}
-	if err := cursor.All(context.Background(), &customers); err != nil {
-		return []Customer{}, err
+	err = cursor.All(context.Background(), &customers)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range customers {
+		err = ci.hydrate(&customers[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return customers, nil
+}
+
+// hydrate fills in the nested fields for a Customer
+func (ci *CustomerIndex) hydrate(customer *Customer) error {
+	templates, err := ci.driver.Template().GetByCustomerIDForHydrate(customer.ID)
+	if err != nil {
+		return err
+	}
+
+	customer.Templates = templates
+
+	return nil
 }

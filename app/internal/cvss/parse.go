@@ -64,7 +64,9 @@ func ParseVector(vectorString, version, language string) (*Vector, error) {
 		}
 	}
 
-	vector.Description = vector.GenerateVectorDescription(language)
+	if vector.Score > 0 {
+		vector.Description = vector.GenerateVectorDescription(language)
+	}
 
 	// Sanity check
 	if vector.Severity.Label == "" {
