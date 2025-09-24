@@ -28,27 +28,6 @@ var (
 	}
 )
 
-var TemplatePipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customer._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customerData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "customer", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
-			}},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "customerData"},
-	},
-}
-
 type Template struct {
 	Model    `bson:",inline"`
 	Name     string    `json:"name" bson:"name"`
@@ -103,7 +82,7 @@ func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
 
 	_, err = ti.collection.InsertOne(context.Background(), template)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return template.ID, err
@@ -116,14 +95,50 @@ func (ti *TemplateIndex) GetByID(id uuid.UUID) (*Template, error) {
 		return nil, err
 	}
 
+	err = ti.hydrate(&template)
+	if err != nil {
+		return nil, err
+	}
+
 	return &template, nil
 }
 
 func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), mongo.Pipeline{
-		bson.D{{Key: "$match", Value: bson.D{{Key: "customer._id", Value: customerID}}}},
-		bson.D{{Key: "$sort", Value: bson.D{{Key: "created_at", Value: -1}}}},
+	filter := bson.M{"customer._id": customerID}
+	opts := options.Find().SetSort(bson.D{
+		{Key: "created_at", Value: -1},
 	})
+
+	cursor, err := ti.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	templates := []Template{}
+	if err = cursor.All(context.Background(), &templates); err != nil {
+		return nil, err
+	}
+
+	for i := range templates {
+		err = ti.hydrate(&templates[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return templates, nil
+}
+
+func (ti *TemplateIndex) GetByCustomerIDForHydrate(customerID uuid.UUID) ([]Template, error) {
+	filter := bson.M{"customer._id": customerID}
+	opts := options.Find().SetSort(bson.D{
+		{Key: "created_at", Value: -1},
+	}).SetProjection(bson.M{
+		"customer": 0,
+	})
+
+	cursor, err := ti.collection.Find(context.Background(), filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -148,17 +163,24 @@ func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
 }
 
 func (ti *TemplateIndex) GetAll() ([]Template, error) {
-	cursor, err := ti.collection.Aggregate(context.Background(), TemplatePipeline)
+	filter := bson.M{}
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
-		ti.driver.logger.Error().Err(err).Msg("Failed to aggregate templates")
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	templates := []Template{}
-	if err = cursor.All(context.Background(), &templates); err != nil {
-		ti.driver.logger.Error().Err(err).Msg("Failed to decode templates")
+	err = cursor.All(context.Background(), &templates)
+	if err != nil {
 		return nil, err
+	}
+
+	for i := range templates {
+		err = ti.hydrate(&templates[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return templates, nil
@@ -178,4 +200,19 @@ func (ti *TemplateIndex) Delete(id uuid.UUID) error {
 
 	_, err = ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
 	return err
+}
+
+// hydrate fills in the nested fields for a Template
+func (ti *TemplateIndex) hydrate(template *Template) error {
+	// customer is optional
+	if template.Customer.ID != uuid.Nil {
+		customer, err := ti.driver.Customer().GetByIDForHydrate(template.Customer.ID)
+		if err != nil {
+			return err
+		}
+
+		template.Customer = customer
+	}
+
+	return nil
 }

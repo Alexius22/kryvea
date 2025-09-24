@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { getData, putData } from "../api/api";
 import Card from "../components/Composition/Card";
+import Flex from "../components/Composition/Flex";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import { MonacoTextSelection } from "../components/Poc/MonacoCodeEditor.types";
@@ -35,27 +36,34 @@ export default function EditPoc() {
 
   useEffect(() => {
     document.title = getPageTitle("Edit PoC");
-  }, []);
-  useEffect(() => {
+
     getData<PocDoc[]>(`/api/vulnerabilities/${vulnerabilityId}/pocs`, pocs => {
       setPocList(pocs.sort((a, b) => a.index - b.index).map(poc => ({ ...poc, key: getPocKeyByType(poc.type) })));
     });
-  }, []);
-  useEffect(() => {
-    const handleDragStart = () => {
+
+    const handleDragStart = e => {
+      e.preventDefault();
       pocListParent.current?.classList.add("dragging");
     };
-    const handleDragEnd = () => {
+    const handleDragEnd = e => {
+      e.preventDefault();
       pocListParent.current?.classList.remove("dragging");
     };
-    document.addEventListener("dragover", handleDragStart);
-    document.addEventListener("dragend", handleDragEnd);
-    document.addEventListener("visibilitychange", handleDragEnd);
+
+    window.addEventListener("dragover", handleDragStart);
+    window.addEventListener("dragstart", handleDragStart);
+    window.addEventListener("dragend", handleDragEnd);
+    window.addEventListener("visibilitychange", handleDragEnd);
+    window.addEventListener("drop", handleDragEnd);
     return () => {
-      document.removeEventListener("dragstart", handleDragStart);
-      document.removeEventListener("visibilitychange", handleDragEnd);
+      window.removeEventListener("dragover", handleDragStart);
+      window.removeEventListener("dragstart", handleDragStart);
+      window.removeEventListener("dragend", handleDragEnd);
+      window.removeEventListener("visibilitychange", handleDragEnd);
+      window.removeEventListener("drop", handleDragEnd);
     };
   }, []);
+
   useEffect(() => {
     if (pocListParent.current?.lastElementChild == null) {
       return;
@@ -280,10 +288,10 @@ export default function EditPoc() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <Flex className="gap-2" col>
       <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
         <Card className="!border-2 !border-[color:--bg-active] !bg-transparent">
-          <h1 className="mb-3 text-2xl">Edit PoC</h1>
+          <h1 className="text-2xl">Edit PoC</h1>
           <Buttons>
             <Button text="Request/Response" icon={mdiPlus} onClick={addPoc(POC_TYPE_REQUEST_RESPONSE)} small />
             <Button text="Image" icon={mdiPlus} onClick={addPoc(POC_TYPE_IMAGE)} small />
@@ -296,13 +304,38 @@ export default function EditPoc() {
               onClick={() => {
                 const formData = new FormData();
 
+                let ok = true;
                 formData.append(
                   "pocs",
                   JSON.stringify(
                     pocList.map((poc, index) => {
+                      switch (poc.type) {
+                        case POC_TYPE_TEXT:
+                          if (poc.text_data == undefined || poc.text_data.trim() === "") {
+                            toast.error(`Text PoC at index ${index + 1} cannot be empty`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_REQUEST_RESPONSE:
+                          if (poc?.request?.trim() === "" && poc?.response?.trim() === "") {
+                            toast.error(`Request/Response PoC at index ${index + 1} cannot be both empty`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_IMAGE:
+                          if (poc?.image_file == null) {
+                            toast.error(`Image PoC at index ${index + 1} must have an image`);
+                            ok = false;
+                          }
+                          break;
+                        case POC_TYPE_RICH_TEXT:
+                          break;
+                      }
+
                       if (poc.type === POC_TYPE_IMAGE && poc.image_reference != null) {
                         formData.append(poc.image_reference, poc.image_file, poc.image_file.name);
                       }
+
                       return {
                         ...poc,
                         index,
@@ -312,6 +345,9 @@ export default function EditPoc() {
                     })
                   )
                 );
+                if (!ok) {
+                  return;
+                }
 
                 putData(`/api/vulnerabilities/${vulnerabilityId}/pocs`, formData, () => {
                   toast.success("PoCs updated successfully");
@@ -324,6 +360,6 @@ export default function EditPoc() {
       <div ref={pocListParent} className="relative flex w-full flex-col gap-3">
         {pocList.map(switchPocType)}
       </div>
-    </div>
+    </Flex>
   );
 }

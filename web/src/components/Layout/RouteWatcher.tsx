@@ -4,10 +4,11 @@ import { toast } from "react-toastify";
 import { getData, setNavigate } from "../../api/api";
 import { getKryveaShadow } from "../../api/cookie";
 import { GlobalContext } from "../../App";
-import { Assessment, Category, Customer, Vulnerability } from "../../types/common.types";
+import { Assessment, Category, Customer, User, Vulnerability } from "../../types/common.types";
 
 export default function RouteWatcher() {
   const {
+    useCtxUsername: [ctxUsername, setCtxUsername],
     useCtxCustomer: [ctxCustomer, setCtxCustomer],
     useCtxAssessment: [ctxAssessment, setCtxAssessment],
     useCtxVulnerability: [ctxVulnerability, setCtxVulnerability],
@@ -23,6 +24,9 @@ export default function RouteWatcher() {
     setNavigate(navigate);
   }, [navigate]);
   useEffect(() => {
+    if (ctxUsername == undefined || ctxUsername === "") {
+      getData<User>("/api/users/me", user => setCtxUsername(user.username));
+    }
     if (customerId != undefined && ctxCustomer?.id !== customerId) {
       getData<Customer>(`/api/customers/${customerId}`, setCtxCustomer, () =>
         toast.error("Could not get customer by id: " + customerId)

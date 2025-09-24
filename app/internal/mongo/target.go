@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"time"
 
@@ -15,27 +16,6 @@ const (
 	targetCollection = "target"
 )
 
-var TargetPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customer._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customerData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "customer", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
-			}},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "customerData"},
-	},
-}
-
 type Target struct {
 	Model    `bson:",inline"`
 	IPv4     string   `json:"ipv4,omitempty" bson:"ipv4"`
@@ -43,7 +23,7 @@ type Target struct {
 	Port     int      `json:"port,omitempty" bson:"port"`
 	Protocol string   `json:"protocol,omitempty" bson:"protocol"`
 	FQDN     string   `json:"fqdn" bson:"fqdn"`
-	Name     string   `json:"name,omitempty" bson:"name"`
+	Tag      string   `json:"tag,omitempty" bson:"tag"`
 	Customer Customer `json:"customer,omitempty" bson:"customer"`
 }
 
@@ -67,7 +47,8 @@ func (ti TargetIndex) init() error {
 				{Key: "ipv4", Value: 1},
 				{Key: "ipv6", Value: 1},
 				{Key: "fqdn", Value: 1},
-				{Key: "name", Value: 1},
+				{Key: "tag", Value: 1},
+				{Key: "customer._id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
@@ -75,10 +56,24 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, error) {
+func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID, assessmentID uuid.UUID) (uuid.UUID, error) {
 	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
+	}
+
+	var assessment *Assessment
+	if assessmentID != uuid.Nil {
+		assessment, err = ti.driver.Assessment().GetByID(assessmentID)
+		if err != nil {
+			ti.driver.logger.Error().Err(err).Msg("failed to get assessment by ID")
+			return uuid.Nil, err
+		}
+
+		if assessment.Customer.ID != customerID {
+			ti.driver.logger.Error().Err(err).Msg("target does not belong to customer")
+			return uuid.Nil, errors.New("target does not belong to customer")
+		}
 	}
 
 	id, err := uuid.NewRandom()
@@ -100,7 +95,14 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID) (uuid.UUID, 
 
 	_, err = ti.collection.InsertOne(context.Background(), target)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
+	}
+
+	if assessment != nil {
+		err = ti.driver.Assessment().UpdateTargets(assessment.ID, target.ID)
+		if err != nil {
+			return uuid.Nil, err
+		}
 	}
 
 	return target.ID, nil
@@ -113,7 +115,13 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 	}
 
 	var existingTarget Assessment
-	err = ti.collection.FindOne(context.Background(), bson.M{"ipv4": target.IPv4, "ipv6": target.IPv6, "fqdn": target.FQDN, "name": target.Name}).Decode(&existingTarget)
+	err = ti.collection.FindOne(context.Background(), bson.M{
+		"ipv4":         target.IPv4,
+		"ipv6":         target.IPv6,
+		"fqdn":         target.FQDN,
+		"tag":          target.Tag,
+		"customer._id": customerID,
+	}).Decode(&existingTarget)
 	if err == nil {
 		return existingTarget.ID, false, nil
 	}
@@ -121,7 +129,7 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 		return uuid.Nil, false, err
 	}
 
-	id, err := ti.Insert(target, customerID)
+	id, err := ti.Insert(target, customerID, uuid.Nil)
 	return id, true, err
 }
 
@@ -136,12 +144,12 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 			"port":       target.Port,
 			"protocol":   target.Protocol,
 			"fqdn":       target.FQDN,
-			"name":       target.Name,
+			"tag":        target.Tag,
 		},
 	}
 
 	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
@@ -181,31 +189,25 @@ func (ti *TargetIndex) GetByID(targetID uuid.UUID) (*Target, error) {
 	return &target, nil
 }
 func (ti *TargetIndex) GetByIDPipeline(targetID uuid.UUID) (*Target, error) {
-	pipeline := append(TargetPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": targetID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"_id": targetID}
+
+	target := &Target{}
+	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	var target Target
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&target); err != nil {
-			return nil, err
-		}
-
-		return &target, nil
+	err = ti.hydrate(target)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return target, nil
 }
 
 func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
-	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}})
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"customer._id": customerID}
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -213,30 +215,38 @@ func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 
 	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
-	return targets, err
-}
-
-func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
-	pipeline := append(TargetPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID, "_id": targetID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	var target Target
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&target); err != nil {
+	for i := range targets {
+		err = ti.hydrate(&targets[i])
+		if err != nil {
 			return nil, err
 		}
-
-		return &target, nil
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return targets, nil
+}
+
+func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
+	filter := bson.M{
+		"customer._id": customerID,
+		"_id":          targetID,
+	}
+
+	target := &Target{}
+	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ti.hydrate(target)
+	if err != nil {
+		return nil, err
+	}
+
+	return target, nil
 }
 
 func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
@@ -259,18 +269,36 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error)
 		"$and": conditions,
 	}
 
-	pipeline := append(TargetPipeline, bson.D{{Key: "$match", Value: filter}})
-	cursor, err := ti.collection.Aggregate(context.Background(), pipeline)
+	cursor, err := ti.collection.Find(context.Background(), filter)
 	if err != nil {
-		return []Target{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	targets := []Target{}
 	err = cursor.All(context.Background(), &targets)
 	if err != nil {
-		return []Target{}, err
+		return nil, err
+	}
+
+	for i := range targets {
+		err = ti.hydrate(&targets[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return targets, nil
+}
+
+// hydrate fills in the nested fields for a Target
+func (ti *TargetIndex) hydrate(target *Target) error {
+	customer, err := ti.driver.Customer().GetByIDForHydrate(target.Customer.ID)
+	if err != nil {
+		return err
+	}
+
+	target.Customer = *customer
+
+	return nil
 }

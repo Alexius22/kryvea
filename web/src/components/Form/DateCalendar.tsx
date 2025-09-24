@@ -43,7 +43,12 @@ export default function DateCalendar({
   // Handler for range change
   const handleChangeRange = (dates: [Date | null, Date | null]) => {
     setRange(dates);
-    const [start, end] = dates;
+    let [start, end] = dates;
+
+    // If both are set and start > end, swap them
+    if (start && end && start > end) {
+      [start, end] = [end, start];
+    }
     onChange({
       start: start ? start.toISOString() : "",
       end: end ? end.toISOString() : "",

@@ -4,11 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
 	"github.com/google/uuid"
 )
 
@@ -146,7 +148,7 @@ func randUrl() string {
 	return urls[rand.Intn(len(urls))]
 }
 
-func TestClassic(t *testing.T) {
+func TestDefault(t *testing.T) {
 	customer := &mongo.Customer{
 		Name:     randName(3),
 		Language: randLanguage(),
@@ -184,7 +186,6 @@ func TestClassic(t *testing.T) {
 	}
 
 	var vulnerabilities []mongo.Vulnerability
-	pocs := []mongo.Poc{}
 	for i := 0; i < 5; i++ {
 		vulnerability := mongo.Vulnerability{
 			Model:         mongo.Model{ID: uuid.New()},
@@ -206,59 +207,22 @@ func TestClassic(t *testing.T) {
 
 		for _, version := range cvss.CvssVersions {
 			cvssVector := randCVSSVector(version)
-			cvssScore, cvssSeverity, complexity, err := cvss.ParseVector(cvssVector, version)
+			vector, err := cvss.ParseVector(cvssVector, version, customer.Language)
 			if err != nil {
 				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
 			}
 
 			switch version {
 			case cvss.Cvss2:
-				vulnerability.CVSSv2 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Complexity: mongo.LabelColor{
-						Label: complexity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv2 = *vector
 			case cvss.Cvss3:
-				vulnerability.CVSSv3 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv3 = *vector
 			case cvss.Cvss31:
-				vulnerability.CVSSv31 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv31 = *vector
 			case cvss.Cvss4:
-				vulnerability.CVSSv4 = mongo.VulnerabilityCVSS{
-					Version: version,
-					Vector:  cvssVector,
-					Score:   cvssScore,
-					Severity: mongo.LabelColor{
-						Label: cvssSeverity,
-					},
-					Description: cvss.GenerateDescription(cvssVector, version, "en"),
-				}
+				vulnerability.CVSSv4 = *vector
 			}
 		}
-
-		vulnerabilities = append(vulnerabilities, vulnerability)
 
 		for j := 0; j < 3; j++ {
 			poc.Pocs = append(poc.Pocs, mongo.PocItem{
@@ -288,15 +252,30 @@ func TestClassic(t *testing.T) {
 			TextData:     randName(20),
 		})
 
-		pocs = append(pocs, poc)
+		vulnerability.Poc = poc
+
+		vulnerabilities = append(vulnerabilities, vulnerability)
 	}
 
 	assessment.VulnerabilityCount = len(vulnerabilities)
 
+	reportData := &reportdata.ReportData{
+		Customer:        customer,
+		Assessment:      assessment,
+		Vulnerabilities: vulnerabilities,
+	}
+
+	report, _ := NewZipDefaultTemplate()
+
 	t.Run("test", func(t *testing.T) {
-		_, err := GenerateReportClassic(customer, assessment, vulnerabilities, pocs)
+		data, err := report.Render(reportData)
 		if err != nil {
-			t.Errorf("GenerateReportClassic() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
+			t.Errorf("Render() = %v, want %v, cvss versions %v", err, true, assessment.CVSSVersions)
+		}
+
+		err = os.WriteFile("report.zip", data, 0644)
+		if err != nil {
+			t.Errorf("os.WriteFile() = %v, want %v", err, nil)
 		}
 	})
 }

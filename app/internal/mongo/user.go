@@ -35,43 +35,11 @@ var (
 	Roles = []string{RoleAdmin, RoleUser}
 )
 
-var UserPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customers._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customers"},
-		}},
-	},
-
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "assessment"},
-			{Key: "localField", Value: "assessments._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "assessments"},
-			{Key: "pipeline", Value: mongo.Pipeline{
-				bson.D{{Key: "$project", Value: bson.D{
-					{Key: "_id", Value: 1},
-					{Key: "name", Value: 1},
-				}}},
-			}},
-		}},
-	},
-
-	bson.D{
-		{Key: "$project", Value: bson.D{
-			{Key: "_id", Value: 1},
-			{Key: "created_at", Value: 1},
-			{Key: "updated_at", Value: 1},
-			{Key: "disabled_at", Value: 1},
-			{Key: "username", Value: 1},
-			{Key: "role", Value: 1},
-			{Key: "customers", Value: 1},
-			{Key: "assessments", Value: 1},
-		}},
-	},
+var UserProjection = bson.M{
+	"password":        0,
+	"password_expiry": 0,
+	"token":           0,
+	"token_expiry":    0,
 }
 
 type User struct {
@@ -143,7 +111,7 @@ func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
 
 	_, err = ui.collection.InsertOne(context.Background(), user)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return user.ID, nil
@@ -207,37 +175,73 @@ func (ui *UserIndex) Logout(ID uuid.UUID) error {
 }
 
 func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
-	pipeline := append(
-		UserPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": ID}}},
-		bson.D{{Key: "$limit", Value: 1}})
-	cursor, err := ui.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"_id": ID}
+	opts := options.FindOne().SetProjection(UserProjection)
+
+	user := &User{}
+	err := ui.collection.FindOne(context.Background(), filter, opts).Decode(user)
 	if err != nil {
-		return &User{}, err
-	}
-	defer cursor.Close(context.Background())
-
-	user := User{}
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&user); err != nil {
-			return &User{}, err
-		}
-		return &user, nil
+		return nil, err
 	}
 
-	return nil, mongo.ErrNoDocuments
+	err = ui.hydrate(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
 }
 
 func (ui *UserIndex) GetAll() ([]User, error) {
-	cursor, err := ui.collection.Aggregate(context.Background(), UserPipeline)
+	filter := bson.M{}
+	opts := options.Find().SetProjection(UserProjection)
+
+	cursor, err := ui.collection.Find(context.Background(), filter, opts)
 	if err != nil {
-		return []User{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	users := []User{}
 	err = cursor.All(context.Background(), &users)
-	return users, err
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range users {
+		err = ui.hydrate(&users[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return users, nil
+}
+
+func (ui *UserIndex) GetAllUsernames() ([]string, error) {
+	opts := options.Find().SetProjection(bson.M{
+		"username": 1,
+	}).SetSort(bson.M{
+		"username": 1,
+	})
+	cursor, err := ui.collection.Find(context.Background(), bson.M{}, opts)
+	if err != nil {
+		return []string{}, err
+	}
+	defer cursor.Close(context.Background())
+
+	usernames := make([]string, 0, cursor.RemainingBatchLength())
+	for cursor.Next(context.Background()) {
+		var user User
+		if err := cursor.Decode(&user); err != nil {
+			return []string{}, err
+		}
+
+		usernames = append(usernames, user.Username)
+	}
+
+	return usernames, err
 }
 
 func (ui *UserIndex) GetByToken(token crypto.Token) (*User, error) {
@@ -289,7 +293,7 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) error {
@@ -314,7 +318,7 @@ func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) 
 	}
 
 	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addToOwned bool) error {
@@ -427,4 +431,29 @@ func IsValidRole(role string) bool {
 	}
 
 	return false
+}
+
+// hydrate fills in the nested fields for a User
+func (ui *UserIndex) hydrate(user *User) error {
+	// customers are optional
+	if len(user.Customers) > 0 {
+		customers, err := ui.driver.Customer().GetManyForHydrate(user.Customers)
+		if err != nil {
+			return err
+		}
+
+		user.Customers = customers
+	}
+
+	// assessments are optional
+	if len(user.Assessments) > 0 {
+		assessment, err := ui.driver.Assessment().GetManyForHydrate(user.Assessments)
+		if err != nil {
+			return err
+		}
+
+		user.Assessments = assessment
+	}
+
+	return nil
 }

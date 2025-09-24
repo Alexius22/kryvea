@@ -12,6 +12,7 @@ import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
 import UploadFile from "../components/Form/UploadFile";
 import { Category } from "../types/common.types";
+import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 import { sourceCategoryOptions } from "./CategoryUpsert";
 
@@ -160,14 +161,17 @@ export default function Categories() {
             Name: category.name,
             Source: sourceCategoryMap[category.source],
             Languages: Object.keys(category.generic_description || {})
+              .sort()
               .join(" | ")
               .toUpperCase(),
+            "Last update": formatDate(category.updated_at),
             buttons: (
               <Buttons noWrap key={category.id}>
-                <Button icon={mdiPencil} small onClick={() => navigate(`${category.id}`)} />
+                <Button icon={mdiPencil} small title="Edit category" onClick={() => navigate(`${category.id}`)} />
                 <Button
                   variant="danger"
                   icon={mdiTrashCan}
+                  title="Delete category"
                   small
                   onClick={() => {
                     setCategoryToDelete(category);
@@ -178,6 +182,7 @@ export default function Categories() {
             ),
           }))}
           perPageCustom={50}
+          maxWidthColumns={{ Name: "30rem" }}
         />
       </div>
     </div>

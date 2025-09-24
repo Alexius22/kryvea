@@ -25,7 +25,7 @@ export default function Paginator({
   const isOverlapping = page => page < 3 || page > pagesList.length - 3;
 
   return (
-    <div className="flex flex-col items-center justify-between gap-4 px-3 md:flex-row md:py-0">
+    <div className="hide-scrollbar flex flex-col items-center justify-between gap-4 px-3 md:flex-row md:py-0">
       <Buttons className="flex-nowrap !overflow-x-scroll">
         {isLessThan10 ? (
           pagesList.map(page => (

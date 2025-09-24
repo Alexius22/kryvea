@@ -1,16 +1,17 @@
 package templates
 
 import (
-	"archive/zip"
+	"bytes"
 	"fmt"
-	"io"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
 	"github.com/Alexius22/kryvea/internal/mongo"
+	reportdata "github.com/Alexius22/kryvea/internal/report/data"
+	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/Alexius22/kryvea/internal/zip"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -44,67 +45,6 @@ func alignmentCell(xl *excelize.File, sheet string, col string, alignmentH strin
 	_ = xl.SetColStyle(sheet, col, styleID)
 }
 
-// addFileToZip adds a file or directory (recursively) to the ZIP archive
-func addFileToZip(zipWriter *zip.Writer, filePath, baseInZip string) error {
-	info, err := os.Stat(filePath)
-	if err != nil {
-		return err
-	}
-
-	// If it's a directory, create a folder entry and recursively add contents
-	if info.IsDir() {
-		// Create a directory entry in the ZIP
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-		header.Name = baseInZip + "/"
-		header.Method = zip.Store
-
-		_, err = zipWriter.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		// Walk through directory contents and add them to the ZIP
-		entries, err := os.ReadDir(filePath)
-		if err != nil {
-			return err
-		}
-
-		for _, entry := range entries {
-			newPath := filepath.Join(filePath, entry.Name())
-			newBase := filepath.Join(baseInZip, entry.Name())
-			if err := addFileToZip(zipWriter, newPath, newBase); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
-	// Handle file case
-	fileToZip, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-	defer fileToZip.Close()
-
-	header, err := zip.FileInfoHeader(info)
-	if err != nil {
-		return err
-	}
-	header.Method = zip.Deflate
-	header.Name = baseInZip // Preserve folder structure inside ZIP
-
-	writer, err := zipWriter.CreateHeader(header)
-	if err != nil {
-		return err
-	}
-
-	_, err = io.Copy(writer, fileToZip)
-	return err
-}
-
 type Column struct {
 	Header          string
 	Letter          string
@@ -129,7 +69,14 @@ func (columns *Columns) getColumn(header string) Column {
 	return columns.Columns[columns.NameToColumn[header]]
 }
 
-func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
+func (t *ZipDefaultTemplate) renderReport(assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability) ([]byte, error) {
+	var zipBuf bytes.Buffer
+	zipWriter := zip.NewWriter(&zipBuf)
+	defer zipWriter.Close()
+
+	screenDir := "Screenshots"
+	zipWriter.AddDirectory(screenDir)
+
 	xl := excelize.NewFile()
 	defer xl.Close()
 
@@ -316,39 +263,24 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellStyle(pocSheet, cell, cell, headStyle)
 	}
 
-	tmpDir, err := os.MkdirTemp(".", "prefix-")
-	if err != nil {
-		return "", err
-	}
 	pocRow := 2
 
 	for i, vuln := range vulnerabilities {
 		row := i + 2
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnID).Letter, row), i)
 
-		maxVersion := ""
-		for cvssVersion, enabled := range assessment.CVSSVersions {
-			if !enabled {
-				continue
-			}
-
-			if cvssVersion > maxVersion {
-				maxVersion = cvssVersion
-			}
-		}
-
-		fmt.Println("maxversion", maxVersion)
-
 		severity := ""
-		switch maxVersion {
-		case cvss.Cvss2:
-			severity = vuln.CVSSv2.Severity.Label
-		case cvss.Cvss3:
-			severity = vuln.CVSSv3.Severity.Label
-		case cvss.Cvss31:
-			severity = vuln.CVSSv31.Severity.Label
-		case cvss.Cvss4:
-			severity = vuln.CVSSv4.Severity.Label
+		// get severity of the most recent cvss version
+		for version := range assessment.CVSSVersions {
+			labels := map[string]string{
+				cvss.Cvss2:  vuln.CVSSv2.Severity.Label,
+				cvss.Cvss3:  vuln.CVSSv3.Severity.Label,
+				cvss.Cvss31: vuln.CVSSv31.Severity.Label,
+				cvss.Cvss4:  vuln.CVSSv4.Severity.Label,
+			}
+			if label, ok := labels[version]; ok && label != "" {
+				severity = label
+			}
 		}
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnSeverity).Letter, row), severity)
 
@@ -360,62 +292,40 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		pocEntries := []string{}
 		pocCount := 0
 
-		// TODO: embed poc inside vulnerability
 		// Process PoCs for this vulnerability
-		for _, poc := range pocs {
-			if poc.VulnerabilityID != vuln.ID {
-				continue
+		for _, pocItem := range vuln.Poc.Pocs {
+			// Append new PoCs at the end
+			pocID := fmt.Sprintf("POC_%d_%d", i, pocCount)
+
+			xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnVulnID).Letter, pocRow), i)
+			xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnPOCID).Letter, pocRow), pocID)
+
+			// Update description with PoC references
+			if pocItem.Description != "" {
+				description += fmt.Sprintf("\n\n%s\n\n%s", pocItem.Description, pocID)
+			} else {
+				description += fmt.Sprintf("\n\n%s", pocID)
 			}
-			for _, pocItem := range poc.Pocs {
-				// Append new PoCs at the end
-				pocID := fmt.Sprintf("POC_%d_%d", i, pocCount)
 
-				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnVulnID).Letter, pocRow), i)
-				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnPOCID).Letter, pocRow), pocID)
+			switch pocItem.Type {
+			case "image":
+				imagePath := fmt.Sprintf("%s/POC_%d_%d.PNG", screenDir, i, pocCount)
 
-				// Update description with PoC references
-				if pocItem.Description != "" {
-					description += fmt.Sprintf("\n\n%s\n\n%s", pocItem.Description, pocID)
-				} else {
-					description += fmt.Sprintf("\n\n%s", pocID)
-				}
+				// add image to the zip
+				zipWriter.AddFile(bytes.NewBuffer(pocItem.ImageData), imagePath)
 
-				switch pocItem.Type {
-				case "image":
-					imagePath := fmt.Sprintf("%s/POC_%d_%d.PNG", tmpDir, i, pocCount)
-					// create image file
-					imageFile, err := os.Create(imagePath)
-					if err != nil {
-						continue
-					}
-					defer imageFile.Close()
+				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnNotes).Letter, pocRow), fmt.Sprintf("%s\n\n%s | %s", pocItem.Description, filepath.Base(imagePath), pocItem.ImageCaption))
+			case "request":
+				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnRequest).Letter, pocRow), pocItem.Request)
+				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnResponse).Letter, pocRow), pocItem.Response)
 
-					// TODO: remove
-					// // base64 decode image data
-					// decodedImage, err := base64.StdEncoding.DecodeString(poc.ImageData)
-					// if err != nil {
-					// 	continue
-					// }
-
-					// copy imagedata to file
-					_, err = imageFile.Write(pocItem.ImageData)
-					if err != nil {
-						continue
-					}
-
-					xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnNotes).Letter, pocRow), fmt.Sprintf("%s\n\n%s | %s", pocItem.Description, filepath.Base(imagePath), pocItem.ImageCaption))
-				case "request":
-					xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnRequest).Letter, pocRow), pocItem.Request)
-					xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnResponse).Letter, pocRow), pocItem.Response)
-
-				case "text":
-					xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnText).Letter, pocRow), pocItem.TextData)
-				}
-
-				pocEntries = append(pocEntries, pocID)
-				pocCount++
-				pocRow++
+			case "text":
+				xl.SetCellValue(pocSheet, fmt.Sprintf("%s%d", pocColumns.getColumn(ColumnText).Letter, pocRow), pocItem.TextData)
 			}
+
+			pocEntries = append(pocEntries, pocID)
+			pocCount++
+			pocRow++
 		}
 
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnDescription).Letter, row), description)
@@ -444,47 +354,13 @@ func renderReport(customer *mongo.Customer, assessment *mongo.Assessment, vulner
 		xl.SetCellValue(vulnSheet, fmt.Sprintf("%s%d", vulnColumns.getColumn(ColumnReferences).Letter, row), strings.Join(vuln.References, "\n"))
 	}
 
-	baseFileName := fmt.Sprintf("STAP - %s - %s - %s - v1.0", assessment.Type, customer.Name, assessment.Name)
-	baseFileName = sanitizeFileName(baseFileName)
+	baseFileName := sanitizeFileName(t.filename) + ".xlsx"
 
-	// Save XLSX file
-	fileName := baseFileName + ".xlsx"
-	if err := xl.SaveAs(fileName); err != nil {
-		return "", err
-	}
+	zipWriter.AddExcelize(xl, baseFileName)
 
-	// Create ZIP file
-	zipName := baseFileName + ".zip"
-	zipFile, err := os.Create(zipName)
-	if err != nil {
-		return "", err
-	}
-	defer zipFile.Close()
+	zipWriter.Close()
 
-	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
-
-	// Add the primary file to the ZIP
-	if err := addFileToZip(zipWriter, fileName, filepath.Base(fileName)); err != nil {
-		return "", err
-	}
-
-	// Rename tmpDir to Screenshots
-	screenDir := "Screenshots"
-	if err := os.Rename(tmpDir, screenDir); err != nil {
-		return "", err
-	}
-
-	// Add the Screenshots directory (including contents) to the ZIP
-	if err := addFileToZip(zipWriter, screenDir, screenDir); err != nil {
-		return "", err
-	}
-
-	// Cleanup temp files
-	os.Remove(fileName)
-	os.RemoveAll(screenDir)
-
-	return zipName, nil
+	return zipBuf.Bytes(), nil
 }
 
 func sanitizeFileName(name string) string {
@@ -502,58 +378,74 @@ func sanitizeFileName(name string) string {
 	return replacer.Replace(name)
 }
 
-func GenerateReportClassic(customer *mongo.Customer, assessment *mongo.Assessment, vulnerabilities []mongo.Vulnerability, pocs []mongo.Poc) (string, error) {
+type ZipDefaultTemplate struct {
+	filename  string
+	extension string
+}
+
+func NewZipDefaultTemplate() (*ZipDefaultTemplate, error) {
+	return &ZipDefaultTemplate{
+		extension: "zip",
+	}, nil
+}
+
+// TODO: try writing directly to ResponseWriter, instead of returning bytes
+func (t *ZipDefaultTemplate) Render(reportData *reportdata.ReportData) ([]byte, error) {
+	t.filename = fmt.Sprintf("%s - %s - %s", reportData.Assessment.Type.Short, reportData.Customer.Name, reportData.Assessment.Name)
+
 	// Sort assessment.CVSSVersions
-	maxVersion := ""
-	for cvssVersion, enabled := range assessment.CVSSVersions {
-		if !enabled {
-			continue
-		}
-		if cvssVersion > maxVersion {
-			maxVersion = cvssVersion
-		}
-	}
+	maxVersion := util.GetMaxCvssVersion(reportData.Assessment.CVSSVersions)
 
 	// Sort vulnerabilities by score. if score is equal, sort by name in ascending order
 	// TODO: simplify by creating  Vulnerability.CVSS as map[string]VulnerabilityCVSS
 	// and then using vulnerabilities[i][maxVersion].CVSSScore
 	switch maxVersion {
 	case cvss.Cvss2:
-		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv2.Score == vulnerabilities[j].CVSSv2.Score {
-				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
+		sort.Slice(reportData.Vulnerabilities, func(i, j int) bool {
+			if reportData.Vulnerabilities[i].CVSSv2.Score == reportData.Vulnerabilities[j].CVSSv2.Score {
+				return reportData.Vulnerabilities[i].DetailedTitle < reportData.Vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv2.Score > vulnerabilities[j].CVSSv2.Score
+			return reportData.Vulnerabilities[i].CVSSv2.Score > reportData.Vulnerabilities[j].CVSSv2.Score
 		})
 	case cvss.Cvss3:
-		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv3.Score == vulnerabilities[j].CVSSv3.Score {
-				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
+		sort.Slice(reportData.Vulnerabilities, func(i, j int) bool {
+			if reportData.Vulnerabilities[i].CVSSv3.Score == reportData.Vulnerabilities[j].CVSSv3.Score {
+				return reportData.Vulnerabilities[i].DetailedTitle < reportData.Vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv3.Score > vulnerabilities[j].CVSSv3.Score
+			return reportData.Vulnerabilities[i].CVSSv3.Score > reportData.Vulnerabilities[j].CVSSv3.Score
 		})
 	case cvss.Cvss31:
-		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv31.Score == vulnerabilities[j].CVSSv31.Score {
-				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
+		sort.Slice(reportData.Vulnerabilities, func(i, j int) bool {
+			if reportData.Vulnerabilities[i].CVSSv31.Score == reportData.Vulnerabilities[j].CVSSv31.Score {
+				return reportData.Vulnerabilities[i].DetailedTitle < reportData.Vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv31.Score > vulnerabilities[j].CVSSv31.Score
+			return reportData.Vulnerabilities[i].CVSSv31.Score > reportData.Vulnerabilities[j].CVSSv31.Score
 		})
 	case cvss.Cvss4:
-		sort.Slice(vulnerabilities, func(i, j int) bool {
-			if vulnerabilities[i].CVSSv4.Score == vulnerabilities[j].CVSSv4.Score {
-				return vulnerabilities[i].DetailedTitle < vulnerabilities[j].DetailedTitle
+		sort.Slice(reportData.Vulnerabilities, func(i, j int) bool {
+			if reportData.Vulnerabilities[i].CVSSv4.Score == reportData.Vulnerabilities[j].CVSSv4.Score {
+				return reportData.Vulnerabilities[i].DetailedTitle < reportData.Vulnerabilities[j].DetailedTitle
 			}
-			return vulnerabilities[i].CVSSv4.Score > vulnerabilities[j].CVSSv4.Score
+			return reportData.Vulnerabilities[i].CVSSv4.Score > reportData.Vulnerabilities[j].CVSSv4.Score
 		})
 	}
 
 	// Sort poc.Pocs for each poc in pocs
-	for i := range pocs {
-		sort.Slice(pocs[i].Pocs, func(i, j int) bool {
-			return pocs[i].Pocs[i].Index < pocs[i].Pocs[j].Index
+	for i := range reportData.Vulnerabilities {
+
+		sort.Slice(reportData.Vulnerabilities[i].Poc.Pocs, func(j, k int) bool {
+			return reportData.Vulnerabilities[i].Poc.Pocs[j].Index < reportData.Vulnerabilities[i].Poc.Pocs[k].Index
 		})
+
 	}
 
-	return renderReport(customer, assessment, vulnerabilities, pocs)
+	return t.renderReport(reportData.Assessment, reportData.Vulnerabilities)
+}
+
+func (t *ZipDefaultTemplate) Filename() string {
+	return fmt.Sprintf("%s.%s", t.filename, t.extension)
+}
+
+func (t *ZipDefaultTemplate) Extension() string {
+	return t.extension
 }

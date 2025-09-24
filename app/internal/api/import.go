@@ -73,7 +73,7 @@ func (d *Driver) ImportVulnerbilities(c *fiber.Ctx) error {
 		})
 	}
 
-	data, _, err := util.FormDataReadFile(c, "file")
+	data, _, err := d.formDataReadFile(c, "file")
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -143,7 +143,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		target := &mongo.Target{
 			IPv4: issue.Host.IP,
 			FQDN: issue.Host.Name,
-			Name: "burp",
+			Tag:  "burp",
 		}
 		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target, customer.ID)
 		if err != nil {
@@ -151,6 +151,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		}
 		if isNew {
 			targets = append(targets, targetID)
+		}
+
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
 		}
 
 		category := &mongo.Category{
@@ -175,10 +180,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 					ID: categoryID,
 				},
 			},
-			CVSSv2:      mongo.VulnerabilityCVSS{Version: cvss.Cvss2},
-			CVSSv3:      mongo.VulnerabilityCVSS{Version: cvss.Cvss3},
-			CVSSv31:     mongo.VulnerabilityCVSS{Version: cvss.Cvss31},
-			CVSSv4:      mongo.VulnerabilityCVSS{Version: cvss.Cvss4},
+			CVSSv2:      cvss.Vector{Version: cvss.Cvss2},
+			CVSSv3:      cvss.Vector{Version: cvss.Cvss3},
+			CVSSv31:     cvss.Vector{Version: cvss.Cvss31},
+			CVSSv4:      cvss.Vector{Version: cvss.Cvss4},
+			Status:      mongo.VulnearbilityStatusOpen,
 			References:  []string{issue.References},
 			Description: issue.IssueDetail,
 			Remediation: issue.RemediationDetail,
@@ -361,7 +367,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 		target := &mongo.Target{
 			IPv4: hostIP,
 			FQDN: hostFQDN,
-			Name: "nessus",
+			Tag:  "nessus",
 		}
 
 		targetID, isNew, err := d.mongo.Target().FirstOrInsert(target, customer.ID)
@@ -370,6 +376,11 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 		}
 		if isNew {
 			targets = append(targets, targetID)
+		}
+
+		err = d.mongo.Assessment().UpdateTargets(assessment.ID, targetID)
+		if err != nil {
+			return err
 		}
 
 		for _, item := range host.ReportItems {
@@ -407,11 +418,12 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 						ID: categoryID,
 					},
 				},
-				CVSSv2:        mongo.VulnerabilityCVSS{Version: cvss.Cvss2},
-				CVSSv3:        mongo.VulnerabilityCVSS{Version: cvss.Cvss3},
-				CVSSv31:       mongo.VulnerabilityCVSS{Version: cvss.Cvss31},
-				CVSSv4:        mongo.VulnerabilityCVSS{Version: cvss.Cvss4},
+				CVSSv2:        cvss.Vector{Version: cvss.Cvss2},
+				CVSSv3:        cvss.Vector{Version: cvss.Cvss3},
+				CVSSv31:       cvss.Vector{Version: cvss.Cvss31},
+				CVSSv4:        cvss.Vector{Version: cvss.Cvss4},
 				DetailedTitle: "",
+				Status:        mongo.VulnearbilityStatusOpen,
 				References:    []string{},
 				Description:   item.Synopsis,
 				Remediation:   item.Solution,
@@ -430,42 +442,39 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				},
 			}
 
-			if item.CvssVector != "" {
-				vectorParts := strings.Split(item.CvssVector, "CVSS2#")
-				vector := item.CvssVector
-				if len(vectorParts) > 1 {
-					vector = vectorParts[1]
-				}
-				cvssScore, cvssSeverity, cvssComplexity, err := cvss.ParseVector(vector, cvss.Cvss2)
+			if item.CvssVector == "" && item.Cvss3Vector == "" {
+				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2, customer.Language)
 				if err != nil {
 					return err
 				}
-				vulnerability.CVSSv2.Vector = vector
-				vulnerability.CVSSv2.Score = cvssScore
-				vulnerability.CVSSv2.Severity = mongo.LabelColor{
-					Label: cvssSeverity,
+				vulnerability.CVSSv2 = *vector2
+
+				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31, customer.Language)
+				if err != nil {
+					return err
 				}
-				// TODO: complexity
-				vulnerability.CVSSv2.Complexity = mongo.LabelColor{
-					Label: cvssComplexity,
-				}
-				vulnerability.CVSSv2.Description = cvss.GenerateDescription(vector, cvss.Cvss2, customer.Language)
+				vulnerability.CVSSv31 = *vector31
 			}
 
-			if item.Cvss3Vector != "" {
-				cvssScore, cvssSeverity, cvssComplexity, err := cvss.ParseVector(item.Cvss3Vector, cvss.Cvss3)
+			// Parse cvss2
+			if item.CvssVector != "" {
+				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2, customer.Language)
 				if err != nil {
 					return err
 				}
-				vulnerability.CVSSv31.Vector = item.Cvss3Vector
-				vulnerability.CVSSv31.Score = cvssScore
-				vulnerability.CVSSv31.Severity = mongo.LabelColor{
-					Label: cvssSeverity,
+
+				vulnerability.CVSSv2 = *vector
+			}
+
+			// Parse cvss3 as cvss31
+			if item.Cvss3Vector != "" {
+				vectorString := strings.Replace(item.Cvss3Vector, cvss.Cvss3, cvss.Cvss31, 1)
+				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31, customer.Language)
+				if err != nil {
+					return err
 				}
-				vulnerability.CVSSv31.Complexity = mongo.LabelColor{
-					Label: cvssComplexity,
-				}
-				vulnerability.CVSSv31.Description = cvss.GenerateDescription(item.Cvss3Vector, cvss.Cvss3, customer.Language)
+
+				vulnerability.CVSSv31 = *vector
 			}
 
 			vulnerabilityID, err := d.mongo.Vulnerability().Insert(vulnerability)

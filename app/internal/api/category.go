@@ -53,7 +53,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
 			})
@@ -113,7 +113,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": fmt.Sprintf("Category \"%s %s\" already exists", newCategory.Index, newCategory.Name),
 			})
@@ -266,7 +266,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 
-			if err == mongo.ErrDuplicateKey {
+			if mongo.IsDuplicateKeyError(err) {
 				return c.JSON(fiber.Map{
 					"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
 				})

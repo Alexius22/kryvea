@@ -30,7 +30,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 	}
 
 	// parse template data from form
-	templateData, filename, err := util.FormDataReadFile(c, "template")
+	templateData, filename, err := d.formDataReadFile(c, "template")
 	if err != nil {
 		return nil, "Cannot read template data"
 	}
@@ -83,7 +83,7 @@ func (d *Driver) AddGlobalTemplate(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Template with provided data already exists",
 			})
@@ -143,7 +143,7 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
-		if err == mongo.ErrDuplicateKey {
+		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
 				"error": "Template with provided data already exists",
 			})

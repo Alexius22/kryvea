@@ -1,6 +1,6 @@
-import { mdiListBox, mdiPencil, mdiPlus, mdiTrashCan } from "@mdi/js";
+import { mdiPencil, mdiPlus, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData } from "../api/api";
 import Grid from "../components/Composition/Grid";
@@ -10,6 +10,7 @@ import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
+import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Target } from "../types/common.types";
 import { getPageTitle } from "../utils/helpers";
 
@@ -17,18 +18,19 @@ export default function Targets() {
   const [targets, setTargets] = useState<Target[]>([]);
   const [loadingTargets, setLoadingTargets] = useState(true);
 
-  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
-  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
+  const [isModalAddActive, setIsModalAddActive] = useState(false);
 
   const [isModalEditActive, setIsModalEditActive] = useState(false);
   const [editingTarget, setEditingTarget] = useState<Target | null>(null);
 
+  const [isModalTrashActive, setIsModalTrashActive] = useState(false);
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
+
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [fqdn, setFqdn] = useState("");
-  const [hostName, setHostName] = useState("");
+  const [tag, setTag] = useState("");
 
-  const navigate = useNavigate();
   const { customerId } = useParams<{ customerId: string }>();
 
   const fetchTargets = () => {
@@ -41,12 +43,16 @@ export default function Targets() {
     fetchTargets();
   }, [customerId]);
 
+  const openAddModal = () => {
+    setIsModalAddActive(true);
+  };
+
   const openEditModal = (target: Target) => {
     setEditingTarget(target);
     setIpv4(target.ipv4 || "");
     setIpv6(target.ipv6 || "");
     setFqdn(target.fqdn || "");
-    setHostName(target.name || "");
+    setTag(target.tag || "");
     setIsModalEditActive(true);
   };
 
@@ -55,7 +61,7 @@ export default function Targets() {
       ipv4: ipv4.trim(),
       ipv6: ipv6.trim(),
       fqdn: fqdn.trim(),
-      name: hostName.trim(),
+      tag: tag.trim(),
     };
 
     patchData<Target>(`/api/targets/${editingTarget.id}`, payload, () => {
@@ -74,7 +80,7 @@ export default function Targets() {
   const handleDeleteConfirm = () => {
     deleteData(`/api/targets/${targetToDelete.id}`, () => {
       toast.success(
-        `Target "${targetToDelete.name || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
+        `Target "${targetToDelete.tag || targetToDelete.fqdn || targetToDelete.ipv4 || targetToDelete.ipv6}" deleted successfully`
       );
       setIsModalTrashActive(false);
       setTargetToDelete(null);
@@ -84,6 +90,9 @@ export default function Targets() {
 
   return (
     <div>
+      {/* Add Target Modal */}
+      {isModalAddActive && <AddTargetModal setShowModal={setIsModalAddActive} onTargetCreated={fetchTargets} />}
+
       {/* Edit Target Modal */}
       {isModalEditActive && (
         <Modal
@@ -112,18 +121,18 @@ export default function Targets() {
             <Input
               type="text"
               id="fqdn"
-              label="FQDN"
-              placeholder="Fully Qualified Domain Name"
+              label="FQDN | Target name"
+              placeholder="Fully Qualified Domain Name or target name"
               value={fqdn}
               onChange={e => setFqdn(e.target.value)}
             />
             <Input
               type="text"
-              id="name"
-              label="Name"
-              placeholder="This name is used to differentiate between duplicate entries"
-              value={hostName}
-              onChange={e => setHostName(e.target.value)}
+              id="tag"
+              label="Tag"
+              placeholder="This value is used to differentiate between duplicate entries"
+              value={tag}
+              onChange={e => setTag(e.target.value)}
             />
           </Grid>
         </Modal>
@@ -140,33 +149,34 @@ export default function Targets() {
           <p>
             Are you sure to delete{" "}
             <strong>
-              {targetToDelete?.name || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
+              {targetToDelete?.tag || targetToDelete?.fqdn || targetToDelete?.ipv4 || targetToDelete?.ipv6 || ""}
             </strong>{" "}
             target?
           </p>
         </Modal>
       )}
 
-      <PageHeader icon={mdiListBox} title="Targets">
-        <Button
-          icon={mdiPlus}
-          text="New target"
-          small
-          onClick={() => navigate(`/customers/${customerId}/targets/new`)}
-        />
+      <PageHeader icon={mdiTarget} title="Targets">
+        <Button icon={mdiPlus} text="New target" small onClick={openAddModal} />
       </PageHeader>
 
       <Table
         loading={loadingTargets}
         data={targets.map(target => ({
-          FQDN: target.fqdn,
+          "FQDN | Target name": target.fqdn,
           IPv4: target.ipv4,
           IPv6: target.ipv6,
-          Name: target.name,
+          Tag: target.tag,
           buttons: (
             <Buttons noWrap>
-              <Button icon={mdiPencil} onClick={() => openEditModal(target)} small />
-              <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(target)} small />
+              <Button icon={mdiPencil} title="Edit target" onClick={() => openEditModal(target)} small />
+              <Button
+                variant="danger"
+                icon={mdiTrashCan}
+                title="Delete target"
+                onClick={() => openDeleteModal(target)}
+                small
+              />
             </Buttons>
           ),
         }))}

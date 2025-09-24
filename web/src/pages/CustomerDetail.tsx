@@ -1,4 +1,4 @@
-import { mdiAccountEdit, mdiDownload, mdiListBox, mdiTarget, mdiTrashCan } from "@mdi/js";
+import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -158,7 +158,7 @@ export default function CustomerDetail() {
           <Button
             small
             text="Assessments"
-            icon={mdiListBox}
+            icon={mdiTabSearch}
             onClick={() => navigate(`/customers/${ctxCustomer?.id}/assessments`)}
           />
           <Button
@@ -176,10 +176,11 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Input
               type="text"
-              label="Company name"
+              label="Customer name"
               helperSubtitle="Required"
-              placeholder="Company name"
-              id="name"
+              placeholder="Customer name"
+              id="customer-name"
+              name="name"
               disabled={!isAdmin}
               value={formCustomer.name}
               onChange={handleFormCustomerChange}
@@ -204,14 +205,15 @@ export default function CustomerDetail() {
           </Buttons>
         </Card>
         <Card>
-          <CardTitle title="Custom templates" />
+          <CardTitle title="Custom report templates" />
           <Grid className="gap-4">
             <Grid className="grid-cols-2">
               <Input
                 type="text"
                 label="Template Name"
                 placeholder="Insert name for the template"
-                id="name"
+                id="template-name"
+                name="name"
                 value={newTemplateData.name || ""}
                 onChange={handleFormTemplateChange}
               />
@@ -220,6 +222,7 @@ export default function CustomerDetail() {
                 label="Template Type"
                 placeholder="e.g., Template for assessments"
                 id="type"
+                name="type"
                 value={newTemplateData.type}
                 onChange={handleFormTemplateChange}
               />
@@ -246,8 +249,18 @@ export default function CustomerDetail() {
                 "Template Type": template.type,
                 buttons: (
                   <Buttons noWrap>
-                    <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} variant="secondary" />
-                    <Button icon={mdiTrashCan} onClick={() => deleteTemplate(template.id)} variant="danger" />
+                    <Button
+                      icon={mdiDownload}
+                      title="Download template"
+                      onClick={() => downloadTemplate(template)}
+                      variant="secondary"
+                    />
+                    <Button
+                      icon={mdiTrashCan}
+                      title="Delete template"
+                      onClick={() => deleteTemplate(template.id)}
+                      variant="danger"
+                    />
                   </Buttons>
                 ),
               }))}

@@ -5,7 +5,6 @@ import Layout from "./components/Layout/Layout";
 import RouteWatcher from "./components/Layout/RouteWatcher";
 import {
   AddCustomer,
-  AddTarget,
   AddUser,
   Assessments,
   AssessmentUpsert,
@@ -17,25 +16,26 @@ import {
   Dashboard,
   EditPoc,
   EditReport,
+  LiveEditor,
   Login,
+  Logs,
   Profile,
+  Settings,
   Targets,
+  Templates,
   Users,
   VulnerabilityDetail,
   VulnerabilitySearch,
   VulnerabilityUpsert,
 } from "./pages";
-import LiveEditor from "./pages/LiveEditor";
-import Logs from "./pages/Logs";
-import Templates from "./pages/Templates";
-import { Assessment as AssessmentObj, Category, Customer, Vulnerability } from "./types/common.types";
+import { Assessment as AssessmentObj, Category, Customer, ThemeMode, Vulnerability } from "./types/common.types";
 import { getLocalStorageCtxState, GlobalContextKeys, setLocalStorageCtxState } from "./utils/contextPersistence";
 import { getBrowser, SidebarItemLabel } from "./utils/helpers";
 
 export type GlobalContextType = {
-  useDarkTheme: [boolean, Dispatch<SetStateAction<boolean>>];
+  useThemeMode: [ThemeMode, Dispatch<SetStateAction<ThemeMode>>];
   useBrowser: [string, Dispatch<SetStateAction<string>>];
-  useUsername: [string, Dispatch<SetStateAction<string>>];
+  useCtxUsername: [string, Dispatch<SetStateAction<string>>];
   useFullscreen: [boolean, Dispatch<SetStateAction<boolean>>];
   useCtxAssessment: [Partial<AssessmentObj>, Dispatch<SetStateAction<Partial<AssessmentObj>>>];
   useCtxCustomer: [Customer, Dispatch<SetStateAction<Customer>>];
@@ -49,10 +49,10 @@ export type GlobalContextType = {
 export const GlobalContext = createContext<GlobalContextType>(null);
 
 export default function App() {
-  const useDarkTheme = useState(() => getLocalStorageCtxState("useDarkTheme") ?? true);
-  const [darkTheme] = useDarkTheme;
+  const useThemeMode = useState<ThemeMode>(() => getLocalStorageCtxState("useThemeMode") ?? "os");
+  const [themeMode] = useThemeMode;
   const useBrowser = useState<string>(getBrowser);
-  const useUsername = useState<string>(() => getLocalStorageCtxState("useUsername") ?? "");
+  const useCtxUsername = useState<string>(() => getLocalStorageCtxState("useCtxUsername") ?? "");
   const useFullscreen = useState(() => getLocalStorageCtxState("useFullscreen") ?? false);
   const useCtxCustomer = useState<Customer>(() => getLocalStorageCtxState("useCtxCustomer"));
   const useCtxAssessment = useState<Partial<AssessmentObj>>(() => getLocalStorageCtxState("useCtxAssessment"));
@@ -67,8 +67,21 @@ export default function App() {
   );
 
   useLayoutEffect(() => {
-    document.documentElement.classList[darkTheme ? "add" : "remove"]("dark");
-  }, [darkTheme]);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const effectiveDark = themeMode === "os" ? mediaQuery.matches : themeMode === "dark";
+    document.documentElement.classList[effectiveDark ? "add" : "remove"]("dark");
+
+    if (themeMode !== "os") {
+      return;
+    }
+
+    const handler = (event: MediaQueryListEvent) => {
+      document.documentElement.classList[event.matches ? "add" : "remove"]("dark");
+    };
+
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, [themeMode]);
 
   const bindToLocalStorage = useCallback(function <T>(
     [state, setState]: [T, Dispatch<SetStateAction<T>>],
@@ -94,9 +107,9 @@ export default function App() {
   return (
     <GlobalContext.Provider
       value={{
-        useDarkTheme: bindToLocalStorage(useDarkTheme, "useDarkTheme"),
+        useThemeMode: bindToLocalStorage(useThemeMode, "useThemeMode"),
         useBrowser,
-        useUsername: bindToLocalStorage(useUsername, "useUsername"),
+        useCtxUsername: bindToLocalStorage(useCtxUsername, "useCtxUsername"),
         useFullscreen: bindToLocalStorage(useFullscreen, "useFullscreen"),
         useCtxCustomer: bindToLocalStorage(useCtxCustomer, "useCtxCustomer"),
         useCtxAssessment: bindToLocalStorage(useCtxAssessment, "useCtxAssessment"),
@@ -135,7 +148,6 @@ export default function App() {
               <Route path="/customers/new" element={<AddCustomer />} />
               <Route path="/customers/:customerId" element={<CustomerDetail />} />
               <Route path="/customers/:customerId/targets" element={<Targets />} />
-              <Route path="/customers/:customerId/targets/new" element={<AddTarget />} />
               <Route path="/customers/:customerId/assessments" element={<Assessments />} />
               <Route path="/customers/:customerId/assessments/new" element={<AssessmentUpsert />} />
               <Route path="/customers/:customerId/assessments/:assessmentId" element={<AssessmentUpsert />} />
@@ -175,6 +187,7 @@ export default function App() {
               <Route path="/live_editor" element={<LiveEditor />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/templates" element={<Templates />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="/login" element={<Login />} />
           </Route>

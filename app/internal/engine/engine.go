@@ -91,6 +91,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/vulnerabilities/:vulnerability", api.GetVulnerability)
 		apiGroup.Get("/assessments/:assessment/vulnerabilities", api.GetVulnerabilitiesByAssessment)
 		apiGroup.Post("/vulnerabilities", api.AddVulnerability)
+		apiGroup.Post("/vulnerabilities/:vulnerability/copy", api.CopyVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
 		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
 		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerbilities)
@@ -101,6 +102,7 @@ func (e *Engine) Serve() {
 		apiGroup.Get("/files/images/:file", api.GetImage)
 		apiGroup.Get("/files/templates/:file", api.GetTemplateFile)
 
+		apiGroup.Get("/users/names", api.GetUsernames)
 		apiGroup.Get("/users/me", api.GetMe)
 		apiGroup.Patch("/users/me", api.UpdateMe)
 		apiGroup.Patch("/users/me/assessments", api.UpdateOwnedAssessment)
@@ -136,6 +138,9 @@ func (e *Engine) Serve() {
 		adminGroup.Delete("/users/:user", api.DeleteUser)
 
 		adminGroup.Get("/logs", api.GetLog)
+
+		adminGroup.Get("/settings", api.GetSettings)
+		adminGroup.Put("/settings", api.UpdateSettings)
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

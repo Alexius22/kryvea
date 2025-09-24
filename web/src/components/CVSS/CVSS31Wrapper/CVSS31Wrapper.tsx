@@ -33,7 +33,7 @@ export default function CVSS31Wrapper({ value, onChange }) {
     ModifiedIntegrity: "X",
     ModifiedAvailability: "X",
   });
-  const [cvssString, setCvssString] = useState("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N");
+  const [cvssString, setCvssString] = useState(value);
   const [error, setError] = useState("");
 
   const cvssScore = useMemo(() => {
@@ -51,8 +51,19 @@ export default function CVSS31Wrapper({ value, onChange }) {
     if (!value) {
       return;
     }
-    handleInputChange({ target: { value } } as any);
-  }, []);
+
+    const parsedCvss = value.startsWith("CVSS:3.1/") ? value : "CVSS:3.1/" + value;
+    const cvssInfo = calculateCVSSFromVector(parsedCvss);
+
+    if (cvssInfo.success === false) {
+      setError(`${cvssInfo.errorType}: ${cvssInfo.errorMetrics ?? "no metrics provided"}`);
+      return;
+    }
+
+    setCvssString(cvssInfo.vectorString);
+    setSelectedValues(cvssInfo.metrics);
+    setError("");
+  }, [value]);
 
   const handleInputChange = e => {
     const cvssStringChange = e.target.value;
@@ -98,9 +109,9 @@ export default function CVSS31Wrapper({ value, onChange }) {
           onChange={handleInputChange}
         />
         <ScoreBar score={cvssScore} />
-        <Subtitle className="text-[color:--error]" text={error} />
+        <Subtitle className="pb-1 text-[color:--error]" text={error} />
       </Grid>
-      <Accordion title={"CVSS Calculator"} getIsOpen={setIsAccordionOpen}>
+      <Accordion title={"CVSSv3.1 Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS31Render
           {...{
             selectedValues,

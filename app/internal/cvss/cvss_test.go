@@ -88,7 +88,7 @@ func TestParseVector(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			score, severity, _, err := ParseVector(tc.vector, tc.version)
+			vector, err := ParseVector(tc.vector, tc.version, "en")
 
 			if tc.expectError {
 				if err == nil {
@@ -98,11 +98,11 @@ func TestParseVector(t *testing.T) {
 				if err != nil {
 					t.Errorf("Did not expect an error but got: %v", err)
 				}
-				if score != tc.expectedScore {
-					t.Errorf("Expected score %v but got %v", tc.expectedScore, score)
+				if vector.Score != tc.expectedScore {
+					t.Errorf("Expected score %v but got %v", tc.expectedScore, vector.Score)
 				}
-				if severity != tc.expectedSeverity {
-					t.Errorf("Expected severity %v but got %v", tc.expectedSeverity, severity)
+				if vector.Severity.Label != tc.expectedSeverity {
+					t.Errorf("Expected severity %v but got %v", tc.expectedSeverity, vector.Severity.Label)
 				}
 			}
 		})

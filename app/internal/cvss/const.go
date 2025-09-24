@@ -8,11 +8,21 @@ const (
 	Cvss31 = "3.1"
 	Cvss4  = "4.0"
 
+	Cvss2Prefix  = "CVSS2#"
+	Cvss3Prefix  = "CVSS:3.0/"
+	Cvss31Prefix = "CVSS:3.1/"
+	Cvss4Prefix  = "CVSS:4.0"
+
 	CvssSeverityCritical = "Critical"
 	CvssSeverityHigh     = "High"
 	CvssSeverityMedium   = "Medium"
 	CvssSeverityLow      = "Low"
 	CvssSeverityNone     = "Informational"
+
+	InfoVector2  = "AV:L/AC:H/Au:M/C:N/I:N/A:N"
+	InfoVector3  = "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N"
+	InfoVector31 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N"
+	InfoVector4  = "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N"
 )
 
 var (

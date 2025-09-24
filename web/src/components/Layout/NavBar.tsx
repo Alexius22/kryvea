@@ -4,14 +4,14 @@ import {
   mdiFullscreen,
   mdiFullscreenExit,
   mdiLogout,
+  mdiMonitor,
   mdiWeatherNight,
   mdiWhiteBalanceSunny,
 } from "@mdi/js";
-import { useContext, useEffect } from "react";
+import { useContext, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { GlobalContext } from "../../App";
-import { getData, postData } from "../../api/api";
-import { User } from "../../types/common.types";
+import { postData } from "../../api/api";
 import Icon from "../Composition/Icon";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
@@ -19,22 +19,29 @@ import Breadcrumb from "./Breadcrumb";
 
 export default function NavBar() {
   const {
-    useUsername: [username, setUsername],
-    useDarkTheme: [darkTheme, setDarkTheme],
+    useCtxUsername: [ctxUsername],
+    useThemeMode: [themeMode, setThemeMode],
     useFullscreen: [fullscreen, setFullScreen],
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getData<User>("/api/users/me", user => setUsername(user.username));
-  }, []);
 
   const handleLogout = () => {
     postData("/api/logout", undefined, () => {
       navigate("/login", { replace: false, state: { from: window.location.pathname } });
     });
   };
+
+  const titleTheme = useMemo(() => {
+    switch (themeMode) {
+      case "os":
+        return "OS Theme";
+      case "light":
+        return "Light Theme";
+      case "dark":
+        return "Dark Theme";
+    }
+  }, [themeMode]);
 
   return (
     <nav className="navbar">
@@ -47,21 +54,25 @@ export default function NavBar() {
         <Button
           onClick={() => navigate("/profile")}
           icon={mdiAccount}
-          text={username}
-          className="gap-1 bg-transparent p-2 text-[color:--link]"
+          text={ctxUsername}
+          className="bg-transparent p-2 text-[color:--link]"
         />
         <Button
-          onClick={() => setDarkTheme(prev => !prev)}
+          onClick={() => setThemeMode(prev => (prev === "light" ? "dark" : prev === "dark" ? "os" : "light"))}
           className="relative bg-transparent text-[color:--link]"
-          title={"Switch theme"}
+          title={titleTheme}
         >
           <Icon
             path={mdiWhiteBalanceSunny}
-            className={`absolute left-0 top-0 opacity-0 ${darkTheme ? "" : "rotateFadeIn"}`}
+            className={`absolute left-0 top-0 opacity-0 ${themeMode === "light" ? "rotateFadeIn" : ""}`}
           />
           <Icon
             path={mdiWeatherNight}
-            className={`absolute left-0 top-0 opacity-0 ${darkTheme ? "rotateFadeIn" : ""}`}
+            className={`absolute left-0 top-0 opacity-0 ${themeMode === "dark" ? "rotateFadeIn" : ""}`}
+          />
+          <Icon
+            path={mdiMonitor}
+            className={`absolute left-0 top-0 opacity-0 ${themeMode === "os" ? "rotateFadeIn" : ""}`}
           />
         </Button>
         <Button
@@ -74,7 +85,7 @@ export default function NavBar() {
           onClick={handleLogout}
           icon={mdiLogout}
           text="Logout"
-          className="gap-1 bg-transparent p-2 text-[color:--link]"
+          className="bg-transparent p-2 text-[color:--link]"
         />
       </Buttons>
     </nav>

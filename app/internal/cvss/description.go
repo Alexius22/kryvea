@@ -215,6 +215,10 @@ var cvssMap = map[string]map[string]map[string]string{
 }
 
 var descriptions = map[string]map[string]string{
+	Cvss3: {
+		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
+		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
+	},
 	Cvss31: {
 		language.Italian.String(): "Un attaccante %s, utilizzando un vettore di tipo %s, è potenzialmente in grado di effettuare attacchi di complessità %s con conseguente impatto %s sulla confidenzialità, %s sull'integrità e %s sulla disponibilità. Gli attacchi %s e un attacco ben riuscito può %s.",
 		language.English.String(): "An attacker %s, using a %s vector, can potentially carry out %s complexity attacks resulting in %s on confidentiality, %s on integrity, and %s on availability. The attacks %s, and a successful attack may %s.",
@@ -225,36 +229,39 @@ var descriptions = map[string]map[string]string{
 	},
 }
 
-func GenerateDescription(vector, version, lang string) string {
-	if version == Cvss3 {
-		version = Cvss31
+func (v *Vector) GenerateVectorDescription(lang string) string {
+	if _, exists := cvssMap[v.Version]; !exists {
+		return ""
 	}
 
-	if _, exists := cvssMap[version][lang]; !exists {
+	if _, exists := cvssMap[v.Version][lang]; !exists {
 		lang = language.English.String()
 	}
 
-	fields := strings.Split(vector, "/")[1:]
+	fields := strings.Split(v.Vector, "/")[1:]
 	vector_map := make(map[string]string)
 	for _, field := range fields {
-		if desc, exists := cvssMap[version][lang][field]; exists {
+		if desc, exists := cvssMap[v.Version][lang][field]; exists {
 			metric := strings.Split(field, ":")[0]
 			vector_map[metric] = desc
 		}
 	}
 
-	switch version {
+	description := ""
+
+	switch v.Version {
+	case Cvss3:
 	case Cvss31:
-		return fmt.Sprintf(
-			descriptions[version][lang],
+		description = fmt.Sprintf(
+			descriptions[v.Version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[C], vector_map[I], vector_map[A], vector_map[UI], vector_map[S],
 		)
 	case Cvss4:
-		return fmt.Sprintf(
-			descriptions[version][lang],
+		description = fmt.Sprintf(
+			descriptions[v.Version][lang],
 			vector_map[PR], vector_map[AV], vector_map[AC], vector_map[AT], vector_map[UI], vector_map[VC], vector_map[VI], vector_map[VA], vector_map[SC], vector_map[SI], vector_map[SA],
 		)
-	default:
-		return ""
 	}
+
+	return description
 }

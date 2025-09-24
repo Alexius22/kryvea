@@ -66,7 +66,7 @@ export type Assessment = {
   start_date_time: string;
   end_date_time: string;
   kickoff_date_time: string;
-  targets: { id: string; ipv4: string; ipv6: string; fqdn: string }[];
+  targets: Target[];
   status: string;
   type: { short: string; full: string };
   cvss_versions: { "3.1": boolean; "4.0": boolean };
@@ -85,7 +85,7 @@ export type Target = {
   port: number;
   protocol: string;
   fqdn: string;
-  name: string;
+  tag: string;
   customer: Customer;
 };
 
@@ -100,6 +100,7 @@ export type Customer = {
 
 export type Category = {
   id: string;
+  updated_at: string;
   index: string;
   name: string;
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
@@ -119,10 +120,17 @@ export type Template = {
   customer: Customer;
 };
 
+export type Settings = {
+  max_image_size: number;
+  default_category_language: string;
+};
+
+export type ThemeMode = "light" | "dark" | "os";
+
 export const exportTypes = [
   { value: "docx", label: "Word (.docx)" },
   { value: "xlsx", label: "Excel (.xlsx)" },
-  { value: "zip", label: "Zip Archive (.zip)" },
+  { value: "zip-default", label: "Zip Archive (.zip)" },
 ];
 
 export const uuidZero = "00000000-0000-0000-0000-000000000000";

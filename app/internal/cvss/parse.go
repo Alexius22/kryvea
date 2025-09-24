@@ -2,6 +2,7 @@ package cvss
 
 import (
 	"errors"
+	"strings"
 
 	gocvss20 "github.com/pandatix/go-cvss/20"
 	gocvss30 "github.com/pandatix/go-cvss/30"
@@ -9,30 +10,74 @@ import (
 	gocvss40 "github.com/pandatix/go-cvss/40"
 )
 
-// TODO: return a CVSS struct
-// ParseVector parses a CVSS vector string and returns the calculated score
-// and severity level based on the specified CVSS version.
-func ParseVector(vector string, version string) (float64, string, string, error) {
-	score, complexity, err := calculateScore(vector, version)
+type Vector struct {
+	Version     string     `json:"version" bson:"version"`
+	Vector      string     `json:"vector" bson:"vector"`
+	Score       float64    `json:"score" bson:"score"`
+	Severity    LabelColor `json:"severity" bson:"severity"`
+	Complexity  LabelColor `json:"complexity" bson:"complexity"`
+	Description string     `json:"description" bson:"description"`
+}
+
+type LabelColor struct {
+	Label string `json:"label" bson:"label"`
+	Color string `json:"color" bson:"color"`
+}
+
+// ParseVector parses a CVSS vector string and returns a pointer to
+// a Vector calculated based on the specified CVSS version.
+// Description field should be generated separately.
+func ParseVector(vectorString, version, language string) (*Vector, error) {
+	if _, ok := VersionToValue[version]; !ok {
+		return nil, errors.New("no severity levels found for given CVSS version")
+	}
+
+	if version == Cvss2 && strings.HasPrefix(vectorString, Cvss2Prefix) {
+		vectorParts := strings.Split(vectorString, Cvss2Prefix)
+		if len(vectorParts) < 2 {
+			return nil, errors.New("failed to parse CVSS2 vector with prefix")
+		}
+		vectorString = vectorParts[1]
+	}
+
+	score, complexity, err := calculateScoreAndComplexity(vectorString, version)
 	if err != nil {
-		return 0, "", "", err
+		return nil, err
 	}
 
-	severityThresholds, ok := severityLevels[version]
-	if !ok {
-		return score, "", "", errors.New("no severity levels found for given CVSS version")
+	vector := &Vector{
+		Version: version,
+		Vector:  vectorString,
+		Score:   score,
+		Complexity: LabelColor{
+			Label: complexity,
+		},
+		Severity:    LabelColor{},
+		Description: "",
 	}
 
+	severityThresholds := severityLevels[version]
 	for _, threshold := range severityThresholds {
-		if score >= threshold.Score {
-			return score, threshold.Severity, complexity, nil
+		if vector.Score >= threshold.Score {
+			vector.Severity.Label = threshold.Severity
+			break
 		}
 	}
 
-	return score, "", "", errors.New("no severity levels found for given CVSS version")
+	if vector.Score > 0 {
+		vector.Description = vector.GenerateVectorDescription(language)
+	}
+
+	// Sanity check
+	if vector.Severity.Label == "" {
+		vector.Severity.Label = CvssSeverityNone
+	}
+
+	return vector, nil
 }
 
-func calculateScore(vector string, version string) (float64, string, error) {
+// calculateScore calculates the CVSS score and complexity based on the vector string and version.
+func calculateScoreAndComplexity(vector string, version string) (float64, string, error) {
 	switch version {
 	case Cvss2:
 		cvss, err := gocvss20.ParseVector(vector)
@@ -88,9 +133,9 @@ func calculateScore(vector string, version string) (float64, string, error) {
 }
 
 var complexities map[string]string = map[string]string{
-	"L": "Low",
-	"M": "Medium",
-	"H": "High",
+	"L": CvssSeverityLow,
+	"M": CvssSeverityMedium,
+	"H": CvssSeverityHigh,
 }
 
 func getComplexity(c string) string {
@@ -98,5 +143,5 @@ func getComplexity(c string) string {
 		return complexity
 	}
 
-	return "Low"
+	return CvssSeverityLow
 }

@@ -1,5 +1,5 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
@@ -7,7 +7,7 @@ import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
-import Modal from "../components/Composition/Modal";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Checkbox from "../components/Form/Checkbox";
@@ -16,9 +16,11 @@ import Input from "../components/Form/Input";
 import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
+import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
 import { getPageTitle } from "../utils/helpers";
+import { getTargetLabel } from "../utils/targetLabel";
 
 type AssessmentPayload = Omit<
   Assessment,
@@ -107,10 +109,6 @@ export default function AssessmentUpsert() {
   const isEdit = Boolean(assessmentId);
   const [isModalTargetActive, setIsModalTargetActive] = useState(false);
 
-  const [ipv4, setIpv4] = useState("");
-  const [ipv6, setIpv6] = useState("");
-  const [fqdn, setFqdn] = useState("");
-  const [hostName, setHostName] = useState("");
   const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
 
   const [form, setForm] = useState<AssessmentPayload>({
@@ -129,8 +127,6 @@ export default function AssessmentUpsert() {
 
   const [kickoffDate, setKickoffDate] = useState(new Date().toISOString());
 
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
-
   const fetchTargets = () => {
     getData<Target[]>(`/api/customers/${customerId}/targets`, setTargets);
   };
@@ -143,7 +139,6 @@ export default function AssessmentUpsert() {
       getData<Assessment>(
         `/api/assessments/${assessmentId}`,
         data => {
-          setAssessment(data);
           setForm({
             type: data.type,
             name: data.name,
@@ -167,13 +162,14 @@ export default function AssessmentUpsert() {
     }
   }, [isEdit, customerId, assessmentId, navigate]);
 
-  const targetOptions: SelectOption[] = targets.map(target => ({
-    value: target.id,
-    label:
-      target.fqdn && (target.ipv4 || target.ipv6)
-        ? `${target.fqdn} - ${target.ipv4 || target.ipv6}${target.name ? ` (${target.name})` : ""}`
-        : (target.fqdn || target.ipv4 || target.ipv6) + (target.name ? ` (${target.name})` : ""),
-  }));
+  const targetOptions: SelectOption[] = useMemo(
+    () =>
+      targets.map(target => ({
+        value: target.id,
+        label: getTargetLabel(target),
+      })),
+    [targets]
+  );
 
   const handleChange = (field: keyof typeof form, value: any) => {
     setForm(f => ({ ...f, [field]: value }));
@@ -238,76 +234,33 @@ export default function AssessmentUpsert() {
     setIsModalTargetActive(true);
   };
 
-  const handleModalConfirm = () => {
-    const payload = {
-      ipv4: ipv4.trim(),
-      ipv6: ipv6.trim(),
-      fqdn: fqdn.trim(),
-      name: hostName.trim(),
-      customer_id: customerId,
-    };
-
-    postData<Target>(`/api/targets`, payload, () => {
-      toast.success("Target added successfully");
-      setIsModalTargetActive(false);
-      setIpv4("");
-      setIpv6("");
-      setFqdn("");
-      setHostName("");
-      fetchTargets();
+  const handleTargetCreated = createdTargetId => {
+    getData<Target[]>(`/api/customers/${customerId}/targets`, newTargets => {
+      setTargets(newTargets);
+      const newTarget = newTargets.find(t => t.id === createdTargetId);
+      if (newTarget) {
+        setForm(prev => ({
+          ...prev,
+          targets: [...prev.targets, newTarget],
+        }));
+      }
     });
   };
 
   return (
-    <>
+    <div>
       {isModalTargetActive && (
-        <Modal
-          title="New Target"
-          confirmButtonLabel="Save"
-          onConfirm={handleModalConfirm}
-          onCancel={() => setIsModalTargetActive(false)}
-        >
-          <Grid className="grid-cols-1 gap-4">
-            <Input
-              type="text"
-              id="ipv4"
-              label="IPv4"
-              placeholder="IPv4 address"
-              value={ipv4}
-              onChange={e => setIpv4(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="ipv6"
-              label="IPv6"
-              placeholder="IPv6 address"
-              value={ipv6}
-              onChange={e => setIpv6(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="fqdn"
-              label="FQDN"
-              placeholder="Fully Qualified Domain Name"
-              value={fqdn}
-              onChange={e => setFqdn(e.target.value)}
-            />
-            <Input
-              type="text"
-              id="name"
-              label="Name"
-              placeholder="This name is used to differentiate between duplicate entries"
-              value={hostName}
-              onChange={e => setHostName(e.target.value)}
-            />
-          </Grid>
-        </Modal>
+        <AddTargetModal
+          setShowModal={setIsModalTargetActive}
+          assessmentId={assessmentId}
+          onTargetCreated={handleTargetCreated}
+        />
       )}
 
+      <PageHeader title={isEdit ? "Edit Assessment" : "New Assessment"} />
       <Card>
         <form onSubmit={handleSubmit}>
           <Grid>
-            <h2 className="text-xl font-bold">{isEdit ? "Edit Assessment" : "New Assessment"}</h2>
             <Grid className="grid-cols-2">
               <Input
                 type="text"
@@ -376,7 +329,7 @@ export default function AssessmentUpsert() {
                 onChange={handleTargetsChange}
                 closeMenuOnSelect={false}
               />
-              <Button icon={mdiPlus} text="New Target" onClick={() => openTargetModal()} />
+              <Button icon={mdiPlus} text="New Target" onClick={openTargetModal} />
             </Grid>
             <SelectWrapper
               label="Environment"
@@ -410,6 +363,6 @@ export default function AssessmentUpsert() {
           </Grid>
         </form>
       </Card>
-    </>
+    </div>
   );
 }

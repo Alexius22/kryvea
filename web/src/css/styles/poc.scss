@@ -16,7 +16,7 @@
 .dragging .poc-template {
   cursor: not-allowed !important;
 }
-.dragging .poc-template:has(.poc-image) .drop-image-over-hinter {
+.dragging .poc-template[data-type="image"] .drop-image-over-hinter {
   @apply absolute left-0 top-0 flex h-full w-full animate-pulse bg-[color:--bg-secondary] opacity-30;
 }
 .drop-image-over-hinter {
@@ -40,12 +40,14 @@
   background-color: var(--bg-tertiary);
 
   &[data-focused="true"] {
-    border-color: var(--border-primary-highlight);
+    border-color: var(--link);
   }
 }
 
-.poc-template.dragged-over:has(.poc-template-children-sibling ~ .poc-image) {
-  background-color: var(--bg-quaternary);
+.poc-template.dragged-over {
+  &[data-type="image"] {
+    filter: brightness(1.35);
+  }
 }
 
 .edit-poc-header {

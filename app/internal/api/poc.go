@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
-	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -90,9 +89,21 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		imageID := uuid.UUID{}
 		pocImageFilename := ""
 		if pocData.Type == poc.PocTypeImage && pocData.ImageReference != "" {
-			imageData, filename, err := util.FormDataReadFile(c, pocData.ImageReference)
+			imageData, filename, err := d.formDataReadImage(c, pocData.ImageReference)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
+
+				switch err {
+				case mongo.ErrFileSizeTooLarge:
+					return c.JSON(fiber.Map{
+						"error": "Image file size is too large",
+					})
+				case mongo.ErrImageTypeNotAllowed:
+					return c.JSON(fiber.Map{
+						"error": "Image type is not allowed",
+					})
+				}
+
 				return c.JSON(fiber.Map{
 					"error": "Cannot read image data",
 				})

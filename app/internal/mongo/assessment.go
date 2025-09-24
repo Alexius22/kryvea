@@ -143,7 +143,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 
 	_, err = ai.collection.InsertOne(context.Background(), assessment)
 	if err != nil {
-		return uuid.Nil, enrichError(err)
+		return uuid.Nil, err
 	}
 
 	return assessment.ID, nil
@@ -157,6 +157,47 @@ func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) 
 	}
 
 	return &assessment, nil
+}
+
+func (ai *AssessmentIndex) GetByIDForHydrate(assessmentID uuid.UUID) (*Assessment, error) {
+	filter := bson.M{"_id": assessmentID}
+	opts := options.FindOne().SetProjection(bson.M{
+		"name": 1,
+	})
+
+	var assessment Assessment
+	err := ai.collection.FindOne(context.Background(), filter, opts).Decode(&assessment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &assessment, nil
+}
+
+func (ai *AssessmentIndex) GetManyForHydrate(assessments []Assessment) ([]Assessment, error) {
+	assessmentIDs := make([]uuid.UUID, len(assessments))
+	for i := range assessments {
+		assessmentIDs[i] = assessments[i].ID
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": assessmentIDs}}
+	opts := options.Find().SetProjection(bson.M{
+		"name": 1,
+	})
+
+	cursor, err := ai.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	assessmentsMongo := []Assessment{}
+	err = cursor.All(context.Background(), &assessmentsMongo)
+	if err != nil {
+		return nil, err
+	}
+
+	return assessmentsMongo, nil
 }
 
 func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessment, error) {
@@ -279,7 +320,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 	}
 
 	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
-	return enrichError(err)
+	return err
 }
 
 func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Assessment) error {
@@ -289,6 +330,24 @@ func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Asse
 		"$set": bson.M{
 			"updated_at": time.Now(),
 			"status":     assessment.Status,
+		},
+	}
+
+	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
+func (ai *AssessmentIndex) UpdateTargets(assessmentID uuid.UUID, target uuid.UUID) error {
+	filter := bson.M{"_id": assessmentID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+		},
+		"$addToSet": bson.M{
+			"targets": bson.M{
+				"_id": target,
+			},
 		},
 	}
 
