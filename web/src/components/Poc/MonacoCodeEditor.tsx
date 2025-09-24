@@ -225,21 +225,6 @@ export default function MonacoCodeEditor({
   const handleEditorMount: OnMount = editor => {
     setEditor(editor);
 
-    // Only scroll code editor when focused
-    const domNode = editor.getDomNode();
-    if (domNode) {
-      const wheelHandler = (e: WheelEvent) => {
-        if (!editor.hasTextFocus()) {
-          e.stopImmediatePropagation();
-        }
-      };
-      domNode.addEventListener("wheel", wheelHandler, { capture: true });
-
-      editor.onDidDispose(() => {
-        domNode.removeEventListener("wheel", wheelHandler, { capture: true });
-      });
-    }
-
     editor.onDidChangeCursorSelection(e => {
       let { selection, secondarySelections } = e;
       const allCursorSelections = [selection, ...secondarySelections];
@@ -264,7 +249,7 @@ export default function MonacoCodeEditor({
   return (
     <Grid>
       {label && <Label text={label} />}
-      <div className="h-full w-full min-w-0 border border-[color:--border-primary]">
+      <div className="editor-hover-gate h-full w-full min-w-0 border border-[color:--border-primary]">
         <Editor
           height={height}
           language={language}
@@ -286,6 +271,7 @@ export default function MonacoCodeEditor({
             wordWrap: "on",
             formatOnType: true,
             formatOnPaste: true,
+            scrollbar: { alwaysConsumeMouseWheel: false },
             minimap: { enabled: true, renderCharacters: true },
             tabSize: 2,
             "semanticHighlighting.enabled": false,
