@@ -249,21 +249,27 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Targ
 	return target, nil
 }
 
-func (ti *TargetIndex) Search(customerID uuid.UUID, ip string) ([]Target, error) {
-	conditions := []bson.M{
-		{"customer._id": customerID},
+func (ti *TargetIndex) Search(customerID uuid.UUID, query string) ([]Target, error) {
+	conditions := []bson.M{}
+
+	if customerID != uuid.Nil {
+		conditions = append(conditions, bson.M{"customer._id": customerID})
 	}
 
-	if ip != "" {
-		orCondition := bson.M{
+	orCondition := bson.M{}
+	if query != "" {
+		orCondition = bson.M{
 			"$or": []bson.M{
-				{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-				{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
-				{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(ip), Options: "i"}},
+				{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"port": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"protocol": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"tag": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
 			},
 		}
-		conditions = append(conditions, orCondition)
 	}
+	conditions = append(conditions, orCondition)
 
 	filter := bson.M{
 		"$and": conditions,

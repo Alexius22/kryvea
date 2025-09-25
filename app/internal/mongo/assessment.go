@@ -206,20 +206,20 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	}
 	defer cursor.Close(context.Background())
 
-	assessment := []Assessment{}
-	err = cursor.All(context.Background(), &assessment)
+	assessments := []Assessment{}
+	err = cursor.All(context.Background(), &assessments)
 	if err != nil {
 		return nil, err
 	}
 
-	for i := range assessment {
-		err = ai.hydrate(&assessment[i])
+	for i := range assessments {
+		err = ai.hydrate(&assessments[i])
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return assessment, nil
+	return assessments, nil
 }
 
 func (ai *AssessmentIndex) GetByCustomerAndID(customerID, assessmentID uuid.UUID) (*Assessment, error) {
