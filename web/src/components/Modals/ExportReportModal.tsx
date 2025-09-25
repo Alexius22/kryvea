@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { postDownloadBlob } from "../../api/api";
 import { curryDownloadReport } from "../../api/curries";
 import { GlobalContext } from "../../App";
-import { exportTypes, Template } from "../../types/common.types";
+import { exportTypes, Template, uuidZero } from "../../types/common.types";
 import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Checkbox from "../Form/Checkbox";
@@ -39,7 +39,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
       t =>
         t.language === language &&
         t.mime_type === selectedExportTypeOption.value &&
-        (!t.customer || t.customer.id === ctxCustomer.id)
+        (t.customer.id === uuidZero || t.customer.id === ctxCustomer.id)
     );
     setTemplateOptions(
       filtered.map(t => ({
