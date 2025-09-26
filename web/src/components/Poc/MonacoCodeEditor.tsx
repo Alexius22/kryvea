@@ -249,7 +249,7 @@ export default function MonacoCodeEditor({
   return (
     <Grid>
       {label && <Label text={label} />}
-      <div className="editor-hover-gate h-full w-full min-w-0 border border-[color:--border-primary]">
+      <div className="h-full w-full min-w-0 border border-[color:--border-primary]">
         <Editor
           height={height}
           language={language}
