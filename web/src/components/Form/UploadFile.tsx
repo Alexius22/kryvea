@@ -1,3 +1,4 @@
+import { mdiTrashCan } from "@mdi/js";
 import Grid from "../Composition/Grid";
 import Button from "./Button";
 import Label from "./Label";
@@ -23,13 +24,15 @@ export default function UploadFile({
   onChange,
   onButtonClick,
 }: UploadFileProps) {
+  const hasFile = Boolean(filename);
+
   return (
     <Grid>
       {label && <Label text={label} htmlFor={inputId} />}
-      <div className="flex min-w-full gap-4">
+      <div className="relative min-w-full">
         <label
-          className={`clickable flex h-12 w-1/2 min-w-40 cursor-pointer items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2`}
           htmlFor={inputId}
+          className="clickable flex h-10 w-full cursor-pointer items-center gap-2 overflow-hidden rounded-lg bg-[color:--bg-quaternary] p-2 pr-10"
         >
           <span className="shrink-0 text-nowrap rounded-md border border-[color:--border-primary] bg-[color:--bg-tertiary] px-[6px] py-[1px]">
             Choose File
@@ -46,8 +49,20 @@ export default function UploadFile({
           accept={accept}
           id={inputId}
           onChange={onChange}
+          onClick={e => {
+            (e.target as HTMLInputElement).value = "";
+          }}
         />
-        <Button text="Clear" className="rounded-xl" onClick={onButtonClick} variant="danger" />
+
+        {hasFile && (
+          <Button
+            className="absolute right-0 top-1/2 -translate-y-1/2 rounded-none rounded-r-md p-[10px]"
+            variant="danger"
+            onClick={onButtonClick}
+            title="Clear file"
+            icon={mdiTrashCan}
+          />
+        )}
       </div>
     </Grid>
   );
