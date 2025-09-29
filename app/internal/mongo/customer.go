@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,6 +40,7 @@ func (ci CustomerIndex) init() error {
 		mongo.IndexModel{
 			Keys: bson.D{
 				{Key: "name", Value: 1},
+				{Key: "language", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
@@ -222,6 +224,26 @@ func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return customers, nil
+}
+
+func (ci *CustomerIndex) Search(query string) ([]Customer, error) {
+	filter := bson.M{
+		"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+	}
+
+	cursor, err := ci.collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	customers := []Customer{}
+	err = cursor.All(context.Background(), &customers)
+	if err != nil {
+		return nil, err
 	}
 
 	return customers, nil

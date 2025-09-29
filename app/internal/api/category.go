@@ -11,7 +11,6 @@ import (
 )
 
 type categoryRequestData struct {
-	// ID                 string            `json:"id"`
 	Index              string            `json:"index"`
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
