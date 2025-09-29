@@ -338,6 +338,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.environment}
               closeMenuOnSelect
               onChange={option => handleSelectChange("environment", option)}
+              isClearable
             />
             <SelectWrapper
               label="Testing type"
@@ -346,6 +347,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.testing_type}
               closeMenuOnSelect
               onChange={option => handleSelectChange("testing_type", option)}
+              isClearable
             />
             <SelectWrapper
               label="OSSTMM Vector"
@@ -354,6 +356,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.osstmm_vector}
               closeMenuOnSelect
               onChange={option => handleSelectChange("osstmm_vector", option)}
+              isClearable
             />
             <Divider />
             <Buttons>
