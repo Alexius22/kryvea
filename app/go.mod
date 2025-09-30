@@ -1,8 +1,6 @@
 module github.com/Alexius22/kryvea
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.24.4
 
 require (
 	github.com/JJJJJJack/go-template-docx v1.4.2
