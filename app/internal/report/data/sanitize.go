@@ -23,6 +23,7 @@ func SanitizeAssessment(assessment *mongo.Assessment) {
 	}
 
 	assessment.Name = escapeXMLString(assessment.Name)
+	assessment.Language = escapeXMLString(assessment.Language)
 	assessment.Targets = sanitizeTargets
 	assessment.Status = escapeXMLString(assessment.Status)
 	assessment.Type.Short = escapeXMLString(assessment.Type.Short)

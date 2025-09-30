@@ -44,7 +44,7 @@ func (rd *ReportData) Prepare() {
 	SanitizeAssessment(rd.Assessment)
 
 	// sanitize and sort vulnerabilities
-	SanitizeAndSortVulnerabilities(rd.Vulnerabilities, maxVersion, rd.Customer.Language)
+	SanitizeAndSortVulnerabilities(rd.Vulnerabilities, maxVersion, rd.Assessment.Language)
 
 	// get max cvss
 	rd.MaxCVSS = getMaxCvss(rd.Vulnerabilities, rd.Assessment.CVSSVersions)
