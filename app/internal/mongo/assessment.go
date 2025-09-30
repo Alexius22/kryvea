@@ -18,6 +18,7 @@ const (
 type Assessment struct {
 	Model              `bson:",inline"`
 	Name               string          `json:"name,omitempty" bson:"name"`
+	Language           string          `json:"language,omitempty" bson:"language"`
 	StartDateTime      time.Time       `json:"start_date_time,omitempty" bson:"start_date_time"`
 	EndDateTime        time.Time       `json:"end_date_time,omitempty" bson:"end_date_time"`
 	KickoffDateTime    time.Time       `json:"kickoff_date_time,omitempty" bson:"kickoff_date_time"`
@@ -62,6 +63,7 @@ func (ai AssessmentIndex) init() error {
 		mongo.IndexModel{
 			Keys: bson.D{
 				{Key: "name", Value: 1},
+				{Key: "language", Value: 1},
 				{Key: "customer._id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
@@ -274,6 +276,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		"$set": bson.M{
 			"updated_at":        time.Now(),
 			"name":              assessment.Name,
+			"language":          assessment.Language,
 			"start_date_time":   assessment.StartDateTime,
 			"end_date_time":     assessment.EndDateTime,
 			"kickoff_date_time": assessment.KickoffDateTime,

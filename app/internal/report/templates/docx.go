@@ -3,7 +3,6 @@ package templates
 import (
 	"fmt"
 	"text/template"
-	"time"
 
 	"github.com/Alexius22/kryvea/internal/poc"
 	reportdata "github.com/Alexius22/kryvea/internal/report/data"
@@ -51,8 +50,8 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 	}
 
 	DocxTemplate.AddTemplateFuncs(template.FuncMap{
-		"formatDate": formatDate,
-		"debug":      debug,
+		"formatDate": reportdata.FormatDate,
+		"debug":      reportdata.Debug,
 	})
 
 	err = DocxTemplate.Apply(reportData)
@@ -69,12 +68,4 @@ func (t *DocxTemplate) Filename() string {
 
 func (t *DocxTemplate) Extension() string {
 	return t.extension
-}
-
-func formatDate(t time.Time) string {
-	return t.Format("02/01/2006")
-}
-
-func debug(v any) string {
-	return fmt.Sprintf("%#v", v)
 }

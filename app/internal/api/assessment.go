@@ -17,6 +17,7 @@ import (
 
 type assessmentRequestData struct {
 	Name            string               `json:"name"`
+	Language        string               `json:"language"`
 	StartDateTime   time.Time            `json:"start_date_time"`
 	EndDateTime     time.Time            `json:"end_date_time"`
 	KickoffDateTime time.Time            `json:"kickoff_date_time"`
@@ -86,6 +87,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 
 	assessment := &mongo.Assessment{
 		Name:            data.Name,
+		Language:        data.Language,
 		StartDateTime:   data.StartDateTime,
 		EndDateTime:     data.EndDateTime,
 		KickoffDateTime: data.KickoffDateTime,
@@ -356,6 +358,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 
 	newAssessment := &mongo.Assessment{
 		Name:            data.Name,
+		Language:        data.Language,
 		StartDateTime:   data.StartDateTime,
 		EndDateTime:     data.EndDateTime,
 		KickoffDateTime: data.KickoffDateTime,
@@ -658,11 +661,11 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		}
 
 		if vulnerabilities[i].GenericDescription.Enabled {
-			vulnerabilities[i].GenericDescription.Text = category.GenericDescription[assessment.Customer.Language]
+			vulnerabilities[i].GenericDescription.Text = category.GenericDescription[assessment.Language]
 		}
 
 		if vulnerabilities[i].GenericRemediation.Enabled {
-			vulnerabilities[i].GenericRemediation.Text = category.GenericRemediation[assessment.Customer.Language]
+			vulnerabilities[i].GenericRemediation.Text = category.GenericRemediation[assessment.Language]
 		}
 
 		for j, item := range v.Poc.Pocs {
@@ -747,6 +750,10 @@ func (d *Driver) validateAssessmentStatus(data *assessmentRequestData) string {
 func (d *Driver) validateAssessmentData(data *assessmentRequestData) string {
 	if data.Name == "" {
 		return "Name is required"
+	}
+
+	if data.Language == "" {
+		return "Language is required"
 	}
 
 	if data.StartDateTime.IsZero() {

@@ -23,6 +23,7 @@ func SanitizeAssessment(assessment *mongo.Assessment) {
 	}
 
 	assessment.Name = escapeXMLString(assessment.Name)
+	assessment.Language = escapeXMLString(assessment.Language)
 	assessment.Targets = sanitizeTargets
 	assessment.Status = escapeXMLString(assessment.Status)
 	assessment.Type.Short = escapeXMLString(assessment.Type.Short)
@@ -51,26 +52,26 @@ func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, maxVe
 		addComplexityColor(&vulnerabilities[i])
 
 		addSeverityColor(&vulnerabilities[i])
+	}
 
-		// Sort by maxVersion score
-		switch maxVersion {
-		case cvss.Cvss2:
-			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv2.Score > vulnerabilities[k].CVSSv2.Score
-			})
-		case cvss.Cvss3:
-			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv3.Score > vulnerabilities[k].CVSSv3.Score
-			})
-		case cvss.Cvss31:
-			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv31.Score > vulnerabilities[k].CVSSv31.Score
-			})
-		case cvss.Cvss4:
-			sort.Slice(vulnerabilities, func(j, k int) bool {
-				return vulnerabilities[j].CVSSv4.Score > vulnerabilities[k].CVSSv4.Score
-			})
-		}
+	// Sort by maxVersion score
+	switch maxVersion {
+	case cvss.Cvss2:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv2.Score > vulnerabilities[k].CVSSv2.Score
+		})
+	case cvss.Cvss3:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv3.Score > vulnerabilities[k].CVSSv3.Score
+		})
+	case cvss.Cvss31:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv31.Score > vulnerabilities[k].CVSSv31.Score
+		})
+	case cvss.Cvss4:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv4.Score > vulnerabilities[k].CVSSv4.Score
+		})
 	}
 }
 
