@@ -45,7 +45,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Customer \"%s\" with language \"%s\" already exists", customer.Name, customer.Language),
+				"error": fmt.Sprintf("Customer \"%s\" already exists", customer.Name),
 			})
 		}
 
@@ -152,7 +152,7 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Customer \"%s\" with language \"%s\" already exists", newCustomer.Name, newCustomer.Language),
+				"error": fmt.Sprintf("Customer \"%s\" already exists", newCustomer.Name),
 			})
 		}
 
@@ -213,10 +213,6 @@ func (d *Driver) customerFromParam(customerParam string) (*mongo.Customer, strin
 func (d *Driver) validateCustomerData(customer *customerRequestData) string {
 	if customer.Name == "" {
 		return "Name is required"
-	}
-
-	if customer.Language == "" {
-		return "Language is required"
 	}
 
 	return ""
