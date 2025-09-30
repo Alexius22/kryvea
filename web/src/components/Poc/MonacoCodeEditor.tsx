@@ -1,6 +1,5 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
 import type * as monaco from "monaco-editor";
-import { editor as monacoEditor } from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
 import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
@@ -78,7 +77,7 @@ export default function MonacoCodeEditor({
         range: new monacoRef.current!.Range(start.line, start.col, end.line, end.col),
         options: {
           inlineClassName: getOrCreateHighlightClass(color),
-          stickiness: monacoEditor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+          stickiness: monacoRef.current?.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
         },
       }));
 
