@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -23,8 +24,23 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 
 	client, err := mongo.Connect(options.Client().ApplyURI(uri))
 	if err != nil {
+		logger.Error().Err(err).Msg("Failed to connect to MongoDB")
 		return nil, err
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to ping MongoDB")
+		return nil, err
+	}
+	if ctx.Err() == context.DeadlineExceeded {
+		logger.Error().Msg("MongoDB connection timed out")
+		return nil, fmt.Errorf("MongoDB connection timed out")
+	}
+
+	logger.Debug().Msg("Connected to MongoDB")
 
 	d := &Driver{
 		client:   client,
