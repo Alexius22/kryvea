@@ -65,7 +65,7 @@ export default function CategoryUpsert() {
     }
 
     getData<Category>(`/api/categories/${categoryId}`, category => {
-      setIdentifier(category.index);
+      setIdentifier(category.identifier);
       setName(category.name);
       setSource(category.source);
       setReferences(category.references || []);
@@ -125,7 +125,7 @@ export default function CategoryUpsert() {
     });
 
     const payload: Omit<Category, "id" | "updated_at"> = {
-      index: identifier.trim(),
+      identifier: identifier.trim(),
       name: name.trim(),
       source: source,
       generic_description,

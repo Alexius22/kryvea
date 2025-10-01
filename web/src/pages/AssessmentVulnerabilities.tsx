@@ -222,7 +222,7 @@ export default function AssessmentVulnerabilities() {
           return {
             Vulnerability: (
               <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
-                {vulnerability.category.index} - {vulnerability.category.name}{" "}
+                {vulnerability.category.identifier} - {vulnerability.category.name}{" "}
                 {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
               </Link>
             ),

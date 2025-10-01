@@ -11,7 +11,7 @@ import (
 )
 
 type categoryRequestData struct {
-	Index              string            `json:"index"`
+	Identifier         string            `json:"identifier"`
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
@@ -39,7 +39,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 	}
 
 	category := &mongo.Category{
-		Index:              data.Index,
+		Identifier:         data.Identifier,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
@@ -54,7 +54,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 
 		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Identifier, category.Name),
 			})
 		}
 
@@ -99,7 +99,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 	}
 
 	newCategory := &mongo.Category{
-		Index:              data.Index,
+		Identifier:         data.Identifier,
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
@@ -114,7 +114,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 
 		if mongo.IsDuplicateKeyError(err) {
 			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Category \"%s %s\" already exists", newCategory.Index, newCategory.Name),
+				"error": fmt.Sprintf("Category \"%s %s\" already exists", newCategory.Identifier, newCategory.Name),
 			})
 		}
 
@@ -253,7 +253,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 	categories := make([]uuid.UUID, 0, len(data))
 	for _, categoryData := range data {
 		category := &mongo.Category{
-			Index:              categoryData.Index,
+			Identifier:         categoryData.Identifier,
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
@@ -267,12 +267,12 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 
 			if mongo.IsDuplicateKeyError(err) {
 				return c.JSON(fiber.Map{
-					"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Index, category.Name),
+					"error": fmt.Sprintf("Category \"%s %s\" already exists", category.Identifier, category.Name),
 				})
 			}
 
 			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Cannot create category \"%s %s\"", category.Index, category.Name),
+				"error": fmt.Sprintf("Cannot create category \"%s %s\"", category.Identifier, category.Name),
 			})
 		}
 		categories = append(categories, categoryID)
@@ -304,8 +304,8 @@ func (d *Driver) categoryFromParam(categoryParam string) (*mongo.Category, strin
 }
 
 func (d *Driver) validateCategoryData(category *categoryRequestData) string {
-	if category.Index == "" {
-		return "Index is required"
+	if category.Identifier == "" {
+		return "Identifier is required"
 	}
 
 	if category.Name == "" {

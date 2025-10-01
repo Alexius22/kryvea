@@ -103,7 +103,7 @@ export type Customer = {
 export type Category = {
   id: string;
   updated_at: string;
-  index: string;
+  identifier: string;
   name: string;
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
   generic_description: Record<string, string>;

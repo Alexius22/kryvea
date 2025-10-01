@@ -177,8 +177,8 @@ func (d *Driver) CreateNilCategory() error {
 			CreatedAt: now,
 			UpdatedAt: now,
 		},
-		Index: "KRYVEA",
-		Name:  "DELETED-CATEGORY",
+		Identifier: "KRYVEA",
+		Name:       "DELETED-CATEGORY",
 		GenericDescription: map[string]string{
 			"en": "The original category for this vulnerability has been deleted, please select a new one",
 		},

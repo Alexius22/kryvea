@@ -79,7 +79,7 @@ func sanitizeVulnerability(item *mongo.Vulnerability) {
 	SanitizeAndSortPoc(&item.Poc)
 
 	item.Category.Name = escapeXMLString(item.Category.Name)
-	item.Category.Index = escapeXMLString(item.Category.Index)
+	item.Category.Identifier = escapeXMLString(item.Category.Identifier)
 	item.DetailedTitle = escapeXMLString(item.DetailedTitle)
 	item.Status = escapeXMLString(item.Status)
 

@@ -273,7 +273,7 @@ def rand_category_index() -> str:
     return f"{random.choice(list(categories_dict.keys()))}"
 
 
-def rand_category_indexes(n: int) -> list:
+def rand_category_identifiers(n: int) -> list:
     return random.sample(list(categories_dict.keys()), k=n)
 
 

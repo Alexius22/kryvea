@@ -28,7 +28,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
       [ctxAssessment?.id, ctxAssessment?.name],
       [
         ctxVulnerability?.id,
-        `${ctxVulnerability?.category.index} - ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
+        `${ctxVulnerability?.category.identifier} - ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
       ],
       [ctxCategory?.id, ctxCategory?.name],
     ],

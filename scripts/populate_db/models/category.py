@@ -8,7 +8,7 @@ from models.base import Base
 
 @dataclass
 class Category(Base):
-    index: str
+    identifier: str
 
     name: str = field(default_factory=utils.rand_category_name)
     generic_remediation: dict = field(default_factory=utils.rand_generic_remediation)
@@ -17,11 +17,11 @@ class Category(Base):
     source: str = field(default_factory=utils.rand_source)
 
     def __post_init__(self):
-        self.name = utils.rand_category_name(self.index)
+        self.name = utils.rand_category_name(self.identifier)
 
     def add(self) -> Tuple[str, str]:
         data = {
-            "index": self.index,
+            "identifier": self.identifier,
             "name": self.name,
             "generic_remediation": self.generic_remediation,
             "generic_description": self.generic_description,
