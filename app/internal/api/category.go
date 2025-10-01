@@ -15,6 +15,7 @@ type categoryRequestData struct {
 	Name               string            `json:"name"`
 	GenericDescription map[string]string `json:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation"`
+	LanguagesOrder     []string          `json:"languages_order"`
 	References         []string          `json:"references"`
 	Source             string            `json:"source"`
 }
@@ -43,6 +44,7 @@ func (d *Driver) AddCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		LanguagesOrder:     data.LanguagesOrder,
 		References:         data.References,
 		Source:             data.Source,
 	}
@@ -103,6 +105,7 @@ func (d *Driver) UpdateCategory(c *fiber.Ctx) error {
 		Name:               data.Name,
 		GenericDescription: data.GenericDescription,
 		GenericRemediation: data.GenericRemediation,
+		LanguagesOrder:     data.LanguagesOrder,
 		References:         data.References,
 		Source:             data.Source,
 	}
@@ -257,6 +260,7 @@ func (d *Driver) UploadCategories(c *fiber.Ctx) error {
 			Name:               categoryData.Name,
 			GenericDescription: categoryData.GenericDescription,
 			GenericRemediation: categoryData.GenericRemediation,
+			LanguagesOrder:     categoryData.LanguagesOrder,
 			References:         categoryData.References,
 			Source:             categoryData.Source,
 		}

@@ -34,6 +34,7 @@ type Category struct {
 	Name               string            `json:"name" bson:"name"`
 	GenericDescription map[string]string `json:"generic_description,omitempty" bson:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation,omitempty" bson:"generic_remediation"`
+	LanguagesOrder     []string          `json:"languages_order,omitempty" bson:"languages_order"`
 	References         []string          `json:"references" bson:"references"`
 	Source             string            `json:"source" bson:"source"`
 }

@@ -72,7 +72,7 @@ export default function CategoryUpsert() {
       setCategory(category);
 
       setSelectedLanguagesOptions(
-        languageOptions.filter(option => Object.keys(category.generic_description || {}).includes(option.value))
+        category.languages_order.map(lang => languageOptions.find(option => option.value === lang))
       );
     });
   }, []);
@@ -130,6 +130,7 @@ export default function CategoryUpsert() {
       source: source,
       generic_description,
       generic_remediation,
+      languages_order: selectedLanguagesOptions.map(lang => lang.value),
       references: references,
     };
 

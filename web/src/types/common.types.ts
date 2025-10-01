@@ -108,6 +108,7 @@ export type Category = {
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
   generic_description: Record<string, string>;
   generic_remediation: Record<string, string>;
+  languages_order: string[];
   references: string[];
 };
 
