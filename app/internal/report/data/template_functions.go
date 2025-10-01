@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/Alexius22/kryvea/internal/cvss"
 )
 
 func Debug(v any) string {
@@ -50,4 +52,12 @@ func FormatDate(t time.Time, args ...string) string {
 	}
 
 	return t.In(loc).Format(layout)
+}
+
+// Usage: {{ getOWASPColor (index .OWASPCounter "owasp_web") "A02:2021" }}
+func GetOWASPColor(counter OWASPCounter, category string) string {
+	if color, ok := counter.Categories[category]; ok {
+		return color
+	}
+	return severityColors[cvss.CvssSeverityNone]
 }

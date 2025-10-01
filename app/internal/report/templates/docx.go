@@ -50,8 +50,9 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 	}
 
 	DocxTemplate.AddTemplateFuncs(template.FuncMap{
-		"formatDate": reportdata.FormatDate,
-		"debug":      reportdata.Debug,
+		"formatDate":    reportdata.FormatDate,
+		"getOWASPColor": reportdata.GetOWASPColor,
+		"debug":         reportdata.Debug,
 	})
 
 	err = DocxTemplate.Apply(reportData)
