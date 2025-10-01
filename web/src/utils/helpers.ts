@@ -1,4 +1,5 @@
 import {
+  mdiAccountEdit,
   mdiAccountMultiple,
   mdiCog,
   mdiCogs,
@@ -7,11 +8,10 @@ import {
   mdiListBox,
   mdiMagnify,
   mdiMathLog,
-  mdiMonitor,
-  mdiPencil,
-  mdiResponsive,
   mdiShapePlus,
   mdiTabSearch,
+  mdiTarget,
+  mdiViewDashboard,
 } from "@mdi/js";
 import { NavigateFunction } from "react-router";
 import { getKryveaShadow } from "../api/cookie";
@@ -55,7 +55,7 @@ export type SidebarItem = {
   menu?: SidebarItem[];
 };
 export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction) => SidebarItem[] = ctxCustomer => [
-  { href: "/dashboard", icon: mdiMonitor, label: "Dashboard" },
+  { href: "/dashboard", icon: mdiViewDashboard, label: "Dashboard" },
   { href: "/customers", icon: mdiListBox, label: "Customers" },
   ...(ctxCustomer != null
     ? [
@@ -69,10 +69,10 @@ export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction
               icon: mdiTabSearch,
               label: "Assessments",
             },
-            { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiResponsive, label: "Targets" },
+            { href: `/customers/${ctxCustomer.id}/targets`, icon: mdiTarget, label: "Targets" },
             {
               href: `/customers/${ctxCustomer.id}`,
-              icon: mdiPencil,
+              icon: mdiAccountEdit,
               label: "Edit Customer",
             },
           ],

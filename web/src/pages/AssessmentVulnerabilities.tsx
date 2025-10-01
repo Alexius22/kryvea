@@ -1,4 +1,4 @@
-import { mdiDownload, mdiListBox, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
+import { mdiDownload, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -22,7 +22,6 @@ import { getTargetLabel } from "../utils/targetLabel";
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
   const {
-    useCtxCustomer: [ctxCustomer],
     useCtxVulnerability: [, setCtxVulnerability],
     useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
@@ -149,7 +148,7 @@ export default function AssessmentVulnerabilities() {
           setShowModal={setIsModalDownloadActive}
           assessmentId={assessmentId}
           templates={allTemplates}
-          language={ctxCustomer.language}
+          language={ctxAssessment.language || "en"}
         />
       )}
 
@@ -199,7 +198,7 @@ export default function AssessmentVulnerabilities() {
         </Modal>
       )}
 
-      <PageHeader icon={mdiListBox} title={`${ctxAssessment?.name} - Vulnerabilities`}>
+      <PageHeader title={`${ctxAssessment?.name} - Vulnerabilities`}>
         <Buttons>
           <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button icon={mdiPlus} text="New Target" small onClick={openTargetModal} />
@@ -241,7 +240,7 @@ export default function AssessmentVulnerabilities() {
             ),
           };
         })}
-        perPageCustom={10}
+        perPageCustom={25}
         maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
       />
     </div>

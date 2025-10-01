@@ -50,7 +50,7 @@ export default function Button({
   return (
     <button
       type={formSubmit ? "submit" : "button"}
-      className={`clickable flex items-center ${small && "small"} ${!text ? "!px-1" : ""} ${variant} ${className}`}
+      className={`clickable flex items-center gap-1 ${small && "small"} ${!text ? "!px-1" : ""} ${variant} ${className}`}
       disabled={disabled}
       onClick={e => {
         if (!formSubmit) {

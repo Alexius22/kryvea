@@ -39,6 +39,7 @@ export type Vulnerability = {
     severity: { label: string };
     description: string;
   };
+  customer: Customer;
   references: string[];
   generic_description: { enabled: boolean; text: string };
   generic_remediation: { enabled: boolean; text: string };
@@ -66,6 +67,7 @@ export type Assessment = {
   start_date_time: string;
   end_date_time: string;
   kickoff_date_time: string;
+  language: string;
   targets: Target[];
   status: string;
   type: { short: string; full: string };
@@ -125,10 +127,12 @@ export type Settings = {
   default_category_language: string;
 };
 
+export type ThemeMode = "light" | "dark" | "os";
+
 export const exportTypes = [
   { value: "docx", label: "Word (.docx)" },
   { value: "xlsx", label: "Excel (.xlsx)" },
-  { value: "zip", label: "Zip Archive (.zip)" },
+  { value: "zip-default", label: "Zip Archive (.zip)" },
 ];
 
 export const uuidZero = "00000000-0000-0000-0000-000000000000";

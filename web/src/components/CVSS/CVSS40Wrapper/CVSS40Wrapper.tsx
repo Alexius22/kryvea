@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import Grid from "../../Composition/Grid";
-import Subtitle from "../../Composition/Subtitle";
 import Accordion from "../../Form/Accordion";
 import Input from "../../Form/Input";
 import ScoreBar from "../ScoreBar";
@@ -276,7 +275,9 @@ export default function CVSS40Wrapper({ value, onChange }) {
 
   return (
     <div className="relative">
-      <Grid className={`top-0 grid-cols-[63%_36%] bg-[color:--bg-tertiary] ${isAccordionOpen ? "sticky z-10" : ""}`}>
+      <Grid
+        className={`top-0 grid-cols-[63%_36%] pb-4 bg-[color:--bg-tertiary]${isAccordionOpen ? "sticky z-10" : ""}`}
+      >
         <Input
           className={error ? "border-[1px] border-[color:--error]" : ""}
           type="text"
@@ -286,7 +287,6 @@ export default function CVSS40Wrapper({ value, onChange }) {
           onChange={handleInputChange}
         />
         <ScoreBar score={cvss4Score} />
-        <Subtitle className="pb-1 text-[color:--error]" text={error} />
       </Grid>
       <Accordion title={"CVSSv4.0 Calculator"} getIsOpen={setIsAccordionOpen}>
         <CVSS40Render

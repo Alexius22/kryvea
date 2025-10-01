@@ -4,6 +4,7 @@ import { getData, postData } from "../api/api";
 import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -51,50 +52,53 @@ export default function AddUser() {
   };
 
   return (
-    <Card>
-      <Grid className="gap-4">
-        <Input
-          type="text"
-          label="Username"
-          placeholder="username"
-          id="username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-        />
-        <Input
-          type="password"
-          label="Password"
-          placeholder="password"
-          id="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
-        <SelectWrapper
-          label="Role"
-          id="role-selection"
-          options={[
-            { value: "admin", label: "Admin" },
-            { value: "user", label: "User" },
-          ]}
-          closeMenuOnSelect
-          onChange={option => setRole(option.value)}
-          value={role ? { value: role, label: role } : null}
-        />
-        <SelectWrapper
-          label="Customers"
-          options={customerOptions}
-          isMulti
-          value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
-          onChange={handleSelectChange}
-          closeMenuOnSelect={false}
-          id="customer-selection"
-        />
-        <Divider />
-        <Buttons>
-          <Button text="Submit" onClick={handleSubmit} />
-          <Button variant="outline-only" text="Cancel" onClick={() => navigate("/users")} />
-        </Buttons>
-      </Grid>
-    </Card>
+    <div>
+      <PageHeader title="New user" />
+      <Card>
+        <Grid className="gap-4">
+          <Input
+            type="text"
+            label="Username"
+            placeholder="username"
+            id="username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+          />
+          <Input
+            type="password"
+            label="Password"
+            placeholder="password"
+            id="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <SelectWrapper
+            label="Role"
+            id="role-selection"
+            options={[
+              { value: "admin", label: "Admin" },
+              { value: "user", label: "User" },
+            ]}
+            closeMenuOnSelect
+            onChange={option => setRole(option.value)}
+            value={role ? { value: role, label: role } : null}
+          />
+          <SelectWrapper
+            label="Customers"
+            options={customerOptions}
+            isMulti
+            value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
+            onChange={handleSelectChange}
+            closeMenuOnSelect={false}
+            id="customer-selection"
+          />
+          <Divider />
+          <Buttons>
+            <Button text="Submit" onClick={handleSubmit} />
+            <Button variant="outline-only" text="Cancel" onClick={() => navigate("/users")} />
+          </Buttons>
+        </Grid>
+      </Card>
+    </div>
   );
 }

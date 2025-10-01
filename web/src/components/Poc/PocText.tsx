@@ -1,6 +1,5 @@
 import { mdiPencil } from "@mdi/js";
-import "codemirror/mode/htmlmixed/htmlmixed";
-import React, { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Keys } from "../../types/utils.types";
 import Flex from "../Composition/Flex";
 import Grid from "../Composition/Grid";
@@ -19,8 +18,8 @@ type PocTextProps = {
   pocList: PocDoc[];
   selectedPoc: number;
   setSelectedPoc: (index: number) => void;
-  onPositionChange: (currentIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: React.ChangeEvent) => void;
+  onPositionChange: (currentIndex: number) => (e: ChangeEvent<HTMLInputElement>) => void;
+  onTextChange: <T>(currentIndex, key: keyof Omit<T, "key">) => (e: ChangeEvent) => void;
   onRemovePoc: (currentIndex: number) => void;
   onSetCodeSelection: <T>(
     currentIndex: number,

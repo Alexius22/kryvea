@@ -152,7 +152,7 @@ export default function Assessments() {
           setShowModal={setIsModalDownloadActive}
           assessmentId={selectedAssessmentId}
           templates={allTemplates}
-          language={assessments[0]?.customer.language}
+          language={assessments.find(a => a.id === selectedAssessmentId).language || "en"}
         />
       )}
 
@@ -199,6 +199,7 @@ export default function Assessments() {
           "Vuln count": assessment.vulnerability_count,
           Start: formatDate(assessment.start_date_time),
           End: formatDate(assessment.end_date_time),
+          Language: assessment.language?.toUpperCase(),
           Status: (
             <SelectWrapper
               small

@@ -5,6 +5,7 @@ import { postData } from "../api/api";
 import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Grid from "../components/Composition/Grid";
+import PageHeader from "../components/Composition/PageHeader";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
@@ -52,6 +53,7 @@ export default function AddCustomer() {
 
   return (
     <div>
+      <PageHeader title="New customer" />
       <Card>
         <Grid className="gap-4">
           <Input

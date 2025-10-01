@@ -16,6 +16,7 @@ interface CommonProps {
   id?: string;
   label?: string;
   className?: string;
+  isClearable?: boolean;
 }
 interface SelectWrapperSingleProps extends CommonProps {
   isMulti?: false | undefined;
@@ -42,6 +43,7 @@ export default function SelectWrapper({
   id,
   label,
   className,
+  isClearable,
 }: SelectWrapperSingleProps | SelectWrapperMultiProps) {
   const [inputValue, setInputValue] = useState("");
   const [width, setWidth] = useState<number>(0);
@@ -149,6 +151,7 @@ export default function SelectWrapper({
           classNamePrefix: "select-wrapper",
           className: `select-wrapper-class ${className}`,
         }}
+        isClearable={isClearable}
         unstyled
         components={animatedComponents}
         menuPortalTarget={document.body}

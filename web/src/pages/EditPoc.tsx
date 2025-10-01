@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { getData, putData } from "../api/api";
 import Card from "../components/Composition/Card";
+import Flex from "../components/Composition/Flex";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import { MonacoTextSelection } from "../components/Poc/MonacoCodeEditor.types";
@@ -287,7 +288,7 @@ export default function EditPoc() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <Flex className="gap-2" col>
       <div className="glasscard edit-poc-header sticky top-0 z-10 rounded-b-3xl">
         <Card className="!border-2 !border-[color:--bg-active] !bg-transparent">
           <h1 className="text-2xl">Edit PoC</h1>
@@ -359,6 +360,6 @@ export default function EditPoc() {
       <div ref={pocListParent} className="relative flex w-full flex-col gap-3">
         {pocList.map(switchPocType)}
       </div>
-    </div>
+    </Flex>
   );
 }
