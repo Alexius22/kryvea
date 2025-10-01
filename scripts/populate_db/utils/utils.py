@@ -279,8 +279,8 @@ def rand_category_indexes(n: int) -> list:
 
 def rand_category_name(index: str = "") -> str:
     if index and index in categories_dict:
-        return categories_dict[index]
-    return random.choice(list(categories_dict.values()))
+        return categories_dict[index] + f" {rand_string(4)}"
+    return random.choice(list(categories_dict.values())) + f" {rand_string(4)}"
 
 
 def rand_generic_remediation() -> dict:

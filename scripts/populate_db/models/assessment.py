@@ -17,6 +17,7 @@ class Assessment(Base):
     targets: List[str]
 
     name: str = field(default_factory=utils.rand_assessment_name)
+    language: str = field(default_factory=utils.rand_language)
     start_date_time: str = field(default_factory=utils.rand_date_decade)
     end_date_time: str = field(default_factory=utils.rand_date_future)
     cvss_versions: Dict[str, bool] = field(default_factory=utils.rand_cvss_versions)
@@ -38,6 +39,7 @@ class Assessment(Base):
         data = {
             "customer_id": self.customer_id,
             "name": self.name,
+            "language": self.language,
             "start_date_time": self.start_date_time,
             "end_date_time": self.end_date_time,
             "cvss_versions": self.cvss_versions,
