@@ -23,7 +23,7 @@ type ReportData struct {
 // OWASPCounter represents a summary of findings for a given assessment.
 //   - Categories maps each OWASP category to the hex color corresponding
 //     to the highest found severity for that category
-//   - Total: the total number of unique categories for wich at least
+//   - Total: the total number of unique categories for which at least
 //     one vulnerability has been found
 type OWASPCounter struct {
 	Categories map[string]string
@@ -44,7 +44,7 @@ func (rd *ReportData) Prepare() {
 	SanitizeAssessment(rd.Assessment)
 
 	// sanitize and sort vulnerabilities
-	SanitizeAndSortVulnerabilities(rd.Vulnerabilities, maxVersion, rd.Customer.Language)
+	SanitizeAndSortVulnerabilities(rd.Vulnerabilities, maxVersion, rd.Assessment.Language)
 
 	// get max cvss
 	rd.MaxCVSS = getMaxCvss(rd.Vulnerabilities, rd.Assessment.CVSSVersions)

@@ -1,6 +1,5 @@
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
 import type * as monaco from "monaco-editor";
-import { editor as monacoEditor } from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
 import Grid from "../Composition/Grid";
 import Label from "../Form/Label";
@@ -78,7 +77,7 @@ export default function MonacoCodeEditor({
         range: new monacoRef.current!.Range(start.line, start.col, end.line, end.col),
         options: {
           inlineClassName: getOrCreateHighlightClass(color),
-          stickiness: monacoEditor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+          stickiness: monacoRef.current?.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
         },
       }));
 
@@ -225,21 +224,6 @@ export default function MonacoCodeEditor({
   const handleEditorMount: OnMount = editor => {
     setEditor(editor);
 
-    // Only scroll code editor when focused
-    const domNode = editor.getDomNode();
-    if (domNode) {
-      const wheelHandler = (e: WheelEvent) => {
-        if (!editor.hasTextFocus()) {
-          e.stopImmediatePropagation();
-        }
-      };
-      domNode.addEventListener("wheel", wheelHandler, { capture: true });
-
-      editor.onDidDispose(() => {
-        domNode.removeEventListener("wheel", wheelHandler, { capture: true });
-      });
-    }
-
     editor.onDidChangeCursorSelection(e => {
       let { selection, secondarySelections } = e;
       const allCursorSelections = [selection, ...secondarySelections];
@@ -286,6 +270,7 @@ export default function MonacoCodeEditor({
             wordWrap: "on",
             formatOnType: true,
             formatOnPaste: true,
+            scrollbar: { alwaysConsumeMouseWheel: false },
             minimap: { enabled: true, renderCharacters: true },
             tabSize: 2,
             "semanticHighlighting.enabled": false,

@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"regexp"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/crypto"
@@ -193,6 +194,21 @@ func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 
 }
 
+func (ui *UserIndex) GetByIDForHydrate(ID uuid.UUID) (*User, error) {
+	filter := bson.M{"_id": ID}
+	opts := options.FindOne().SetProjection(bson.M{
+		"username": 1,
+	})
+
+	var user User
+	err := ui.collection.FindOne(context.Background(), filter, opts).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (ui *UserIndex) GetAll() ([]User, error) {
 	filter := bson.M{}
 	opts := options.Find().SetProjection(UserProjection)
@@ -268,6 +284,27 @@ func (ui *UserIndex) GetByUsername(username string) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (ui *UserIndex) Search(query string) ([]User, error) {
+	filter := bson.M{
+		"username": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+	}
+	opts := options.Find().SetProjection(UserProjection)
+
+	cursor, err := ui.collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	users := []User{}
+	err = cursor.All(context.Background(), &users)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {

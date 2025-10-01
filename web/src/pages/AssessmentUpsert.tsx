@@ -1,8 +1,9 @@
 import { mdiPlus } from "@mdi/js";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { getData, patchData, postData } from "../api/api";
+import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
 import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
@@ -19,6 +20,7 @@ import { SelectOption } from "../components/Form/SelectWrapper.types";
 import AddTargetModal from "../components/Modals/AddTargetModal";
 import { Assessment, Target } from "../types/common.types";
 import { Keys } from "../types/utils.types";
+import { languageMapping } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 import { getTargetLabel } from "../utils/targetLabel";
 
@@ -69,11 +71,13 @@ const OSSTMM_VECTOR: SelectOption[] = [
 
 const initialSelectedOptionsState: {
   type: SelectOption;
-  environment: SelectOption;
-  testing_type: SelectOption;
-  osstmm_vector: SelectOption;
+  language: SelectOption;
+  environment?: SelectOption;
+  testing_type?: SelectOption;
+  osstmm_vector?: SelectOption;
 } = {
   type: undefined,
+  language: undefined,
   environment: undefined,
   testing_type: undefined,
   osstmm_vector: undefined,
@@ -95,6 +99,7 @@ function reducer(
     case "all":
       return {
         type: { label: value.type.full, value: value.type },
+        language: { label: languageMapping[value.language], value: value.language },
         environment: { label: value.environment, value: value.environment },
         testing_type: { label: value.testing_type, value: value.testing_type },
         osstmm_vector: { label: value.osstmm_vector, value: value.osstmm_vector },
@@ -105,11 +110,23 @@ function reducer(
 export default function AssessmentUpsert() {
   const navigate = useNavigate();
   const { customerId, assessmentId } = useParams<{ customerId: string; assessmentId?: string }>();
+  const {
+    useCtxCustomer: [ctxCustomer],
+  } = useContext(GlobalContext);
   const [targets, setTargets] = useState<Target[]>([]);
   const isEdit = Boolean(assessmentId);
   const [isModalTargetActive, setIsModalTargetActive] = useState(false);
 
-  const [selectedOptions, updateSelectedOptions] = useReducer(reducer, initialSelectedOptionsState);
+  const customerDefaultLanguage = ctxCustomer?.language ?? "";
+  const languageOptions = useMemo(
+    () => Object.entries(languageMapping).map(([code, label]) => ({ value: code, label })),
+    []
+  );
+  const defaultSelectedLanguage = languageOptions.find(opt => opt.value === customerDefaultLanguage) || undefined;
+  const [selectedOptions, updateSelectedOptions] = useReducer(reducer, {
+    ...initialSelectedOptionsState,
+    language: defaultSelectedLanguage,
+  });
 
   const [form, setForm] = useState<AssessmentPayload>({
     type: { short: "", full: "" },
@@ -117,6 +134,7 @@ export default function AssessmentUpsert() {
     start_date_time: new Date().toISOString(),
     end_date_time: new Date().toISOString(),
     kickoff_date_time: new Date().toISOString(),
+    language: defaultSelectedLanguage?.value || "",
     targets: [],
     status: "On Hold",
     cvss_versions: { "3.1": false, "4.0": false },
@@ -145,6 +163,7 @@ export default function AssessmentUpsert() {
             start_date_time: data.start_date_time,
             end_date_time: data.end_date_time,
             kickoff_date_time: data.kickoff_date_time,
+            language: data.language,
             targets: data.targets,
             status: data.status,
             cvss_versions: data.cvss_versions,
@@ -279,7 +298,7 @@ export default function AssessmentUpsert() {
                 onChange={option => handleSelectChange("type", option)}
               />
             </Grid>
-            <Grid className="grid-cols-3">
+            <Grid className="grid-cols-4">
               <DateCalendar
                 idStart="start_date_time"
                 label="Activity Period"
@@ -302,7 +321,13 @@ export default function AssessmentUpsert() {
                   }
                 }}
               />
-              <Grid className="h-full !items-start">
+              <SelectWrapper
+                label="Language"
+                options={languageOptions}
+                value={selectedOptions.language}
+                onChange={option => handleSelectChange("language", option)}
+              />
+              <Grid className="h-full !items-start justify-center">
                 <Label text="CVSS Versions" />
                 <Flex className="gap-4">
                   {CVSS_VERSIONS.map(({ value, label }) => (
@@ -338,6 +363,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.environment}
               closeMenuOnSelect
               onChange={option => handleSelectChange("environment", option)}
+              isClearable
             />
             <SelectWrapper
               label="Testing type"
@@ -346,6 +372,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.testing_type}
               closeMenuOnSelect
               onChange={option => handleSelectChange("testing_type", option)}
+              isClearable
             />
             <SelectWrapper
               label="OSSTMM Vector"
@@ -354,6 +381,7 @@ export default function AssessmentUpsert() {
               value={selectedOptions.osstmm_vector}
               closeMenuOnSelect
               onChange={option => handleSelectChange("osstmm_vector", option)}
+              isClearable
             />
             <Divider />
             <Buttons>

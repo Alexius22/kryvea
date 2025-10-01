@@ -163,6 +163,7 @@ func TestDefault(t *testing.T) {
 
 	assessment := &mongo.Assessment{
 		Name:            randName(3),
+		Language:        customer.Language,
 		StartDateTime:   time.Now().Add(-time.Hour * 24 * 7),
 		EndDateTime:     time.Now(),
 		KickoffDateTime: time.Now(),
@@ -207,7 +208,7 @@ func TestDefault(t *testing.T) {
 
 		for _, version := range cvss.CvssVersions {
 			cvssVector := randCVSSVector(version)
-			vector, err := cvss.ParseVector(cvssVector, version, customer.Language)
+			vector, err := cvss.ParseVector(cvssVector, version, assessment.Language)
 			if err != nil {
 				t.Errorf("ParseVector() = %v, want %v, cvss version %s", err, nil, version)
 			}

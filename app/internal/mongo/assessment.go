@@ -15,56 +15,10 @@ const (
 	assessmentCollection = "assessment"
 )
 
-var AssessmentPipeline = mongo.Pipeline{
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "vulnerability"},
-			{Key: "localField", Value: "_id"},
-			{Key: "foreignField", Value: "assessment._id"},
-			{Key: "as", Value: "vulnerabilityData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "vulnerability_count", Value: bson.D{
-				{Key: "$size", Value: "$vulnerabilityData"},
-			}},
-		}},
-	},
-	bson.D{{Key: "$unset", Value: "vulnerabilityData"}},
-
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "customer"},
-			{Key: "localField", Value: "customer._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "customerData"},
-		}},
-	},
-	bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "customer", Value: bson.D{
-				{Key: "$arrayElemAt", Value: bson.A{"$customerData", 0}},
-			}},
-		}},
-	},
-	bson.D{
-		{Key: "$unset", Value: "customerData"},
-	},
-
-	bson.D{
-		{Key: "$lookup", Value: bson.D{
-			{Key: "from", Value: "target"},
-			{Key: "localField", Value: "targets._id"},
-			{Key: "foreignField", Value: "_id"},
-			{Key: "as", Value: "targets"},
-		}},
-	},
-}
-
 type Assessment struct {
 	Model              `bson:",inline"`
 	Name               string          `json:"name,omitempty" bson:"name"`
+	Language           string          `json:"language,omitempty" bson:"language"`
 	StartDateTime      time.Time       `json:"start_date_time,omitempty" bson:"start_date_time"`
 	EndDateTime        time.Time       `json:"end_date_time,omitempty" bson:"end_date_time"`
 	KickoffDateTime    time.Time       `json:"kickoff_date_time,omitempty" bson:"kickoff_date_time"`
@@ -109,6 +63,7 @@ func (ai AssessmentIndex) init() error {
 		mongo.IndexModel{
 			Keys: bson.D{
 				{Key: "name", Value: 1},
+				{Key: "language", Value: 1},
 				{Key: "customer._id", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
@@ -201,53 +156,53 @@ func (ai *AssessmentIndex) GetManyForHydrate(assessments []Assessment) ([]Assess
 }
 
 func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessment, error) {
-	pipeline := append(AssessmentPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": bson.M{"$in": assessmentIDs}}}},
-		bson.D{{Key: "$sort", Value: bson.M{"_id": 1}}},
-	)
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{
+		"_id": bson.M{"$in": assessmentIDs},
+	}
+
+	cursor, err := ai.collection.Find(context.Background(), filter)
 	if err != nil {
-		return []Assessment{}, err
+		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
-	assessments := []Assessment{}
-	err = cursor.All(context.Background(), &assessments)
+	assessment := []Assessment{}
+	err = cursor.All(context.Background(), &assessment)
 	if err != nil {
-		return []Assessment{}, err
+		return nil, err
 	}
 
-	return assessments, nil
+	for i := range assessment {
+		err = ai.hydrate(&assessment[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return assessment, nil
 }
 
 func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment, error) {
-	pipeline := append(AssessmentPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"_id": assessmentID}}},
-		bson.D{{Key: "$limit", Value: 1}},
-	)
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"_id": assessmentID}
+
+	assessment := &Assessment{}
+	err := ai.collection.FindOne(context.Background(), filter).Decode(assessment)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	var assessments Assessment
-	if cursor.Next(context.Background()) {
-		if err := cursor.Decode(&assessments); err != nil {
-			return nil, err
-		}
-
-		return &assessments, nil
+	err = ai.hydrate(assessment)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, mongo.ErrNoDocuments
+	return assessment, nil
 }
 
 func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, error) {
-	pipeline := append(AssessmentPipeline,
-		bson.D{{Key: "$match", Value: bson.M{"customer._id": customerID}}},
-	)
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	filter := bson.M{"customer._id": customerID}
+
+	cursor, err := ai.collection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -257,6 +212,13 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	err = cursor.All(context.Background(), &assessments)
 	if err != nil {
 		return nil, err
+	}
+
+	for i := range assessments {
+		err = ai.hydrate(&assessments[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return assessments, nil
@@ -285,18 +247,26 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 		filter["customer._id"] = bson.M{"$in": customers}
 	}
 
-	pipeline := append(AssessmentPipeline, bson.D{{Key: "$match", Value: filter}})
-	cursor, err := ai.collection.Aggregate(context.Background(), pipeline)
+	cursor, err := ai.collection.Find(context.Background(), filter)
 	if err != nil {
-		return []Assessment{}, err
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	assessment := []Assessment{}
+	err = cursor.All(context.Background(), &assessment)
+	if err != nil {
+		return nil, err
 	}
 
-	assessments := []Assessment{}
-	if err := cursor.All(context.Background(), &assessments); err != nil {
-		return []Assessment{}, err
+	for i := range assessment {
+		err = ai.hydrate(&assessment[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return assessments, nil
+	return assessment, nil
 }
 
 func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment) error {
@@ -306,6 +276,7 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		"$set": bson.M{
 			"updated_at":        time.Now(),
 			"name":              assessment.Name,
+			"language":          assessment.Language,
 			"start_date_time":   assessment.StartDateTime,
 			"end_date_time":     assessment.EndDateTime,
 			"kickoff_date_time": assessment.KickoffDateTime,
@@ -416,4 +387,33 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, 
 	}
 
 	return assessment.ID, nil
+}
+
+// hydrate fills in the nested fields for an Assessment
+func (ai *AssessmentIndex) hydrate(assessment *Assessment) error {
+	customer, err := ai.driver.Customer().GetByIDForHydrate(assessment.Customer.ID)
+	if err != nil {
+		return err
+	}
+
+	assessment.Customer = *customer
+
+	for i := range assessment.Targets {
+		target, err := ai.driver.Target().GetByID(assessment.Targets[i].ID)
+		if err != nil {
+			return err
+		}
+
+		assessment.Targets[i] = *target
+	}
+
+	filter := bson.M{"assessment._id": assessment.ID}
+	vulnCount, err := ai.driver.Vulnerability().collection.CountDocuments(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+
+	assessment.VulnerabilityCount = int(vulnCount)
+
+	return nil
 }

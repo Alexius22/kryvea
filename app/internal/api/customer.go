@@ -215,9 +215,5 @@ func (d *Driver) validateCustomerData(customer *customerRequestData) string {
 		return "Name is required"
 	}
 
-	if customer.Language == "" {
-		return "Language is required"
-	}
-
 	return ""
 }

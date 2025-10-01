@@ -39,6 +39,7 @@ export type Vulnerability = {
     severity: { label: string };
     description: string;
   };
+  customer: Customer;
   references: string[];
   generic_description: { enabled: boolean; text: string };
   generic_remediation: { enabled: boolean; text: string };
@@ -66,6 +67,7 @@ export type Assessment = {
   start_date_time: string;
   end_date_time: string;
   kickoff_date_time: string;
+  language: string;
   targets: Target[];
   status: string;
   type: { short: string; full: string };

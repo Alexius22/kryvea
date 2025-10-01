@@ -196,6 +196,11 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 					ID: assessment.ID,
 				},
 			},
+			Customer: mongo.Customer{
+				Model: mongo.Model{
+					ID: customer.ID,
+				},
+			},
 			User: mongo.User{
 				Model: mongo.Model{
 					ID: userID,
@@ -435,6 +440,11 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 						ID: assessment.ID,
 					},
 				},
+				Customer: mongo.Customer{
+					Model: mongo.Model{
+						ID: customer.ID,
+					},
+				},
 				User: mongo.User{
 					Model: mongo.Model{
 						ID: userID,
@@ -443,13 +453,13 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			}
 
 			if item.CvssVector == "" && item.Cvss3Vector == "" {
-				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2, customer.Language)
+				vector2, err := cvss.ParseVector(cvss.InfoVector2, cvss.Cvss2, assessment.Language)
 				if err != nil {
 					return err
 				}
 				vulnerability.CVSSv2 = *vector2
 
-				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31, customer.Language)
+				vector31, err := cvss.ParseVector(cvss.InfoVector31, cvss.Cvss31, assessment.Language)
 				if err != nil {
 					return err
 				}
@@ -458,7 +468,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 
 			// Parse cvss2
 			if item.CvssVector != "" {
-				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2, customer.Language)
+				vector, err := cvss.ParseVector(item.CvssVector, cvss.Cvss2, assessment.Language)
 				if err != nil {
 					return err
 				}
@@ -469,7 +479,7 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 			// Parse cvss3 as cvss31
 			if item.Cvss3Vector != "" {
 				vectorString := strings.Replace(item.Cvss3Vector, cvss.Cvss3, cvss.Cvss31, 1)
-				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31, customer.Language)
+				vector, err := cvss.ParseVector(vectorString, cvss.Cvss31, assessment.Language)
 				if err != nil {
 					return err
 				}
