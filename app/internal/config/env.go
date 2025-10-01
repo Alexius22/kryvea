@@ -16,6 +16,7 @@ const (
 	logMaxBackupsEnv = "KRYVEA_LOG_MAX_BACKUPS"
 	logMaxAgeDaysEnv = "KRYVEA_LOG_MAX_AGE_DAYS"
 	logCompressEnv   = "KRYVEA_LOG_COMPRESS"
+	localesPathEnv   = "KRYVEA_LOCALES_PATH"
 )
 
 func GetListeningAddr() string {
@@ -88,6 +89,10 @@ func GetLogCompress() bool {
 	}
 
 	return compressBool
+}
+
+func GetLocalesPath() string {
+	return getEnvConfig(localesPathEnv, "/etc/kryvea/locales")
 }
 
 func getEnvConfig(envName, defaultValue string) string {

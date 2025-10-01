@@ -9,6 +9,7 @@ require (
 	github.com/gofiber/contrib/fiberzerolog v1.0.3
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/google/uuid v1.6.0
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/pandatix/go-cvss v0.6.2
 	github.com/rs/zerolog v1.34.0
 	github.com/xuri/excelize/v2 v2.9.1
