@@ -15,6 +15,7 @@ import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
 import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
+import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
 import { Customer, Template } from "../types/common.types";
 import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
@@ -30,6 +31,7 @@ export default function CustomerDetail() {
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
   const [loadingCustomerTemplates, setLoadingCustomerTemplates] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState<SelectOption | null>(null);
 
   const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
 
@@ -119,6 +121,10 @@ export default function CustomerDetail() {
       toast.error("Template file is required");
       return;
     }
+    if (!selectedLanguage) {
+      toast.error("Please select a language for the template");
+      return;
+    }
 
     const dataTemplate = {
       name: newTemplateData.name,
@@ -187,7 +193,7 @@ export default function CustomerDetail() {
               onChange={handleFormCustomerChange}
             />
             <SelectWrapper
-              label="Language"
+              label="Default language"
               id="language"
               options={languageOptions}
               value={selectedLanguageOption}
@@ -227,16 +233,22 @@ export default function CustomerDetail() {
                 value={newTemplateData.type}
                 onChange={handleFormTemplateChange}
               />
+              <UploadFile
+                label="Choose template file"
+                inputId="file"
+                filename={fileObj?.name}
+                name="templateFile"
+                accept=".docx,.xlsx"
+                onChange={changeFile}
+                onButtonClick={clearFile}
+              />
+              <SelectWrapper
+                label="Language"
+                options={languageOptions}
+                value={selectedLanguage}
+                onChange={setSelectedLanguage}
+              />
             </Grid>
-            <UploadFile
-              label="Choose template file"
-              inputId="file"
-              filename={fileObj?.name}
-              name="templateFile"
-              accept=".docx,.xlsx"
-              onChange={changeFile}
-              onButtonClick={clearFile}
-            />
             <Buttons>
               <Button text="Upload" onClick={handleUploadTemplate} />
             </Buttons>
@@ -248,6 +260,7 @@ export default function CustomerDetail() {
                 Filename: template.filename,
                 "Mime Type": template.mime_type,
                 "Template Type": template.type,
+                Language: languageMapping[template.language] || template.language,
                 buttons: (
                   <Buttons noWrap>
                     <Button

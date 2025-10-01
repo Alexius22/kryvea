@@ -22,7 +22,6 @@ import { getTargetLabel } from "../utils/targetLabel";
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
   const {
-    useCtxCustomer: [ctxCustomer],
     useCtxVulnerability: [, setCtxVulnerability],
     useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
@@ -149,7 +148,7 @@ export default function AssessmentVulnerabilities() {
           setShowModal={setIsModalDownloadActive}
           assessmentId={assessmentId}
           templates={allTemplates}
-          language={ctxCustomer.language}
+          language={ctxAssessment.language || "en"}
         />
       )}
 

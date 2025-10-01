@@ -67,6 +67,7 @@ export type Assessment = {
   start_date_time: string;
   end_date_time: string;
   kickoff_date_time: string;
+  language: string;
   targets: Target[];
   status: string;
   type: { short: string; full: string };
