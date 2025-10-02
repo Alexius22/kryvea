@@ -135,6 +135,7 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 			"name":                category.Name,
 			"generic_description": category.GenericDescription,
 			"generic_remediation": category.GenericRemediation,
+			"languages_order":     category.LanguagesOrder,
 			"references":          category.References,
 			"source":              category.Source,
 		},
