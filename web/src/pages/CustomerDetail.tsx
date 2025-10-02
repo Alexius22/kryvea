@@ -31,7 +31,7 @@ export default function CustomerDetail() {
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
   const [loadingCustomerTemplates, setLoadingCustomerTemplates] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState<SelectOption | null>(null);
+  const [selectedTemplateLanguage, setSelectedTemplateLanguage] = useState<SelectOption | null>(null);
 
   const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
 
@@ -51,7 +51,7 @@ export default function CustomerDetail() {
     label,
   }));
 
-  const selectedLanguageOption = languageOptions.find(opt => opt.value === formCustomer.language);
+  const selectedCustomerLanguage = languageOptions.find(opt => opt.value === formCustomer.language);
 
   useEffect(() => {
     setFormCustomer({ name: ctxCustomer?.name, language: ctxCustomer?.language });
@@ -121,14 +121,14 @@ export default function CustomerDetail() {
       toast.error("Template file is required");
       return;
     }
-    if (!selectedLanguage) {
+    if (!selectedTemplateLanguage) {
       toast.error("Please select a language for the template");
       return;
     }
 
     const dataTemplate = {
       name: newTemplateData.name,
-      language: selectedLanguageOption?.value,
+      language: selectedTemplateLanguage.value,
       type: newTemplateData.type,
     };
 
@@ -140,6 +140,7 @@ export default function CustomerDetail() {
       toast.success("Template uploaded successfully");
       setFileObj(null);
       setNewTemplateData({ name: "", type: "", file: null });
+      setSelectedTemplateLanguage(null);
       fetchCustomer();
     });
   };
@@ -196,7 +197,7 @@ export default function CustomerDetail() {
               label="Default language"
               id="language"
               options={languageOptions}
-              value={selectedLanguageOption}
+              value={selectedCustomerLanguage}
               disabled={!isAdmin}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
@@ -245,8 +246,8 @@ export default function CustomerDetail() {
               <SelectWrapper
                 label="Language"
                 options={languageOptions}
-                value={selectedLanguage}
-                onChange={setSelectedLanguage}
+                value={selectedTemplateLanguage}
+                onChange={setSelectedTemplateLanguage}
               />
             </Grid>
             <Buttons>
@@ -257,10 +258,10 @@ export default function CustomerDetail() {
               loading={loadingCustomerTemplates}
               data={customerTemplates.map(template => ({
                 Name: template.name,
+                Language: languageMapping[template.language] || template.language,
                 Filename: template.filename,
                 "Mime Type": template.mime_type,
                 "Template Type": template.type,
-                Language: languageMapping[template.language] || template.language,
                 buttons: (
                   <Buttons noWrap>
                     <Button
