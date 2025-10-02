@@ -1,6 +1,6 @@
 [
   {
-    "index": "A01:2021",
+    "identifier": "A01:2021",
     "name": "Broken Access Control",
     "source": "owasp_web",
     "generic_description": {
@@ -17,7 +17,7 @@
     ]
   },
   {
-    "index": "A01:2021",
+    "identifier": "A01:2021",
     "name": "CORS misconfiguration",
     "source": "owasp_web",
     "generic_description": {
@@ -34,7 +34,7 @@
     ]
   },
   {
-    "index": "A01:2021",
+    "identifier": "A01:2021",
     "name": "Cross-Site Request Forgery (CSRF)",
     "source": "owasp_web",
     "generic_description": {
@@ -52,7 +52,7 @@
     ]
   },
   {
-    "index": "A01:2021",
+    "identifier": "A01:2021",
     "name": "Insecure Direct Object Reference (IDOR)",
     "source": "owasp_web",
     "generic_description": {
@@ -70,7 +70,7 @@
     ]
   },
   {
-    "index": "A01:2021",
+    "identifier": "A01:2021",
     "name": "Sensitive Information Disclosure",
     "source": "owasp_web",
     "generic_description": {
@@ -87,7 +87,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Command Injection",
     "source": "owasp_web",
     "generic_description": {
@@ -106,7 +106,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Cross-Site Scripting (XSS) Reflected",
     "source": "owasp_web",
     "generic_description": {
@@ -124,7 +124,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Cross-Site Scripting (XSS) Stored",
     "source": "owasp_web",
     "generic_description": {
@@ -142,7 +142,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Cross-Site Scripting (XSS) DOM Based",
     "source": "owasp_web",
     "generic_description": {
@@ -160,7 +160,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Formula Injection",
     "source": "owasp_web",
     "generic_description": {
@@ -178,7 +178,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "HTML Injection",
     "source": "owasp_web",
     "generic_description": {
@@ -196,7 +196,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "Improper input validation",
     "source": "owasp_web",
     "generic_description": {
@@ -214,7 +214,7 @@
     ]
   },
   {
-    "index": "A03:2021",
+    "identifier": "A03:2021",
     "name": "SQL Injection",
     "source": "owasp_web",
     "generic_description": {
@@ -232,7 +232,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Abuse of functionality",
     "source": "owasp_web",
     "generic_description": {
@@ -249,7 +249,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Business Logic",
     "source": "owasp_web",
     "generic_description": {
@@ -267,7 +267,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Improper Error Handling",
     "source": "owasp_web",
     "generic_description": {
@@ -285,7 +285,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Insufficient Anti-Automation",
     "source": "owasp_web",
     "generic_description": {
@@ -302,7 +302,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Unrestricted file upload",
     "source": "owasp_web",
     "generic_description": {
@@ -320,7 +320,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "Malicious file upload",
     "source": "owasp_web",
     "generic_description": {
@@ -338,7 +338,7 @@
     ]
   },
   {
-    "index": "A04:2021",
+    "identifier": "A04:2021",
     "name": "User enumeration",
     "source": "owasp_web",
     "generic_description": {
@@ -356,12 +356,12 @@
     ]
   },
   {
-    "index": "A05:2021",
+    "identifier": "A05:2021",
     "name": "Directory Listing",
     "source": "owasp_web",
     "generic_description": {
-      "en": "A directory listing vulnerability occurs when a web server reveals the contents of a directory to users or attackers when no specific index file (like index.html or index.php) is present. This exposes potentially sensitive information about the site's structure and content, which can be used to identify and target other vulnerabilities.",
-      "it": "Una vulnerabilità di directory listing si verifica quando un server Web rivela il contenuto di una directory agli utenti o agli attaccanti quando non è presente un file di indice specifico (come index.html o index.php). Questo espone informazioni potenzialmente sensibili sulla struttura e sul contenuto del sito, che possono essere utilizzate per identificare e colpire altre vulnerabilità."
+      "en": "A directory listing vulnerability occurs when a web server reveals the contents of a directory to users or attackers when no specific identifier file (like identifier.html or identifier.php) is present. This exposes potentially sensitive information about the site's structure and content, which can be used to identify and target other vulnerabilities.",
+      "it": "Una vulnerabilità di directory listing si verifica quando un server Web rivela il contenuto di una directory agli utenti o agli attaccanti quando non è presente un file di indice specifico (come identifier.html o identifier.php). Questo espone informazioni potenzialmente sensibili sulla struttura e sul contenuto del sito, che possono essere utilizzate per identificare e colpire altre vulnerabilità."
     },
     "generic_remediation": {
       "en": "It is recommended to disable directory listing on your web server configuration and ensure sensitive files are not accessible through it.",
@@ -373,7 +373,7 @@
     ]
   },
   {
-    "index": "A05:2021",
+    "identifier": "A05:2021",
     "name": "Insufficient Cookie Protection",
     "source": "owasp_web",
     "generic_description": {
@@ -392,7 +392,7 @@
     ]
   },
   {
-    "index": "A05:2021",
+    "identifier": "A05:2021",
     "name": "Missing HTTP Security Headers",
     "source": "owasp_web",
     "generic_description": {
@@ -411,7 +411,7 @@
     ]
   },
   {
-    "index": "A05:2021",
+    "identifier": "A05:2021",
     "name": "Security Misconfiguration",
     "source": "owasp_web",
     "generic_description": {
@@ -428,7 +428,7 @@
     ]
   },
   {
-    "index": "A05:2021",
+    "identifier": "A05:2021",
     "name": "XXE Injection",
     "source": "owasp_web",
     "generic_description": {
@@ -446,7 +446,7 @@
     ]
   },
   {
-    "index": "A06:2021",
+    "identifier": "A06:2021",
     "name": "Vulnerable and Outdated Components",
     "source": "owasp_web",
     "generic_description": {
@@ -463,7 +463,7 @@
     ]
   },
   {
-    "index": "A07:2021",
+    "identifier": "A07:2021",
     "name": "Broken Authentication",
     "source": "owasp_web",
     "generic_description": {
@@ -480,7 +480,7 @@
     ]
   },
   {
-    "index": "A07:2021",
+    "identifier": "A07:2021",
     "name": "Improper logout",
     "source": "owasp_web",
     "generic_description": {
@@ -497,7 +497,7 @@
     ]
   },
   {
-    "index": "A07:2021",
+    "identifier": "A07:2021",
     "name": "Weak Password Policy",
     "source": "owasp_web",
     "generic_description": {
@@ -514,7 +514,7 @@
     ]
   },
   {
-    "index": "A10:2021",
+    "identifier": "A10:2021",
     "name": "Server-Side Request Forgery (SSRF)",
     "source": "owasp_web",
     "generic_description": {
@@ -532,7 +532,7 @@
     ]
   },
   {
-    "index": "M1:2024",
+    "identifier": "M1:2024",
     "name": "Improper Credential Usage",
     "source": "owasp_mobile",
     "generic_description": {
@@ -548,7 +548,7 @@
     ]
   },
   {
-    "index": "M2:2024",
+    "identifier": "M2:2024",
     "name": "Inadequate Supply Chain Security",
     "source": "owasp_mobile",
     "generic_description": {
@@ -564,7 +564,7 @@
     ]
   },
   {
-    "index": "M3:2024",
+    "identifier": "M3:2024",
     "name": "Insecure Authentication/Authorization",
     "source": "owasp_mobile",
     "generic_description": {
@@ -580,7 +580,7 @@
     ]
   },
   {
-    "index": "M4:2024",
+    "identifier": "M4:2024",
     "name": "Insufficient Input/Output Validation",
     "source": "owasp_mobile",
     "generic_description": {
@@ -596,7 +596,7 @@
     ]
   },
   {
-    "index": "M5:2024",
+    "identifier": "M5:2024",
     "name": "Insecure Communication",
     "source": "owasp_mobile",
     "generic_description": {
@@ -612,7 +612,7 @@
     ]
   },
   {
-    "index": "M7:2024",
+    "identifier": "M7:2024",
     "name": "Insufficient Binary Protection",
     "source": "owasp_mobile",
     "generic_description": {
@@ -628,7 +628,7 @@
     ]
   },
   {
-    "index": "M8:2024",
+    "identifier": "M8:2024",
     "name": "Security Misconfiguration",
     "source": "owasp_mobile",
     "generic_description": {
@@ -644,7 +644,7 @@
     ]
   },
   {
-    "index": "M9:2024",
+    "identifier": "M9:2024",
     "name": "Insecure Data Storage",
     "source": "owasp_mobile",
     "generic_description": {
@@ -660,7 +660,7 @@
     ]
   },
   {
-    "index": "M10:2024",
+    "identifier": "M10:2024",
     "name": "Insufficient Cryptography",
     "source": "owasp_mobile",
     "generic_description": {
@@ -676,7 +676,7 @@
     ]
   },
   {
-    "index": "API1:2023",
+    "identifier": "API1:2023",
     "name": "Broken Object Level Authorization",
     "source": "owasp_api",
     "generic_description": {
@@ -692,7 +692,7 @@
     ]
   },
   {
-    "index": "API2:2023",
+    "identifier": "API2:2023",
     "name": "Broken Authentication",
     "source": "owasp_api",
     "generic_description": {
@@ -708,7 +708,7 @@
     ]
   },
   {
-    "index": "API4:2023",
+    "identifier": "API4:2023",
     "name": "Unrestricted Resource Consumption",
     "source": "owasp_api",
     "generic_description": {
@@ -724,7 +724,7 @@
     ]
   },
   {
-    "index": "API5:2023",
+    "identifier": "API5:2023",
     "name": "Broken Function Level Authorization",
     "source": "owasp_api",
     "generic_description": {
@@ -740,7 +740,7 @@
     ]
   },
   {
-    "index": "API8:2023",
+    "identifier": "API8:2023",
     "name": "Security Misconfiguration",
     "source": "owasp_api",
     "generic_description": {
@@ -756,7 +756,7 @@
     ]
   },
   {
-    "index": "API10:2023",
+    "identifier": "API10:2023",
     "name": "Unsafe Consumption of APIs",
     "source": "owasp_api",
     "generic_description": {
