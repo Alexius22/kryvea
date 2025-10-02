@@ -1,5 +1,4 @@
 import { mdiCalculator } from "@mdi/js";
-import { Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import Card from "../components/Composition/Card";
 import Grid from "../components/Composition/Grid";
@@ -93,19 +92,16 @@ export default function LiveEditor() {
           onCancel={handleModalAction}
           className="overflow-y-auto xl:w-8/12"
         >
-          <Formik initialValues={{}} onSubmit={undefined}>
             {isCvss4 ? (
               <CVSS40Wrapper value={undefined} onChange={undefined} />
             ) : (
               <CVSS31Wrapper value={""} onChange={undefined} />
             )}
-          </Formik>
         </Modal>
       )}
 
       <Grid className="grid-cols-2">
         <Card>
-          <Formik initialValues={{}} onSubmit={undefined}>
             <div className="flex flex-col gap-4">
               {sections.map(({ title, subSections }) => (
                 <Accordion key={title} title={title}>
@@ -160,7 +156,6 @@ export default function LiveEditor() {
                 </Accordion>
               ))}
             </div>
-          </Formik>
         </Card>
         <Card className="h-[80vh]">
           <iframe ref={pdfRef} />
