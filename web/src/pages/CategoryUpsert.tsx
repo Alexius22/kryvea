@@ -251,7 +251,7 @@ export default function CategoryUpsert() {
                 onClick={() => removeLanguage(language.value)}
               />
             </Flex>
-            <Grid className="grid-cols-2 gap-4">
+            <Grid className="grid-cols-2 !items-start gap-4">
               <Textarea
                 label="Generic description"
                 id={`gen_desc_${language.value}`}
