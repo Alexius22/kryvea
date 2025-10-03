@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { postData } from "../api/api";
+import { getData, postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
@@ -14,6 +14,7 @@ import Input from "../components/Form/Input";
 import { getPageTitle } from "../utils/helpers";
 // @ts-ignore
 import logo from "../assets/logo_stroke.svg";
+import { User } from "../types/common.types";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -24,6 +25,7 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const {
+    useCtxUsername: [, setCtxUsername],
     useCtxLastPage: [ctxLastPage],
   } = useContext(GlobalContext);
 
@@ -45,7 +47,10 @@ export default function Login() {
     postData(
       "/api/login",
       { username, password, remember },
-      () => navigate(ctxLastPage, { replace: true }),
+      async () => {
+        await getData<User>("/api/users/me", user => setCtxUsername(user.username));
+        navigate(ctxLastPage, { replace: true });
+      },
       err => {
         // Check for password expired case
         const data = err.response?.data as { error: string };
