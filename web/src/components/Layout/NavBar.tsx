@@ -19,7 +19,7 @@ import Breadcrumb from "./Breadcrumb";
 
 export default function NavBar() {
   const {
-    useCtxUsername: [ctxUsername],
+    useCtxUsername: [ctxUsername, setCtxUsername],
     useThemeMode: [themeMode, setThemeMode],
     useFullscreen: [fullscreen, setFullScreen],
   } = useContext(GlobalContext);
@@ -28,7 +28,8 @@ export default function NavBar() {
 
   const handleLogout = () => {
     postData("/api/logout", undefined, () => {
-      navigate("/login", { replace: false, state: { from: window.location.pathname } });
+      navigate("/login", { replace: false });
+      setCtxUsername(undefined);
     });
   };
 
