@@ -8,11 +8,11 @@ $main-max-width: 1735px !default;
   --main-max-width: #{$main-max-width};
 
   /* Palette */
-  $bg-primary: #e0e0e0;
+  $bg-primary: #f0f0f0;
   $text-primary: #3d3b43;
   $border: #4f4f4f;
-  $link: #036c5f;
-  $button-bg: color.adjust($bg-primary, $lightness: -10%);
+  $link: #127a81;
+  $button-bg: #106b71;
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
@@ -39,12 +39,12 @@ $main-max-width: 1735px !default;
 
   /* Links */
   --link: #{$link};
-  --link-hover: #{color.adjust($link, $lightness: -15%)};
+  --link-hover: #{color.adjust($link, $lightness: 10%)};
 
   /* Buttons */
   $buttons: (
     "bg": $button-bg,
-    "bg-secondary": color.adjust($bg-primary, $lightness: 7%),
+    "bg-secondary": color.adjust($bg-primary, $lightness: -7%),
   );
 
   /* Alerts */
@@ -83,7 +83,7 @@ html.dark {
   $text-primary: #e0e0e0;
   $border: #a0a0a0;
   $link: #ee9f27;
-  $button-bg: color.adjust($text-primary, $lightness: -35%);
+  $button-bg: color.adjust($text-primary, $lightness: -36%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 

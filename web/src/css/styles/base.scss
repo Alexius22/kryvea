@@ -23,9 +23,12 @@ button[disabled] {
 }
 button[data-small] {
   @apply px-3 py-1 text-sm;
+  color: #ffffff;
 }
 button[data-variant="secondary"] {
-  background-color: rgba(var(--button-bg-secondary-rgb), 0.8);
+  border: 1px solid var(--border-primary);
+  background-color: transparent;
+  color: var(--text-primary);
 }
 button[data-variant="selected"] {
   border-color: var(--border-active);
@@ -37,11 +40,20 @@ button[data-variant="danger"] {
   background-color: var(--error);
 }
 button[data-variant="outline-only"] {
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--border-primary-highlight);
   background-color: transparent;
 }
 button[data-variant="transparent"] {
   background-color: transparent;
+}
+html.dark {
+  button[data-small] {
+    color: var(--text-primary);
+  }
+
+  button[data-variant="secondary"] {
+    background-color: rgba(var(--button-bg-secondary-rgb), 0.8);
+  }
 }
 
 input {
