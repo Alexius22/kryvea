@@ -94,7 +94,7 @@ html.dark {
     "tertiary": color.adjust($bg-primary, $lightness: 10%),
     "quaternary": color.adjust($bg-primary, $lightness: 20%),
     "quinary": color.adjust($bg-primary, $lightness: 30%),
-    "active": color.adjust($bg-primary, $lightness: 40%),
+    "active": color.adjust($bg-primary, $lightness: 60%),
   );
 
   /* Text */
