@@ -57,7 +57,7 @@ export default function Settings() {
             onChange={handleSizeUpload}
           />
           <SelectWrapper
-            label="Default language when creating a new category"
+            label="Default language (new category)"
             id="language"
             options={languageOptions}
             value={selectedLanguageOption}
