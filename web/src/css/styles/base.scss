@@ -143,6 +143,9 @@ textarea::placeholder {
   @apply my-2;
   border-color: var(--border-primary);
 }
+.divider[data-no-margin] {
+  @apply my-0;
+}
 
 .heart {
   @apply inline-block h-4 w-4 align-middle text-red-500;

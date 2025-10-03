@@ -274,9 +274,9 @@ export default function CVSS40Wrapper({ value, onChange }) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative pb-2">
       <Grid
-        className={`top-0 grid-cols-[63%_36%] pb-4 bg-[color:--bg-tertiary]${isAccordionOpen ? "sticky z-10" : ""}`}
+        className={`top-0 grid-cols-[63%_36%] pb-4 pt-2 bg-[color:--bg-tertiary]${isAccordionOpen ? "sticky z-10" : ""}`}
       >
         <Input
           className={error ? "border-[1px] border-[color:--error]" : ""}
