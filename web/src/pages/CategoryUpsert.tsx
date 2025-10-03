@@ -25,8 +25,11 @@ export const sourceCategoryOptions: SelectOption[] = [
   { value: "owasp_web", label: "OWASP Top 10 Web" },
   { value: "owasp_mobile", label: "OWASP Top 10 Mobile" },
   { value: "owasp_api", label: "OWASP Top 10 API" },
-  { value: "nessus", label: "Nessus" },
+  { value: "owasp_llm", label: "OWASP Top 10 for LLM" },
+  { value: "att&ck", label: "ATT&CK" },
   { value: "burp", label: "Burp" },
+  { value: "cwe", label: "CWE" },
+  { value: "nessus", label: "Nessus" },
 ];
 
 const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([value, label]) => ({ value, label }));
