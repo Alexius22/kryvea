@@ -21,23 +21,26 @@ button[disabled] {
     filter: none;
   }
 }
-button.small {
+button[data-small] {
   @apply px-3 py-1 text-sm;
 }
-button.secondary {
-  background-color: rgba(var(--button-bg-secondary-rgb), 0.6);
+button[data-variant="secondary"] {
+  background-color: rgba(var(--button-bg-secondary-rgb), 0.8);
 }
-button.warning {
+button[data-variant="selected"] {
+  border-color: var(--bg-active);
+}
+button[data-variant="warning"] {
   background-color: var(--warning);
 }
-button.danger {
+button[data-variant="danger"] {
   background-color: var(--error);
 }
-button.outline-only {
+button[data-variant="outline-only"] {
   border: 1px solid var(--border-primary);
   background-color: transparent;
 }
-button.transparent {
+button[data-variant="transparent"] {
   background-color: transparent;
 }
 

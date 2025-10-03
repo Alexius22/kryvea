@@ -3,8 +3,8 @@ import Icon from "../Composition/Icon";
 interface BaseButtonCoreProps {
   className?: string;
   disabled?: boolean;
-  variant?: "secondary" | "warning" | "danger" | "outline-only" | "transparent" | "";
-  small?: true | "";
+  variant?: "secondary" | "selected" | "warning" | "danger" | "outline-only" | "transparent" | "";
+  small?: true;
   text?: string;
   title?: string;
   formSubmit?: boolean;
@@ -39,7 +39,7 @@ export default function Button({
   variant = "",
   text,
   icon,
-  small = "",
+  small,
   iconSize = 18,
   title = "",
   formSubmit,
@@ -50,7 +50,7 @@ export default function Button({
   return (
     <button
       type={formSubmit ? "submit" : "button"}
-      className={`clickable flex items-center gap-1 ${small && "small"} ${!text ? "!px-1" : ""} ${variant} ${className}`}
+      className={`clickable flex items-center gap-1 ${!text ? "!px-1" : ""} ${className}`}
       disabled={disabled}
       onClick={e => {
         if (!formSubmit) {
@@ -58,8 +58,9 @@ export default function Button({
         }
         onClick(e);
       }}
-      data-variant={variant}
       title={title}
+      data-small={small}
+      data-variant={variant}
       style={customColor ? { backgroundColor: customColor, borderColor: customColor } : undefined}
     >
       {icon && <Icon path={icon} size={iconSize} />}
