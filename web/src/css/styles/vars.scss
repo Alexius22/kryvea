@@ -81,9 +81,9 @@ html.dark {
   /* Palette */
   $bg-primary: #161616;
   $text-primary: #e0e0e0;
-  $border: #8d8d8d;
+  $border: #a0a0a0;
   $link: #ee9f27;
-  $button-bg: color.adjust($bg-primary, $lightness: 30%);
+  $button-bg: color.adjust($text-primary, $lightness: -35%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
@@ -107,7 +107,7 @@ html.dark {
   --border-primary-highlight: #{color.adjust($border, $alpha: -0.6)};
   --border-secondary: #{color.adjust($border, $alpha: -0.9)};
   --border-secondary-highlight: #{color.adjust($border, $alpha: -0.7)};
-  --border-accent: #{$border};
+  --border-active: #{color.adjust($border, $lightness: 20%)};
 
   /* Links */
   --link: #{$link};

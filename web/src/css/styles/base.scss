@@ -28,7 +28,7 @@ button[data-variant="secondary"] {
   background-color: rgba(var(--button-bg-secondary-rgb), 0.8);
 }
 button[data-variant="selected"] {
-  border-color: var(--bg-active);
+  border-color: var(--border-active);
 }
 button[data-variant="warning"] {
   background-color: var(--warning);
