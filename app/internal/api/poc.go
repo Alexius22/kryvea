@@ -87,10 +87,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 	wg := sync.WaitGroup{}
 	imageValidationError := ""
-	pocUpsert := &mongo.Poc{
-		VulnerabilityID: vulnerability.ID,
-		Pocs:            make([]mongo.PocItem, 0, len(pocsData)),
-	}
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		if pocData.Type != poc.PocTypeImage || pocData.ImageReference == "" {
@@ -137,6 +133,10 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		})
 	}
 
+	pocUpsert := &mongo.Poc{
+		VulnerabilityID: vulnerability.ID,
+		Pocs:            make([]mongo.PocItem, 0, len(pocsData)),
+	}
 	for _, pocData := range pocsData {
 		if pocData.Type != poc.PocTypeImage || pocData.ImageReference == "" {
 			continue
