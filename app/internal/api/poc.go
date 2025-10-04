@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strings"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
 	"github.com/bytedance/sonic"
@@ -197,6 +199,24 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 
 func (d *Driver) validateData(data *pocData) string {
 	if !poc.IsValidType(data.Type) {
+		return "Invalid PoC type"
+	}
+
+	switch data.Type {
+	case poc.PocTypeText:
+		if strings.TrimSpace(data.TextData) == "" {
+			return "Text data cannot be empty"
+		}
+	case poc.PocTypeRequest:
+		if strings.TrimSpace(data.Request) == "" && strings.TrimSpace(data.Response) == "" {
+			return "Request and Response cannot be both empty"
+		}
+	case poc.PocTypeImage:
+		if strings.TrimSpace(data.ImageReference) == "" {
+			return "Image reference cannot be empty"
+		}
+		// TODO: Handle images with same filename
+	default:
 		return "Invalid PoC type"
 	}
 
