@@ -61,3 +61,15 @@ func GetOWASPColor(counter OWASPCounter, category string) string {
 	}
 	return severityColors[cvss.CvssSeverityNone]
 }
+
+// Usage: within vulnerability range: {{tableSeverityColor .CVSSv4.Severity}}
+func TableSeverityColor(severity string) string {
+	color := getSeverityColor(severity)
+	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]%s", strings.ToUpper(color), severity)
+}
+
+// Usage: within vulnerability range: {{tableSeverityColor .CVSSv4.Complexity}}
+func TableComplexityColor(complexity string) string {
+	color := getComplexityColor(complexity)
+	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]%s", strings.ToUpper(color), complexity)
+}
