@@ -89,7 +89,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	imageValidationError := ""
 	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
-		if pocData.Type != poc.PocTypeImage || pocData.ImageReference == "" {
+		if pocData.Type != poc.PocTypeImage {
 			continue
 		}
 
@@ -138,43 +138,41 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		Pocs:            make([]mongo.PocItem, 0, len(pocsData)),
 	}
 	for _, pocData := range pocsData {
-		if pocData.Type != poc.PocTypeImage || pocData.ImageReference == "" {
-			continue
-		}
-
 		imageID := uuid.UUID{}
 		pocImageFilename := ""
-		imageData, filename, err := d.formDataReadImage(c, pocData.ImageReference)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
+		if pocData.Type == poc.PocTypeImage {
+			imageData, filename, err := d.formDataReadImage(c, pocData.ImageReference)
+			if err != nil {
+				c.Status(fiber.StatusBadRequest)
 
-			switch err {
-			case mongo.ErrFileSizeTooLarge:
+				switch err {
+				case mongo.ErrFileSizeTooLarge:
+					return c.JSON(fiber.Map{
+						"error": "Image file size is too large",
+					})
+				case mongo.ErrImageTypeNotAllowed:
+					return c.JSON(fiber.Map{
+						"error": "Image type is not allowed",
+					})
+				}
+
 				return c.JSON(fiber.Map{
-					"error": "Image file size is too large",
-				})
-			case mongo.ErrImageTypeNotAllowed:
-				return c.JSON(fiber.Map{
-					"error": "Image type is not allowed",
+					"error": "Cannot read image data",
 				})
 			}
 
-			return c.JSON(fiber.Map{
-				"error": "Cannot read image data",
-			})
-		}
+			pocImageFilename = filename
 
-		pocImageFilename = filename
-
-		// TODO: FileReference should also be updated with the pocItem ID
-		// or the poc upsert logic should be reworked
-		// (Jack) TODO: can we do this with goroutines to fasten the process?
-		imageID, err = d.mongo.FileReference().Insert(imageData, filename)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot upload image",
-			})
+			// TODO: FileReference should also be updated with the pocItem ID
+			// or the poc upsert logic should be reworked
+			// (Jack) TODO: can we do this with goroutines to fasten the process?
+			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
+			if err != nil {
+				c.Status(fiber.StatusBadRequest)
+				return c.JSON(fiber.Map{
+					"error": "Cannot upload image",
+				})
+			}
 		}
 
 		pocUpsert.Pocs = append(pocUpsert.Pocs, mongo.PocItem{

@@ -11,17 +11,12 @@ import (
 )
 
 type Vector struct {
-	Version     string     `json:"version" bson:"version"`
-	Vector      string     `json:"vector" bson:"vector"`
-	Score       float64    `json:"score" bson:"score"`
-	Severity    LabelColor `json:"severity" bson:"severity"`
-	Complexity  LabelColor `json:"complexity" bson:"complexity"`
-	Description string     `json:"description" bson:"description"`
-}
-
-type LabelColor struct {
-	Label string `json:"label" bson:"label"`
-	Color string `json:"color" bson:"color"`
+	Version     string  `json:"version" bson:"version"`
+	Vector      string  `json:"vector" bson:"vector"`
+	Score       float64 `json:"score" bson:"score"`
+	Severity    string  `json:"severity" bson:"severity"`
+	Complexity  string  `json:"complexity" bson:"complexity"`
+	Description string  `json:"description" bson:"description"`
 }
 
 // ParseVector parses a CVSS vector string and returns a pointer to
@@ -46,20 +41,18 @@ func ParseVector(vectorString, version, language string) (*Vector, error) {
 	}
 
 	vector := &Vector{
-		Version: version,
-		Vector:  vectorString,
-		Score:   score,
-		Complexity: LabelColor{
-			Label: complexity,
-		},
-		Severity:    LabelColor{},
+		Version:     version,
+		Vector:      vectorString,
+		Score:       score,
+		Complexity:  complexity,
+		Severity:    "",
 		Description: "",
 	}
 
 	severityThresholds := severityLevels[version]
 	for _, threshold := range severityThresholds {
 		if vector.Score >= threshold.Score {
-			vector.Severity.Label = threshold.Severity
+			vector.Severity = threshold.Severity
 			break
 		}
 	}
@@ -68,9 +61,8 @@ func ParseVector(vectorString, version, language string) (*Vector, error) {
 		vector.Description = vector.GenerateVectorDescription(language)
 	}
 
-	// Sanity check
-	if vector.Severity.Label == "" {
-		vector.Severity.Label = CvssSeverityNone
+	if vector.Severity == "" {
+		vector.Severity = CvssSeverityNone
 	}
 
 	return vector, nil

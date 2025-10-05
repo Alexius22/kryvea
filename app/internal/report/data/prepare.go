@@ -61,13 +61,13 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 
 			switch version {
 			case cvss.Cvss2:
-				vulnerabilityOverview[version][vulnerability.CVSSv2.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv2.Severity] += 1
 			case cvss.Cvss3:
-				vulnerabilityOverview[version][vulnerability.CVSSv3.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv3.Severity] += 1
 			case cvss.Cvss31:
-				vulnerabilityOverview[version][vulnerability.CVSSv31.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv31.Severity] += 1
 			case cvss.Cvss4:
-				vulnerabilityOverview[version][vulnerability.CVSSv4.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv4.Severity] += 1
 			}
 		}
 	}
@@ -81,10 +81,10 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 	targetsCategoryCounter := make(map[string]uint)
 
 	for _, vulnerability := range vulnerabilities {
-		if (maxVersion == cvss.Cvss2 && vulnerability.CVSSv2.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss3 && vulnerability.CVSSv3.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss31 && vulnerability.CVSSv31.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss4 && vulnerability.CVSSv4.Severity.Label == cvss.CvssSeverityNone) {
+		if (maxVersion == cvss.Cvss2 && vulnerability.CVSSv2.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss3 && vulnerability.CVSSv3.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss31 && vulnerability.CVSSv31.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss4 && vulnerability.CVSSv4.Severity == cvss.CvssSeverityNone) {
 			continue
 		}
 
@@ -115,22 +115,22 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 			case cvss.Cvss2:
 				if vulnerability.CVSSv2.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
 					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv2.Score
-					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv2.Severity.Label]
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv2.Severity]
 				}
 			case cvss.Cvss3:
 				if vulnerability.CVSSv3.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
 					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv3.Score
-					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv3.Severity.Label]
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv3.Severity]
 				}
 			case cvss.Cvss31:
 				if vulnerability.CVSSv31.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
 					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv31.Score
-					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv31.Severity.Label]
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv31.Severity]
 				}
 			case cvss.Cvss4:
 				if vulnerability.CVSSv4.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
 					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv4.Score
-					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv4.Severity.Label]
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv4.Severity]
 				}
 			}
 

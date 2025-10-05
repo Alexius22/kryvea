@@ -273,10 +273,10 @@ func (t *ZipDefaultTemplate) renderReport(assessment *mongo.Assessment, vulnerab
 		// get severity of the most recent cvss version
 		for version := range assessment.CVSSVersions {
 			labels := map[string]string{
-				cvss.Cvss2:  vuln.CVSSv2.Severity.Label,
-				cvss.Cvss3:  vuln.CVSSv3.Severity.Label,
-				cvss.Cvss31: vuln.CVSSv31.Severity.Label,
-				cvss.Cvss4:  vuln.CVSSv4.Severity.Label,
+				cvss.Cvss2:  vuln.CVSSv2.Severity,
+				cvss.Cvss3:  vuln.CVSSv3.Severity,
+				cvss.Cvss31: vuln.CVSSv31.Severity,
+				cvss.Cvss4:  vuln.CVSSv4.Severity,
 			}
 			if label, ok := labels[version]; ok && label != "" {
 				severity = label
