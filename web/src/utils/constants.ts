@@ -29,3 +29,8 @@ export const languageMapping: Record<string, string> = {
   sl: "Slovenian",
   sv: "Swedish",
 };
+
+export const CVSS_VERSIONS = [
+  { value: "3.1", label: "CVSS v3.1" },
+  { value: "4.0", label: "CVSS v4.0" },
+];
