@@ -14,11 +14,11 @@ import {
   CustomerDetail,
   Customers,
   Dashboard,
-  EditPoc,
   EditReport,
   LiveEditor,
   Login,
   Logs,
+  PocsUpsert,
   Profile,
   Settings,
   Targets,
@@ -174,7 +174,7 @@ export default function App() {
               <Route path="/vulnerability_search" element={<VulnerabilitySearch />} />
               <Route
                 path="/customers/:customerId/assessments/:assessmentId/vulnerabilities/:vulnerabilityId/pocs"
-                element={<EditPoc />}
+                element={<PocsUpsert />}
               />
 
               {/* Categories */}

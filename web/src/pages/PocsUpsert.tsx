@@ -22,7 +22,7 @@ import PocRichText from "../components/Poc/PocRichText";
 import PocText from "../components/Poc/PocText";
 import { getPageTitle } from "../utils/helpers";
 
-export default function EditPoc() {
+export default function PocsUpsert() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
