@@ -63,6 +63,8 @@ export default function PocsUpsert() {
       return;
     }
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
+    pocListParent.current.lastElementChild.querySelector("textarea")?.focus();
+    setSelectedPoc(pocList.length - 1);
   }, [goToBottom]);
 
   function onSetCodeSelection<T>(currentIndex, property: keyof Omit<T, "key">, highlights: MonacoTextSelection[]) {
