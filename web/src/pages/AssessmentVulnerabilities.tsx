@@ -21,7 +21,7 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import AddTargetModal from "../components/Modals/AddTargetModal";
 import ExportReportModal from "../components/Modals/ExportReportModal";
-import { useDebounce } from "../hooks/useDebounce";
+import { useDebounce } from "../hooks/hooks";
 import { Category, Template, Vulnerability } from "../types/common.types";
 import { CVSS_VERSIONS } from "../utils/constants";
 import { formatDate } from "../utils/dates";

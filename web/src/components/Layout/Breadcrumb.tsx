@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useResolvedPath } from "react-router";
 import { GlobalContext } from "../../App";
-import { scrollElementHorizontally } from "../../hooks/useEffectCurries";
+import { scrollElementHorizontally } from "../../hooks/hooks";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
