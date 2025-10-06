@@ -51,16 +51,10 @@ export default function PocsUpsert() {
     };
 
     window.addEventListener("dragover", handleDragStart);
-    window.addEventListener("dragstart", handleDragStart);
     window.addEventListener("dragend", handleDragEnd);
-    window.addEventListener("visibilitychange", handleDragEnd);
-    window.addEventListener("drop", handleDragEnd);
     return () => {
       window.removeEventListener("dragover", handleDragStart);
-      window.removeEventListener("dragstart", handleDragStart);
       window.removeEventListener("dragend", handleDragEnd);
-      window.removeEventListener("visibilitychange", handleDragEnd);
-      window.removeEventListener("drop", handleDragEnd);
     };
   }, []);
 
@@ -69,6 +63,8 @@ export default function PocsUpsert() {
       return;
     }
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
+    pocListParent.current.lastElementChild.querySelector("textarea")?.focus();
+    setSelectedPoc(pocList.length - 1);
   }, [goToBottom]);
 
   function onSetCodeSelection<T>(currentIndex, property: keyof Omit<T, "key">, highlights: MonacoTextSelection[]) {
