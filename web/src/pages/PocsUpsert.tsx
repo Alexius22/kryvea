@@ -51,16 +51,10 @@ export default function PocsUpsert() {
     };
 
     window.addEventListener("dragover", handleDragStart);
-    window.addEventListener("dragstart", handleDragStart);
     window.addEventListener("dragend", handleDragEnd);
-    window.addEventListener("visibilitychange", handleDragEnd);
-    window.addEventListener("drop", handleDragEnd);
     return () => {
       window.removeEventListener("dragover", handleDragStart);
-      window.removeEventListener("dragstart", handleDragStart);
       window.removeEventListener("dragend", handleDragEnd);
-      window.removeEventListener("visibilitychange", handleDragEnd);
-      window.removeEventListener("drop", handleDragEnd);
     };
   }, []);
 
