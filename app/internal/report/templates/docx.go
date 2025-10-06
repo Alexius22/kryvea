@@ -40,11 +40,13 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 	for _, vulnerability := range reportData.Vulnerabilities {
 		for _, pocItem := range vulnerability.Poc.Pocs {
 			if pocItem.Type == poc.PocTypeImage {
-				if _, ok := addedImages[pocItem.ImageFilename]; !ok {
-					fmt.Println("adding image:", pocItem.ImageFilename)
-					DocxTemplate.Media(pocItem.ImageFilename, pocItem.ImageData)
-					addedImages[pocItem.ImageFilename] = true
+				if _, ok := addedImages[pocItem.ImageReference]; ok {
+					continue
 				}
+
+				fmt.Println("adding image:", pocItem.ImageReference)
+				DocxTemplate.Media(pocItem.ImageReference, pocItem.ImageData)
+				addedImages[pocItem.ImageReference] = true
 			}
 		}
 	}

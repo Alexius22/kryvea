@@ -1,10 +1,7 @@
 package api
 
 import (
-	"fmt"
-	"log"
 	"strings"
-	"sync"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
@@ -85,62 +82,15 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		}
 	}
 
-	wg := sync.WaitGroup{}
-	imageValidationError := ""
-	// parse image data and insert it into the database
-	for _, pocData := range pocsData {
-		if pocData.Type != poc.PocTypeImage {
-			continue
-		}
-
-		wg.Add(1)
-		go func(imageReference string) {
-			defer wg.Done()
-
-			file, err := c.FormFile(imageReference)
-			if err != nil {
-				imageValidationError = fmt.Sprintf("Cannot get image file for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
-
-			imageData, err := d.readFile(file)
-			if err != nil {
-				imageValidationError = fmt.Sprintf("Cannot read image file for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
-
-			if !mongo.IsImageTypeAllowed(imageData) {
-				imageValidationError = fmt.Sprintf("Image type not allowed for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
-
-			if !poc.IsValidPNG(imageData) && !poc.IsValidJPEG(imageData) {
-				imageValidationError = fmt.Sprintf("Invalid image file for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
-		}(pocData.ImageReference)
-	}
-	wg.Wait()
-
-	if imageValidationError != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": imageValidationError,
-		})
-	}
-
 	pocUpsert := &mongo.Poc{
 		VulnerabilityID: vulnerability.ID,
 		Pocs:            make([]mongo.PocItem, 0, len(pocsData)),
 	}
+	// parse image data and insert it into the database
 	for _, pocData := range pocsData {
 		imageID := uuid.UUID{}
 		pocImageFilename := ""
-		if pocData.Type == poc.PocTypeImage {
+		if pocData.Type == poc.PocTypeImage && pocData.ImageReference != "" {
 			imageData, filename, err := d.formDataReadImage(c, pocData.ImageReference)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
@@ -165,7 +115,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 
 			// TODO: FileReference should also be updated with the pocItem ID
 			// or the poc upsert logic should be reworked
-			// (Jack) TODO: can we do this with goroutines to fasten the process?
 			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
 			if err != nil {
 				c.Status(fiber.StatusBadRequest)
@@ -174,7 +123,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 				})
 			}
 		}
-
 		pocUpsert.Pocs = append(pocUpsert.Pocs, mongo.PocItem{
 			Index:              pocData.Index,
 			Type:               pocData.Type,
