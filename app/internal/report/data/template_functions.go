@@ -89,7 +89,7 @@ func GetOWASPColor(counter OWASPCounter, category string) string {
 //	{{ tableSeverityColor .CVSSv4.Severity }}
 func TableSeverityColor(severity string) string {
 	color := getSeverityColor(severity)
-	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]%s", strings.ToUpper(color), severity)
+	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]", strings.ToUpper(color))
 }
 
 // TableComplexityColor returns a formatted string suitable for use in a table cell,
