@@ -8,6 +8,15 @@ import (
 	"github.com/Alexius22/kryvea/internal/cvss"
 )
 
+const (
+	STYLE_WRAPPER_F = `<w:rPr>%s</w:rPr><w:t>%s</w:t>`
+	SHADING_W_TAG_F = `<w:shd w:val="clear" w:color="auto" w:fill="%s"/>`
+)
+
+var (
+	SHADING_WRAPPER_F = fmt.Sprintf(STYLE_WRAPPER_F, SHADING_W_TAG_F, "%s")
+)
+
 func Debug(v any) string {
 	return fmt.Sprintf("%#v", v)
 }
@@ -109,4 +118,34 @@ func TableSeverityColor(severity string) string {
 func TableComplexityColor(complexity string) string {
 	color := getComplexityColor(complexity)
 	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]", strings.ToUpper(color))
+}
+
+// ShadeTextBg applies a background color shading to the given text and returns
+// a formatted string suitable for embedding in WordprocessingML (DOCX) content.
+//
+// Parameters:
+//   - s: The text string to be wrapped with a background color.
+//   - hex: The hex code of the color (e.g., "#FF0000" or "FF0000"). The "#" prefix is optional.
+//
+// Behavior:
+//   - If the hex string is invalid (not exactly 6 characters after removing a leading '#'),
+//     the original text `s` is returned unmodified.
+//   - If valid, the function wraps the text in a WordprocessingML <w:rPr> and <w:t> tag
+//     with a <w:shd> element specifying the background color.
+//
+// Returns:
+//   - A string containing the original text `s` wrapped in WordprocessingML tags
+//     with the specified background color applied.
+//
+// Usage in templates:
+//
+//	{{shadeTextBg "Important", "#FFCC00"}}
+//	// Output: <w:rPr><w:shd w:val="clear" w:color="auto" w:fill="FFCC00"/></w:rPr><w:t>Important</w:t>
+func ShadeTextBg(s, hex string) string {
+	hex = strings.TrimPrefix(hex, "#")
+	if len(hex) != 6 {
+		return s
+	}
+
+	return fmt.Sprintf(SHADING_WRAPPER_F, strings.ToUpper(hex), s)
 }

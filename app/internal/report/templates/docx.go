@@ -56,6 +56,7 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 		"getOWASPColor":        reportdata.GetOWASPColor,
 		"tableSeverityColor":   reportdata.TableSeverityColor,
 		"tableComplexityColor": reportdata.TableComplexityColor,
+		"shadeTextBg":          reportdata.ShadeTextBg,
 		"debug":                reportdata.Debug,
 	})
 
