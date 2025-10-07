@@ -50,9 +50,32 @@ export default function PocsUpsert() {
       pocListParent.current?.classList.remove("dragging");
     };
 
+    const onKeyboardShortcut = (e: KeyboardEvent) => {
+      if (e.altKey === false || e.shiftKey === true || e.ctrlKey === true) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      switch (e.key) {
+        case "r":
+          addPoc(POC_TYPE_REQUEST_RESPONSE)();
+          break;
+        case "t":
+          addPoc(POC_TYPE_TEXT)();
+          break;
+        case "i":
+          addPoc(POC_TYPE_IMAGE)();
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyboardShortcut);
     window.addEventListener("dragover", handleDragStart);
     window.addEventListener("dragend", handleDragEnd);
     return () => {
+      window.removeEventListener("keydown", onKeyboardShortcut);
       window.removeEventListener("dragover", handleDragStart);
       window.removeEventListener("dragend", handleDragEnd);
     };
