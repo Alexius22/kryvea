@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -228,6 +229,23 @@ func (d *Driver) validateData(data *pocData) string {
 		return "Invalid PoC type"
 	}
 
+	hexColorRegex := regexp.MustCompile(`^#?[a-fA-F0-9]{6}$`)
+	for i, highlight := range data.RequestHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for request highlight %d: %s", i, highlight.Color)
+		}
+	}
+	for i, highlight := range data.ResponseHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for response highlight %d: %s", i, highlight.Color)
+		}
+	}
+	for i, highlight := range data.TextHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for text highlight %d: %s", i, highlight.Color)
+		}
+	}
+
 	switch data.Type {
 	case poc.PocTypeText:
 		if strings.TrimSpace(data.TextData) == "" {
@@ -241,7 +259,6 @@ func (d *Driver) validateData(data *pocData) string {
 		if strings.TrimSpace(data.ImageReference) == "" {
 			return "Image reference cannot be empty"
 		}
-		// TODO: Handle images with same filename
 	default:
 		return "Invalid PoC type"
 	}
