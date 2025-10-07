@@ -54,7 +54,19 @@ func FormatDate(t time.Time, args ...string) string {
 	return t.In(loc).Format(layout)
 }
 
-// Usage: {{ getOWASPColor (index .OWASPCounter "owasp_web") "A02:2021" }}
+// GetOWASPColor returns the color associated with a specific OWASP category for a given counter.
+//
+// Parameters:
+//   - counter: An OWASPCounter that holds a mapping of categories to colors.
+//   - category: The OWASP category string (e.g., "A02:2021").
+//
+// Returns:
+//   - The color string associated with the category. If the category is not present
+//     in the counter, it defaults to the color corresponding to CvssSeverityNone.
+//
+// Usage in templates:
+//
+//	{{ getOWASPColor (index .OWASPCounter "owasp_web") "A02:2021" }}
 func GetOWASPColor(counter OWASPCounter, category string) string {
 	if color, ok := counter.Categories[category]; ok {
 		return color
@@ -62,14 +74,39 @@ func GetOWASPColor(counter OWASPCounter, category string) string {
 	return severityColors[cvss.CvssSeverityNone]
 }
 
-// Usage: within vulnerability range: {{tableSeverityColor .CVSSv4.Severity}}
+// TableSeverityColor returns a formatted string suitable for use in a table cell,
+// applying a background color based on the severity level.
+//
+// Parameters:
+//   - severity: A string representing the severity level (e.g., "Low", "High").
+//
+// Returns:
+//   - A string in the format "[[TABLE_CELL_BG_COLOR:<COLOR>]]<SEVERITY>",
+//     where <COLOR> is the uppercase color corresponding to the severity.
+//
+// Usage in templates:
+//
+//	{{ tableSeverityColor .CVSSv4.Severity }}
 func TableSeverityColor(severity string) string {
 	color := getSeverityColor(severity)
 	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]%s", strings.ToUpper(color), severity)
 }
 
-// Usage: within vulnerability range: {{tableSeverityColor .CVSSv4.Complexity}}
+// TableComplexityColor returns a formatted string suitable for use in a table cell,
+// applying a background color based on the complexity level. Only the background color
+// is included; the cell text is omitted.
+//
+// Parameters:
+//   - complexity: A string representing the complexity level (e.g., "Low", "High").
+//
+// Returns:
+//   - A string in the format "[[TABLE_CELL_BG_COLOR:<COLOR>]]",
+//     where <COLOR> is the uppercase color corresponding to the complexity.
+//
+// Usage in templates:
+//
+//	{{ tableComplexityColor .CVSSv4.Complexity }}
 func TableComplexityColor(complexity string) string {
 	color := getComplexityColor(complexity)
-	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]%s", strings.ToUpper(color), complexity)
+	return fmt.Sprintf("[[TABLE_CELL_BG_COLOR:%s]]", strings.ToUpper(color))
 }
