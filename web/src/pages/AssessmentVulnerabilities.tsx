@@ -4,8 +4,6 @@ import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
-import Card from "../components/Composition/Card";
-import Divider from "../components/Composition/Divider";
 import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
@@ -13,17 +11,12 @@ import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
 import Button from "../components/Form/Button";
 import Buttons from "../components/Form/Buttons";
-import Checkbox from "../components/Form/Checkbox";
-import DateCalendar from "../components/Form/DateCalendar";
-import Input from "../components/Form/Input";
-import Label from "../components/Form/Label";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import AddTargetModal from "../components/Modals/AddTargetModal";
 import ExportReportModal from "../components/Modals/ExportReportModal";
 import { useDebounce } from "../hooks/hooks";
 import { Category, Template, Vulnerability } from "../types/common.types";
-import { CVSS_VERSIONS } from "../utils/constants";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 import { getTargetLabel } from "../utils/targetLabel";
@@ -72,18 +65,18 @@ export default function AssessmentVulnerabilities() {
   const [limit, setLimit] = useState(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
 
   // Filters
-  const [assessment, setAssessment] = useState(urlSearchParams.get("assessment") ?? "");
-  const [user, setUser] = useState(urlSearchParams.get("user") ?? "");
-  const [customer, setCustomer] = useState(urlSearchParams.get("customer") ?? "");
-  const [cvssMin, setCvssMin] = useState(urlSearchParams.get("cvss_min") ?? "");
-  const [cvssMax, setCvssMax] = useState(urlSearchParams.get("cvss_max") ?? "");
-  const [cvssVersions, setCvssVersions] = useState<string[]>(
-    urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []
-  );
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: urlSearchParams.get("start_date_time") ?? "",
-    end: urlSearchParams.get("end_date_time") ?? "",
-  });
+  // const [assessment, setAssessment] = useState(urlSearchParams.get("assessment") ?? "");
+  // const [user, setUser] = useState(urlSearchParams.get("user") ?? "");
+  // const [customer, setCustomer] = useState(urlSearchParams.get("customer") ?? "");
+  // const [cvssMin, setCvssMin] = useState(urlSearchParams.get("cvss_min") ?? "");
+  // const [cvssMax, setCvssMax] = useState(urlSearchParams.get("cvss_max") ?? "");
+  // const [cvssVersions, setCvssVersions] = useState<string[]>(
+  //   urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []
+  // );
+  // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+  //   start: urlSearchParams.get("start_date_time") ?? "",
+  //   end: urlSearchParams.get("end_date_time") ?? "",
+  // });
 
   function fetchVulnerabilitiesPaginated(searchParams) {
     setLoadingVulnerabilities(true);
@@ -109,16 +102,16 @@ export default function AssessmentVulnerabilities() {
     setQuery(urlSearchParams.get("query") ?? DEFAULT_QUERY);
     setPage(Math.max(+urlSearchParams.get("page") || DEFAULT_PAGE, DEFAULT_PAGE));
     setLimit(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
-    setAssessment(urlSearchParams.get("assessment") ?? "");
-    setUser(urlSearchParams.get("user") ?? "");
-    setCustomer(urlSearchParams.get("customer") ?? "");
-    setCvssMin(urlSearchParams.get("cvss_min") ?? "");
-    setCvssMax(urlSearchParams.get("cvss_max") ?? "");
-    setCvssVersions(urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []);
-    setDateRange({
-      start: urlSearchParams.get("start_date_time") ?? "",
-      end: urlSearchParams.get("end_date_time") ?? "",
-    });
+    // setAssessment(urlSearchParams.get("assessment") ?? "");
+    // setUser(urlSearchParams.get("user") ?? "");
+    // setCustomer(urlSearchParams.get("customer") ?? "");
+    // setCvssMin(urlSearchParams.get("cvss_min") ?? "");
+    // setCvssMax(urlSearchParams.get("cvss_max") ?? "");
+    // setCvssVersions(urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []);
+    // setDateRange({
+    //   start: urlSearchParams.get("start_date_time") ?? "",
+    //   end: urlSearchParams.get("end_date_time") ?? "",
+    // });
   }, [location.search]);
 
   // Fetch data
@@ -140,39 +133,39 @@ export default function AssessmentVulnerabilities() {
       limit: limit.toString(),
     });
 
-    if (assessment) sp.set("assessment", assessment);
-    if (user) sp.set("user", user);
-    if (customer) sp.set("customer", customer);
-    if (cvssMin) sp.set("cvss_min", cvssMin);
-    if (cvssMax) sp.set("cvss_max", cvssMax);
-    if (cvssVersions.length) sp.set("cvss_versions", cvssVersions.join(","));
-    if (dateRange.start) sp.set("start_date_time", dateRange.start);
-    if (dateRange.end) sp.set("end_date_time", dateRange.end);
+    // if (assessment) sp.set("assessment", assessment);
+    // if (user) sp.set("user", user);
+    // if (customer) sp.set("customer", customer);
+    // if (cvssMin) sp.set("cvss_min", cvssMin);
+    // if (cvssMax) sp.set("cvss_max", cvssMax);
+    // if (cvssVersions.length) sp.set("cvss_versions", cvssVersions.join(","));
+    // if (dateRange.start) sp.set("start_date_time", dateRange.start);
+    // if (dateRange.end) sp.set("end_date_time", dateRange.end);
 
     return sp.toString();
   };
 
   // Actions
-  const handleSearch = () => {
-    setPage(1); // reset page
-    const searchParams = buildSearchParams();
-    navigate(`?${searchParams}`);
-    fetchVulnerabilitiesPaginated(searchParams);
-  };
+  // const handleSearch = () => {
+  //   setPage(1); // reset page
+  //   const searchParams = buildSearchParams();
+  //   navigate(`?${searchParams}`);
+  //   fetchVulnerabilitiesPaginated(searchParams);
+  // };
 
-  const handleClearAll = () => {
-    setQuery("");
-    setAssessment("");
-    setUser("");
-    setCustomer("");
-    setCvssMin("");
-    setCvssMax("");
-    setCvssVersions([]);
-    setDateRange({ start: "", end: "" });
-    setPage(DEFAULT_PAGE);
-    setLimit(DEFAULT_LIMIT);
-    navigate("?");
-  };
+  // const handleClearAll = () => {
+  //   setQuery("");
+  //   setAssessment("");
+  //   setUser("");
+  //   setCustomer("");
+  //   setCvssMin("");
+  //   setCvssMax("");
+  //   setCvssVersions([]);
+  //   setDateRange({ start: "", end: "" });
+  //   setPage(DEFAULT_PAGE);
+  //   setLimit(DEFAULT_LIMIT);
+  //   navigate("?");
+  // };
 
   const openExportModal = () => {
     setIsModalDownloadActive(true);
@@ -325,7 +318,7 @@ export default function AssessmentVulnerabilities() {
       </PageHeader>
 
       <Grid className="gap-4">
-        <Card>
+        {/* <Card>
           <Grid className="grid-cols-3 !items-start gap-4">
             <Input
               type="text"
@@ -417,7 +410,7 @@ export default function AssessmentVulnerabilities() {
               <Button text="Search" onClick={handleSearch} />
             </Flex>
           </Flex>
-        </Card>
+        </Card> */}
 
         <Table
           loading={loadingVulnerabilities}
