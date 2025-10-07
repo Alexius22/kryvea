@@ -18,7 +18,7 @@ var (
 )
 
 func Debug(v any) string {
-	return fmt.Sprintf("%#v", v)
+	return escapeXMLString(fmt.Sprintf("%#v", v))
 }
 
 // formatDate formats the given time using a locale-aware layout inferred from timezone.
