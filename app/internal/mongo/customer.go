@@ -19,6 +19,7 @@ type Customer struct {
 	Model     `bson:",inline"`
 	Name      string     `json:"name" bson:"name"`
 	Language  string     `json:"language" bson:"language"`
+	Logo      uuid.UUID  `json:"logo" bson:"logo"`
 	Templates []Template `json:"templates" bson:"templates"`
 }
 
@@ -75,6 +76,7 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 			"updated_at": time.Now(),
 			"name":       customer.Name,
 			"language":   customer.Language,
+			"logo":       customer.Logo,
 		},
 	}
 
@@ -143,6 +145,7 @@ func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, error) {
 	filter := bson.M{"_id": customerID}
 	opts := options.FindOne().SetProjection(bson.M{
+		"logo":      0,
 		"templates": 0,
 	})
 
@@ -155,6 +158,14 @@ func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, err
 	return &customer, nil
 }
 
+func (ci *CustomerIndex) GetByLogoID(logoID uuid.UUID) (*Customer, error) {
+	var customer Customer
+	if err := ci.collection.FindOne(context.Background(), bson.M{"logo": logoID}).Decode(&customer); err != nil {
+		return nil, err
+	}
+	return &customer, nil
+}
+
 func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, error) {
 	customerIDs := make([]uuid.UUID, len(customers))
 	for i := range customers {
@@ -163,6 +174,7 @@ func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, er
 
 	filter := bson.M{"_id": bson.M{"$in": customerIDs}}
 	opts := options.Find().SetProjection(bson.M{
+		"logo":      0,
 		"templates": 0,
 	})
 

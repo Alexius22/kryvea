@@ -54,7 +54,6 @@ func (e *Engine) Serve() {
 
 	apiGroup := app.Group(util.JoinUrlPath(e.rootPath, "api"))
 	apiGroup.Use(api.SessionMiddleware)
-	apiGroup.Use(api.ContentTypeMiddleware)
 	{
 		apiGroup.Get("/customers", api.GetCustomers)
 		apiGroup.Get("/customers/:customer", api.GetCustomer)
@@ -101,6 +100,7 @@ func (e *Engine) Serve() {
 
 		apiGroup.Get("/files/images/:file", api.GetImage)
 		apiGroup.Get("/files/templates/:file", api.GetTemplateFile)
+		apiGroup.Get("/files/customers/:file", api.GetCustomerImage)
 
 		apiGroup.Get("/users/names", api.GetUsernames)
 		apiGroup.Get("/users/me", api.GetMe)

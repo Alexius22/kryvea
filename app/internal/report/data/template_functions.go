@@ -27,8 +27,9 @@ func Debug(v any) string {
 //   - style: optional override (case-insensitive): "US" (MM/DD/YYYY), "EU" (DD/MM/YYYY), "ISO" (2006-01-02),
 //     "YMD" (2006/01/02), "DMY" (02/01/2006), "MDY" (01/02/2006).
 //
-// Notes:
-//   - Only the date part is returned; no time-of-day is printed.
+// Usage in templates:
+//
+//	{{ formatDate .DateTime "UTC" "EU" }}
 func FormatDate(t time.Time, args ...string) string {
 	// Location resolution (default UTC)
 	loc := time.UTC

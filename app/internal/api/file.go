@@ -116,6 +116,51 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 	return c.SendStream(bytes.NewReader(fileData))
 }
 
+func (d *Driver) GetCustomerImage(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse image param
+	imageRef, errStr := d.fileFromParam(c.Params("file"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// retrieve customer by logo ID
+	customer, err := d.mongo.Customer().GetByLogoID(imageRef.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot retrieve customer",
+		})
+	}
+
+	// check if user has access to customer
+	if !user.CanAccessCustomer(customer.ID) {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
+	// upload image into the database
+	imageData, _, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot retrieve image",
+		})
+	}
+
+	mimeType := mimetype.Detect(imageData)
+
+	c.Status(fiber.StatusOK)
+	c.Set("Content-Type", mimeType.String())
+	return c.SendStream(bytes.NewReader(imageData))
+}
+
 func (d *Driver) fileFromParam(param string) (*mongo.FileReference, string) {
 	if param == "" {
 		return nil, "File ID is required"
