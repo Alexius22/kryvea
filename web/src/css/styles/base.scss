@@ -13,6 +13,7 @@ a:hover {
 button {
   @apply rounded border border-white/0 px-4 py-2;
   background-color: var(--button-bg);
+  color: #ffffff;
 }
 button[disabled] {
   @apply cursor-not-allowed;
@@ -23,7 +24,6 @@ button[disabled] {
 }
 button[data-small] {
   @apply px-3 py-1 text-sm;
-  color: #ffffff;
 }
 button[data-variant="secondary"] {
   border: 1px solid var(--border-primary);
@@ -42,9 +42,11 @@ button[data-variant="danger"] {
 button[data-variant="outline-only"] {
   border: 1px solid var(--border-primary-highlight);
   background-color: transparent;
+  color: var(--text-primary);
 }
 button[data-variant="transparent"] {
   background-color: transparent;
+  color: var(--text-primary);
 }
 html.dark {
   button[data-small] {

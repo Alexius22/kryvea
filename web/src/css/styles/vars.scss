@@ -19,9 +19,9 @@ $main-max-width: 1735px !default;
   /* Maps */
   $backgrounds: (
     "primary": $bg-primary,
-    "secondary": color.adjust($bg-primary, $lightness: 8%),
-    "tertiary": color.adjust($bg-primary, $lightness: 12%),
-    "quaternary": color.adjust($bg-primary, $lightness: 5%),
+    "secondary": color.adjust($bg-primary, $lightness: 2%),
+    "tertiary": color.adjust($bg-primary, $lightness: 4%),
+    "quaternary": color.adjust($bg-primary, $lightness: 0%),
     "quinary": color.adjust($bg-primary, $lightness: -2%),
     "active": color.adjust($bg-primary, $lightness: -10%),
   );
