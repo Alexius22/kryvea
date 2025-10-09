@@ -95,6 +95,7 @@ export type Customer = {
   id: string;
   name: string;
   language: string;
+  logo: string;
   updated_at: Date;
   created_at: Date;
   templates: Template[];

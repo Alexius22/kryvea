@@ -8,6 +8,7 @@ import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
 import CardTitle from "../components/Composition/CardTitle";
 import Divider from "../components/Composition/Divider";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
@@ -17,6 +18,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
+import UploadImage from "../components/Form/UploadImage";
 import { Customer, Template } from "../types/common.types";
 import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
@@ -34,6 +36,9 @@ export default function CustomerDetail() {
   const [selectedTemplateLanguage, setSelectedTemplateLanguage] = useState<SelectOption | null>(null);
 
   const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
+
+  const [logoId, setLogoId] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const [formCustomer, setFormCustomer] = useState({
     name: ctxCustomer?.name,
@@ -71,6 +76,7 @@ export default function CustomerDetail() {
       data => {
         setCtxCustomer(data);
         setCustomerTemplates(data.templates);
+        setLogoId(data.logo);
       },
       undefined,
       () => setLoadingCustomerTemplates(false)
@@ -93,9 +99,21 @@ export default function CustomerDetail() {
       return;
     }
 
-    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, formCustomer, () => {
+    const payload = {
+      name: formCustomer.name.trim(),
+      language: formCustomer.language,
+    };
+
+    const formData = new FormData();
+    if (logoFile) {
+      formData.append("file", logoFile, logoFile.name);
+    }
+    formData.append("data", JSON.stringify(payload));
+
+    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
       toast.success("Customer updated successfully");
-      setCtxCustomer(prev => ({ ...prev, ...formCustomer }));
+
+      fetchCustomer();
     });
   };
 
@@ -159,6 +177,29 @@ export default function CustomerDetail() {
     a.click();
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/png", "image/jpeg"].includes(file.type)) {
+      e.target.value = "";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+    formData.append(
+      "data",
+      JSON.stringify({
+        name: ctxCustomer.name,
+      })
+    );
+
+    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
+      toast.success("Logo updated");
+      fetchCustomer();
+    });
+  };
+
   return (
     <div>
       <PageHeader icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
@@ -182,6 +223,15 @@ export default function CustomerDetail() {
         <Card>
           <CardTitle title="Customer details" />
           <Grid className="gap-4">
+            <Flex className="justify-center">
+              <img
+                key={logoId}
+                src={`/api/files/customers/${logoId}`}
+                alt={`${formCustomer.name}'s logo`}
+                style={{ maxHeight: `200px` }}
+              />
+              <input type="file" onChange={handleFileChange} />
+            </Flex>
             <Input
               type="text"
               label="Customer name"
@@ -201,6 +251,7 @@ export default function CustomerDetail() {
               disabled={!isAdmin}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
+            <UploadImage label="Upload logo" onChange={file => setLogoFile(file)} />
           </Grid>
           <Divider />
           <Buttons>
