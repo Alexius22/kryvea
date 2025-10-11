@@ -90,7 +90,7 @@ func (pi PocIndex) init() error {
 
 func (pi *PocIndex) Upsert(poc *Poc) error {
 	// retrieve existing POCs
-	oldPoc, err := pi.GetByID(poc.ID)
+	oldPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -109,6 +109,10 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	// retrieve old POC images IDs that are not in the new POC
 	oldImageIDs := make(map[uuid.UUID]struct{}, len(oldPoc.Pocs))
 	for _, oldPocs := range oldPoc.Pocs {
+		if oldPocs.ImageID == uuid.Nil {
+			continue
+		}
+
 		if _, exists := newImageIDs[oldPocs.ImageID]; !exists {
 			oldImageIDs[oldPocs.ImageID] = struct{}{}
 		}
@@ -143,10 +147,26 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 		return err
 	}
 
+	upsertedPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
+	if err != nil {
+		return err
+	}
+
+	for _, pocItem := range poc.Pocs {
+		if pocItem.ImageID == uuid.Nil {
+			continue
+		}
+
+		err = pi.driver.FileReference().AddToUsedBy(pocItem.ImageID, upsertedPoc.ID)
+		if err != nil {
+			return err
+		}
+	}
+
 	// delete old images that are not in the new POC
 	for imageID := range oldImageIDs {
 		if imageID != uuid.Nil {
-			err = pi.driver.FileReference().Delete(imageID, poc.ID)
+			err = pi.driver.FileReference().PullUsedBy(imageID, oldPoc.ID)
 			if err != nil {
 				return err
 			}
@@ -216,6 +236,13 @@ func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
 func (pi *PocIndex) DeleteByVulnerabilityID(vulnerabilityID uuid.UUID) error {
 	// TODO: add deletion of FileReferences
 	_, err := pi.collection.DeleteOne(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+	return err
+}
+
+func (pi *PocIndex) DeleteManyByVulnerabilityID(vulnerabilityIDs []uuid.UUID) error {
+	// TODO: add deletion of FileReferences
+	filter := bson.M{"vulnerability_id": bson.M{"$in": vulnerabilityIDs}}
+	_, err := pi.collection.DeleteMany(context.Background(), filter)
 	return err
 }
 

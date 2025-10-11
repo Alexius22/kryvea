@@ -670,7 +670,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 		for j, item := range v.Poc.Pocs {
 			if item.ImageID != uuid.Nil {
-				imageData, imageFilename, err := d.mongo.FileReference().ReadByID(item.ImageID)
+				imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
 				if err != nil {
 					c.Status(fiber.StatusInternalServerError)
 					return c.JSON(fiber.Map{
@@ -678,7 +678,6 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 					})
 				}
 				vulnerabilities[i].Poc.Pocs[j].ImageData = imageData
-				vulnerabilities[i].Poc.Pocs[j].ImageFilename = imageFilename
 			}
 		}
 	}

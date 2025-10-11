@@ -69,6 +69,10 @@ func (ti TemplateIndex) init() error {
 }
 
 func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
+	if template.FileID == uuid.Nil {
+		return uuid.Nil, ErrTemplateFileIDRequired
+	}
+
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.Nil, err
@@ -81,6 +85,11 @@ func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
 	}
 
 	_, err = ti.collection.InsertOne(context.Background(), template)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	err = ti.driver.FileReference().AddToUsedBy(template.FileID, template.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -192,8 +201,8 @@ func (ti *TemplateIndex) Delete(id uuid.UUID) error {
 		return err
 	}
 
-	// Delete File Reference
-	err = ti.driver.FileReference().Delete(template.FileID, template.ID)
+	// remove template id from FileReference
+	err = ti.driver.FileReference().PullUsedBy(template.FileID, template.ID)
 	if err != nil {
 		return err
 	}
