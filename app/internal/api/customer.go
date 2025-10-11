@@ -5,6 +5,7 @@ import (
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -17,7 +18,9 @@ type customerRequestData struct {
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	// parse request body
 	data := &customerRequestData{}
-	if err := c.BodyParser(data); err != nil {
+	dataStr := c.FormValue("data")
+	err := sonic.Unmarshal([]byte(dataStr), &data)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -33,9 +36,29 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
+	var logoId uuid.UUID
+	file, err := c.FormFile("file")
+	if file != nil && err == nil {
+		logoData, err := d.readFile(file)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Cannot read file",
+			})
+		}
+
+		logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"error": "Cannot upload image",
+			})
+		}
+	}
+
 	customer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
+		Logo:     logoId,
 	}
 
 	// insert customer into database
@@ -123,7 +146,9 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 	// parse request body
 	data := &customerRequestData{}
-	if err := c.BodyParser(data); err != nil {
+	dataStr := c.FormValue("data")
+	err := sonic.Unmarshal([]byte(dataStr), &data)
+	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -139,13 +164,36 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		})
 	}
 
+	var logoId uuid.UUID
+	file, err := c.FormFile("file")
+	if file != nil && err == nil {
+		logoData, err := d.readFile(file)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error": "Cannot read file",
+			})
+		}
+
+		// TODO: instead of inserting a new FileReference
+		// it should make an upsert. The mongo function can then check
+		// if the old image is still used and delete it accordingly
+		logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"error": "Cannot upload image",
+			})
+		}
+	}
+
 	newCustomer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
+		Logo:     logoId,
 	}
 
 	// insert customer into database
-	err := d.mongo.Customer().Update(customer.ID, newCustomer)
+	err = d.mongo.Customer().Update(customer.ID, newCustomer)
 	if err != nil {
 		d.logger.Error().Err(err).Msg("Cannot update customer")
 		c.Status(fiber.StatusInternalServerError)

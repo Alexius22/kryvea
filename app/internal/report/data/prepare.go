@@ -152,18 +152,14 @@ func parseHighlights(vulnerabilities []mongo.Vulnerability) {
 }
 
 func parseHighlightedText(pocitem *mongo.PocItem) {
-	if pocitem.RequestHighlights != nil {
-		pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
-		fmt.Println("RequestHighlighted:", pocitem.RequestHighlighted)
-	}
-	if pocitem.ResponseHighlights != nil {
-		pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
-		fmt.Println("ResponseHighlighted:", pocitem.ResponseHighlighted)
-	}
-	if pocitem.TextHighlights != nil {
-		pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
-		fmt.Println("TextHighlighted:", pocitem.TextHighlighted)
-	}
+	pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
+	fmt.Println("RequestHighlighted:", pocitem.RequestHighlighted)
+
+	pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
+	fmt.Println("ResponseHighlighted:", pocitem.ResponseHighlighted)
+
+	pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
+	fmt.Println("TextHighlighted:", pocitem.TextHighlighted)
 }
 
 func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighted {
@@ -201,8 +197,8 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 				coordinates = append(coordinates, mongo.HighlightedText{})
 				first, second := coordinates[i], coordinates[i]
 
-				first.End.Line--
-				first.End.Col = len(rows[first.End.Line])
+				first.End.Line = first.Start.Line
+				first.End.Col = len(rows[first.End.Line-1]) + 1
 
 				second.Start.Line++
 				second.Start.Col = 1
@@ -211,6 +207,8 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 				coordinates[i] = first
 				coordinates[i+1] = second
 				modified = true
+
+				continue
 			}
 			if coordinates[i].Start.Col > len(rows[coordinates[i].Start.Line-1]) {
 				coordinates[i].Start.Col = len(rows[coordinates[i].Start.Line-1])

@@ -1,7 +1,6 @@
 package reportdata
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -96,11 +95,35 @@ func TestHighlight(t *testing.T) {
 			},
 		},
 		{
+			name: "highlight at text boundaries multiline",
+			text: "Boundary highlights.\nThis is a new line\nThird line.\nVery long fourth line here.",
+			highlights: []mongo.HighlightedText{
+				{
+					Start: mongo.LineCol{Line: 1, Col: 10},
+					End:   mongo.LineCol{Line: 4, Col: 5},
+					Color: "123456",
+				},
+			},
+			expected: []mongo.Highlighted{
+				{Text: "Boundary "},
+				{Text: "highlights.\nThis is a new line\nThird line.\nVery", Color: "123456"},
+				{Text: " long fourth line here."},
+			},
+		},
+		{
 			name:       "no highlights",
 			text:       "No highlights in this text.",
 			highlights: []mongo.HighlightedText{},
 			expected: []mongo.Highlighted{
 				{Text: "No highlights in this text."},
+			},
+		},
+		{
+			name:       "nil highlights",
+			text:       "nil highlights in this text.",
+			highlights: nil,
+			expected: []mongo.Highlighted{
+				{Text: "nil highlights in this text."},
 			},
 		},
 		{
@@ -125,7 +148,9 @@ func TestHighlight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			highlighted := splitText(tt.text, tt.highlights)
 
-			fmt.Println(highlighted)
+			// for _, h := range highlighted {
+			// 	fmt.Printf("%#v\n", h)
+			// }
 
 			if len(highlighted) != len(tt.expected) {
 				t.Errorf("Expected %d segments, got %d", len(tt.expected), len(highlighted))
