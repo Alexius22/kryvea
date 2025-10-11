@@ -20,13 +20,16 @@ class Customer(Base):
             "name": self.name,
             "language": self.language,
         }
-        form_data = {"data": json.dumps(data)}
 
-        response = self.session.post(
-            self.base_url + "/admin/customers",
-            data=form_data,
-        )
+        image = utils.rand_image()
+        imageBytes = open(image, "rb").read()
 
+        files = {
+            "data": (None, json.dumps(data), "application/json"),
+            "file": ("customer_logo.jpg", imageBytes, "image/jpeg"),
+        }
+
+        response = self.session.post(self.base_url + "/admin/customers", files=files)
         jr = response.json()
         if response.status_code == 201:
             self.id = jr.get("customer_id")
