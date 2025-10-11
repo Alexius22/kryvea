@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -34,6 +35,7 @@ type PocItem struct {
 	ResponseHighlights  []HighlightedText `json:"response_highlights,omitempty" bson:"response_highlights,omitempty"`
 	ResponseHighlighted []Highlighted     `json:"response_highlighted,omitempty" bson:"response_highlighted,omitempty"`
 	ImageID             uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
+	ImageReference      string            `json:"image_reference,omitempty" bson:"image_reference,omitempty"`
 	ImageFilename       string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
 	ImageCaption        string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
 	TextLanguage        string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
@@ -95,12 +97,13 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 
 	// map new POC image IDs
 	newImageIDs := make(map[uuid.UUID]struct{}, len(poc.Pocs))
-	for _, newPocs := range poc.Pocs {
+	for i, newPocs := range poc.Pocs {
 		if newPocs.ImageID == uuid.Nil {
 			continue
 		}
 
 		newImageIDs[newPocs.ImageID] = struct{}{}
+		poc.Pocs[i].ImageReference = util.CreateImageReference(newPocs.ImageFilename, newPocs.ImageID)
 	}
 
 	// retrieve old POC images IDs that are not in the new POC

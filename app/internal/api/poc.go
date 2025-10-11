@@ -2,12 +2,13 @@ package api
 
 import (
 	"fmt"
-	"log"
+	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/poc"
+	"github.com/Alexius22/kryvea/internal/safe"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -85,112 +86,86 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		}
 	}
 
+	pocs := make([]mongo.PocItem, len(pocsData))
+	safePocs := safe.New(pocs)
+
+	errorChan := make(chan string, len(pocsData))
+
 	wg := sync.WaitGroup{}
-	imageValidationError := ""
 	// parse image data and insert it into the database
-	for _, pocData := range pocsData {
-		if pocData.Type != poc.PocTypeImage {
-			continue
-		}
-
+	for i, data := range pocsData {
 		wg.Add(1)
-		go func(imageReference string) {
+		go func(i int, data pocData) {
 			defer wg.Done()
+			imageID := uuid.UUID{}
+			pocImageFilename := ""
+			if data.Type == poc.PocTypeImage && data.ImageReference != "" {
+				imageData, filename, err := d.formDataReadImage(c, data.ImageReference)
+				if err != nil {
+					c.Status(fiber.StatusBadRequest)
 
-			file, err := c.FormFile(imageReference)
-			if err != nil {
-				imageValidationError = fmt.Sprintf("Cannot get image file for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
+					switch err {
+					case mongo.ErrFileSizeTooLarge:
+						errorChan <- fmt.Sprintf("PoC %d: Image file size is too large", i)
+						return
+					case mongo.ErrImageTypeNotAllowed:
+						errorChan <- fmt.Sprintf("PoC %d: Image type is not allowed", i)
+						return
+					}
 
-			imageData, err := d.readFile(file)
-			if err != nil {
-				imageValidationError = fmt.Sprintf("Cannot read image file for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
+					errorChan <- fmt.Sprintf("PoC %d: Cannot read image data", i)
+					return
+				}
 
-			if !mongo.IsImageTypeAllowed(imageData) {
-				imageValidationError = fmt.Sprintf("Image type not allowed for reference %s", imageReference)
-				log.Println(err)
-				return
-			}
+				pocImageFilename = filename
 
-			if !poc.IsValidPNG(imageData) && !poc.IsValidJPEG(imageData) {
-				imageValidationError = fmt.Sprintf("Invalid image file for reference %s", imageReference)
-				log.Println(err)
-				return
+				// TODO: FileReference should also be updated with the pocItem ID
+				// or the poc upsert logic should be reworked
+				imageID, err = d.mongo.FileReference().Insert(imageData, filename)
+				if err != nil {
+					errorChan <- fmt.Sprintf("PoC %d: Cannot upload image", i)
+					return
+				}
 			}
-		}(pocData.ImageReference)
+			safePocs.Set(i, mongo.PocItem{
+				Index:              data.Index,
+				Type:               data.Type,
+				Description:        data.Description,
+				URI:                data.URI,
+				Request:            data.Request,
+				RequestHighlights:  data.RequestHighlights,
+				Response:           data.Response,
+				ResponseHighlights: data.ResponseHighlights,
+				ImageID:            imageID,
+				ImageFilename:      pocImageFilename,
+				ImageCaption:       data.ImageCaption,
+				TextLanguage:       data.TextLanguage,
+				TextData:           data.TextData,
+				TextHighlights:     data.TextHighlights,
+			})
+		}(i, data)
 	}
-	wg.Wait()
 
-	if imageValidationError != "" {
+	wg.Wait()
+	close(errorChan)
+
+	// Collect all errors
+	var errs []string
+	for err := range errorChan {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": imageValidationError,
+			"error":  "Failed to process pocs",
+			"errors": errs,
 		})
 	}
 
 	pocUpsert := &mongo.Poc{
 		VulnerabilityID: vulnerability.ID,
-		Pocs:            make([]mongo.PocItem, 0, len(pocsData)),
-	}
-	for _, pocData := range pocsData {
-		imageID := uuid.UUID{}
-		pocImageFilename := ""
-		if pocData.Type == poc.PocTypeImage {
-			imageData, filename, err := d.formDataReadImage(c, pocData.ImageReference)
-			if err != nil {
-				c.Status(fiber.StatusBadRequest)
-
-				switch err {
-				case mongo.ErrFileSizeTooLarge:
-					return c.JSON(fiber.Map{
-						"error": "Image file size is too large",
-					})
-				case mongo.ErrImageTypeNotAllowed:
-					return c.JSON(fiber.Map{
-						"error": "Image type is not allowed",
-					})
-				}
-
-				return c.JSON(fiber.Map{
-					"error": "Cannot read image data",
-				})
-			}
-
-			pocImageFilename = filename
-
-			// TODO: FileReference should also be updated with the pocItem ID
-			// or the poc upsert logic should be reworked
-			// (Jack) TODO: can we do this with goroutines to fasten the process?
-			imageID, err = d.mongo.FileReference().Insert(imageData, filename)
-			if err != nil {
-				c.Status(fiber.StatusBadRequest)
-				return c.JSON(fiber.Map{
-					"error": "Cannot upload image",
-				})
-			}
-		}
-
-		pocUpsert.Pocs = append(pocUpsert.Pocs, mongo.PocItem{
-			Index:              pocData.Index,
-			Type:               pocData.Type,
-			Description:        pocData.Description,
-			URI:                pocData.URI,
-			Request:            pocData.Request,
-			RequestHighlights:  pocData.RequestHighlights,
-			Response:           pocData.Response,
-			ResponseHighlights: pocData.ResponseHighlights,
-			ImageID:            imageID,
-			ImageFilename:      pocImageFilename,
-			ImageCaption:       pocData.ImageCaption,
-			TextLanguage:       pocData.TextLanguage,
-			TextData:           pocData.TextData,
-			TextHighlights:     pocData.TextHighlights,
-		})
+		Pocs:            safePocs.GetAll(),
 	}
 
 	// update poc in the database
@@ -254,6 +229,23 @@ func (d *Driver) validateData(data *pocData) string {
 		return "Invalid PoC type"
 	}
 
+	hexColorRegex := regexp.MustCompile(`^#?[a-fA-F0-9]{6}$`)
+	for i, highlight := range data.RequestHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for request highlight %d: %s", i, highlight.Color)
+		}
+	}
+	for i, highlight := range data.ResponseHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for response highlight %d: %s", i, highlight.Color)
+		}
+	}
+	for i, highlight := range data.TextHighlights {
+		if highlight.Color != "" && !hexColorRegex.MatchString(highlight.Color) {
+			return fmt.Sprintf("Invalid color format for text highlight %d: %s", i, highlight.Color)
+		}
+	}
+
 	switch data.Type {
 	case poc.PocTypeText:
 		if strings.TrimSpace(data.TextData) == "" {
@@ -267,7 +259,6 @@ func (d *Driver) validateData(data *pocData) string {
 		if strings.TrimSpace(data.ImageReference) == "" {
 			return "Image reference cannot be empty"
 		}
-		// TODO: Handle images with same filename
 	default:
 		return "Invalid PoC type"
 	}

@@ -154,12 +154,15 @@ func parseHighlights(vulnerabilities []mongo.Vulnerability) {
 func parseHighlightedText(pocitem *mongo.PocItem) {
 	if pocitem.RequestHighlights != nil {
 		pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
+		fmt.Println("RequestHighlighted:", pocitem.RequestHighlighted)
 	}
 	if pocitem.ResponseHighlights != nil {
 		pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
+		fmt.Println("ResponseHighlighted:", pocitem.ResponseHighlighted)
 	}
 	if pocitem.TextHighlights != nil {
 		pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
+		fmt.Println("TextHighlighted:", pocitem.TextHighlighted)
 	}
 }
 
