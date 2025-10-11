@@ -18,7 +18,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
-import { Customer, Template } from "../types/common.types";
+import { Customer, Template, uuidZero } from "../types/common.types";
 import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 
@@ -224,29 +224,32 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Flex className="justify-center">
               <label
-                className="h-40 w-52 cursor-pointer overflow-hidden rounded-xl shadow-lg shadow-[color:--bg-primary] transition hover:shadow-[color:--bg-secondary]"
-                htmlFor="change-logo"
+                className={`h-40 w-52 overflow-hidden rounded-xl shadow-lg transition ${isAdmin ? "cursor-pointer hover:shadow-[color:--bg-primary]" : "cursor-not-allowed"} `}
+                htmlFor={isAdmin ? "change-logo" : undefined}
               >
-                {logoId == undefined ? (
+                {logoId == uuidZero ? (
                   <div className="h-full w-full content-center rounded-xl border border-[color:--border-primary-highlight] bg-gradient-to-b from-[color:--bg-tertiary] to-[color:--bg-secondary] text-center text-[color:--text-secondary]">
-                    Change logo
+                    {isAdmin ? "Add logo" : "No logo available"}
                   </div>
                 ) : (
                   <img
                     className="h-full w-full object-cover"
                     src={`/api/files/customers/${logoId}`}
                     alt={`${formCustomer.name}'s logo`}
+                    title={isAdmin ? "Change logo" : ""}
                   />
                 )}
               </label>
 
-              <input
-                id="change-logo"
-                type="file"
-                accept="image/png, image/jpeg"
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
+              {isAdmin && (
+                <input
+                  id="change-logo"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+              )}
             </Flex>
             <Input
               type="text"
@@ -267,7 +270,6 @@ export default function CustomerDetail() {
               disabled={!isAdmin}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
-            {/* <UploadImage label="Upload logo" onChange={file => setLogoFile(file)} /> */}
           </Grid>
           <Divider />
           <Buttons>

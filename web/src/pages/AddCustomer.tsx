@@ -44,7 +44,9 @@ export default function AddCustomer() {
     };
 
     const formData = new FormData();
-    formData.append("file", imageFile, imageFile.name);
+    if (imageFile) {
+      formData.append("file", imageFile, imageFile.name);
+    }
     formData.append("data", JSON.stringify(payload));
 
     postData<Customer>("/api/admin/customers", formData, () => {
