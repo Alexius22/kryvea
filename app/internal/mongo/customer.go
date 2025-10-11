@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -56,6 +57,10 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
+	if customer.LogoID != uuid.Nil {
+		customer.LogoReference = util.CreateImageReference("logo.png", customer.LogoID)
+	}
+
 	customer.Model = Model{
 		ID:        id,
 		CreatedAt: time.Now(),
@@ -99,6 +104,10 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 			"language":   customer.Language,
 			"logo_id":    customer.LogoID,
 		},
+	}
+
+	if customer.LogoID != uuid.Nil {
+		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference("logo.png", customer.LogoID)
 	}
 
 	_, err = ci.collection.UpdateOne(context.Background(), filter, update)
