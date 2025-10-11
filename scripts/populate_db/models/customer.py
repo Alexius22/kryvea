@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from typing import Tuple
 
@@ -19,7 +20,13 @@ class Customer(Base):
             "name": self.name,
             "language": self.language,
         }
-        response = self.session.post(self.base_url + "/admin/customers", json=data)
+        form_data = {"data": json.dumps(data)}
+
+        response = self.session.post(
+            self.base_url + "/admin/customers",
+            data=form_data,
+        )
+
         jr = response.json()
         if response.status_code == 201:
             self.id = jr.get("customer_id")
