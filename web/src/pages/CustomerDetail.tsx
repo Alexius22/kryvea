@@ -75,7 +75,7 @@ export default function CustomerDetail() {
       data => {
         setCtxCustomer(data);
         setCustomerTemplates(data.templates);
-        setLogoId(data.logo);
+        setLogoId(data.logo_id);
       },
       undefined,
       () => setLoadingCustomerTemplates(false)
