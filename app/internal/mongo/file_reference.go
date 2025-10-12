@@ -18,7 +18,7 @@ type FileReference struct {
 	Model    `bson:",inline"`
 	File     bson.ObjectID `json:"file" bson:"file"`
 	Checksum [16]byte      `json:"checksum" bson:"checksum"`
-	Filename string        `json:"filename" bson:"filename"`
+	MimeType string        `json:"mime_type" bson:"mime_type"`
 	UsedBy   []uuid.UUID   `json:"used_by" bson:"used_by"`
 }
 
@@ -69,7 +69,8 @@ func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, er
 		},
 		File:     fileID,
 		Checksum: checksum,
-		Filename: filename,
+		MimeType: filename,
+		UsedBy:   []uuid.UUID{},
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
@@ -101,21 +102,33 @@ func (i *FileReferenceIndex) GetByChecksum(checksum [16]byte) (*FileReference, e
 	return &fileReference, nil
 }
 
-func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, string, error) {
+func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, *FileReference, error) {
 	fileReference, err := i.GetByID(id)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 
 	data, err := i.driver.File().GetByID(fileReference.File)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 
-	return data, fileReference.Filename, nil
+	return data, fileReference, nil
 }
 
-func (i *FileReferenceIndex) UpdateUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
+func (i *FileReferenceIndex) PullUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
+	_, err := i.collection.UpdateOne(context.Background(),
+		bson.M{"_id": id},
+		bson.M{"$pull": bson.M{"used_by": usedBy}},
+	)
+	return err
+}
+
+func (i *FileReferenceIndex) AddToUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
+	if usedBy == uuid.Nil {
+		return ErrUsedByIDRequired
+	}
+
 	_, err := i.collection.UpdateOne(context.Background(),
 		bson.M{"_id": id},
 		bson.M{"$addToSet": bson.M{"used_by": usedBy}},

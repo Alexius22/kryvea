@@ -58,7 +58,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	customer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
-		Logo:     logoId,
+		LogoID:   logoId,
 	}
 
 	// insert customer into database
@@ -189,7 +189,7 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 	newCustomer := &mongo.Customer{
 		Name:     data.Name,
 		Language: data.Language,
-		Logo:     logoId,
+		LogoID:   logoId,
 	}
 
 	// insert customer into database

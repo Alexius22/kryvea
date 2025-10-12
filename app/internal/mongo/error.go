@@ -7,8 +7,10 @@ import (
 )
 
 var (
-	ErrImmutableCategory error = errors.New("cannot edit immutable category")
-	ErrFileSizeTooLarge  error = errors.New("file size is too large")
+	ErrImmutableCategory      error = errors.New("cannot edit immutable category")
+	ErrFileSizeTooLarge       error = errors.New("file size is too large")
+	ErrTemplateFileIDRequired error = errors.New("template file ID is required")
+	ErrUsedByIDRequired       error = errors.New("used by ID is required")
 )
 
 func IsDuplicateKeyError(err error) bool {

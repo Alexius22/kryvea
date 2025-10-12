@@ -2,9 +2,11 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -16,11 +18,12 @@ const (
 )
 
 type Customer struct {
-	Model     `bson:",inline"`
-	Name      string     `json:"name" bson:"name"`
-	Language  string     `json:"language" bson:"language"`
-	Logo      uuid.UUID  `json:"logo" bson:"logo"`
-	Templates []Template `json:"templates" bson:"templates"`
+	Model         `bson:",inline"`
+	Name          string     `json:"name" bson:"name"`
+	Language      string     `json:"language" bson:"language"`
+	LogoID        uuid.UUID  `json:"logo_id" bson:"logo_id"`
+	LogoReference string     `json:"logo_reference" bson:"logo_reference"`
+	Templates     []Template `json:"templates" bson:"templates"`
 }
 
 type CustomerIndex struct {
@@ -54,6 +57,10 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
+	if customer.LogoID != uuid.Nil {
+		customer.LogoReference = util.CreateImageReference("logo.png", customer.LogoID)
+	}
+
 	customer.Model = Model{
 		ID:        id,
 		CreatedAt: time.Now(),
@@ -65,10 +72,29 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
+	if customer.LogoID != uuid.Nil {
+		err = ci.driver.FileReference().AddToUsedBy(customer.LogoID, customer.ID)
+		if err != nil {
+			return uuid.Nil, err
+		}
+	}
+
 	return customer.ID, nil
 }
 
 func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error {
+	oldCustomer, err := ci.GetByID(customerID)
+	if err != nil {
+		return err
+	}
+
+	if oldCustomer.LogoID != uuid.Nil {
+		err = ci.driver.FileReference().PullUsedBy(oldCustomer.LogoID, oldCustomer.ID)
+		if err != nil {
+			return err
+		}
+	}
+
 	filter := bson.M{"_id": customerID}
 
 	update := bson.M{
@@ -76,19 +102,48 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 			"updated_at": time.Now(),
 			"name":       customer.Name,
 			"language":   customer.Language,
-			"logo":       customer.Logo,
+			"logo_id":    customer.LogoID,
 		},
 	}
 
-	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
-	return err
+	if customer.LogoID != uuid.Nil {
+		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference("logo.png", customer.LogoID)
+	}
+
+	_, err = ci.collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	if customer.LogoID != uuid.Nil {
+		err = ci.driver.FileReference().AddToUsedBy(customer.LogoID, oldCustomer.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
+	// retrieve the current customer document
+	oldCustomer, err := ci.GetByID(customerID)
+	if err != nil {
+		return err
+	}
+
+	// delete logo reference
+	if oldCustomer.LogoID != uuid.Nil {
+		err = ci.driver.FileReference().PullUsedBy(oldCustomer.ID, oldCustomer.LogoID)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Remove the customer from the user's list
 	filter := bson.M{"customers._id": customerID}
 	update := bson.M{"$pull": bson.M{"customers": bson.M{"_id": customerID}}}
-	_, err := ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	_, err = ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
 		return err
 	}
@@ -125,7 +180,7 @@ func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
 
 	for _, assessment := range assessments {
 		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
-			return err
+			return fmt.Errorf("failed to delete Assessment %s: %w", assessment.ID, err)
 		}
 	}
 
@@ -145,7 +200,7 @@ func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
 func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, error) {
 	filter := bson.M{"_id": customerID}
 	opts := options.FindOne().SetProjection(bson.M{
-		"logo":      0,
+		"logo_id":   0,
 		"templates": 0,
 	})
 
@@ -158,14 +213,6 @@ func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, err
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetByLogoID(logoID uuid.UUID) (*Customer, error) {
-	var customer Customer
-	if err := ci.collection.FindOne(context.Background(), bson.M{"logo": logoID}).Decode(&customer); err != nil {
-		return nil, err
-	}
-	return &customer, nil
-}
-
 func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, error) {
 	customerIDs := make([]uuid.UUID, len(customers))
 	for i := range customers {
@@ -174,7 +221,7 @@ func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, er
 
 	filter := bson.M{"_id": bson.M{"$in": customerIDs}}
 	opts := options.Find().SetProjection(bson.M{
-		"logo":      0,
+		"logo_id":   0,
 		"templates": 0,
 	})
 

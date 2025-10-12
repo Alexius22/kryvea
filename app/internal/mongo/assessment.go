@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -327,24 +328,18 @@ func (ai *AssessmentIndex) UpdateTargets(assessmentID uuid.UUID, target uuid.UUI
 }
 
 func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
+	// TODO: move inside user index
 	// Remove the assessment from the user's list
 	filter := bson.M{"assessments._id": assessmentID}
 	update := bson.M{"$pull": bson.M{"assessments": bson.M{"_id": assessmentID}}}
 	_, err := ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to remove Assessment %s from Users: %w", assessmentID.String(), err)
 	}
 
 	// Delete all vulnerabilities associated with the assessment
-	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
-	if err != nil {
-		return err
-	}
-
-	for _, vulnerability := range vulnerabilities {
-		if err := ai.driver.Vulnerability().Delete(vulnerability.ID); err != nil {
-			return err
-		}
+	if err := ai.driver.Vulnerability().DeleteManyByAssessmentID(assessmentID); err != nil {
+		return fmt.Errorf("failed to delete Vulnerabilities for Assessment %s: %w", assessmentID.String(), err)
 	}
 
 	// Delete the assessment
