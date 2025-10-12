@@ -112,6 +112,15 @@ export default function PocsUpsert() {
     };
   }
 
+  function onStartingLineNumberChange<T>(currentIndex, property: keyof Omit<T, "key">) {
+    return num =>
+      setPocList(prev => {
+        const newPocList = [...prev];
+        newPocList[currentIndex] = { ...newPocList[currentIndex], [property]: num };
+        return newPocList;
+      });
+  }
+
   async function onImageChange(currentIndex, image_file: File | null) {
     setPocList(prev => {
       const newPocList = [...prev];
@@ -190,6 +199,7 @@ export default function PocsUpsert() {
             text_language: "",
             text_data: "",
             text_highlights: [],
+            starting_line_number: 1,
           },
         ]);
         break;
@@ -253,6 +263,7 @@ export default function PocsUpsert() {
               onTextChange,
               onRemovePoc,
               onSetCodeSelection,
+              onStartingLineNumberChange,
             }}
             key={pocDoc.key}
           />

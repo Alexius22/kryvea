@@ -42,6 +42,7 @@ type PocItem struct {
 	TextData            string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
 	TextHighlights      []HighlightedText `json:"text_highlights,omitempty" bson:"text_highlights,omitempty"`
 	TextHighlighted     []Highlighted     `json:"text_highlighted,omitempty" bson:"text_highlighted,omitempty"`
+	StartingLineNumber  int               `json:"starting_line_number,omitempty" bson:"starting_line_number,omitempty"`
 	// Only populated on report generation
 	ImageData []byte `json:"-" bson:"-"`
 }

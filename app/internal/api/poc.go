@@ -33,6 +33,7 @@ type pocData struct {
 	TextLanguage       string                  `json:"text_language"`
 	TextData           string                  `json:"text_data"`
 	TextHighlights     []mongo.HighlightedText `json:"text_highlights"`
+	StartingLineNumber int                     `json:"starting_line_number"`
 }
 
 func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
@@ -142,6 +143,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 				TextLanguage:       data.TextLanguage,
 				TextData:           data.TextData,
 				TextHighlights:     data.TextHighlights,
+				StartingLineNumber: data.StartingLineNumber,
 			})
 		}(i, data)
 	}

@@ -26,6 +26,7 @@ type PocTextProps = {
     property: keyof Omit<T, "key">,
     textSelection: MonacoTextSelection[]
   ) => void;
+  onStartingLineNumberChange?: <T>(currentIndex, property: keyof Omit<T, "key">) => (num: number) => void;
 };
 
 export default function PocText({
@@ -38,13 +39,13 @@ export default function PocText({
   onTextChange,
   onRemovePoc,
   onSetCodeSelection,
+  onStartingLineNumberChange,
 }: PocTextProps) {
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<SelectOption>({
     label: pocDoc.text_language || "Plaintext",
     value: pocDoc.text_language || "plaintext",
   });
-  const [ideStartingLineNumber, setIdeStartingLineNumber] = useState(pocDoc?.starting_line_number || 0);
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
@@ -105,9 +106,9 @@ export default function PocText({
               className="w-[55px] rounded text-center"
               label="Start"
               type="number"
-              value={ideStartingLineNumber + 1}
+              value={pocDoc?.starting_line_number}
               min={1}
-              onChange={e => setIdeStartingLineNumber(e - 1)}
+              onChange={onStartingLineNumberChange<PocTextDoc>(currentIndex, "starting_line_number")}
               id={startingLineNumberId}
             />
           </Flex>
@@ -115,7 +116,7 @@ export default function PocText({
           <PocCodeEditor
             pocDoc={pocDoc}
             selectedLanguage={selectedLanguage.value}
-            ideStartingLineNumber={ideStartingLineNumber}
+            ideStartingLineNumber={pocDoc?.starting_line_number}
             textHighlights={pocDoc.text_highlights}
             code={pocDoc.text_data}
             disableViewHighlights={(pocDoc?.text_highlights ?? []).length <= 0}

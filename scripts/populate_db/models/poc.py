@@ -38,6 +38,7 @@ class PocData(Base):
     text_language: str = field(default="")
     text_data: str = field(default="")
     text_highlight: List[HighlightedText] = field(default_factory=list)
+    starting_line_number: int = field(default=1)
 
     def __post_init__(self):
         if self.type == utils.POC_TYPE_REQUEST:
@@ -98,6 +99,7 @@ class Poc(Base):
                 "text_language": poc_data.text_language,
                 "text_data": poc_data.text_data,
                 "text_highlight": highlighted_text_to_dict(poc_data.text_highlight),
+                "starting_line_number": poc_data.starting_line_number,
             }
             for poc_data in self.poc_data
         ]
