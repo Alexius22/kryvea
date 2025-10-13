@@ -1,5 +1,5 @@
 import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
@@ -73,6 +73,7 @@ export default function CustomerDetail() {
     getData<Customer>(
       `/api/customers/${customerId}`,
       data => {
+        setFormCustomer(data);
         setCtxCustomer(data);
         setCustomerTemplates(data.templates);
         setLogoId(data.logo_id);
@@ -101,6 +102,7 @@ export default function CustomerDetail() {
     const payload = {
       name: formCustomer.name.trim(),
       language: formCustomer.language,
+      logo_id: logoId,
     };
 
     const formData = new FormData();
@@ -176,7 +178,7 @@ export default function CustomerDetail() {
     a.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!["image/png", "image/jpeg"].includes(file.type)) {
@@ -184,20 +186,43 @@ export default function CustomerDetail() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-    formData.append(
-      "data",
-      JSON.stringify({
-        name: ctxCustomer.name,
-      })
-    );
+    const payload = {
+      name: ctxCustomer.name.trim(),
+      language: ctxCustomer.language,
+    };
 
-    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
-      toast.success("Logo updated");
-      fetchCustomer();
-    });
+    const formData = new FormData();
+    formData.append("logo", file, file.name);
+    formData.append("data", JSON.stringify(payload));
+
+    const toastId = toast.loading("Uploading logo...");
+    patchData(
+      `/api/admin/customers/${ctxCustomer?.id}`,
+      formData,
+      () => {
+        getData<Customer>(`/api/customers/${customerId}`, data => setLogoId(data.logo_id));
+        toast.update(toastId, { render: "Logo uploaded", type: "success", isLoading: false, autoClose: 3000 });
+      },
+      () => toast.update(toastId, { render: "Logo upload failed", type: "error", isLoading: false, autoClose: 3000 })
+    );
   };
+
+  const CustomerLogo = memo(
+    ({ logoId, isAdmin, formCustomer }: any) => {
+      return (
+        <img
+          className="h-full w-full object-cover"
+          src={`/api/files/customers/${logoId}`}
+          alt={`${formCustomer.name}'s logo`}
+          title={isAdmin ? "Change logo" : ""}
+        />
+      );
+    },
+    (prevProps, nextProps) => {
+      // Return true to skip re-render
+      return prevProps.logoId === nextProps.logoId;
+    }
+  );
 
   return (
     <div>
@@ -224,20 +249,15 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Flex className="justify-center">
               <label
-                className={`h-40 w-52 overflow-hidden rounded-xl shadow-lg transition ${isAdmin ? "cursor-pointer hover:shadow-[color:--bg-primary]" : "cursor-not-allowed"} `}
+                className={`aspect-video max-h-52 overflow-hidden rounded-xl shadow-lg shadow-[color:--bg-primary] transition ${isAdmin ? "cursor-pointer hover:scale-95 hover:shadow-[color:--bg-secondary] active:scale-90" : "cursor-not-allowed"} `}
                 htmlFor={isAdmin ? "change-logo" : undefined}
               >
-                {logoId == uuidZero ? (
-                  <div className="h-full w-full content-center rounded-xl border border-[color:--border-primary-highlight] bg-gradient-to-b from-[color:--bg-tertiary] to-[color:--bg-secondary] text-center text-[color:--text-secondary]">
+                {logoId == uuidZero || logoId === "" ? (
+                  <div className="h-52 w-52 content-center rounded-xl border border-[color:--border-primary-highlight] bg-gradient-to-b from-[color:--bg-tertiary] to-[color:--bg-secondary] text-center text-[color:--text-secondary]">
                     {isAdmin ? "Add logo" : "No logo available"}
                   </div>
                 ) : (
-                  <img
-                    className="h-full w-full object-cover"
-                    src={`/api/files/customers/${logoId}`}
-                    alt={`${formCustomer.name}'s logo`}
-                    title={isAdmin ? "Change logo" : ""}
-                  />
+                  <CustomerLogo {...{ isAdmin, logoId, formCustomer }} />
                 )}
               </label>
 
@@ -247,7 +267,7 @@ export default function CustomerDetail() {
                   type="file"
                   accept="image/png, image/jpeg"
                   style={{ display: "none" }}
-                  onChange={handleFileChange}
+                  onChange={handleLogoChange}
                 />
               )}
             </Flex>

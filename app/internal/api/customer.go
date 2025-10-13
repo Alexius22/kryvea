@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/md5"
 	"fmt"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -11,8 +12,9 @@ import (
 )
 
 type customerRequestData struct {
-	Name     string `json:"name"`
-	Language string `json:"language"`
+	Name     string    `json:"name"`
+	Language string    `json:"language"`
+	LogoID   uuid.UUID `json:"logo_id"`
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -164,25 +166,33 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	var logoId uuid.UUID
-	file, err := c.FormFile("file")
-	if file != nil && err == nil {
-		logoData, err := d.readFile(file)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot read file",
-			})
-		}
+	logoId := data.LogoID
+	file, err := c.FormFile("logo")
+	if logoId == uuid.Nil { // means it's a reqeust to change the logo only (breaks SRP)
+		if file != nil {
+			logoData, err := d.readFile(file)
+			if err != nil {
+				c.Status(fiber.StatusBadRequest)
+				return c.JSON(fiber.Map{
+					"error": "Cannot read file",
+				})
+			}
 
-		// TODO: instead of inserting a new FileReference
-		// it should make an upsert. The mongo function can then check
-		// if the old image is still used and delete it accordingly
-		logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
-		if err != nil {
-			return c.JSON(fiber.Map{
-				"error": "Cannot upload image",
-			})
+			checksum := md5.Sum(logoData)
+			f, err := d.mongo.FileReference().GetByChecksum(checksum)
+			if err != nil {
+				// TODO: instead of inserting a new FileReference
+				// it should make an upsert. The mongo function can then check
+				// if the old image is still used and delete it accordingly
+				logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
+				if err != nil {
+					return c.JSON(fiber.Map{
+						"error": "Cannot upload image",
+					})
+				}
+			} else {
+				logoId = f.ID
+			}
 		}
 	}
 
