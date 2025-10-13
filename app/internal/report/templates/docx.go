@@ -51,6 +51,8 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 		}
 	}
 
+	DocxTemplate.Media(reportData.Customer.LogoReference, reportData.Customer.LogoData)
+
 	DocxTemplate.AddTemplateFuncs(template.FuncMap{
 		"formatDate":           reportdata.FormatDate,
 		"getOWASPColor":        reportdata.GetOWASPColor,
