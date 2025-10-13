@@ -80,7 +80,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
   return (
     <Modal
       title="Download report"
-      confirmButtonLabel="Confirm"
+      confirmButtonLabel="Generate"
       onConfirm={handleConfirm}
       onCancel={() => setShowModal(false)}
     >
