@@ -40,27 +40,24 @@ export default function Login() {
     document.title = getPageTitle("Login");
   }, []);
 
+  const fetchUserAndSetCtxUsername = async () => {
+    await getData<User>("/api/users/me", user => setCtxUsername(user.username));
+    navigate(ctxLastPage, { replace: true });
+  };
+
   const handleSubmit = () => {
     setError("");
-    postData(
-      "/api/login",
-      { username, password },
-      async () => {
-        await getData<User>("/api/users/me", user => setCtxUsername(user.username));
-        navigate(ctxLastPage, { replace: true });
-      },
-      err => {
-        // Check for password expired case
-        const data = err.response?.data as { error: string };
-        if (data?.error === "Password expired") {
-          setError("");
-          // Clear password input for reset
-          setPassword("");
-        } else {
-          setError(data?.error || "Login failed");
-        }
+    postData("/api/login", { username, password }, fetchUserAndSetCtxUsername, err => {
+      // Check for password expired case
+      const data = err.response?.data as { error: string };
+      if (data?.error === "Password expired") {
+        setError("");
+        // Clear password input for reset
+        setPassword("");
+      } else {
+        setError(data?.error || "Login failed");
       }
-    );
+    });
   };
 
   // Password reset submit handler
@@ -82,7 +79,7 @@ export default function Login() {
       { password },
       () => {
         toast.success("Password change successful");
-        navigate(ctxLastPage, { replace: true });
+        fetchUserAndSetCtxUsername();
       },
       err => {
         setError(err.response?.data?.error || "Failed to reset password");
