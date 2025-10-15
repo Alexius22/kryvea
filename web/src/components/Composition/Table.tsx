@@ -1,8 +1,8 @@
-import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
+import { mdiChevronDown, mdiChevronUp, mdiClose } from "@mdi/js";
 import { isValidElement, useCallback, useEffect, useMemo, useState } from "react";
 import { v4 } from "uuid";
-import Input from "../Form/Input";
 import Card from "./Card";
+import Flex from "./Flex";
 import Icon from "./Icon";
 import Paginator from "./Paginator";
 import Shimmer from "./Shimmer";
@@ -151,24 +151,38 @@ export default function Table({
 
   return (
     <Card className={`!relative !gap-0 !p-0 ${wMin ? "w-min" : ""}`}>
-      <Input
-        className="rounded-t-2xl bg-transparent p-[11px] focus:border-transparent"
-        placeholder="Search"
-        id={getTableElementKey("search")}
-        type="text"
-        value={backendSearch ?? filterText}
-        onChange={e => {
-          setCurrentPage(PAGE_FLOOR);
-          onBackendChangePage?.(PAGE_FLOOR);
+      <Flex className="px-2 pt-1" items="center">
+        <input
+          className="w-full rounded-t-2xl bg-transparent focus:border-transparent"
+          placeholder="Search"
+          id={getTableElementKey("search")}
+          type="text"
+          value={backendSearch ?? filterText}
+          onChange={e => {
+            setCurrentPage(PAGE_FLOOR);
+            onBackendChangePage?.(PAGE_FLOOR);
 
-          if (onBackendSearch) {
-            onBackendSearch(e.target.value);
-            return;
-          }
+            if (onBackendSearch) {
+              onBackendSearch(e.target.value);
+              return;
+            }
 
-          setFilterText(e.target.value);
-        }}
-      />
+            setFilterText(e.target.value);
+          }}
+        />
+        <span
+          onClick={() => {
+            if (onBackendSearch) {
+              onBackendSearch("");
+              return;
+            }
+
+            setFilterText("");
+          }}
+        >
+          <Icon className="text-[color:--text-secondary] hover:opacity-50" path={mdiClose} size={18} />
+        </span>
+      </Flex>
       <div className="grid gap-2">
         <div className="overflow-x-auto">
           <table className="w-full">
