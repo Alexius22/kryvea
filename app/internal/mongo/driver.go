@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Alexius22/kryvea/internal/crypto"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -135,8 +137,8 @@ func (d *Driver) CreateSetting() error {
 	return nil
 }
 
-func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
-	user, err := d.User().GetByUsername(adminUser)
+func (d *Driver) CreateAdminUser(username, password string) error {
+	user, err := d.User().GetByUsername(username)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -146,14 +148,37 @@ func (d *Driver) CreateAdminUser(adminUser, adminPass string) error {
 		return nil
 	}
 
-	_, err = d.User().Insert(&User{
-		Username: adminUser,
-		Role:     RoleAdmin,
-	}, adminPass)
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return err
 	}
-	d.logger.Debug().Msgf("Created %s user %s", RoleAdmin, adminUser)
+
+	adminUser := User{
+		Model: Model{
+			ID:        id,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		DisabledAt:     TimeNever,
+		Username:       username,
+		PasswordExpiry: time.Now(),
+		Role:           RoleAdmin,
+		Customers:      []Customer{},
+		Assessments:    []Assessment{},
+	}
+
+	hash, err := crypto.Encrypt(password)
+	if err != nil {
+		return err
+	}
+	adminUser.Password = hash
+
+	_, err = d.User().collection.InsertOne(context.Background(), adminUser)
+	if err != nil {
+		return err
+	}
+
+	d.logger.Debug().Msgf("Created %s user %s", RoleAdmin, username)
 
 	return nil
 }
