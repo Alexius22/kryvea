@@ -598,6 +598,15 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
+	logoData, _, err := d.mongo.FileReference().ReadByID(customer.LogoID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Failed to read logo data",
+		})
+	}
+	customer.LogoData = logoData
+
 	// parse request body
 	data := &exportRequestData{}
 	if err := c.BodyParser(data); err != nil {

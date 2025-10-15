@@ -24,6 +24,8 @@ type Customer struct {
 	LogoID        uuid.UUID  `json:"logo_id" bson:"logo_id"`
 	LogoReference string     `json:"logo_reference" bson:"logo_reference"`
 	Templates     []Template `json:"templates" bson:"templates"`
+
+	LogoData []byte `json:"-" bson:"-"`
 }
 
 type CustomerIndex struct {

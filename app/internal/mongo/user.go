@@ -379,7 +379,14 @@ func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addTo
 }
 
 func (ui *UserIndex) Delete(ID uuid.UUID) error {
-	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	// remove user from vulnerability
+	err := ui.driver.Vulnerability().RemoveUserReference(ID)
+	if err != nil {
+		return err
+	}
+
+	// delete user
+	_, err = ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	return err
 }
 
