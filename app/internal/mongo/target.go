@@ -297,6 +297,54 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, query string) ([]Target, err
 	return targets, nil
 }
 
+func (ti *TargetIndex) SearchWithinCustomers(customerIDs []uuid.UUID, query string) ([]Target, error) {
+	conditions := []bson.M{}
+
+	if customerIDs != nil {
+		conditions = append(conditions, bson.M{"customer._id": bson.M{"$in": customerIDs}})
+	}
+
+	orCondition := bson.M{}
+	if query != "" {
+		orCondition = bson.M{
+			"$or": []bson.M{
+				{"ipv4": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"ipv6": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"port": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"protocol": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"fqdn": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+				{"tag": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
+			},
+		}
+	}
+	conditions = append(conditions, orCondition)
+
+	filter := bson.M{
+		"$and": conditions,
+	}
+
+	cursor, err := ti.collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	targets := []Target{}
+	err = cursor.All(context.Background(), &targets)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range targets {
+		err = ti.hydrate(&targets[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return targets, nil
+}
+
 // hydrate fills in the nested fields for a Target
 func (ti *TargetIndex) hydrate(target *Target) error {
 	customer, err := ti.driver.Customer().GetByIDForHydrate(target.Customer.ID)
