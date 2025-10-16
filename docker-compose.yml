@@ -101,7 +101,3 @@ networks:
         driver: bridge
     kryvea-data:
         driver: bridge
-
-volumes:
-    kryvea-db-storage:
-    kryvea-static:
