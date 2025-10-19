@@ -44,7 +44,6 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 					continue
 				}
 
-				fmt.Println("adding image:", pocItem.ImageReference)
 				DocxTemplate.Media(pocItem.ImageReference, pocItem.ImageData)
 				addedImages[pocItem.ImageReference] = true
 			}

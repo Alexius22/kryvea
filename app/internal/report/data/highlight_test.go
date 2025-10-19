@@ -148,10 +148,6 @@ func TestHighlight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			highlighted := splitText(tt.text, tt.highlights)
 
-			// for _, h := range highlighted {
-			// 	fmt.Printf("%#v\n", h)
-			// }
-
 			if len(highlighted) != len(tt.expected) {
 				t.Errorf("Expected %d segments, got %d", len(tt.expected), len(highlighted))
 			}

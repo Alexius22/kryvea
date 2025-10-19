@@ -1,7 +1,6 @@
 package reportdata
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -38,8 +37,6 @@ func getMaxCvss(vulnerabilities []mongo.Vulnerability, cvssVersions map[string]b
 		}
 	}
 
-	fmt.Printf("maxCvss: %+v\n", maxCvss)
-
 	return maxCvss
 }
 
@@ -72,8 +69,6 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 		}
 	}
 
-	fmt.Printf("vulnerabilityOverview: %+v\n", vulnerabilityOverview)
-
 	return vulnerabilityOverview
 }
 
@@ -90,8 +85,6 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 
 		targetsCategoryCounter[vulnerability.Target.Tag] += 1
 	}
-
-	fmt.Printf("targetsCategoryCounter: %+v\n", targetsCategoryCounter)
 
 	return targetsCategoryCounter
 }
@@ -138,8 +131,6 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 		}
 	}
 
-	fmt.Printf("owaspCounter: %+v\n", owaspCounter)
-
 	return owaspCounter
 }
 
@@ -153,13 +144,8 @@ func parseHighlights(vulnerabilities []mongo.Vulnerability) {
 
 func parseHighlightedText(pocitem *mongo.PocItem) {
 	pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
-	fmt.Println("RequestHighlighted:", pocitem.RequestHighlighted)
-
 	pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
-	fmt.Println("ResponseHighlighted:", pocitem.ResponseHighlighted)
-
 	pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
-	fmt.Println("TextHighlighted:", pocitem.TextHighlighted)
 }
 
 func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighted {
