@@ -11,6 +11,8 @@ var (
 	ErrFileSizeTooLarge       error = errors.New("file size is too large")
 	ErrTemplateFileIDRequired error = errors.New("template file ID is required")
 	ErrUsedByIDRequired       error = errors.New("used by ID is required")
+	ErrAdminUserRequired      error = errors.New("at least one admin user is required")
+	ErrLocked                 error = errors.New("lock is locked")
 )
 
 func IsDuplicateKeyError(err error) bool {

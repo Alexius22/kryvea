@@ -62,6 +62,7 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 		d.User(),
 		d.File(),
 		d.FileReference(),
+		d.Lock(),
 	}
 
 	for _, i := range indexes {
