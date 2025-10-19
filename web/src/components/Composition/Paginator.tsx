@@ -98,7 +98,6 @@ export default function Paginator({
           id={`paginator-per-page-input-${v4()}`}
           value={perPage}
           min={1}
-          max={backendTotalRows ?? filteredData.length}
           onChange={setPerPage}
         />
         <small className="text-nowrap">per page</small>
