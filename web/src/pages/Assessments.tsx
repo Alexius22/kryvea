@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
 import { GlobalContext } from "../App";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import PageHeader from "../components/Composition/PageHeader";
@@ -164,7 +165,15 @@ export default function Assessments() {
           onConfirm={confirmDelete}
           onCancel={() => setIsModalTrashActive(false)}
         >
-          <p>Are you sure to delete this assessment?</p>
+          <Flex col className="gap-4">
+            <p>
+              You are about to permanently delete the <strong>{assessmentToDelete.name}</strong> assessment.
+            </p>
+            <p className="text-[color:--error]">
+              <strong>Warning:</strong> This action <em>cannot be undone</em> and will remove{" "}
+              <u>all associated vulnerabilities</u> for this assessment.
+            </p>
+          </Flex>
         </Modal>
       )}
 

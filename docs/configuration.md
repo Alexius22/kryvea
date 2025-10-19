@@ -90,19 +90,6 @@ KRYVEA_LOG_MAX_AGE_DAYS: 90 # Keep logs for 90 days
 KRYVEA_LOG_MAX_SIZE_MB: 50 # 50MB per file
 ```
 
-### Database Tuning
-
-**Increase connection pool:**
-Edit `app/internal/mongo/driver.go`:
-
-```go
-clientOpts.SetMaxPoolSize(100)
-clientOpts.SetMinPoolSize(10)
-```
-
-**Enable MongoDB authentication:**
-Already enabled by default in `docker-compose.yml`.
-
 ## Security Configuration
 
 ### SSL/TLS Certificates

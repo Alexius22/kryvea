@@ -20,6 +20,7 @@ interface BaseInputProps {
 
 interface InputProps extends BaseInputProps {
   type: HTMLInputTypeAttribute;
+  step?: undefined;
   min?: undefined;
   max?: undefined;
   accept?: undefined;
@@ -28,6 +29,7 @@ interface InputProps extends BaseInputProps {
 
 interface FileInputProps extends BaseInputProps {
   type: "file";
+  step?: undefined;
   min?: undefined;
   max?: undefined;
   accept?: string;
@@ -36,6 +38,7 @@ interface FileInputProps extends BaseInputProps {
 
 interface NumberInputProps extends BaseInputProps {
   type: "number";
+  step?: number;
   min?: number;
   max?: number;
   accept?: string;
@@ -46,6 +49,7 @@ export default function Input({
   className,
   disabled,
   type,
+  step,
   id,
   label,
   helperSubtitle,
@@ -75,27 +79,35 @@ export default function Input({
             disabled={disabled}
             className={className}
             type={type}
+            step={step}
             id={id}
             placeholder={placeholder}
             value={numberPreview}
             accept={accept}
             autoFocus={autoFocus}
             name={name}
-            onChange={e => setNumberPreview(e.target.value)}
+            onChange={e => {
+              const val = e.target.value;
+              setNumberPreview(val);
+              onChange(step != undefined ? parseFloat(val) : parseInt(val));
+            }}
             onKeyDown={e => {
               switch (e.key) {
                 case "Escape":
                   setNumberPreview(value);
                   break;
                 case "Enter":
-                  onEnter?.(e);
                   e.currentTarget.blur();
+                  onEnter?.(e);
                   break;
               }
             }}
             onBlur={e => {
               let value = e.currentTarget.value;
               let num = parseInt(value);
+              if (step != undefined) {
+                num = parseFloat(value);
+              }
 
               if (+value === 0) {
                 num = 0;
