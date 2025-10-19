@@ -16,3 +16,6 @@ scripts/populate_db/images/
 __pycache__/
 
 *.burp*
+
+docs/.vitepress/cache
+docs/.vitepress/dist
