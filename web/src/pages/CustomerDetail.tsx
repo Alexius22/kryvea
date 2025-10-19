@@ -1,5 +1,5 @@
 import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } from "@mdi/js";
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, patchData, postData } from "../api/api";
@@ -8,6 +8,7 @@ import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
 import CardTitle from "../components/Composition/CardTitle";
 import Divider from "../components/Composition/Divider";
+import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
@@ -17,7 +18,7 @@ import Input from "../components/Form/Input";
 import SelectWrapper from "../components/Form/SelectWrapper";
 import { SelectOption } from "../components/Form/SelectWrapper.types";
 import UploadFile from "../components/Form/UploadFile";
-import { Customer, Template } from "../types/common.types";
+import { Customer, Template, uuidZero } from "../types/common.types";
 import { languageMapping, USER_ROLE_ADMIN } from "../utils/constants";
 import { getPageTitle } from "../utils/helpers";
 
@@ -31,9 +32,12 @@ export default function CustomerDetail() {
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [customerTemplates, setCustomerTemplates] = useState<Template[]>([]);
   const [loadingCustomerTemplates, setLoadingCustomerTemplates] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState<SelectOption | null>(null);
+  const [selectedTemplateLanguage, setSelectedTemplateLanguage] = useState<SelectOption | null>(null);
 
   const isAdmin = getKryveaShadow() === USER_ROLE_ADMIN;
+
+  const [logoId, setLogoId] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const [formCustomer, setFormCustomer] = useState({
     name: ctxCustomer?.name,
@@ -51,7 +55,7 @@ export default function CustomerDetail() {
     label,
   }));
 
-  const selectedLanguageOption = languageOptions.find(opt => opt.value === formCustomer.language);
+  const selectedCustomerLanguage = languageOptions.find(opt => opt.value === formCustomer.language);
 
   useEffect(() => {
     setFormCustomer({ name: ctxCustomer?.name, language: ctxCustomer?.language });
@@ -69,8 +73,10 @@ export default function CustomerDetail() {
     getData<Customer>(
       `/api/customers/${customerId}`,
       data => {
+        setFormCustomer(data);
         setCtxCustomer(data);
         setCustomerTemplates(data.templates);
+        setLogoId(data.logo_id);
       },
       undefined,
       () => setLoadingCustomerTemplates(false)
@@ -93,9 +99,22 @@ export default function CustomerDetail() {
       return;
     }
 
-    patchData<Customer>(`/api/admin/customers/${ctxCustomer?.id}`, formCustomer, () => {
+    const payload = {
+      name: formCustomer.name.trim(),
+      language: formCustomer.language,
+      logo_id: logoId,
+    };
+
+    const formData = new FormData();
+    if (logoFile) {
+      formData.append("file", logoFile, logoFile.name);
+    }
+    formData.append("data", JSON.stringify(payload));
+
+    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
       toast.success("Customer updated successfully");
-      setCtxCustomer(prev => ({ ...prev, ...formCustomer }));
+
+      fetchCustomer();
     });
   };
 
@@ -121,14 +140,14 @@ export default function CustomerDetail() {
       toast.error("Template file is required");
       return;
     }
-    if (!selectedLanguage) {
+    if (!selectedTemplateLanguage) {
       toast.error("Please select a language for the template");
       return;
     }
 
     const dataTemplate = {
       name: newTemplateData.name,
-      language: selectedLanguageOption?.value,
+      language: selectedTemplateLanguage.value,
       type: newTemplateData.type,
     };
 
@@ -140,6 +159,7 @@ export default function CustomerDetail() {
       toast.success("Template uploaded successfully");
       setFileObj(null);
       setNewTemplateData({ name: "", type: "", file: null });
+      setSelectedTemplateLanguage(null);
       fetchCustomer();
     });
   };
@@ -157,6 +177,52 @@ export default function CustomerDetail() {
     a.download = template.name || template.filename;
     a.click();
   };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/png", "image/jpeg"].includes(file.type)) {
+      e.target.value = "";
+      return;
+    }
+
+    const payload = {
+      name: ctxCustomer.name.trim(),
+      language: ctxCustomer.language,
+    };
+
+    const formData = new FormData();
+    formData.append("logo", file, file.name);
+    formData.append("data", JSON.stringify(payload));
+
+    const toastId = toast.loading("Uploading logo...");
+    patchData(
+      `/api/admin/customers/${ctxCustomer?.id}`,
+      formData,
+      () => {
+        getData<Customer>(`/api/customers/${customerId}`, data => setLogoId(data.logo_id));
+        toast.update(toastId, { render: "Logo uploaded", type: "success", isLoading: false, autoClose: 3000 });
+      },
+      () => toast.update(toastId, { render: "Logo upload failed", type: "error", isLoading: false, autoClose: 3000 })
+    );
+  };
+
+  const CustomerLogo = memo(
+    ({ logoId, isAdmin, formCustomer }: any) => {
+      return (
+        <img
+          className="h-full w-full object-cover"
+          src={`/api/files/customers/${logoId}`}
+          alt={`${formCustomer.name}'s logo`}
+          title={isAdmin ? "Change logo" : ""}
+        />
+      );
+    },
+    (prevProps, nextProps) => {
+      // Return true to skip re-render
+      return prevProps.logoId === nextProps.logoId;
+    }
+  );
 
   return (
     <div>
@@ -181,6 +247,30 @@ export default function CustomerDetail() {
         <Card>
           <CardTitle title="Customer details" />
           <Grid className="gap-4">
+            <Flex className="justify-center">
+              <label
+                className={`aspect-video max-h-52 overflow-hidden rounded-xl shadow-lg shadow-[color:--bg-primary] transition ${isAdmin ? "cursor-pointer hover:scale-95 hover:shadow-[color:--bg-secondary] active:scale-90" : "cursor-not-allowed"} `}
+                htmlFor={isAdmin ? "change-logo" : undefined}
+              >
+                {logoId == uuidZero || logoId === "" ? (
+                  <div className="h-52 w-52 content-center rounded-xl border border-[color:--border-primary-highlight] bg-gradient-to-b from-[color:--bg-tertiary] to-[color:--bg-secondary] text-center text-[color:--text-secondary]">
+                    {isAdmin ? "Add logo" : "No logo available"}
+                  </div>
+                ) : (
+                  <CustomerLogo {...{ isAdmin, logoId, formCustomer }} />
+                )}
+              </label>
+
+              {isAdmin && (
+                <input
+                  id="change-logo"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  style={{ display: "none" }}
+                  onChange={handleLogoChange}
+                />
+              )}
+            </Flex>
             <Input
               type="text"
               label="Customer name"
@@ -196,7 +286,7 @@ export default function CustomerDetail() {
               label="Default language"
               id="language"
               options={languageOptions}
-              value={selectedLanguageOption}
+              value={selectedCustomerLanguage}
               disabled={!isAdmin}
               onChange={option => setFormCustomer(prev => ({ ...prev, language: option.value }))}
             />
@@ -245,8 +335,8 @@ export default function CustomerDetail() {
               <SelectWrapper
                 label="Language"
                 options={languageOptions}
-                value={selectedLanguage}
-                onChange={setSelectedLanguage}
+                value={selectedTemplateLanguage}
+                onChange={setSelectedTemplateLanguage}
               />
             </Grid>
             <Buttons>
@@ -257,10 +347,10 @@ export default function CustomerDetail() {
               loading={loadingCustomerTemplates}
               data={customerTemplates.map(template => ({
                 Name: template.name,
+                Language: languageMapping[template.language] || template.language,
                 Filename: template.filename,
                 "Mime Type": template.mime_type,
                 "Template Type": template.type,
-                Language: languageMapping[template.language] || template.language,
                 buttons: (
                   <Buttons noWrap>
                     <Button

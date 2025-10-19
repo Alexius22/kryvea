@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { postData } from "../api/api";
+import { getData, postData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
@@ -9,8 +9,8 @@ import Flex from "../components/Composition/Flex";
 import Grid from "../components/Composition/Grid";
 import Subtitle from "../components/Composition/Subtitle";
 import Button from "../components/Form/Button";
-import Checkbox from "../components/Form/Checkbox";
 import Input from "../components/Form/Input";
+import { User } from "../types/common.types";
 import { getPageTitle } from "../utils/helpers";
 // @ts-ignore
 import logo from "../assets/logo_stroke.svg";
@@ -18,12 +18,12 @@ import logo from "../assets/logo_stroke.svg";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const {
+    useCtxUsername: [, setCtxUsername],
     useCtxLastPage: [ctxLastPage],
   } = useContext(GlobalContext);
 
@@ -40,24 +40,24 @@ export default function Login() {
     document.title = getPageTitle("Login");
   }, []);
 
+  const fetchUserAndSetCtxUsername = async () => {
+    await getData<User>("/api/users/me", user => setCtxUsername(user.username));
+    navigate(ctxLastPage, { replace: true });
+  };
+
   const handleSubmit = () => {
     setError("");
-    postData(
-      "/api/login",
-      { username, password, remember },
-      () => navigate(ctxLastPage, { replace: true }),
-      err => {
-        // Check for password expired case
-        const data = err.response?.data as { error: string };
-        if (data?.error === "Password expired") {
-          setError("");
-          // Clear password input for reset
-          setPassword("");
-        } else {
-          setError(data?.error || "Login failed");
-        }
+    postData("/api/login", { username, password }, fetchUserAndSetCtxUsername, err => {
+      // Check for password expired case
+      const data = err.response?.data as { error: string };
+      if (data?.error === "Password expired") {
+        setError("");
+        // Clear password input for reset
+        setPassword("");
+      } else {
+        setError(data?.error || "Login failed");
       }
-    );
+    });
   };
 
   // Password reset submit handler
@@ -79,7 +79,7 @@ export default function Login() {
       { password },
       () => {
         toast.success("Password change successful");
-        navigate(ctxLastPage, { replace: true });
+        fetchUserAndSetCtxUsername();
       },
       err => {
         setError(err.response?.data?.error || "Failed to reset password");
@@ -115,7 +115,6 @@ export default function Login() {
                 onChange={e => setPassword(e.target.value)}
                 value={password}
               />
-              <Checkbox id={"remember_me"} onChange={e => setRemember(e.target.checked)} label={"Remember me"} />
               <Subtitle className="text-[color:--error]" text={error} />
               <Button text="Login" className="justify-center" formSubmit />
             </Grid>

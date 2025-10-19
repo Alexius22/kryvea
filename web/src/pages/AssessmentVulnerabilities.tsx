@@ -1,10 +1,11 @@
 import { mdiDownload, mdiPencil, mdiPlus, mdiTrashCan, mdiUpload } from "@mdi/js";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { deleteData, getData, postData } from "../api/api";
 import { GlobalContext } from "../App";
 import Flex from "../components/Composition/Flex";
+import Grid from "../components/Composition/Grid";
 import Modal from "../components/Composition/Modal";
 import PageHeader from "../components/Composition/PageHeader";
 import Table from "../components/Composition/Table";
@@ -14,10 +15,15 @@ import SelectWrapper from "../components/Form/SelectWrapper";
 import UploadFile from "../components/Form/UploadFile";
 import AddTargetModal from "../components/Modals/AddTargetModal";
 import ExportReportModal from "../components/Modals/ExportReportModal";
+import { useDebounce } from "../hooks/hooks";
 import { Category, Template, Vulnerability } from "../types/common.types";
 import { formatDate } from "../utils/dates";
 import { getPageTitle } from "../utils/helpers";
 import { getTargetLabel } from "../utils/targetLabel";
+
+const DEFAULT_QUERY = "";
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 25;
 
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
@@ -42,21 +48,124 @@ export default function AssessmentVulnerabilities() {
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
 
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [totalVulnerabilities, setTotalVulnerabilities] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loadingVulnerabilities, setLoadingVulnerabilities] = useState(true);
   const [vulnerabilityToDelete, setVulnerabilityToDelete] = useState<Vulnerability | null>(null);
 
-  function fetchVulnerabilities() {
+  const searchAPI = useMemo(() => `/api/assessments/${assessmentId}/vulnerabilities?`, []);
+  const urlSearchParams = new URLSearchParams(location.search);
+
+  // Main search
+  const [query, setQuery] = useState(urlSearchParams.get("query") ?? DEFAULT_QUERY);
+  const debouncedQuery = useDebounce(query, 400);
+
+  // Pagination
+  const [page, setPage] = useState(Math.max(+urlSearchParams.get("page") || DEFAULT_PAGE, DEFAULT_PAGE));
+  const [limit, setLimit] = useState(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
+
+  // Filters
+  // const [assessment, setAssessment] = useState(urlSearchParams.get("assessment") ?? "");
+  // const [user, setUser] = useState(urlSearchParams.get("user") ?? "");
+  // const [customer, setCustomer] = useState(urlSearchParams.get("customer") ?? "");
+  // const [cvssMin, setCvssMin] = useState(urlSearchParams.get("cvss_min") ?? "");
+  // const [cvssMax, setCvssMax] = useState(urlSearchParams.get("cvss_max") ?? "");
+  // const [cvssVersions, setCvssVersions] = useState<string[]>(
+  //   urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []
+  // );
+  // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+  //   start: urlSearchParams.get("start_date_time") ?? "",
+  //   end: urlSearchParams.get("end_date_time") ?? "",
+  // });
+
+  function fetchVulnerabilitiesPaginated(searchParams) {
     setLoadingVulnerabilities(true);
-    getData<Vulnerability[]>(`/api/assessments/${assessmentId}/vulnerabilities`, setVulnerabilities, undefined, () =>
-      setLoadingVulnerabilities(false)
+    getData<any>(
+      searchAPI + searchParams,
+      data => {
+        setTotalVulnerabilities(data.total_documents);
+        setVulnerabilities(data.data);
+        setTotalPages(data.total_pages);
+      },
+      undefined,
+      () => setLoadingVulnerabilities(false)
     );
   }
 
   useEffect(() => {
     document.title = getPageTitle("Assessment Vulnerabilities");
-    fetchVulnerabilities();
     getData<Template[]>("/api/templates", setAllTemplates);
   }, []);
+
+  // Sync with URL when user uses browser buttons
+  useEffect(() => {
+    setQuery(urlSearchParams.get("query") ?? DEFAULT_QUERY);
+    setPage(Math.max(+urlSearchParams.get("page") || DEFAULT_PAGE, DEFAULT_PAGE));
+    setLimit(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
+    // setAssessment(urlSearchParams.get("assessment") ?? "");
+    // setUser(urlSearchParams.get("user") ?? "");
+    // setCustomer(urlSearchParams.get("customer") ?? "");
+    // setCvssMin(urlSearchParams.get("cvss_min") ?? "");
+    // setCvssMax(urlSearchParams.get("cvss_max") ?? "");
+    // setCvssVersions(urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []);
+    // setDateRange({
+    //   start: urlSearchParams.get("start_date_time") ?? "",
+    //   end: urlSearchParams.get("end_date_time") ?? "",
+    // });
+  }, [location.search]);
+
+  // Fetch data
+  useEffect(() => {
+    const searchParams = buildSearchParams();
+
+    if (location.search !== `?${searchParams}`) {
+      navigate(`?${searchParams}`, { replace: false });
+    }
+
+    fetchVulnerabilitiesPaginated(searchParams);
+  }, [debouncedQuery, limit, page]);
+
+  // Build API params
+  const buildSearchParams = () => {
+    const sp = new URLSearchParams({
+      query: debouncedQuery,
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    // if (assessment) sp.set("assessment", assessment);
+    // if (user) sp.set("user", user);
+    // if (customer) sp.set("customer", customer);
+    // if (cvssMin) sp.set("cvss_min", cvssMin);
+    // if (cvssMax) sp.set("cvss_max", cvssMax);
+    // if (cvssVersions.length) sp.set("cvss_versions", cvssVersions.join(","));
+    // if (dateRange.start) sp.set("start_date_time", dateRange.start);
+    // if (dateRange.end) sp.set("end_date_time", dateRange.end);
+
+    return sp.toString();
+  };
+
+  // Actions
+  // const handleSearch = () => {
+  //   setPage(1); // reset page
+  //   const searchParams = buildSearchParams();
+  //   navigate(`?${searchParams}`);
+  //   fetchVulnerabilitiesPaginated(searchParams);
+  // };
+
+  // const handleClearAll = () => {
+  //   setQuery("");
+  //   setAssessment("");
+  //   setUser("");
+  //   setCustomer("");
+  //   setCvssMin("");
+  //   setCvssMax("");
+  //   setCvssVersions([]);
+  //   setDateRange({ start: "", end: "" });
+  //   setPage(DEFAULT_PAGE);
+  //   setLimit(DEFAULT_LIMIT);
+  //   navigate("?");
+  // };
 
   const openExportModal = () => {
     setIsModalDownloadActive(true);
@@ -123,7 +232,7 @@ export default function AssessmentVulnerabilities() {
         });
         setIsModalUploadActive(false);
         setFileObj(null);
-        fetchVulnerabilities();
+        setPage(1); // trigger data refetch
       },
       err => {
         toast.update(toastId, {
@@ -208,41 +317,144 @@ export default function AssessmentVulnerabilities() {
         </Buttons>
       </PageHeader>
 
-      <Table
-        loading={loadingVulnerabilities}
-        data={vulnerabilities.map(vulnerability => {
-          const cvssColumns = {};
-          if (ctxAssessment?.cvss_versions["3.1"]) {
-            cvssColumns["CVSSv3.1 Score"] = vulnerability.cvssv31.score;
-          }
-          if (ctxAssessment?.cvss_versions["4.0"]) {
-            cvssColumns["CVSSv4.0 Score"] = vulnerability.cvssv4.score;
-          }
+      <Grid className="gap-4">
+        {/* <Card>
+          <Grid className="grid-cols-3 !items-start gap-4">
+            <Input
+              type="text"
+              id="assessment"
+              label="Assessment"
+              placeholder="Assessment name"
+              value={assessment}
+              onChange={e => setAssessment(e.target.value)}
+              onEnter={handleSearch}
+            />
+            <Input
+              type="text"
+              id="user"
+              label="User"
+              placeholder="User"
+              value={user}
+              onChange={e => setUser(e.target.value)}
+              onEnter={handleSearch}
+            />
+            <Grid className="h-full items-center justify-center">
+              <Label text="CVSS Versions" className="text-center" />
+              <Flex className="gap-4">
+                {CVSS_VERSIONS.map(({ value, label }) => (
+                  <Checkbox
+                    disabled
+                    id={`cvss_${value}`}
+                    label={label}
+                    checked={cvssVersions.includes(value)}
+                    onChange={() => {
+                      setCvssVersions(prev =>
+                        prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+                      );
+                    }}
+                    key={value}
+                  />
+                ))}
+              </Flex>
+            </Grid>
+            <DateCalendar
+              idStart="start_date_time"
+              label="Range date"
+              isRange
+              value={dateRange}
+              onChange={val => {
+                const { start, end } = val as { start: string; end: string };
+                setDateRange({ start, end });
+              }}
+              placeholder={{ start: "Start date", end: "End date" }}
+            />
+            <Input
+              disabled
+              helperSubtitle="Work in progress"
+              type="text"
+              id="customer"
+              label="Customer"
+              placeholder="Customer name"
+              value={customer}
+              onChange={e => setCustomer(e.target.value)}
+              onEnter={handleSearch}
+            />
+            <Flex className="gap-4">
+              <Input
+                type="text"
+                id="cvss_min_score"
+                label="CVSS Min"
+                placeholder="CVSS min"
+                value={cvssMin}
+                onChange={e => setCvssMin(e.target.value)}
+                onEnter={handleSearch}
+              />
+              <Input
+                type="text"
+                id="cvss_max_score"
+                label="CVSS Max"
+                placeholder="CVSS max"
+                value={cvssMax}
+                onChange={e => setCvssMax(e.target.value)}
+                onEnter={handleSearch}
+              />
+            </Flex>
+          </Grid>
+          <Divider />
+          <Flex items="center" justify="between">
+            <span>
+              Total vulnerabilities found: <b>{totalVulnerabilities}</b>
+            </span>
+            <Flex className="gap-2">
+              <Button text="Clear all" variant="outline-only" onClick={handleClearAll} />
+              <Button text="Search" onClick={handleSearch} />
+            </Flex>
+          </Flex>
+        </Card> */}
 
-          return {
-            Vulnerability: (
-              <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
-                {vulnerability.category.index} - {vulnerability.category.name}{" "}
-                {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
-              </Link>
-            ),
-            Target: getTargetLabel(vulnerability.target),
+        <Table
+          loading={loadingVulnerabilities}
+          backendCurrentPage={page}
+          backendTotalRows={totalVulnerabilities}
+          backendTotalPages={totalPages}
+          backendSearch={query}
+          onBackendSearch={setQuery}
+          onBackendChangePage={setPage}
+          onBackendChangePerPage={setLimit}
+          data={vulnerabilities.map(vulnerability => {
+            const cvssColumns = {};
+            if (ctxAssessment?.cvss_versions["3.1"]) {
+              cvssColumns["CVSSv3.1 Score"] = vulnerability.cvssv31.score;
+            }
+            if (ctxAssessment?.cvss_versions["4.0"]) {
+              cvssColumns["CVSSv4.0 Score"] = vulnerability.cvssv4.score;
+            }
 
-            ...cvssColumns,
+            return {
+              Vulnerability: (
+                <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
+                  {vulnerability.category.identifier} - {vulnerability.category.name}{" "}
+                  {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
+                </Link>
+              ),
+              Target: getTargetLabel(vulnerability.target),
 
-            Status: vulnerability.status,
-            "Last update": formatDate(vulnerability.updated_at),
-            buttons: (
-              <Buttons noWrap>
-                <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
-                <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
-              </Buttons>
-            ),
-          };
-        })}
-        perPageCustom={25}
-        maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
-      />
+              ...cvssColumns,
+
+              Status: vulnerability.status,
+              "Last update": formatDate(vulnerability.updated_at),
+              buttons: (
+                <Buttons noWrap>
+                  <Button icon={mdiPencil} small onClick={() => navigate(`${vulnerability.id}/edit`)} />
+                  <Button variant="danger" icon={mdiTrashCan} onClick={() => openDeleteModal(vulnerability)} small />
+                </Buttons>
+              ),
+            };
+          })}
+          perPageCustom={limit}
+          maxWidthColumns={{ Vulnerability: "35rem", Target: "25rem" }}
+        />
+      </Grid>
     </div>
   );
 }

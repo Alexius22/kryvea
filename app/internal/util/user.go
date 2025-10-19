@@ -49,7 +49,7 @@ func secureRandomInt(max int) (int, error) {
 
 func GenerateRandomPassword(length int) (string, error) {
 	if length < minPasswordLength {
-		return "", fmt.Errorf("password length must be at least %d characters", minPasswordLength)
+		length = minPasswordLength
 	}
 
 	password := make([]byte, length)

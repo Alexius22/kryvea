@@ -80,7 +80,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
   return (
     <Modal
       title="Download report"
-      confirmButtonLabel="Confirm"
+      confirmButtonLabel="Generate"
       onConfirm={handleConfirm}
       onCancel={() => setShowModal(false)}
     >
@@ -113,13 +113,14 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
           }}
         />
 
-        <SelectWrapper
+        {/* <SelectWrapper
           label="Encryption"
           id="encryption"
           options={[
             { value: "none", label: "None" },
             { value: "password", label: "Password" },
           ]}
+          disabled={selectedExportTypeOption.value !== "zip-default"}
           value={exportEncryption}
           onChange={setExportEncryption}
         />
@@ -130,7 +131,7 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
           placeholder="Insert password"
           value={exportPassword}
           onChange={e => setExportPassword(e.target.value)}
-        />
+        /> */}
 
         <DateCalendar
           idStart="delivery_date"

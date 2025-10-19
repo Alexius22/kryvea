@@ -30,10 +30,11 @@ var (
 
 type Category struct {
 	Model              `bson:",inline"`
-	Index              string            `json:"index" bson:"index"`
+	Identifier         string            `json:"identifier" bson:"identifier"`
 	Name               string            `json:"name" bson:"name"`
 	GenericDescription map[string]string `json:"generic_description,omitempty" bson:"generic_description"`
 	GenericRemediation map[string]string `json:"generic_remediation,omitempty" bson:"generic_remediation"`
+	LanguagesOrder     []string          `json:"languages_order,omitempty" bson:"languages_order"`
 	References         []string          `json:"references" bson:"references"`
 	Source             string            `json:"source" bson:"source"`
 }
@@ -55,7 +56,7 @@ func (ci CategoryIndex) init() error {
 		context.Background(),
 		mongo.IndexModel{
 			Keys: bson.D{
-				{Key: "index", Value: 1},
+				{Key: "identifier", Value: 1},
 				{Key: "name", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
@@ -108,7 +109,7 @@ func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, e
 
 func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, error) {
 	var existingCategory Assessment
-	err := ci.collection.FindOne(context.Background(), bson.M{"index": category.Index, "name": category.Name}).Decode(&existingCategory)
+	err := ci.collection.FindOne(context.Background(), bson.M{"identifier": category.Identifier, "name": category.Name}).Decode(&existingCategory)
 	if err == nil {
 		return existingCategory.ID, false, nil
 	}
@@ -130,10 +131,11 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 	update := bson.M{
 		"$set": bson.M{
 			"updated_at":          time.Now(),
-			"index":               category.Index,
+			"identifier":          category.Identifier,
 			"name":                category.Name,
 			"generic_description": category.GenericDescription,
 			"generic_remediation": category.GenericRemediation,
+			"languages_order":     category.LanguagesOrder,
 			"references":          category.References,
 			"source":              category.Source,
 		},
@@ -193,7 +195,7 @@ func (ci *CategoryIndex) Search(query string) ([]Category, error) {
 	if query != "" {
 		filter = bson.M{
 			"$or": []bson.M{
-				{"index": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+				{"identifier": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 				{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 			},
 		}

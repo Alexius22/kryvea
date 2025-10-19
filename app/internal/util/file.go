@@ -1,9 +1,13 @@
 package util
 
 import (
+	"fmt"
 	"io"
+	"path/filepath"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func ParseFormFile(c *fiber.Ctx, param string) ([]byte, error) {
@@ -28,4 +32,12 @@ func ParseFormFile(c *fiber.Ctx, param string) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func CreateImageReference(filename string, id uuid.UUID) string {
+	ext := filepath.Ext(filename)
+	base := strings.TrimSuffix(filename, ext)
+
+	newFilename := fmt.Sprintf("%s_%s%s", base, id.String(), ext)
+	return newFilename
 }

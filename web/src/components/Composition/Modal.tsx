@@ -26,7 +26,7 @@ export default function Modal({
   onConfirm,
   onCancel,
 }: Props) {
-  const mouseDownRef = useRef<any>();
+  const mouseDownRef = useRef<any>(null);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {

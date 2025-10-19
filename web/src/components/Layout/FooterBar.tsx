@@ -81,7 +81,7 @@ export default function FooterBar({ className }: Props) {
           </b>
         </div>
         <div>
-          <b>Version</b>: development
+          <b>Version</b>: 1.0.0
         </div>
       </div>
     </footer>

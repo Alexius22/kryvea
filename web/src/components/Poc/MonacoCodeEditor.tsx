@@ -27,7 +27,7 @@ export default function MonacoCodeEditor({
   label = "",
   value,
   theme = "vs-dark",
-  ideStartingLineNumber = 0,
+  ideStartingLineNumber = 1,
   height = "400px",
   stopLineNumberAt,
   textHighlights = [],
@@ -258,7 +258,7 @@ export default function MonacoCodeEditor({
           beforeMount={handleBeforeMount}
           onMount={handleEditorMount}
           options={{
-            lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i + ideStartingLineNumber}`),
+            lineNumbers: i => (i >= stopLineNumberAt ? "" : `${i - 1 + ideStartingLineNumber}`),
             lineNumbersMinChars: 2,
             glyphMargin: false,
             scrollBeyondLastLine: false,

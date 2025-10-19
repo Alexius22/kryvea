@@ -1,7 +1,6 @@
 package reportdata
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -38,8 +37,6 @@ func getMaxCvss(vulnerabilities []mongo.Vulnerability, cvssVersions map[string]b
 		}
 	}
 
-	fmt.Printf("maxCvss: %+v\n", maxCvss)
-
 	return maxCvss
 }
 
@@ -61,18 +58,16 @@ func getVulnerabilitiesOverview(vulnerabilities []mongo.Vulnerability, cvssVersi
 
 			switch version {
 			case cvss.Cvss2:
-				vulnerabilityOverview[version][vulnerability.CVSSv2.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv2.Severity] += 1
 			case cvss.Cvss3:
-				vulnerabilityOverview[version][vulnerability.CVSSv3.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv3.Severity] += 1
 			case cvss.Cvss31:
-				vulnerabilityOverview[version][vulnerability.CVSSv31.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv31.Severity] += 1
 			case cvss.Cvss4:
-				vulnerabilityOverview[version][vulnerability.CVSSv4.Severity.Label] += 1
+				vulnerabilityOverview[version][vulnerability.CVSSv4.Severity] += 1
 			}
 		}
 	}
-
-	fmt.Printf("vulnerabilityOverview: %+v\n", vulnerabilityOverview)
 
 	return vulnerabilityOverview
 }
@@ -81,17 +76,15 @@ func getTargetsCategoryCounter(vulnerabilities []mongo.Vulnerability, maxVersion
 	targetsCategoryCounter := make(map[string]uint)
 
 	for _, vulnerability := range vulnerabilities {
-		if (maxVersion == cvss.Cvss2 && vulnerability.CVSSv2.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss3 && vulnerability.CVSSv3.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss31 && vulnerability.CVSSv31.Severity.Label == cvss.CvssSeverityNone) ||
-			(maxVersion == cvss.Cvss4 && vulnerability.CVSSv4.Severity.Label == cvss.CvssSeverityNone) {
+		if (maxVersion == cvss.Cvss2 && vulnerability.CVSSv2.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss3 && vulnerability.CVSSv3.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss31 && vulnerability.CVSSv31.Severity == cvss.CvssSeverityNone) ||
+			(maxVersion == cvss.Cvss4 && vulnerability.CVSSv4.Severity == cvss.CvssSeverityNone) {
 			continue
 		}
 
 		targetsCategoryCounter[vulnerability.Target.Tag] += 1
 	}
-
-	fmt.Printf("targetsCategoryCounter: %+v\n", targetsCategoryCounter)
 
 	return targetsCategoryCounter
 }
@@ -107,38 +100,36 @@ func getOWASPCounter(vulnerabilities []mongo.Vulnerability, maxVersion string) m
 				Categories: make(map[string]string),
 			}
 		}
-		if _, ok := owaspCounter[vulnerability.Category.Source].Categories[vulnerability.Category.Index]; !ok {
+		if _, ok := owaspCounter[vulnerability.Category.Source].Categories[vulnerability.Category.Identifier]; !ok {
 			counter := owaspCounter[vulnerability.Category.Source]
 			counter.Total += 1
 
 			switch maxVersion {
 			case cvss.Cvss2:
-				if vulnerability.CVSSv2.Score > highestSeverityByCategoryType[vulnerability.Category.Index] {
-					highestSeverityByCategoryType[vulnerability.Category.Index] = vulnerability.CVSSv2.Score
-					counter.Categories[vulnerability.Category.Index] = severityColors[vulnerability.CVSSv2.Severity.Label]
+				if vulnerability.CVSSv2.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
+					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv2.Score
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv2.Severity]
 				}
 			case cvss.Cvss3:
-				if vulnerability.CVSSv3.Score > highestSeverityByCategoryType[vulnerability.Category.Index] {
-					highestSeverityByCategoryType[vulnerability.Category.Index] = vulnerability.CVSSv3.Score
-					counter.Categories[vulnerability.Category.Index] = severityColors[vulnerability.CVSSv3.Severity.Label]
+				if vulnerability.CVSSv3.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
+					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv3.Score
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv3.Severity]
 				}
 			case cvss.Cvss31:
-				if vulnerability.CVSSv31.Score > highestSeverityByCategoryType[vulnerability.Category.Index] {
-					highestSeverityByCategoryType[vulnerability.Category.Index] = vulnerability.CVSSv31.Score
-					counter.Categories[vulnerability.Category.Index] = severityColors[vulnerability.CVSSv31.Severity.Label]
+				if vulnerability.CVSSv31.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
+					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv31.Score
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv31.Severity]
 				}
 			case cvss.Cvss4:
-				if vulnerability.CVSSv4.Score > highestSeverityByCategoryType[vulnerability.Category.Index] {
-					highestSeverityByCategoryType[vulnerability.Category.Index] = vulnerability.CVSSv4.Score
-					counter.Categories[vulnerability.Category.Index] = severityColors[vulnerability.CVSSv4.Severity.Label]
+				if vulnerability.CVSSv4.Score > highestSeverityByCategoryType[vulnerability.Category.Identifier] {
+					highestSeverityByCategoryType[vulnerability.Category.Identifier] = vulnerability.CVSSv4.Score
+					counter.Categories[vulnerability.Category.Identifier] = severityColors[vulnerability.CVSSv4.Severity]
 				}
 			}
 
 			owaspCounter[vulnerability.Category.Source] = counter
 		}
 	}
-
-	fmt.Printf("owaspCounter: %+v\n", owaspCounter)
 
 	return owaspCounter
 }
@@ -152,15 +143,9 @@ func parseHighlights(vulnerabilities []mongo.Vulnerability) {
 }
 
 func parseHighlightedText(pocitem *mongo.PocItem) {
-	if pocitem.RequestHighlights != nil {
-		pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
-	}
-	if pocitem.ResponseHighlights != nil {
-		pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
-	}
-	if pocitem.TextHighlights != nil {
-		pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
-	}
+	pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
+	pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
+	pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
 }
 
 func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighted {
@@ -198,8 +183,8 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 				coordinates = append(coordinates, mongo.HighlightedText{})
 				first, second := coordinates[i], coordinates[i]
 
-				first.End.Line--
-				first.End.Col = len(rows[first.End.Line])
+				first.End.Line = first.Start.Line
+				first.End.Col = len(rows[first.End.Line-1]) + 1
 
 				second.Start.Line++
 				second.Start.Col = 1
@@ -208,6 +193,8 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 				coordinates[i] = first
 				coordinates[i+1] = second
 				modified = true
+
+				continue
 			}
 			if coordinates[i].Start.Col > len(rows[coordinates[i].Start.Line-1]) {
 				coordinates[i].Start.Col = len(rows[coordinates[i].Start.Line-1])

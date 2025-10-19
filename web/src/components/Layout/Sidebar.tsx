@@ -40,7 +40,7 @@ export default function Sidebar() {
           )}
           <Button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-2 text-[color:--link] ${isCollapsed ? "rotate-180" : ""}`}
+            className={`p-2 !text-[color:--link] ${isCollapsed ? "rotate-180" : ""}`}
             variant="transparent"
             icon={mdiMenuOpen}
             iconSize={22}

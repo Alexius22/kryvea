@@ -64,6 +64,8 @@ services:
             - KRYVEA_ADDR=0.0.0.0:8080
             - KRYVEA_ROOT_PATH=/
             - KRYVEA_MONGO_URI=mongodb://kryveauser:kryveapass@kryvea-db:27017/?replicaSet=rs0
+            - KRYVEA_ADMIN_USER=kryvea
+            - KRYVEA_ADMIN_PASS=kryveapassword
             - KRYVEA_LOG_DIRECTORY=/var/log/kryvea/
             - KRYVEA_LOG_MAX_SIZE_MB=10
             - KRYVEA_LOG_MAX_BACKUPS=5
@@ -99,7 +101,3 @@ networks:
         driver: bridge
     kryvea-data:
         driver: bridge
-
-volumes:
-    kryvea-db-storage:
-    kryvea-static:

@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { Link, useResolvedPath } from "react-router";
 import { GlobalContext } from "../../App";
-import { scrollElementHorizontally } from "../../hooks/useEffectCurries";
+import { scrollElementHorizontally } from "../../hooks/hooks";
 
 type TBreadCrumbProps = {
   homeElement: ReactNode;
@@ -28,7 +28,7 @@ export default function Breadcrumb({ homeElement, separator, capitalizeLinks }: 
       [ctxAssessment?.id, ctxAssessment?.name],
       [
         ctxVulnerability?.id,
-        `${ctxVulnerability?.category.index} - ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
+        `${ctxVulnerability?.category.identifier} - ${ctxVulnerability?.category.name}${ctxVulnerability?.detailed_title ? ` (${ctxVulnerability.detailed_title})` : ""}`,
       ],
       [ctxCategory?.id, ctxCategory?.name],
     ],

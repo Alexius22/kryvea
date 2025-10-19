@@ -31,7 +31,18 @@ if __name__ == "__main__":
         default=PROXY_URL,
         help=f"Proxy URL (default: {PROXY_URL})",
     )
-
+    parser.add_argument(
+        "--username",
+        type=str,
+        default="kryvea",
+        help="Admin username (default: kryvea)",
+    )
+    parser.add_argument(
+        "--password",
+        type=str,
+        default="Kryvea123!",
+        help="Admin password (default: Kryvea123!)",
+    )
     args = parser.parse_args()
 
     session = requests.Session()
@@ -45,6 +56,6 @@ if __name__ == "__main__":
 
     # populate db with test data
     try:
-        data = populate_test(session, args.base_url)
+        data = populate_test(session, args.base_url, args.username, args.password)
     except Exception as e:
         print(f"Error populating database: {e}")

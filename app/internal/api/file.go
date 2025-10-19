@@ -4,7 +4,6 @@ import (
 	"bytes"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -60,7 +59,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 		})
 	}
 
-	imageData, _, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	imageData, fileReference, err := d.mongo.FileReference().ReadByID(imageRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -68,10 +67,8 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 		})
 	}
 
-	mimeType := mimetype.Detect(imageData)
-
 	c.Status(fiber.StatusOK)
-	c.Set("Content-Type", mimeType.String())
+	c.Set("Content-Type", fileReference.MimeType)
 	return c.SendStream(bytes.NewReader(imageData))
 }
 
@@ -102,7 +99,7 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 		})
 	}
 
-	fileData, _, err := d.mongo.FileReference().ReadByID(fileRef.ID)
+	fileData, fileReference, err := d.mongo.FileReference().ReadByID(fileRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -111,9 +108,51 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 	}
 
 	c.Status(fiber.StatusOK)
-	c.Set("Content-Type", mongo.SupportedTemplateMimeTypes[template.MimeType])
+	c.Set("Content-Type", fileReference.MimeType)
 	c.Set("Content-Disposition", "attachment; filename="+template.Filename)
 	return c.SendStream(bytes.NewReader(fileData))
+}
+
+func (d *Driver) GetCustomerImage(c *fiber.Ctx) error {
+	user := c.Locals("user").(*mongo.User)
+
+	// parse image param
+	imageRef, errStr := d.fileFromParam(c.Params("file"))
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": errStr,
+		})
+	}
+
+	// check if user has access to customer
+	canAccessCustomer := false
+	for _, usedBy := range imageRef.UsedBy {
+		if user.CanAccessCustomer(usedBy) {
+			canAccessCustomer = true
+			break
+		}
+	}
+
+	if !canAccessCustomer {
+		c.Status(fiber.StatusForbidden)
+		return c.JSON(fiber.Map{
+			"error": "Forbidden",
+		})
+	}
+
+	// read the image from the database
+	imageData, fileReference, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"error": "Cannot retrieve image",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	c.Set("Content-Type", fileReference.MimeType)
+	return c.SendStream(bytes.NewReader(imageData))
 }
 
 func (d *Driver) fileFromParam(param string) (*mongo.FileReference, string) {

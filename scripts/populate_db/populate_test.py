@@ -13,7 +13,7 @@ from models.vulnerability import Vulnerability
 from requests import Session
 
 
-def populate_test(session: Session, base_url: str) -> str:
+def populate_test(session: Session, base_url: str, username: str, password: str) -> str:
     # initialize Base with session and base_url
     Base.base_url = base_url
     Base.session = session
@@ -21,7 +21,7 @@ def populate_test(session: Session, base_url: str) -> str:
     image = utils.rand_image()
 
     # login as admin
-    user = User(username="kryvea", password="kryveapassword")
+    user = User(username=username, password=password)
     if not user.login():
         raise Exception(f"Failed to login as {user.username}")
 
@@ -82,8 +82,8 @@ def create_categories(n: int) -> list:
     """
 
     categories = []
-    for index in utils.rand_category_indexes(n):
-        category = Category(index=index)
+    for identifier in utils.rand_category_identifiers(n):
+        category = Category(identifier=identifier)
         id, error = category.add()
         if error != "":
             raise Exception(f"Failed to register category {category.name}: {error}")

@@ -48,10 +48,6 @@ func SanitizeAndSortVulnerabilities(vulnerabilities []mongo.Vulnerability, maxVe
 
 	for i := range vulnerabilities {
 		sanitizeVulnerability(&vulnerabilities[i])
-
-		addComplexityColor(&vulnerabilities[i])
-
-		addSeverityColor(&vulnerabilities[i])
 	}
 
 	// Sort by maxVersion score
@@ -79,7 +75,7 @@ func sanitizeVulnerability(item *mongo.Vulnerability) {
 	SanitizeAndSortPoc(&item.Poc)
 
 	item.Category.Name = escapeXMLString(item.Category.Name)
-	item.Category.Index = escapeXMLString(item.Category.Index)
+	item.Category.Identifier = escapeXMLString(item.Category.Identifier)
 	item.DetailedTitle = escapeXMLString(item.DetailedTitle)
 	item.Status = escapeXMLString(item.Status)
 
@@ -102,8 +98,8 @@ func sanitizeVulnerability(item *mongo.Vulnerability) {
 func sanitizeVector(item *cvss.Vector) {
 	item.Version = escapeXMLString(item.Version)
 	item.Vector = escapeXMLString(item.Vector)
-	item.Severity.Label = escapeXMLString(item.Severity.Label)
-	item.Complexity.Label = escapeXMLString(item.Complexity.Label)
+	item.Severity = escapeXMLString(item.Severity)
+	item.Complexity = escapeXMLString(item.Complexity)
 	item.Description = escapeXMLString(item.Description)
 }
 

@@ -159,7 +159,7 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 		}
 
 		category := &mongo.Category{
-			Index:              issue.Type,
+			Identifier:         issue.Type,
 			Name:               issue.Name,
 			GenericDescription: map[string]string{"en": issue.IssueBackground},
 			GenericRemediation: map[string]string{"en": issue.RemediationBackground},
@@ -397,8 +397,8 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				Pocs: make([]mongo.PocItem, 0, 1),
 			}
 			category := &mongo.Category{
-				Index: item.PluginID,
-				Name:  item.PluginName,
+				Identifier: item.PluginID,
+				Name:       item.PluginName,
 				GenericDescription: map[string]string{
 					"en": item.Description,
 				},

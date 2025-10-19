@@ -120,7 +120,7 @@ export default function Input({
             <div className="relative w-full">
               <input
                 disabled={disabled}
-                className={`${className} ${type === "password" ? "pr-10" : ""} w-full`}
+                className={`${type === "password" ? "pr-10" : ""} w-full ${className}`}
                 type={type === "password" ? (showPassword ? "text" : "password") : type}
                 id={id}
                 placeholder={placeholder}

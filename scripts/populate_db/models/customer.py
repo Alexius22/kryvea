@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from typing import Tuple
 
@@ -19,7 +20,16 @@ class Customer(Base):
             "name": self.name,
             "language": self.language,
         }
-        response = self.session.post(self.base_url + "/admin/customers", json=data)
+
+        image = utils.rand_image()
+        imageBytes = open(image, "rb").read()
+
+        files = {
+            "data": (None, json.dumps(data), "application/json"),
+            "file": ("customer_logo.jpg", imageBytes, "image/jpeg"),
+        }
+
+        response = self.session.post(self.base_url + "/admin/customers", files=files)
         jr = response.json()
         if response.status_code == 201:
             self.id = jr.get("customer_id")

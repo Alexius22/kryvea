@@ -101,8 +101,8 @@ func TestParseVector(t *testing.T) {
 				if vector.Score != tc.expectedScore {
 					t.Errorf("Expected score %v but got %v", tc.expectedScore, vector.Score)
 				}
-				if vector.Severity.Label != tc.expectedSeverity {
-					t.Errorf("Expected severity %v but got %v", tc.expectedSeverity, vector.Severity.Label)
+				if vector.Severity != tc.expectedSeverity {
+					t.Errorf("Expected severity %v but got %v", tc.expectedSeverity, vector.Severity)
 				}
 			}
 		})

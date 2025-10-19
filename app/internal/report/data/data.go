@@ -1,7 +1,6 @@
 package reportdata
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -31,9 +30,6 @@ type OWASPCounter struct {
 }
 
 func (rd *ReportData) Prepare() {
-	fmt.Println("preparing report data...")
-	fmt.Println("number of vulnerabilities:", len(rd.Vulnerabilities))
-
 	// get highest cvss version
 	maxVersion := util.GetMaxCvssVersion(rd.Assessment.CVSSVersions)
 

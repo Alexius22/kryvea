@@ -95,6 +95,7 @@ export type Customer = {
   id: string;
   name: string;
   language: string;
+  logo_id: string;
   updated_at: Date;
   created_at: Date;
   templates: Template[];
@@ -103,11 +104,12 @@ export type Customer = {
 export type Category = {
   id: string;
   updated_at: string;
-  index: string;
+  identifier: string;
   name: string;
   source: "owasp_web" | "owasp_mobile" | "owasp_api" | "nessus" | "burp";
   generic_description: Record<string, string>;
   generic_remediation: Record<string, string>;
+  languages_order: string[];
   references: string[];
 };
 

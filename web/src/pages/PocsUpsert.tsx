@@ -22,7 +22,7 @@ import PocRichText from "../components/Poc/PocRichText";
 import PocText from "../components/Poc/PocText";
 import { getPageTitle } from "../utils/helpers";
 
-export default function EditPoc() {
+export default function PocsUpsert() {
   const [pocList, setPocList] = useState<PocDoc[]>([]);
   const [onPositionChangeMode, setOnPositionChangeMode] = useState<"swap" | "shift">("shift");
   const [selectedPoc, setSelectedPoc] = useState<number>(0);
@@ -50,17 +50,34 @@ export default function EditPoc() {
       pocListParent.current?.classList.remove("dragging");
     };
 
+    const onKeyboardShortcut = (e: KeyboardEvent) => {
+      if (e.altKey === false || e.shiftKey === true || e.ctrlKey === true) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      switch (e.key) {
+        case "r":
+          addPoc(POC_TYPE_REQUEST_RESPONSE)();
+          break;
+        case "t":
+          addPoc(POC_TYPE_TEXT)();
+          break;
+        case "i":
+          addPoc(POC_TYPE_IMAGE)();
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyboardShortcut);
     window.addEventListener("dragover", handleDragStart);
-    window.addEventListener("dragstart", handleDragStart);
     window.addEventListener("dragend", handleDragEnd);
-    window.addEventListener("visibilitychange", handleDragEnd);
-    window.addEventListener("drop", handleDragEnd);
     return () => {
+      window.removeEventListener("keydown", onKeyboardShortcut);
       window.removeEventListener("dragover", handleDragStart);
-      window.removeEventListener("dragstart", handleDragStart);
       window.removeEventListener("dragend", handleDragEnd);
-      window.removeEventListener("visibilitychange", handleDragEnd);
-      window.removeEventListener("drop", handleDragEnd);
     };
   }, []);
 
@@ -69,6 +86,8 @@ export default function EditPoc() {
       return;
     }
     pocListParent.current.lastElementChild.scrollIntoView({ behavior: "smooth" });
+    pocListParent.current.lastElementChild.querySelector("textarea")?.focus();
+    setSelectedPoc(pocList.length - 1);
   }, [goToBottom]);
 
   function onSetCodeSelection<T>(currentIndex, property: keyof Omit<T, "key">, highlights: MonacoTextSelection[]) {
@@ -91,6 +110,15 @@ export default function EditPoc() {
         return newPocList;
       });
     };
+  }
+
+  function onStartingLineNumberChange<T>(currentIndex, property: keyof Omit<T, "key">) {
+    return num =>
+      setPocList(prev => {
+        const newPocList = [...prev];
+        newPocList[currentIndex] = { ...newPocList[currentIndex], [property]: num };
+        return newPocList;
+      });
   }
 
   async function onImageChange(currentIndex, image_file: File | null) {
@@ -171,6 +199,7 @@ export default function EditPoc() {
             text_language: "",
             text_data: "",
             text_highlights: [],
+            starting_line_number: 1,
           },
         ]);
         break;
@@ -234,6 +263,7 @@ export default function EditPoc() {
               onTextChange,
               onRemovePoc,
               onSetCodeSelection,
+              onStartingLineNumberChange,
             }}
             key={pocDoc.key}
           />

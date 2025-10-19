@@ -8,20 +8,20 @@ $main-max-width: 1735px !default;
   --main-max-width: #{$main-max-width};
 
   /* Palette */
-  $bg-primary: #e0e0e0;
+  $bg-primary: #f0f0f0;
   $text-primary: #3d3b43;
   $border: #4f4f4f;
-  $link: #036c5f;
-  $button-bg: color.adjust($bg-primary, $lightness: -10%);
+  $link: #127a81;
+  $button-bg: #106b71;
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
   /* Maps */
   $backgrounds: (
     "primary": $bg-primary,
-    "secondary": color.adjust($bg-primary, $lightness: 8%),
-    "tertiary": color.adjust($bg-primary, $lightness: 12%),
-    "quaternary": color.adjust($bg-primary, $lightness: 5%),
+    "secondary": color.adjust($bg-primary, $lightness: 2%),
+    "tertiary": color.adjust($bg-primary, $lightness: 4%),
+    "quaternary": color.adjust($bg-primary, $lightness: 0%),
     "quinary": color.adjust($bg-primary, $lightness: -2%),
     "active": color.adjust($bg-primary, $lightness: -10%),
   );
@@ -39,12 +39,12 @@ $main-max-width: 1735px !default;
 
   /* Links */
   --link: #{$link};
-  --link-hover: #{color.adjust($link, $lightness: -15%)};
+  --link-hover: #{color.adjust($link, $lightness: 10%)};
 
   /* Buttons */
   $buttons: (
     "bg": $button-bg,
-    "bg-secondary": color.adjust($bg-primary, $lightness: 7%),
+    "bg-secondary": color.adjust($bg-primary, $lightness: -7%),
   );
 
   /* Alerts */
@@ -81,9 +81,9 @@ html.dark {
   /* Palette */
   $bg-primary: #161616;
   $text-primary: #e0e0e0;
-  $border: #8d8d8d;
+  $border: #a0a0a0;
   $link: #ee9f27;
-  $button-bg: color.adjust($bg-primary, $lightness: 30%);
+  $button-bg: color.adjust($text-primary, $lightness: -36%);
   $clickable-hover-backdrop-brightness: 0.8;
   $clickable-active-backdrop-brightness: 0.5;
 
@@ -94,7 +94,7 @@ html.dark {
     "tertiary": color.adjust($bg-primary, $lightness: 10%),
     "quaternary": color.adjust($bg-primary, $lightness: 20%),
     "quinary": color.adjust($bg-primary, $lightness: 30%),
-    "active": color.adjust($bg-primary, $lightness: 40%),
+    "active": color.adjust($bg-primary, $lightness: 60%),
   );
 
   /* Text */
@@ -107,7 +107,7 @@ html.dark {
   --border-primary-highlight: #{color.adjust($border, $alpha: -0.6)};
   --border-secondary: #{color.adjust($border, $alpha: -0.9)};
   --border-secondary-highlight: #{color.adjust($border, $alpha: -0.7)};
-  --border-accent: #{$border};
+  --border-active: #{color.adjust($border, $lightness: 20%)};
 
   /* Links */
   --link: #{$link};

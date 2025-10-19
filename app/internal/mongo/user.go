@@ -191,7 +191,6 @@ func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 	}
 
 	return user, nil
-
 }
 
 func (ui *UserIndex) GetByIDForHydrate(ID uuid.UUID) (*User, error) {
@@ -329,7 +328,33 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 		update["$set"].(bson.M)["customers"] = user.Customers
 	}
 
-	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	session, err := ui.driver.NewSessionWithLock(lockAdmin)
+	if err != nil {
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		_, err := ui.collection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			return nil, err
+		}
+
+		count, err := ui.collection.CountDocuments(
+			ctx,
+			bson.M{"role": RoleAdmin},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if count == 0 {
+			return nil, ErrAdminUserRequired
+		}
+
+		return nil, err
+	})
+
 	return err
 }
 
@@ -379,7 +404,14 @@ func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addTo
 }
 
 func (ui *UserIndex) Delete(ID uuid.UUID) error {
-	_, err := ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	// remove user from vulnerability
+	err := ui.driver.Vulnerability().RemoveUserReference(ID)
+	if err != nil {
+		return err
+	}
+
+	// delete user
+	_, err = ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
 	return err
 }
 

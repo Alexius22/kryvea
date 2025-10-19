@@ -25,8 +25,11 @@ export const sourceCategoryOptions: SelectOption[] = [
   { value: "owasp_web", label: "OWASP Top 10 Web" },
   { value: "owasp_mobile", label: "OWASP Top 10 Mobile" },
   { value: "owasp_api", label: "OWASP Top 10 API" },
-  { value: "nessus", label: "Nessus" },
+  { value: "owasp_llm", label: "OWASP Top 10 for LLM" },
+  { value: "att&ck", label: "ATT&CK" },
   { value: "burp", label: "Burp" },
+  { value: "cwe", label: "CWE" },
+  { value: "nessus", label: "Nessus" },
 ];
 
 const languageOptions: SelectOption[] = Object.entries(languageMapping).map(([value, label]) => ({ value, label }));
@@ -65,14 +68,14 @@ export default function CategoryUpsert() {
     }
 
     getData<Category>(`/api/categories/${categoryId}`, category => {
-      setIdentifier(category.index);
+      setIdentifier(category.identifier);
       setName(category.name);
       setSource(category.source);
       setReferences(category.references || []);
       setCategory(category);
 
       setSelectedLanguagesOptions(
-        languageOptions.filter(option => Object.keys(category.generic_description || {}).includes(option.value))
+        category.languages_order.map(lang => languageOptions.find(option => option.value === lang))
       );
     });
   }, []);
@@ -125,11 +128,12 @@ export default function CategoryUpsert() {
     });
 
     const payload: Omit<Category, "id" | "updated_at"> = {
-      index: identifier.trim(),
+      identifier: identifier.trim(),
       name: name.trim(),
       source: source,
       generic_description,
       generic_remediation,
+      languages_order: selectedLanguagesOptions.map(lang => lang.value),
       references: references,
     };
 
@@ -250,7 +254,7 @@ export default function CategoryUpsert() {
                 onClick={() => removeLanguage(language.value)}
               />
             </Flex>
-            <Grid className="grid-cols-2 gap-4">
+            <Grid className="grid-cols-2 !items-start gap-4">
               <Textarea
                 label="Generic description"
                 id={`gen_desc_${language.value}`}

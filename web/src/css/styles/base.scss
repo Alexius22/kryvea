@@ -13,6 +13,7 @@ a:hover {
 button {
   @apply rounded border border-white/0 px-4 py-2;
   background-color: var(--button-bg);
+  color: #ffffff;
 }
 button[disabled] {
   @apply cursor-not-allowed;
@@ -21,24 +22,40 @@ button[disabled] {
     filter: none;
   }
 }
-button.small {
+button[data-small] {
   @apply px-3 py-1 text-sm;
 }
-button.secondary {
-  background-color: rgba(var(--button-bg-secondary-rgb), 0.6);
-}
-button.warning {
-  background-color: var(--warning);
-}
-button.danger {
-  background-color: var(--error);
-}
-button.outline-only {
+button[data-variant="secondary"] {
   border: 1px solid var(--border-primary);
   background-color: transparent;
+  color: var(--text-primary);
 }
-button.transparent {
+button[data-variant="selected"] {
+  border-color: var(--border-active);
+}
+button[data-variant="warning"] {
+  background-color: var(--warning);
+}
+button[data-variant="danger"] {
+  background-color: var(--error);
+}
+button[data-variant="outline-only"] {
+  border: 1px solid var(--border-primary-highlight);
   background-color: transparent;
+  color: var(--text-primary);
+}
+button[data-variant="transparent"] {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+html.dark {
+  button[data-small] {
+    color: var(--text-primary);
+  }
+
+  button[data-variant="secondary"] {
+    background-color: rgba(var(--button-bg-secondary-rgb), 0.8);
+  }
 }
 
 input {
@@ -127,6 +144,9 @@ textarea::placeholder {
 .divider {
   @apply my-2;
   border-color: var(--border-primary);
+}
+.divider[data-no-margin] {
+  @apply my-0;
 }
 
 .heart {

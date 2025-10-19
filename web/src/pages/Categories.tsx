@@ -157,10 +157,10 @@ export default function Categories() {
         <Table
           loading={loadingCategories}
           data={categories.map(category => ({
-            Identifier: category.index,
+            Identifier: category.identifier,
             Name: category.name,
             Source: sourceCategoryMap[category.source],
-            Languages: Object.keys(category.generic_description || {})
+            Languages: Object.values(category.languages_order || {})
               .sort()
               .join(" | ")
               .toUpperCase(),

@@ -8,11 +8,11 @@ import CategoryUpsert from "./CategoryUpsert";
 import CustomerDetail from "./CustomerDetail";
 import Customers from "./Customers";
 import Dashboard from "./Dashboard";
-import EditPoc from "./EditPoc";
 import EditReport from "./EditReport";
 import LiveEditor from "./LiveEditor";
 import Login from "./Login";
 import Logs from "./Logs";
+import PocsUpsert from "./PocsUpsert";
 import Profile from "./Profile";
 import Settings from "./Settings";
 import Targets from "./Targets";
@@ -33,11 +33,11 @@ export {
   CustomerDetail,
   Customers,
   Dashboard,
-  EditPoc,
   EditReport,
   LiveEditor,
   Login,
   Logs,
+  PocsUpsert,
   Profile,
   Settings,
   Targets,
