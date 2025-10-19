@@ -179,6 +179,7 @@ export default function Table({
 
             setFilterText("");
           }}
+          style={(backendSearch ?? filterText) === "" ? { display: "none" } : undefined}
         >
           <Icon className="text-[color:--text-secondary] hover:opacity-50" path={mdiClose} size={18} />
         </span>
