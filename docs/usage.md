@@ -54,10 +54,11 @@ Kryvea has two user roles:
 
 The typical Kryvea workflow:
 
-### Necessary the first time
+::: tip
 
-- Create or import categories
-- Upload a template report
+- Create or import categories from [here](https://github.com/Alexius22/kryvea/blob/main/app/data/generic_categories.json)
+- Upload a template report from [here](https://github.com/Alexius22/kryvea/blob/main/app/data/report-template-example.docx)
+  :::
 
 ### Normal workflow
 
@@ -85,7 +86,7 @@ The typical Kryvea workflow:
 1. Go to **Edit Customer** page
 2. Insert a template name
 3. Insert a type to help you to identify better the template (Optional)
-4. Select a DOCX/Archive template file
+4. Select a DOCX/XLSX template file
 5. Click **Upload**
 
 ### Managing Customers
@@ -146,6 +147,11 @@ The typical Kryvea workflow:
 **View assessments:**
 
 - Customer name -> **Assessments** tab
+
+::: tip
+
+**Take ownership** ⭐: Once you take ownership of the assessment, it will become accessible on the Dashboard page.
+:::
 
 **Edit assessment:**
 
@@ -223,6 +229,8 @@ The built-in CVSS calculator supports:
 
 ### Adding Proof of Concept (PoC)
 
+![Edit PoC](/images/edit_poc.png)
+
 1. Navigate to **Vulnerability Detail** -> **Edit PoC** tab
 2. Use the header bar to add:
    - HTTP Request/Response
@@ -233,17 +241,18 @@ The built-in CVSS calculator supports:
 
 ### Searching Vulnerabilities
 
+![Vulnerability Search](/images/vulnerability_search.png)
+
 **Global search:**
 
 - Navigate to **Vulnerability Search**
 - Search across all assessments
 - Filter by:
-  - Name
   - Assessment
   - User
-  - CVSS Versions
   - Date range
   - Customer
+  - CVSS Versions
   - CVSS score range
 
 ### Copying Vulnerabilities
@@ -317,7 +326,7 @@ Categories define vulnerability types using generic descriptions and remediation
    - Global template
    - Customer-specific template
 4. Configure options:
-   - Include/exclude informational findings
+   - Include informational findings
 5. Click **Generate**
 6. Download Word document
 
@@ -329,7 +338,7 @@ Categories define vulnerability types using generic descriptions and remediation
    - Global template
    - Customer-specific template
 4. Configure options:
-   - Include/exclude informational findings
+   - Include informational findings
 5. Click **Generate**
 6. Download Excel document
 
@@ -338,7 +347,7 @@ Categories define vulnerability types using generic descriptions and remediation
 1. Navigate to **Assessment Detail**
 2. Click **Export** -> **ZIP**
 3. Configure options:
-   - Include/exclude informational findings
+   - Include informational findings
 4. Click **Generate**
 5. Download zip archive that contains a xlsx file and a folder with images
 
@@ -387,7 +396,7 @@ Categories define vulnerability types using generic descriptions and remediation
 
 ### Edit PoC
 
-- In MonacoEditor you have all the Code shortcuts
+- In MonacoEditor you have all the VS Code shortcuts
 - `Ctrl/Cmd + V`: Paste image in PoC image type
 
 ## Next Steps
