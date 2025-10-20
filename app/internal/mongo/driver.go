@@ -53,16 +53,18 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 	d.bucket = d.database.GridFSBucket()
 
 	indexes := []Index{
-		d.Customer(),
-		d.Assessment(),
-		d.Target(),
-		d.Category(),
-		d.Vulnerability(),
-		d.Poc(),
-		d.User(),
-		d.File(),
-		d.FileReference(),
 		d.Lock(),
+		d.Assessment(),
+		d.Category(),
+		d.Customer(),
+		d.FileReference(),
+		d.File(),
+		d.Poc(),
+		d.Setting(),
+		d.Target(),
+		d.Template(),
+		d.User(),
+		d.Vulnerability(),
 	}
 
 	for _, i := range indexes {
@@ -95,7 +97,7 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 }
 
 func (d *Driver) IsDbInitialized() (bool, error) {
-	_, err := d.Category().GetByID(ImmutableCategoryID)
+	_, err := d.Category().GetByID(context.Background(), ImmutableCategoryID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return false, err
 	}
@@ -108,7 +110,7 @@ func (d *Driver) IsDbInitialized() (bool, error) {
 }
 
 func (d *Driver) CreateSetting() error {
-	setting, err := d.Setting().Get()
+	setting, err := d.Setting().Get(context.Background())
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -139,7 +141,7 @@ func (d *Driver) CreateSetting() error {
 }
 
 func (d *Driver) CreateAdminUser(username, password string) error {
-	user, err := d.User().GetByUsername(username)
+	user, err := d.User().GetByUsername(context.Background(), username)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -185,7 +187,7 @@ func (d *Driver) CreateAdminUser(username, password string) error {
 }
 
 func (d *Driver) CreateNilCategory() error {
-	category, err := d.Category().GetByID(ImmutableCategoryID)
+	category, err := d.Category().GetByID(context.Background(), ImmutableCategoryID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}

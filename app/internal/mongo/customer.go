@@ -53,7 +53,10 @@ func (ci CustomerIndex) init() error {
 	return err
 }
 
-func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
+// Insert adds a new customer to the database including logo reference
+//
+// Requires transactional context to ensure data integrity
+func (ci *CustomerIndex) Insert(ctx context.Context, customer *Customer) (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.Nil, err
@@ -69,13 +72,13 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 		UpdatedAt: time.Now(),
 	}
 
-	_, err = ci.collection.InsertOne(context.Background(), customer)
+	_, err = ci.collection.InsertOne(ctx, customer)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
 	if customer.LogoID != uuid.Nil {
-		err = ci.driver.FileReference().AddToUsedBy(customer.LogoID, customer.ID)
+		err = ci.driver.FileReference().AddToUsedBy(ctx, customer.LogoID, customer.ID)
 		if err != nil {
 			return uuid.Nil, err
 		}
@@ -84,14 +87,17 @@ func (ci *CustomerIndex) Insert(customer *Customer) (uuid.UUID, error) {
 	return customer.ID, nil
 }
 
-func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error {
-	oldCustomer, err := ci.GetByID(customerID)
+// Update modifies an existing customer in the database including logo reference
+//
+// Requires transactional context to ensure data integrity
+func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, customer *Customer) error {
+	oldCustomer, err := ci.GetByID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
 	if oldCustomer.LogoID != uuid.Nil {
-		err = ci.driver.FileReference().PullUsedBy(oldCustomer.LogoID, oldCustomer.ID)
+		err = ci.driver.FileReference().PullUsedBy(ctx, oldCustomer.LogoID, oldCustomer.ID)
 		if err != nil {
 			return err
 		}
@@ -112,13 +118,13 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference("logo.png", customer.LogoID)
 	}
 
-	_, err = ci.collection.UpdateOne(context.Background(), filter, update)
+	_, err = ci.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
 
 	if customer.LogoID != uuid.Nil {
-		err = ci.driver.FileReference().AddToUsedBy(customer.LogoID, oldCustomer.ID)
+		err = ci.driver.FileReference().AddToUsedBy(ctx, customer.LogoID, oldCustomer.ID)
 		if err != nil {
 			return err
 		}
@@ -127,16 +133,19 @@ func (ci *CustomerIndex) Update(customerID uuid.UUID, customer *Customer) error 
 	return nil
 }
 
-func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
+// Delete removes a customer and all its associated data
+//
+// Requires transactional context to ensure data integrity
+func (ci *CustomerIndex) Delete(ctx context.Context, customerID uuid.UUID) error {
 	// retrieve the current customer document
-	oldCustomer, err := ci.GetByID(customerID)
+	oldCustomer, err := ci.GetByID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
 	// delete logo reference
 	if oldCustomer.LogoID != uuid.Nil {
-		err = ci.driver.FileReference().PullUsedBy(oldCustomer.ID, oldCustomer.LogoID)
+		err = ci.driver.FileReference().PullUsedBy(ctx, oldCustomer.ID, oldCustomer.LogoID)
 		if err != nil {
 			return err
 		}
@@ -145,61 +154,61 @@ func (ci *CustomerIndex) Delete(customerID uuid.UUID) error {
 	// Remove the customer from the user's list
 	filter := bson.M{"customers._id": customerID}
 	update := bson.M{"$pull": bson.M{"customers": bson.M{"_id": customerID}}}
-	_, err = ci.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	_, err = ci.driver.User().collection.UpdateMany(ctx, filter, update)
 	if err != nil {
 		return err
 	}
 
 	// Remove all targets for the customer
-	targets, err := ci.driver.Target().GetByCustomerID(customerID)
+	targets, err := ci.driver.Target().GetByCustomerID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
 	for _, target := range targets {
-		if err := ci.driver.Target().Delete(target.ID); err != nil {
+		if err := ci.driver.Target().Delete(ctx, target.ID); err != nil {
 			return err
 		}
 	}
 
 	// Remove all templates for the customer
-	templates, err := ci.driver.Template().GetByCustomerID(customerID)
+	templates, err := ci.driver.Template().GetByCustomerID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
 	for _, template := range templates {
-		if err := ci.driver.Template().Delete(template.ID); err != nil {
+		if err := ci.driver.Template().Delete(ctx, template.ID); err != nil {
 			return err
 		}
 	}
 
 	// Remove all assessments for the customer
-	assessments, err := ci.driver.Assessment().GetByCustomerID(customerID)
+	assessments, err := ci.driver.Assessment().GetByCustomerID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
 	for _, assessment := range assessments {
-		if err := ci.driver.Assessment().Delete(assessment.ID); err != nil {
+		if err := ci.driver.Assessment().Delete(ctx, assessment.ID); err != nil {
 			return fmt.Errorf("failed to delete Assessment %s: %w", assessment.ID, err)
 		}
 	}
 
 	// Delete the customer
-	_, err = ci.collection.DeleteOne(context.Background(), bson.M{"_id": customerID})
+	_, err = ci.collection.DeleteOne(ctx, bson.M{"_id": customerID})
 	return err
 }
 
-func (ci *CustomerIndex) GetByID(customerID uuid.UUID) (*Customer, error) {
+func (ci *CustomerIndex) GetByID(ctx context.Context, customerID uuid.UUID) (*Customer, error) {
 	var customer Customer
-	if err := ci.collection.FindOne(context.Background(), bson.M{"_id": customerID}).Decode(&customer); err != nil {
+	if err := ci.collection.FindOne(ctx, bson.M{"_id": customerID}).Decode(&customer); err != nil {
 		return nil, err
 	}
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, error) {
+func (ci *CustomerIndex) GetByIDForHydrate(ctx context.Context, customerID uuid.UUID) (*Customer, error) {
 	filter := bson.M{"_id": customerID}
 	opts := options.FindOne().SetProjection(bson.M{
 		"logo_id":   0,
@@ -207,7 +216,7 @@ func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, err
 	})
 
 	var customer Customer
-	err := ci.collection.FindOne(context.Background(), filter, opts).Decode(&customer)
+	err := ci.collection.FindOne(ctx, filter, opts).Decode(&customer)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +224,7 @@ func (ci *CustomerIndex) GetByIDForHydrate(customerID uuid.UUID) (*Customer, err
 	return &customer, nil
 }
 
-func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, error) {
+func (ci *CustomerIndex) GetManyForHydrate(ctx context.Context, customers []Customer) ([]Customer, error) {
 	customerIDs := make([]uuid.UUID, len(customers))
 	for i := range customers {
 		customerIDs[i] = customers[i].ID
@@ -227,14 +236,14 @@ func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, er
 		"templates": 0,
 	})
 
-	cursor, err := ci.collection.Find(context.Background(), filter, opts)
+	cursor, err := ci.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	customersMongo := []Customer{}
-	err = cursor.All(context.Background(), &customersMongo)
+	err = cursor.All(ctx, &customersMongo)
 	if err != nil {
 		return nil, err
 	}
@@ -242,16 +251,16 @@ func (ci *CustomerIndex) GetManyForHydrate(customers []Customer) ([]Customer, er
 	return customersMongo, nil
 }
 
-func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error) {
+func (ci *CustomerIndex) GetByIDPipeline(ctx context.Context, customerID uuid.UUID) (*Customer, error) {
 	filter := bson.M{"_id": customerID}
 
 	customer := &Customer{}
-	err := ci.collection.FindOne(context.Background(), filter).Decode(customer)
+	err := ci.collection.FindOne(ctx, filter).Decode(customer)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ci.hydrate(customer)
+	err = ci.hydrate(ctx, customer)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +268,7 @@ func (ci *CustomerIndex) GetByIDPipeline(customerID uuid.UUID) (*Customer, error
 	return customer, nil
 }
 
-func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
+func (ci *CustomerIndex) GetAll(ctx context.Context, customerIDs []uuid.UUID) ([]Customer, error) {
 	filter := bson.M{}
 	if customerIDs != nil {
 		filter = bson.M{
@@ -267,20 +276,20 @@ func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
 		}
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	customers := []Customer{}
-	err = cursor.All(context.Background(), &customers)
+	err = cursor.All(ctx, &customers)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range customers {
-		err = ci.hydrate(&customers[i])
+		err = ci.hydrate(ctx, &customers[i])
 		if err != nil {
 			return nil, err
 		}
@@ -289,19 +298,19 @@ func (ci *CustomerIndex) GetAll(customerIDs []uuid.UUID) ([]Customer, error) {
 	return customers, nil
 }
 
-func (ci *CustomerIndex) Search(query string) ([]Customer, error) {
+func (ci *CustomerIndex) Search(ctx context.Context, query string) ([]Customer, error) {
 	filter := bson.M{
 		"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	customers := []Customer{}
-	err = cursor.All(context.Background(), &customers)
+	err = cursor.All(ctx, &customers)
 	if err != nil {
 		return nil, err
 	}
@@ -310,8 +319,8 @@ func (ci *CustomerIndex) Search(query string) ([]Customer, error) {
 }
 
 // hydrate fills in the nested fields for a Customer
-func (ci *CustomerIndex) hydrate(customer *Customer) error {
-	templates, err := ci.driver.Template().GetByCustomerIDForHydrate(customer.ID)
+func (ci *CustomerIndex) hydrate(ctx context.Context, customer *Customer) error {
+	templates, err := ci.driver.Template().GetByCustomerIDForHydrate(ctx, customer.ID)
 	if err != nil {
 		return err
 	}

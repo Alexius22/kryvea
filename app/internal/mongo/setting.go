@@ -45,15 +45,15 @@ func (ci SettingIndex) init() error {
 	return nil
 }
 
-func (si *SettingIndex) Get() (*Setting, error) {
+func (si *SettingIndex) Get(ctx context.Context) (*Setting, error) {
 	setting := &Setting{}
-	if err := si.collection.FindOne(context.Background(), bson.M{"_id": SettingID}).Decode(&setting); err != nil {
+	if err := si.collection.FindOne(ctx, bson.M{"_id": SettingID}).Decode(&setting); err != nil {
 		return nil, err
 	}
 	return setting, nil
 }
 
-func (si *SettingIndex) Update(setting *Setting) error {
+func (si *SettingIndex) Update(ctx context.Context, setting *Setting) error {
 	filter := bson.M{"_id": SettingID}
 
 	update := bson.M{
@@ -65,12 +65,12 @@ func (si *SettingIndex) Update(setting *Setting) error {
 		},
 	}
 
-	_, err := si.collection.UpdateOne(context.Background(), filter, update)
+	_, err := si.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (si *SettingIndex) ValidateImageSize(size int64) error {
-	settings, err := si.Get()
+func (si *SettingIndex) ValidateImageSize(ctx context.Context, size int64) error {
+	settings, err := si.Get(ctx)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -13,11 +15,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
-
-// type pocRequestData struct {
-// 	VulnerabilityID string    `json:"vulnerability_id"`
-// 	Pocs            []pocData `json:"pocs"`
-// }
 
 type pocData struct {
 	Index              int                     `json:"index"`
@@ -49,7 +46,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	}
 
 	// get assessment from database
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
+	assessment, err := d.mongo.Assessment().GetByID(context.Background(), vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -100,8 +97,9 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 			defer wg.Done()
 			imageID := uuid.UUID{}
 			pocImageFilename := ""
+			imageData := []byte{}
 			if data.Type == poc.PocTypeImage && data.ImageReference != "" {
-				imageData, filename, err := d.formDataReadImage(c, data.ImageReference)
+				imageData, pocImageFilename, err = d.formDataReadImage(c, context.Background(), data.ImageReference)
 				if err != nil {
 					c.Status(fiber.StatusBadRequest)
 
@@ -117,16 +115,6 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 					errorChan <- fmt.Sprintf("PoC %d: Cannot read image data", i)
 					return
 				}
-
-				pocImageFilename = filename
-
-				// TODO: FileReference should also be updated with the pocItem ID
-				// or the poc upsert logic should be reworked
-				imageID, err = d.mongo.FileReference().Insert(imageData, filename)
-				if err != nil {
-					errorChan <- fmt.Sprintf("PoC %d: Cannot upload image", i)
-					return
-				}
 			}
 			safePocs.Set(i, mongo.PocItem{
 				Index:              data.Index,
@@ -138,6 +126,7 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 				Response:           data.Response,
 				ResponseHighlights: data.ResponseHighlights,
 				ImageID:            imageID,
+				ImageData:          imageData,
 				ImageFilename:      pocImageFilename,
 				ImageCaption:       data.ImageCaption,
 				TextLanguage:       data.TextLanguage,
@@ -165,17 +154,42 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		})
 	}
 
-	pocUpsert := &mongo.Poc{
-		VulnerabilityID: vulnerability.ID,
-		Pocs:            safePocs.GetAll(),
-	}
-
-	// update poc in the database
-	err = d.mongo.Poc().Upsert(pocUpsert)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		// TODO: FileReference should also be updated with the pocItem ID
+		// or the poc upsert logic should be reworked
+		pocs := safePocs.GetAll()
+		for i := range pocs {
+			imageID, err := d.mongo.FileReference().Insert(ctx, pocs[i].ImageData, pocs[i].ImageFilename)
+			if err != nil {
+				return nil, fmt.Errorf("PoC %d: Cannot upload image", i)
+			}
+
+			pocs[i].ImageID = imageID
+		}
+
+		pocUpsert := &mongo.Poc{
+			VulnerabilityID: vulnerability.ID,
+			Pocs:            pocs,
+		}
+
+		// update poc in the database
+		err = d.mongo.Poc().Upsert(ctx, pocUpsert)
+		if err != nil {
+			return nil, errors.New("Failed to update PoC")
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Failed to update PoC",
+			"error": err.Error(),
 		})
 	}
 
@@ -198,7 +212,7 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 	}
 
 	// get assessment from database
-	assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
+	assessment, err := d.mongo.Assessment().GetByID(context.Background(), vulnerability.Assessment.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -214,7 +228,7 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 	}
 
 	// parse vulnerability param
-	poc, err := d.mongo.Poc().GetByVulnerabilityID(vulnerability.ID)
+	poc, err := d.mongo.Poc().GetByVulnerabilityID(context.Background(), vulnerability.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{

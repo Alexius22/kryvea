@@ -68,7 +68,10 @@ func (ti TemplateIndex) init() error {
 	return err
 }
 
-func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
+// Insert adds a new template to the database including file reference
+//
+// Requires transactional context to ensure data integrity
+func (ti *TemplateIndex) Insert(ctx context.Context, template *Template) (uuid.UUID, error) {
 	if template.FileID == uuid.Nil {
 		return uuid.Nil, ErrTemplateFileIDRequired
 	}
@@ -84,12 +87,12 @@ func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
 		UpdatedAt: time.Now(),
 	}
 
-	_, err = ti.collection.InsertOne(context.Background(), template)
+	_, err = ti.collection.InsertOne(ctx, template)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	err = ti.driver.FileReference().AddToUsedBy(template.FileID, template.ID)
+	err = ti.driver.FileReference().AddToUsedBy(ctx, template.FileID, template.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -97,14 +100,14 @@ func (ti *TemplateIndex) Insert(template *Template) (uuid.UUID, error) {
 	return template.ID, err
 }
 
-func (ti *TemplateIndex) GetByID(id uuid.UUID) (*Template, error) {
+func (ti *TemplateIndex) GetByID(ctx context.Context, id uuid.UUID) (*Template, error) {
 	var template Template
-	err := ti.collection.FindOne(context.Background(), bson.D{{Key: "_id", Value: id}}).Decode(&template)
+	err := ti.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}}).Decode(&template)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ti.hydrate(&template)
+	err = ti.hydrate(ctx, &template)
 	if err != nil {
 		return nil, err
 	}
@@ -112,25 +115,25 @@ func (ti *TemplateIndex) GetByID(id uuid.UUID) (*Template, error) {
 	return &template, nil
 }
 
-func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, error) {
+func (ti *TemplateIndex) GetByCustomerID(ctx context.Context, customerID uuid.UUID) ([]Template, error) {
 	filter := bson.M{"customer._id": customerID}
 	opts := options.Find().SetSort(bson.D{
 		{Key: "created_at", Value: -1},
 	})
 
-	cursor, err := ti.collection.Find(context.Background(), filter, opts)
+	cursor, err := ti.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	templates := []Template{}
-	if err = cursor.All(context.Background(), &templates); err != nil {
+	if err = cursor.All(ctx, &templates); err != nil {
 		return nil, err
 	}
 
 	for i := range templates {
-		err = ti.hydrate(&templates[i])
+		err = ti.hydrate(ctx, &templates[i])
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +142,7 @@ func (ti *TemplateIndex) GetByCustomerID(customerID uuid.UUID) ([]Template, erro
 	return templates, nil
 }
 
-func (ti *TemplateIndex) GetByCustomerIDForHydrate(customerID uuid.UUID) ([]Template, error) {
+func (ti *TemplateIndex) GetByCustomerIDForHydrate(ctx context.Context, customerID uuid.UUID) ([]Template, error) {
 	filter := bson.M{"customer._id": customerID}
 	opts := options.Find().SetSort(bson.D{
 		{Key: "created_at", Value: -1},
@@ -147,23 +150,23 @@ func (ti *TemplateIndex) GetByCustomerIDForHydrate(customerID uuid.UUID) ([]Temp
 		"customer": 0,
 	})
 
-	cursor, err := ti.collection.Find(context.Background(), filter, opts)
+	cursor, err := ti.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	templates := []Template{}
-	if err = cursor.All(context.Background(), &templates); err != nil {
+	if err = cursor.All(ctx, &templates); err != nil {
 		return nil, err
 	}
 
 	return templates, nil
 }
 
-func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
+func (ti *TemplateIndex) GetByFileID(ctx context.Context, fileID uuid.UUID) (*Template, error) {
 	var template Template
-	err := ti.collection.FindOne(context.Background(), bson.D{{Key: "file_id", Value: fileID}}).Decode(&template)
+	err := ti.collection.FindOne(ctx, bson.D{{Key: "file_id", Value: fileID}}).Decode(&template)
 	if err != nil {
 		return nil, err
 	}
@@ -171,22 +174,22 @@ func (ti *TemplateIndex) GetByFileID(fileID uuid.UUID) (*Template, error) {
 	return &template, nil
 }
 
-func (ti *TemplateIndex) GetAll() ([]Template, error) {
+func (ti *TemplateIndex) GetAll(ctx context.Context) ([]Template, error) {
 	filter := bson.M{}
-	cursor, err := ti.collection.Find(context.Background(), filter)
+	cursor, err := ti.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	templates := []Template{}
-	err = cursor.All(context.Background(), &templates)
+	err = cursor.All(ctx, &templates)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range templates {
-		err = ti.hydrate(&templates[i])
+		err = ti.hydrate(ctx, &templates[i])
 		if err != nil {
 			return nil, err
 		}
@@ -195,27 +198,30 @@ func (ti *TemplateIndex) GetAll() ([]Template, error) {
 	return templates, nil
 }
 
-func (ti *TemplateIndex) Delete(id uuid.UUID) error {
-	template, err := ti.GetByID(id)
+// Delete removes a template and its file reference
+//
+// Requires transactional context to ensure data integrity
+func (ti *TemplateIndex) Delete(ctx context.Context, id uuid.UUID) error {
+	template, err := ti.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
 	// remove template id from FileReference
-	err = ti.driver.FileReference().PullUsedBy(template.FileID, template.ID)
+	err = ti.driver.FileReference().PullUsedBy(ctx, template.FileID, template.ID)
 	if err != nil {
 		return err
 	}
 
-	_, err = ti.collection.DeleteOne(context.Background(), bson.D{{Key: "_id", Value: id}})
+	_, err = ti.collection.DeleteOne(ctx, bson.D{{Key: "_id", Value: id}})
 	return err
 }
 
 // hydrate fills in the nested fields for a Template
-func (ti *TemplateIndex) hydrate(template *Template) error {
+func (ti *TemplateIndex) hydrate(ctx context.Context, template *Template) error {
 	// customer is optional
 	if template.Customer.ID != uuid.Nil {
-		customer, err := ti.driver.Customer().GetByIDForHydrate(template.Customer.ID)
+		customer, err := ti.driver.Customer().GetByIDForHydrate(ctx, template.Customer.ID)
 		if err != nil {
 			return err
 		}

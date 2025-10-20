@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -101,7 +103,7 @@ func (d *Driver) AddAssessment(c *fiber.Ctx) error {
 	}
 
 	// insert assessment into database
-	assessmentID, err := d.mongo.Assessment().Insert(assessment, customer.ID)
+	assessmentID, err := d.mongo.Assessment().Insert(context.Background(), assessment, customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
@@ -161,7 +163,7 @@ func (d *Driver) SearchAssessments(c *fiber.Ctx) error {
 	}
 
 	// retrieve assessments
-	assessments, err := d.mongo.Assessment().Search(customers, customerID, nameParam)
+	assessments, err := d.mongo.Assessment().Search(context.Background(), customers, customerID, nameParam)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -193,7 +195,7 @@ func (d *Driver) GetAssessmentsByCustomer(c *fiber.Ctx) error {
 	}
 
 	// retrieve assessments
-	assessments, err := d.mongo.Assessment().GetByCustomerID(customer.ID)
+	assessments, err := d.mongo.Assessment().GetByCustomerID(context.Background(), customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -235,7 +237,7 @@ func (d *Driver) GetAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(context.Background(), assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -278,7 +280,7 @@ func (d *Driver) GetOwnedAssessments(c *fiber.Ctx) error {
 	}
 
 	// get assessments from database
-	assessments, err := d.mongo.Assessment().GetMultipleByID(userAssessments)
+	assessments, err := d.mongo.Assessment().GetMultipleByID(context.Background(), userAssessments)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -372,7 +374,7 @@ func (d *Driver) UpdateAssessment(c *fiber.Ctx) error {
 	}
 
 	// update assessment in database
-	err := d.mongo.Assessment().Update(assessment.ID, newAssessment)
+	err := d.mongo.Assessment().Update(context.Background(), assessment.ID, newAssessment)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 
@@ -436,7 +438,7 @@ func (d *Driver) UpdateAssessmentStatus(c *fiber.Ctx) error {
 	}
 
 	// update assessment in database
-	err := d.mongo.Assessment().UpdateStatus(assessment.ID, newAssessmentStatus)
+	err := d.mongo.Assessment().UpdateStatus(context.Background(), assessment.ID, newAssessmentStatus)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -470,12 +472,25 @@ func (d *Driver) DeleteAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// delete assessment from database
-	err := d.mongo.Assessment().Delete(assessment.ID)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		// delete assessment from database
+		err := d.mongo.Assessment().Delete(ctx, assessment.ID)
+		if err != nil {
+			return nil, errors.New("Cannot delete assessment")
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot delete assessment",
+			"error": err.Error(),
 		})
 	}
 
@@ -524,26 +539,36 @@ func (d *Driver) CloneAssessment(c *fiber.Ctx) error {
 		data.Name = assessment.Name + " (Clone)"
 	}
 
-	// clone assessment
-	cloneAssessmentID, err := d.mongo.Assessment().Clone(assessment.ID, data.Name, data.IncludePocs)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusBadRequest)
+		return err
+	}
+	defer session.End()
 
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Assessment \"%s\" already exists", assessment.Name),
-			})
+	cloneAssessmentID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
+		// clone assessment
+		cloneAssessmentID, err := d.mongo.Assessment().Clone(ctx, assessment.ID, data.Name, data.IncludePocs)
+		if err != nil {
+			if mongo.IsDuplicateKeyError(err) {
+				return uuid.Nil, fmt.Errorf("Assessment \"%s\" already exists", assessment.Name)
+			}
+
+			return uuid.Nil, errors.New("Cannot clone assessment")
 		}
 
+		return cloneAssessmentID, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot clone assessment",
+			"error": err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
 		"message":       "Assessment cloned",
-		"assessment_id": cloneAssessmentID,
+		"assessment_id": cloneAssessmentID.(uuid.UUID),
 	})
 }
 
@@ -574,7 +599,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	assessment, err := d.mongo.Assessment().GetByIDPipeline(assessmentID)
+	assessment, err := d.mongo.Assessment().GetByIDPipeline(context.Background(), assessmentID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -583,7 +608,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	}
 
 	// check if user has access to customer
-	customer, err := d.mongo.Customer().GetByID(assessment.Customer.ID)
+	customer, err := d.mongo.Customer().GetByID(context.Background(), assessment.Customer.ID)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -598,7 +623,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	logoData, _, err := d.mongo.FileReference().ReadByID(customer.LogoID)
+	logoData, _, err := d.mongo.FileReference().ReadByID(context.Background(), customer.LogoID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -638,7 +663,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		}
 
 		// retrieve template from database
-		templateBytes, _, err = d.mongo.FileReference().ReadByID(template.FileID)
+		templateBytes, _, err = d.mongo.FileReference().ReadByID(context.Background(), template.FileID)
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -650,7 +675,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	maxVersion := util.GetMaxCvssVersion(assessment.CVSSVersions)
 
 	// retrieve vulnerabilities
-	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(assessment.ID, data.IncludeInformationalVulnerabilities, maxVersion)
+	vulnerabilities, err := d.mongo.Vulnerability().GetByAssessmentIDPocPipeline(context.Background(), assessment.ID, data.IncludeInformationalVulnerabilities, maxVersion)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -661,7 +686,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 	// retrieve pocs
 	for i, v := range vulnerabilities {
 		// TODO: make a function for this or move in the database vulnerability retrieval
-		category, err := d.mongo.Category().GetByID(vulnerabilities[i].Category.ID)
+		category, err := d.mongo.Category().GetByID(context.Background(), vulnerabilities[i].Category.ID)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
@@ -679,7 +704,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 
 		for j, item := range v.Poc.Pocs {
 			if item.ImageID != uuid.Nil {
-				imageData, _, err := d.mongo.FileReference().ReadByID(item.ImageID)
+				imageData, _, err := d.mongo.FileReference().ReadByID(context.Background(), item.ImageID)
 				if err != nil {
 					c.Status(fiber.StatusInternalServerError)
 					return c.JSON(fiber.Map{
@@ -734,7 +759,7 @@ func (d *Driver) assessmentFromParam(assessmentParam string) (*mongo.Assessment,
 		return nil, "Invalid assessment ID"
 	}
 
-	assessment, err := d.mongo.Assessment().GetByID(assessmentID)
+	assessment, err := d.mongo.Assessment().GetByID(context.Background(), assessmentID)
 	if err != nil {
 		return nil, "Invalid assessment ID"
 	}

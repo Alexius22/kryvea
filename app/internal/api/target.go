@@ -1,6 +1,9 @@
 package api
 
 import (
+	"context"
+	"errors"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/gofiber/fiber/v2"
@@ -80,26 +83,46 @@ func (d *Driver) AddTarget(c *fiber.Ctx) error {
 		Tag:      data.Tag,
 	}
 
-	// inseert target into database
-	targetID, err := d.mongo.Target().Insert(target, customer.ID, assessment.ID)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusBadRequest)
+		return err
+	}
+	defer session.End()
 
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": "Target with provided data already exists",
-			})
+	targetID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
+		// insert target into database
+		targetID, err := d.mongo.Target().Insert(ctx, target, customer.ID)
+		if err != nil {
+			c.Status(fiber.StatusBadRequest)
+
+			if mongo.IsDuplicateKeyError(err) {
+				return uuid.Nil, errors.New("Target with provided data already exists")
+			}
+
+			return uuid.Nil, errors.New("Cannot create target")
 		}
 
+		// add target to assessment if provided
+		if assessment.ID != uuid.Nil {
+			err = d.mongo.Assessment().UpdateTargets(ctx, assessment.ID, target.ID)
+			if err != nil {
+				return uuid.Nil, errors.New("Cannot add target to assessment")
+			}
+		}
+
+		return targetID, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot create target",
+			"error": err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":   "Target created",
-		"target_id": targetID,
+		"target_id": targetID.(uuid.UUID),
 	})
 }
 
@@ -151,7 +174,7 @@ func (d *Driver) UpdateTarget(c *fiber.Ctx) error {
 	}
 
 	// update target in database
-	err := d.mongo.Target().Update(target.ID, newTarget)
+	err := d.mongo.Target().Update(context.Background(), target.ID, newTarget)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 
@@ -192,12 +215,25 @@ func (d *Driver) DeleteTarget(c *fiber.Ctx) error {
 		})
 	}
 
-	// delete target from database
-	err := d.mongo.Target().Delete(target.ID)
+	session, err := d.mongo.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		// delete target from database
+		err := d.mongo.Target().Delete(ctx, target.ID)
+		if err != nil {
+			return nil, errors.New("Cannot delete target")
+		}
+
+		return nil, nil
+	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot delete target",
+			"error": err.Error(),
 		})
 	}
 
@@ -226,7 +262,7 @@ func (d *Driver) GetTargetsByCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	targets, err := d.mongo.Target().Search(customer.ID, c.Query("search"))
+	targets, err := d.mongo.Target().Search(context.Background(), customer.ID, c.Query("search"))
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -259,7 +295,7 @@ func (d *Driver) GetTarget(c *fiber.Ctx) error {
 	}
 
 	// get target by customer and ID from database
-	target, err := d.mongo.Target().GetByIDPipeline(targetID)
+	target, err := d.mongo.Target().GetByIDPipeline(context.Background(), targetID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -288,7 +324,7 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 		return nil, "Invalid target ID"
 	}
 
-	target, err := d.mongo.Target().GetByIDPipeline(targetID)
+	target, err := d.mongo.Target().GetByIDPipeline(context.Background(), targetID)
 	if err != nil {
 		return nil, "Invalid target ID"
 	}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -25,7 +26,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := d.mongo.User().GetByToken(token)
+	user, err := d.mongo.User().GetByToken(context.Background(), token)
 	if err != nil || user.TokenExpiry.Before(time.Now()) || (!user.DisabledAt.IsZero() && user.DisabledAt.Before(time.Now())) {
 		util.ClearCookies(c)
 		c.Status(fiber.StatusUnauthorized)
@@ -48,7 +49,7 @@ func (d *Driver) SessionMiddleware(c *fiber.Ctx) error {
 	}
 
 	if time.Until(user.TokenExpiry) < mongo.TokenRefreshThreshold {
-		err := d.mongo.User().RefreshUserToken(user)
+		err := d.mongo.User().RefreshUserToken(context.Background(), user)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
