@@ -1,7 +1,8 @@
 package api
 
 import (
-	"crypto/md5"
+	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -12,9 +13,9 @@ import (
 )
 
 type customerRequestData struct {
-	Name     string    `json:"name"`
-	Language string    `json:"language"`
-	LogoID   uuid.UUID `json:"logo_id"`
+	Name     string `json:"name"`
+	Language string `json:"language"`
+	LogoID   string `json:"logo_id"`
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -38,51 +39,57 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	var logoId uuid.UUID
-	file, err := c.FormFile("file")
-	if file != nil && err == nil {
-		logoData, err := d.readFile(file)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"error": "Cannot read file",
-			})
+	session, err := d.mongo.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.End()
+
+	customerID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
+		var logoId uuid.UUID
+		file, err := c.FormFile("file")
+		if file != nil && err == nil {
+			logoData, err := d.readFile(file)
+			if err != nil {
+				return uuid.Nil, errors.New("Cannot read file")
+			}
+
+			logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
+			if err != nil {
+				d.logger.Error().Err(err).Msg("Cannot upload image")
+				return uuid.Nil, errors.New("Cannot upload image")
+			}
 		}
 
-		logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
-		if err != nil {
-			return c.JSON(fiber.Map{
-				"error": "Cannot upload image",
-			})
+		customer := &mongo.Customer{
+			Name:     data.Name,
+			Language: data.Language,
+			LogoID:   logoId,
 		}
-	}
 
-	customer := &mongo.Customer{
-		Name:     data.Name,
-		Language: data.Language,
-		LogoID:   logoId,
-	}
+		// insert customer into database
+		customerID, err := d.mongo.Customer().Insert(ctx, customer)
+		if err != nil {
+			if mongo.IsDuplicateKeyError(err) {
+				return uuid.Nil, fmt.Errorf("Customer \"%s\" already exists", customer.Name)
+			}
 
-	// insert customer into database
-	customerID, err := d.mongo.Customer().Insert(customer)
+			return uuid.Nil, errors.New("Cannot create customer")
+		}
+
+		return customerID, nil
+	})
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
-
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Customer \"%s\" already exists", customer.Name),
-			})
-		}
-
 		return c.JSON(fiber.Map{
-			"error": "Cannot create customer",
+			"error": err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Customer created",
-		"customer_id": customerID,
+		"customer_id": customerID.(uuid.UUID),
 	})
 }
 
@@ -123,7 +130,7 @@ func (d *Driver) GetCustomers(c *fiber.Ctx) error {
 	}
 
 	// get customers from database
-	customers, err := d.mongo.Customer().GetAll(userCustomers)
+	customers, err := d.mongo.Customer().GetAll(context.Background(), userCustomers)
 	if err != nil {
 		d.logger.Error().Err(err).Msg("Cannot get customers")
 		c.Status(fiber.StatusInternalServerError)
@@ -166,56 +173,58 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	logoId := data.LogoID
-	file, err := c.FormFile("logo")
-	if logoId == uuid.Nil { // means it's a reqeust to change the logo only (breaks SRP)
-		if file != nil {
-			logoData, err := d.readFile(file)
-			if err != nil {
-				c.Status(fiber.StatusBadRequest)
-				return c.JSON(fiber.Map{
-					"error": "Cannot read file",
-				})
-			}
-
-			checksum := md5.Sum(logoData)
-			f, err := d.mongo.FileReference().GetByChecksum(checksum)
-			if err != nil {
-				// TODO: instead of inserting a new FileReference
-				// it should make an upsert. The mongo function can then check
-				// if the old image is still used and delete it accordingly
-				logoId, err = d.mongo.FileReference().Insert(logoData, file.Filename)
-				if err != nil {
-					return c.JSON(fiber.Map{
-						"error": "Cannot upload image",
-					})
-				}
-			} else {
-				logoId = f.ID
-			}
-		}
-	}
-
-	newCustomer := &mongo.Customer{
-		Name:     data.Name,
-		Language: data.Language,
-		LogoID:   logoId,
-	}
-
-	// insert customer into database
-	err = d.mongo.Customer().Update(customer.ID, newCustomer)
-	if err != nil {
-		d.logger.Error().Err(err).Msg("Cannot update customer")
-		c.Status(fiber.StatusInternalServerError)
-
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": fmt.Sprintf("Customer \"%s\" already exists", newCustomer.Name),
-			})
-		}
-
+	logoId, err := util.ParseUUID(data.LogoID)
+	if errStr != "" {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot update customer",
+			"error": "Failed to parse logoID",
+		})
+	}
+
+	session, err := d.mongo.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		if logoId == uuid.Nil {
+			file, err := c.FormFile("file")
+			if file != nil && err == nil {
+				logoData, err := d.readFile(file)
+				if err != nil {
+					return nil, errors.New("Cannot read file")
+				}
+
+				logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
+				if err != nil {
+					return nil, errors.New("Cannot upload image")
+				}
+			}
+		}
+
+		newCustomer := &mongo.Customer{
+			Name:     data.Name,
+			Language: data.Language,
+			LogoID:   logoId,
+		}
+
+		// update customer in database
+		err = d.mongo.Customer().Update(ctx, customer.ID, newCustomer)
+		if err != nil {
+			if mongo.IsDuplicateKeyError(err) {
+				return nil, fmt.Errorf("Customer \"%s\" already exists", newCustomer.Name)
+			}
+
+			return nil, errors.New("Cannot update customer")
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -235,12 +244,25 @@ func (d *Driver) DeleteCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	err := d.mongo.Customer().Delete(customer.ID)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		d.logger.Error().Err(err).Msg("Cannot delete customer")
-		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		err := d.mongo.Customer().Delete(ctx, customer.ID)
+		if err != nil {
+			d.logger.Error().Err(err).Msg("Cannot delete customer")
+			return nil, errors.New("Cannot delete customer")
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot delete customer",
+			"error": err.Error(),
 		})
 	}
 
@@ -260,7 +282,7 @@ func (d *Driver) customerFromParam(customerParam string) (*mongo.Customer, strin
 		return nil, "Invalid customer ID"
 	}
 
-	customer, err := d.mongo.Customer().GetByIDPipeline(customerID)
+	customer, err := d.mongo.Customer().GetByIDPipeline(context.Background(), customerID)
 	if err != nil {
 		return nil, "Invalid customer ID"
 	}

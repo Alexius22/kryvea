@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"errors"
 	"regexp"
 	"time"
 
@@ -56,24 +55,10 @@ func (ti TargetIndex) init() error {
 	return err
 }
 
-func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID, assessmentID uuid.UUID) (uuid.UUID, error) {
-	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
+func (ti *TargetIndex) Insert(ctx context.Context, target *Target, customerID uuid.UUID) (uuid.UUID, error) {
+	err := ti.driver.Customer().collection.FindOne(ctx, bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
-	}
-
-	var assessment *Assessment
-	if assessmentID != uuid.Nil {
-		assessment, err = ti.driver.Assessment().GetByID(assessmentID)
-		if err != nil {
-			ti.driver.logger.Error().Err(err).Msg("failed to get assessment by ID")
-			return uuid.Nil, err
-		}
-
-		if assessment.Customer.ID != customerID {
-			ti.driver.logger.Error().Err(err).Msg("target does not belong to customer")
-			return uuid.Nil, errors.New("target does not belong to customer")
-		}
 	}
 
 	id, err := uuid.NewRandom()
@@ -93,29 +78,22 @@ func (ti *TargetIndex) Insert(target *Target, customerID uuid.UUID, assessmentID
 		},
 	}
 
-	_, err = ti.collection.InsertOne(context.Background(), target)
+	_, err = ti.collection.InsertOne(ctx, target)
 	if err != nil {
 		return uuid.Nil, err
-	}
-
-	if assessment != nil {
-		err = ti.driver.Assessment().UpdateTargets(assessment.ID, target.ID)
-		if err != nil {
-			return uuid.Nil, err
-		}
 	}
 
 	return target.ID, nil
 }
 
-func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid.UUID, bool, error) {
-	err := ti.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
+func (ti *TargetIndex) FirstOrInsert(ctx context.Context, target *Target, customerID uuid.UUID) (uuid.UUID, bool, error) {
+	err := ti.driver.Customer().collection.FindOne(ctx, bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, false, err
 	}
 
 	var existingTarget Assessment
-	err = ti.collection.FindOne(context.Background(), bson.M{
+	err = ti.collection.FindOne(ctx, bson.M{
 		"ipv4":         target.IPv4,
 		"ipv6":         target.IPv6,
 		"fqdn":         target.FQDN,
@@ -129,11 +107,11 @@ func (ti *TargetIndex) FirstOrInsert(target *Target, customerID uuid.UUID) (uuid
 		return uuid.Nil, false, err
 	}
 
-	id, err := ti.Insert(target, customerID, uuid.Nil)
+	id, err := ti.Insert(ctx, target, customerID)
 	return id, true, err
 }
 
-func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
+func (ti *TargetIndex) Update(ctx context.Context, targetID uuid.UUID, target *Target) error {
 	filter := bson.M{"_id": targetID}
 
 	update := bson.M{
@@ -148,18 +126,22 @@ func (ti *TargetIndex) Update(targetID uuid.UUID, target *Target) error {
 		},
 	}
 
-	_, err := ti.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ti.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
+// Delete removes a target. It also removes references to this
+// target from vulnerabilities and assessments.
+//
+// Requires transactional context to ensure data integrity
+func (ti *TargetIndex) Delete(ctx context.Context, targetID uuid.UUID) error {
 	filter := bson.M{"target._id": targetID}
 	update := bson.M{
 		"$set": bson.M{
 			"target._id": uuid.Nil,
 		},
 	}
-	_, err := ti.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
+	_, err := ti.driver.Vulnerability().collection.UpdateMany(ctx, filter, update)
 	if err != nil {
 		return err
 	}
@@ -170,34 +152,34 @@ func (ti *TargetIndex) Delete(targetID uuid.UUID) error {
 			"targets": bson.M{"_id": targetID},
 		},
 	}
-	_, err = ti.driver.Assessment().collection.UpdateMany(context.Background(), filter, update)
+	_, err = ti.driver.Assessment().collection.UpdateMany(ctx, filter, update)
 	if err != nil {
 		return err
 	}
 
-	_, err = ti.collection.DeleteOne(context.Background(), bson.M{"_id": targetID})
+	_, err = ti.collection.DeleteOne(ctx, bson.M{"_id": targetID})
 	return err
 }
 
-func (ti *TargetIndex) GetByID(targetID uuid.UUID) (*Target, error) {
+func (ti *TargetIndex) GetByID(ctx context.Context, targetID uuid.UUID) (*Target, error) {
 	var target Target
-	err := ti.collection.FindOne(context.Background(), bson.M{"_id": targetID}).Decode(&target)
+	err := ti.collection.FindOne(ctx, bson.M{"_id": targetID}).Decode(&target)
 	if err != nil {
 		return nil, err
 	}
 
 	return &target, nil
 }
-func (ti *TargetIndex) GetByIDPipeline(targetID uuid.UUID) (*Target, error) {
+func (ti *TargetIndex) GetByIDPipeline(ctx context.Context, targetID uuid.UUID) (*Target, error) {
 	filter := bson.M{"_id": targetID}
 
 	target := &Target{}
-	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
+	err := ti.collection.FindOne(ctx, filter).Decode(target)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ti.hydrate(target)
+	err = ti.hydrate(ctx, target)
 	if err != nil {
 		return nil, err
 	}
@@ -205,22 +187,22 @@ func (ti *TargetIndex) GetByIDPipeline(targetID uuid.UUID) (*Target, error) {
 	return target, nil
 }
 
-func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
+func (ti *TargetIndex) GetByCustomerID(ctx context.Context, customerID uuid.UUID) ([]Target, error) {
 	filter := bson.M{"customer._id": customerID}
-	cursor, err := ti.collection.Find(context.Background(), filter)
+	cursor, err := ti.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	targets := []Target{}
-	err = cursor.All(context.Background(), &targets)
+	err = cursor.All(ctx, &targets)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range targets {
-		err = ti.hydrate(&targets[i])
+		err = ti.hydrate(ctx, &targets[i])
 		if err != nil {
 			return nil, err
 		}
@@ -229,19 +211,19 @@ func (ti *TargetIndex) GetByCustomerID(customerID uuid.UUID) ([]Target, error) {
 	return targets, nil
 }
 
-func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Target, error) {
+func (ti *TargetIndex) GetByCustomerAndID(ctx context.Context, customerID, targetID uuid.UUID) (*Target, error) {
 	filter := bson.M{
 		"customer._id": customerID,
 		"_id":          targetID,
 	}
 
 	target := &Target{}
-	err := ti.collection.FindOne(context.Background(), filter).Decode(target)
+	err := ti.collection.FindOne(ctx, filter).Decode(target)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ti.hydrate(target)
+	err = ti.hydrate(ctx, target)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +231,7 @@ func (ti *TargetIndex) GetByCustomerAndID(customerID, targetID uuid.UUID) (*Targ
 	return target, nil
 }
 
-func (ti *TargetIndex) Search(customerID uuid.UUID, query string) ([]Target, error) {
+func (ti *TargetIndex) Search(ctx context.Context, customerID uuid.UUID, query string) ([]Target, error) {
 	conditions := []bson.M{}
 
 	if customerID != uuid.Nil {
@@ -275,20 +257,20 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, query string) ([]Target, err
 		"$and": conditions,
 	}
 
-	cursor, err := ti.collection.Find(context.Background(), filter)
+	cursor, err := ti.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	targets := []Target{}
-	err = cursor.All(context.Background(), &targets)
+	err = cursor.All(ctx, &targets)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range targets {
-		err = ti.hydrate(&targets[i])
+		err = ti.hydrate(ctx, &targets[i])
 		if err != nil {
 			return nil, err
 		}
@@ -297,7 +279,7 @@ func (ti *TargetIndex) Search(customerID uuid.UUID, query string) ([]Target, err
 	return targets, nil
 }
 
-func (ti *TargetIndex) SearchWithinCustomers(customerIDs []uuid.UUID, query string) ([]Target, error) {
+func (ti *TargetIndex) SearchWithinCustomers(ctx context.Context, customerIDs []uuid.UUID, query string) ([]Target, error) {
 	conditions := []bson.M{}
 
 	if customerIDs != nil {
@@ -323,20 +305,20 @@ func (ti *TargetIndex) SearchWithinCustomers(customerIDs []uuid.UUID, query stri
 		"$and": conditions,
 	}
 
-	cursor, err := ti.collection.Find(context.Background(), filter)
+	cursor, err := ti.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	targets := []Target{}
-	err = cursor.All(context.Background(), &targets)
+	err = cursor.All(ctx, &targets)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range targets {
-		err = ti.hydrate(&targets[i])
+		err = ti.hydrate(ctx, &targets[i])
 		if err != nil {
 			return nil, err
 		}
@@ -346,8 +328,8 @@ func (ti *TargetIndex) SearchWithinCustomers(customerIDs []uuid.UUID, query stri
 }
 
 // hydrate fills in the nested fields for a Target
-func (ti *TargetIndex) hydrate(target *Target) error {
-	customer, err := ti.driver.Customer().GetByIDForHydrate(target.Customer.ID)
+func (ti *TargetIndex) hydrate(ctx context.Context, target *Target) error {
+	customer, err := ti.driver.Customer().GetByIDForHydrate(ctx, target.Customer.ID)
 	if err != nil {
 		return err
 	}

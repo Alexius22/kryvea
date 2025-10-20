@@ -14,7 +14,8 @@ import (
 const (
 	lockCollection = "__lock"
 
-	lockAdmin = "admin-lock"
+	LockAdmin    = "admin-lock"
+	LockUsername = "username-lock"
 )
 
 type Lock struct {

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"io"
 	"mime/multipart"
 
@@ -22,13 +23,13 @@ func (d *Driver) formDataReadFile(c *fiber.Ctx, fieldName string) (data []byte, 
 	return data, file.Filename, nil
 }
 
-func (d *Driver) formDataReadImage(c *fiber.Ctx, fieldName string) (data []byte, filename string, err error) {
+func (d *Driver) formDataReadImage(c *fiber.Ctx, ctx context.Context, fieldName string) (data []byte, filename string, err error) {
 	file, err := c.FormFile(fieldName)
 	if err != nil {
 		return nil, "", err
 	}
 
-	err = d.mongo.Setting().ValidateImageSize(file.Size)
+	err = d.mongo.Setting().ValidateImageSize(ctx, file.Size)
 	if err != nil {
 		return nil, "", err
 	}

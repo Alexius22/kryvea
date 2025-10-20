@@ -17,19 +17,26 @@ func (d *Driver) File() *FileIndex {
 	}
 }
 
-func (i *FileIndex) init() error { return nil }
+func (i *FileIndex) init() error {
+	id, err := i.Insert(context.Background(), []byte("init-file"), "init-file")
+	if err != nil {
+		return err
+	}
 
-func (i *FileIndex) Insert(data []byte, filename string) (bson.ObjectID, error) {
-	id, err := i.driver.bucket.UploadFromStream(context.Background(), filename, bytes.NewReader(data))
+	return i.driver.bucket.Delete(context.Background(), id)
+}
+
+func (i *FileIndex) Insert(ctx context.Context, data []byte, filename string) (bson.ObjectID, error) {
+	id, err := i.driver.bucket.UploadFromStream(ctx, filename, bytes.NewReader(data))
 	return id, err
 }
 
-func (i *FileIndex) GetByID(id bson.ObjectID) ([]byte, error) {
+func (i *FileIndex) GetByID(ctx context.Context, id bson.ObjectID) ([]byte, error) {
 	var buf bytes.Buffer
-	_, err := i.driver.bucket.DownloadToStream(context.Background(), id, &buf)
+	_, err := i.driver.bucket.DownloadToStream(ctx, id, &buf)
 	return buf.Bytes(), err
 }
 
-func (i *FileIndex) Delete(id bson.ObjectID) error {
-	return i.driver.bucket.Delete(context.Background(), id)
+func (i *FileIndex) Delete(ctx context.Context, id bson.ObjectID) error {
+	return i.driver.bucket.Delete(ctx, id)
 }

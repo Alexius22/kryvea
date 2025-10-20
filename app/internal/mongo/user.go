@@ -81,7 +81,7 @@ func (ui UserIndex) init() error {
 	return err
 }
 
-func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
+func (ui *UserIndex) Insert(ctx context.Context, user *User, password string) (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.UUID{}, err
@@ -110,7 +110,7 @@ func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
 	}
 	user.Password = hash
 
-	_, err = ui.collection.InsertOne(context.Background(), user)
+	_, err = ui.collection.InsertOne(ctx, user)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -118,9 +118,9 @@ func (ui *UserIndex) Insert(user *User, password string) (uuid.UUID, error) {
 	return user.ID, nil
 }
 
-func (ui *UserIndex) Login(username, password string) (*User, error) {
+func (ui *UserIndex) Login(ctx context.Context, username, password string) (*User, error) {
 	var user User
-	err := ui.collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
+	err := ui.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (ui *UserIndex) Login(username, password string) (*User, error) {
 		user.TokenExpiry = time.Now().Add(TokenExpireTimePwdReset)
 	}
 
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"username": username}, bson.M{
+	_, err = ui.collection.UpdateOne(ctx, bson.M{"username": username}, bson.M{
 		"$set": bson.M{
 			"token":        user.Token,
 			"token_expiry": user.TokenExpiry,
@@ -152,10 +152,10 @@ func (ui *UserIndex) Login(username, password string) (*User, error) {
 	return &user, nil
 }
 
-func (ui *UserIndex) RefreshUserToken(user *User) error {
+func (ui *UserIndex) RefreshUserToken(ctx context.Context, user *User) error {
 	user.TokenExpiry = user.TokenExpiry.Add(TokenExtendTime)
 
-	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+	_, err := ui.collection.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
 			"token_expiry": user.TokenExpiry,
 		}})
@@ -166,8 +166,8 @@ func (ui *UserIndex) RefreshUserToken(user *User) error {
 	return nil
 }
 
-func (ui *UserIndex) Logout(ID uuid.UUID) error {
-	_, err := ui.collection.UpdateOne(context.Background(), bson.M{"_id": ID}, bson.M{
+func (ui *UserIndex) Logout(ctx context.Context, ID uuid.UUID) error {
+	_, err := ui.collection.UpdateOne(ctx, bson.M{"_id": ID}, bson.M{
 		"$set": bson.M{
 			"token":        crypto.TokenNil,
 			"token_expiry": time.Time{},
@@ -175,17 +175,17 @@ func (ui *UserIndex) Logout(ID uuid.UUID) error {
 	return err
 }
 
-func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
+func (ui *UserIndex) Get(ctx context.Context, ID uuid.UUID) (*User, error) {
 	filter := bson.M{"_id": ID}
 	opts := options.FindOne().SetProjection(UserProjection)
 
 	user := &User{}
-	err := ui.collection.FindOne(context.Background(), filter, opts).Decode(user)
+	err := ui.collection.FindOne(ctx, filter, opts).Decode(user)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ui.hydrate(user)
+	err = ui.hydrate(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -193,14 +193,14 @@ func (ui *UserIndex) Get(ID uuid.UUID) (*User, error) {
 	return user, nil
 }
 
-func (ui *UserIndex) GetByIDForHydrate(ID uuid.UUID) (*User, error) {
+func (ui *UserIndex) GetByIDForHydrate(ctx context.Context, ID uuid.UUID) (*User, error) {
 	filter := bson.M{"_id": ID}
 	opts := options.FindOne().SetProjection(bson.M{
 		"username": 1,
 	})
 
 	var user User
-	err := ui.collection.FindOne(context.Background(), filter, opts).Decode(&user)
+	err := ui.collection.FindOne(ctx, filter, opts).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
@@ -208,24 +208,24 @@ func (ui *UserIndex) GetByIDForHydrate(ID uuid.UUID) (*User, error) {
 	return &user, nil
 }
 
-func (ui *UserIndex) GetAll() ([]User, error) {
+func (ui *UserIndex) GetAll(ctx context.Context) ([]User, error) {
 	filter := bson.M{}
 	opts := options.Find().SetProjection(UserProjection)
 
-	cursor, err := ui.collection.Find(context.Background(), filter, opts)
+	cursor, err := ui.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	users := []User{}
-	err = cursor.All(context.Background(), &users)
+	err = cursor.All(ctx, &users)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range users {
-		err = ui.hydrate(&users[i])
+		err = ui.hydrate(ctx, &users[i])
 		if err != nil {
 			return nil, err
 		}
@@ -234,20 +234,20 @@ func (ui *UserIndex) GetAll() ([]User, error) {
 	return users, nil
 }
 
-func (ui *UserIndex) GetAllUsernames() ([]string, error) {
+func (ui *UserIndex) GetAllUsernames(ctx context.Context) ([]string, error) {
 	opts := options.Find().SetProjection(bson.M{
 		"username": 1,
 	}).SetSort(bson.M{
 		"username": 1,
 	})
-	cursor, err := ui.collection.Find(context.Background(), bson.M{}, opts)
+	cursor, err := ui.collection.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return []string{}, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	usernames := make([]string, 0, cursor.RemainingBatchLength())
-	for cursor.Next(context.Background()) {
+	for cursor.Next(ctx) {
 		var user User
 		if err := cursor.Decode(&user); err != nil {
 			return []string{}, err
@@ -259,46 +259,46 @@ func (ui *UserIndex) GetAllUsernames() ([]string, error) {
 	return usernames, err
 }
 
-func (ui *UserIndex) GetByToken(token crypto.Token) (*User, error) {
+func (ui *UserIndex) GetByToken(ctx context.Context, token crypto.Token) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,
 	})
 
 	var user User
-	if err := ui.collection.FindOne(context.Background(), bson.M{"token": token}, opts).Decode(&user); err != nil {
+	if err := ui.collection.FindOne(ctx, bson.M{"token": token}, opts).Decode(&user); err != nil {
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ui *UserIndex) GetByUsername(username string) (*User, error) {
+func (ui *UserIndex) GetByUsername(ctx context.Context, username string) (*User, error) {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 0,
 	})
 
 	var user User
-	if err := ui.collection.FindOne(context.Background(), bson.M{"username": username}, opts).Decode(&user); err != nil {
+	if err := ui.collection.FindOne(ctx, bson.M{"username": username}, opts).Decode(&user); err != nil {
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ui *UserIndex) Search(query string) ([]User, error) {
+func (ui *UserIndex) Search(ctx context.Context, query string) ([]User, error) {
 	filter := bson.M{
 		"username": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}},
 	}
 	opts := options.Find().SetProjection(UserProjection)
 
-	cursor, err := ui.collection.Find(context.Background(), filter, opts)
+	cursor, err := ui.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	users := []User{}
-	err = cursor.All(context.Background(), &users)
+	err = cursor.All(ctx, &users)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +306,10 @@ func (ui *UserIndex) Search(query string) ([]User, error) {
 	return users, nil
 }
 
-func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
+// Update modifies an existing user
+//
+// Requires transactional context to ensure data integrity
+func (ui *UserIndex) Update(ctx context.Context, ID uuid.UUID, user *User) error {
 	filter := bson.M{"_id": ID}
 
 	update := bson.M{
@@ -328,37 +331,30 @@ func (ui *UserIndex) Update(ID uuid.UUID, user *User) error {
 		update["$set"].(bson.M)["customers"] = user.Customers
 	}
 
-	session, err := ui.driver.NewSessionWithLock(lockAdmin)
+	_, err := ui.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
-	defer session.End()
 
-	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
-		_, err := ui.collection.UpdateOne(ctx, filter, update)
-		if err != nil {
-			return nil, err
-		}
+	count, err := ui.collection.CountDocuments(
+		ctx,
+		bson.M{"role": RoleAdmin},
+	)
+	if err != nil {
+		return err
+	}
 
-		count, err := ui.collection.CountDocuments(
-			ctx,
-			bson.M{"role": RoleAdmin},
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		if count == 0 {
-			return nil, ErrAdminUserRequired
-		}
-
-		return nil, err
-	})
+	if count == 0 {
+		return ErrAdminUserRequired
+	}
 
 	return err
 }
 
-func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) error {
+// UpdateMe modifies the current user's own information
+//
+// Requires transactional context to ensure data integrity
+func (ui *UserIndex) UpdateMe(ctx context.Context, userID uuid.UUID, newUser *User, password string) error {
 	filter := bson.M{"_id": userID}
 
 	update := bson.M{
@@ -379,11 +375,11 @@ func (ui *UserIndex) UpdateMe(userID uuid.UUID, newUser *User, password string) 
 		update["$set"].(bson.M)["password"] = hash
 	}
 
-	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ui.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addToOwned bool) error {
+func (ui *UserIndex) UpdateOwnedAssessment(ctx context.Context, userID, assessmentID uuid.UUID, addToOwned bool) error {
 	filter := bson.M{"_id": userID}
 
 	op := "$pull"
@@ -399,29 +395,32 @@ func (ui *UserIndex) UpdateOwnedAssessment(userID, assessmentID uuid.UUID, addTo
 		},
 	}
 
-	_, err := ui.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ui.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ui *UserIndex) Delete(ID uuid.UUID) error {
+// Delete removes a user and its references from vulnerabilities
+//
+// Requires transactional context to ensure data integrity
+func (ui *UserIndex) Delete(ctx context.Context, ID uuid.UUID) error {
 	// remove user from vulnerability
-	err := ui.driver.Vulnerability().RemoveUserReference(ID)
+	err := ui.driver.Vulnerability().RemoveUserReference(ctx, ID)
 	if err != nil {
 		return err
 	}
 
 	// delete user
-	_, err = ui.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	_, err = ui.collection.DeleteOne(ctx, bson.M{"_id": ID})
 	return err
 }
 
-func (ui *UserIndex) ResetUserPassword(userID uuid.UUID, newPassword string) error {
+func (ui *UserIndex) ResetUserPassword(ctx context.Context, userID uuid.UUID, newPassword string) error {
 	hash, err := crypto.Encrypt(newPassword)
 	if err != nil {
 		return err
 	}
 
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{
+	_, err = ui.collection.UpdateOne(ctx, bson.M{"_id": userID}, bson.M{
 		"$set": bson.M{
 			"updated_at":      time.Now(),
 			"password":        hash,
@@ -434,7 +433,7 @@ func (ui *UserIndex) ResetUserPassword(userID uuid.UUID, newPassword string) err
 	return nil
 }
 
-func (ui *UserIndex) ResetPassword(user *User, password string) error {
+func (ui *UserIndex) ResetPassword(ctx context.Context, user *User, password string) error {
 	hash, err := crypto.Encrypt(password)
 	if err != nil {
 		return err
@@ -446,7 +445,7 @@ func (ui *UserIndex) ResetPassword(user *User, password string) error {
 	user.Token = crypto.NewToken()
 	user.TokenExpiry = time.Now().Add(TokenExpireTime)
 
-	_, err = ui.collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{
+	_, err = ui.collection.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
 			"updated_at":      user.UpdatedAt,
 			"password":        hash,
@@ -457,13 +456,13 @@ func (ui *UserIndex) ResetPassword(user *User, password string) error {
 	return err
 }
 
-func (ui *UserIndex) ValidatePassword(ID uuid.UUID, currentPassword string) error {
+func (ui *UserIndex) ValidatePassword(ctx context.Context, ID uuid.UUID, currentPassword string) error {
 	opts := options.FindOne().SetProjection(bson.M{
 		"password": 1,
 	})
 
 	var user User
-	err := ui.collection.FindOne(context.Background(), bson.M{"_id": ID}, opts).Decode(&user)
+	err := ui.collection.FindOne(ctx, bson.M{"_id": ID}, opts).Decode(&user)
 	if err != nil {
 		return err
 	}
@@ -503,10 +502,10 @@ func IsValidRole(role string) bool {
 }
 
 // hydrate fills in the nested fields for a User
-func (ui *UserIndex) hydrate(user *User) error {
+func (ui *UserIndex) hydrate(ctx context.Context, user *User) error {
 	// customers are optional
 	if len(user.Customers) > 0 {
-		customers, err := ui.driver.Customer().GetManyForHydrate(user.Customers)
+		customers, err := ui.driver.Customer().GetManyForHydrate(ctx, user.Customers)
 		if err != nil {
 			return err
 		}
@@ -516,7 +515,7 @@ func (ui *UserIndex) hydrate(user *User) error {
 
 	// assessments are optional
 	if len(user.Assessments) > 0 {
-		assessment, err := ui.driver.Assessment().GetManyForHydrate(user.Assessments)
+		assessment, err := ui.driver.Assessment().GetManyForHydrate(ctx, user.Assessments)
 		if err != nil {
 			return err
 		}

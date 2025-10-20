@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/text/language"
@@ -15,7 +17,7 @@ type settingRequestData struct {
 }
 
 func (d *Driver) GetSettings(c *fiber.Ctx) error {
-	settings, err := d.mongo.Setting().Get()
+	settings, err := d.mongo.Setting().Get(context.Background())
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -58,7 +60,7 @@ func (d *Driver) UpdateSettings(c *fiber.Ctx) error {
 	}
 
 	// insert update into database
-	err := d.mongo.Setting().Update(setting)
+	err := d.mongo.Setting().Update(context.Background(), setting)
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{

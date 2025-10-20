@@ -65,7 +65,7 @@ func (ci CategoryIndex) init() error {
 	return err
 }
 
-func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
+func (ci *CategoryIndex) Insert(ctx context.Context, category *Category) (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return uuid.Nil, err
@@ -77,7 +77,7 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 		CreatedAt: time.Now(),
 	}
 
-	_, err = ci.collection.InsertOne(context.Background(), category)
+	_, err = ci.collection.InsertOne(ctx, category)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -85,12 +85,12 @@ func (ci *CategoryIndex) Insert(category *Category) (uuid.UUID, error) {
 	return category.ID, err
 }
 
-func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, error) {
+func (ci *CategoryIndex) Upsert(ctx context.Context, category *Category, override bool) (uuid.UUID, error) {
 	if !override {
-		return ci.Insert(category)
+		return ci.Insert(ctx, category)
 	}
 
-	id, isNew, err := ci.FirstOrInsert(category)
+	id, isNew, err := ci.FirstOrInsert(ctx, category)
 	if err == nil && isNew {
 		return id, nil
 	}
@@ -99,7 +99,7 @@ func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, e
 		return uuid.Nil, err
 	}
 
-	err = ci.Update(id, category)
+	err = ci.Update(ctx, id, category)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -107,9 +107,9 @@ func (ci *CategoryIndex) Upsert(category *Category, override bool) (uuid.UUID, e
 	return id, nil
 }
 
-func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, error) {
+func (ci *CategoryIndex) FirstOrInsert(ctx context.Context, category *Category) (uuid.UUID, bool, error) {
 	var existingCategory Assessment
-	err := ci.collection.FindOne(context.Background(), bson.M{"identifier": category.Identifier, "name": category.Name}).Decode(&existingCategory)
+	err := ci.collection.FindOne(ctx, bson.M{"identifier": category.Identifier, "name": category.Name}).Decode(&existingCategory)
 	if err == nil {
 		return existingCategory.ID, false, nil
 	}
@@ -117,11 +117,11 @@ func (ci *CategoryIndex) FirstOrInsert(category *Category) (uuid.UUID, bool, err
 		return uuid.Nil, false, err
 	}
 
-	id, err := ci.Insert(category)
+	id, err := ci.Insert(ctx, category)
 	return id, true, err
 }
 
-func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
+func (ci *CategoryIndex) Update(ctx context.Context, ID uuid.UUID, category *Category) error {
 	if ID == ImmutableCategoryID {
 		return ErrImmutableCategory
 	}
@@ -141,16 +141,19 @@ func (ci *CategoryIndex) Update(ID uuid.UUID, category *Category) error {
 		},
 	}
 
-	_, err := ci.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ci.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
+// Delete removes a category and reassigns associated vulnerabilities to the immutable category
+//
+// Requires transactional context to ensure data integrity
+func (ci *CategoryIndex) Delete(ctx context.Context, ID uuid.UUID) error {
 	if ID == ImmutableCategoryID {
 		return ErrImmutableCategory
 	}
 
-	_, err := ci.collection.DeleteOne(context.Background(), bson.M{"_id": ID})
+	_, err := ci.collection.DeleteOne(ctx, bson.M{"_id": ID})
 	if err != nil {
 		return err
 	}
@@ -162,27 +165,27 @@ func (ci *CategoryIndex) Delete(ID uuid.UUID) error {
 		},
 	}
 
-	_, err = ci.driver.Vulnerability().collection.UpdateMany(context.Background(), filter, update)
+	_, err = ci.driver.Vulnerability().collection.UpdateMany(ctx, filter, update)
 	return err
 }
 
-func (ci *CategoryIndex) GetAll() ([]Category, error) {
+func (ci *CategoryIndex) GetAll(ctx context.Context) ([]Category, error) {
 	filter := bson.M{"_id": bson.M{"$ne": ImmutableCategoryID}}
 
 	categories := []Category{}
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
-	err = cursor.All(context.Background(), &categories)
+	err = cursor.All(ctx, &categories)
 	return categories, err
 }
 
-func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
+func (ci *CategoryIndex) GetByID(ctx context.Context, categoryID uuid.UUID) (*Category, error) {
 	var category Category
-	err := ci.collection.FindOne(context.Background(), bson.M{"_id": categoryID}).Decode(&category)
+	err := ci.collection.FindOne(ctx, bson.M{"_id": categoryID}).Decode(&category)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +193,7 @@ func (ci *CategoryIndex) GetByID(categoryID uuid.UUID) (*Category, error) {
 	return &category, nil
 }
 
-func (ci *CategoryIndex) Search(query string) ([]Category, error) {
+func (ci *CategoryIndex) Search(ctx context.Context, query string) ([]Category, error) {
 	filter := bson.M{}
 	if query != "" {
 		filter = bson.M{
@@ -201,14 +204,14 @@ func (ci *CategoryIndex) Search(query string) ([]Category, error) {
 		}
 	}
 
-	cursor, err := ci.collection.Find(context.Background(), filter)
+	cursor, err := ci.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	categories := []Category{}
-	err = cursor.All(context.Background(), &categories)
+	err = cursor.All(ctx, &categories)
 	if err != nil {
 		return nil, err
 	}

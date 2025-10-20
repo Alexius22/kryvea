@@ -1,6 +1,9 @@
 package api
 
 import (
+	"context"
+	"errors"
+
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/Alexius22/kryvea/internal/util"
 	"github.com/bytedance/sonic"
@@ -15,7 +18,7 @@ type templateRequestData struct {
 	Type     string `json:"type"`
 }
 
-func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
+func (d *Driver) addTemplate(c *fiber.Ctx, ctx context.Context) (*mongo.Template, string) {
 	// parse request data
 	data := templateRequestData{}
 	err := sonic.Unmarshal([]byte(c.FormValue("data")), &data)
@@ -47,7 +50,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 	}
 
 	// insert file into the database
-	fileID, err := d.mongo.FileReference().Insert(templateData, filename)
+	fileID, err := d.mongo.FileReference().Insert(ctx, templateData, filename)
 	if err != nil {
 		return nil, "Cannot upload template"
 	}
@@ -70,34 +73,41 @@ func (d *Driver) addTemplate(c *fiber.Ctx) (*mongo.Template, string) {
 }
 
 func (d *Driver) AddGlobalTemplate(c *fiber.Ctx) error {
-	template, errStr := d.addTemplate(c)
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	// insert the template into the database
-	templateID, err := d.mongo.Template().Insert(template)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusBadRequest)
+		return err
+	}
+	defer session.End()
 
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": "Template with provided data already exists",
-			})
+	templateID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
+		// upload template file into database
+		template, errStr := d.addTemplate(c, ctx)
+		if errStr != "" {
+			return uuid.Nil, errors.New(errStr)
 		}
 
+		// insert the template into the database
+		templateID, err := d.mongo.Template().Insert(ctx, template)
+		if err != nil {
+			if mongo.IsDuplicateKeyError(err) {
+				return uuid.Nil, errors.New("Template with provided data already exists")
+			}
+			return uuid.Nil, errors.New("Cannot create template")
+		}
+
+		return templateID, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot create template",
+			"error": err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Template created",
-		"template_id": templateID,
+		"template_id": templateID.(uuid.UUID),
 	})
 }
 
@@ -120,36 +130,43 @@ func (d *Driver) AddCustomerTemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	template, errStr := d.addTemplate(c)
-	if errStr != "" {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"error": errStr,
-		})
-	}
-
-	template.Customer.ID = customer.ID
-
-	// insert the template into the database
-	templateID, err := d.mongo.Template().Insert(template)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusBadRequest)
+		return err
+	}
+	defer session.End()
 
-		if mongo.IsDuplicateKeyError(err) {
-			return c.JSON(fiber.Map{
-				"error": "Template with provided data already exists",
-			})
+	templateID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
+		// upload template file into database
+		template, errStr := d.addTemplate(c, ctx)
+		if errStr != "" {
+			return uuid.Nil, errors.New(errStr)
 		}
 
+		template.Customer.ID = customer.ID
+
+		// insert the template into the database
+		templateID, err := d.mongo.Template().Insert(ctx, template)
+		if err != nil {
+			if mongo.IsDuplicateKeyError(err) {
+				return uuid.Nil, errors.New("Template with provided data already exists")
+			}
+			return uuid.Nil, errors.New("Cannot create template")
+		}
+
+		return templateID, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Cannot create template",
+			"error": err.Error(),
 		})
 	}
 
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{
 		"message":     "Template created",
-		"template_id": templateID,
+		"template_id": templateID.(uuid.UUID),
 	})
 }
 
@@ -181,7 +198,7 @@ func (d *Driver) GetTemplates(c *fiber.Ctx) error {
 	user := c.Locals("user").(*mongo.User)
 
 	// get all templates
-	templates, err := d.mongo.Template().GetAll()
+	templates, err := d.mongo.Template().GetAll(context.Background())
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -222,12 +239,25 @@ func (d *Driver) DeleteTemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	// delete the template from the database
-	err := d.mongo.Template().Delete(template.ID)
+	session, err := d.mongo.NewSession()
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	defer session.End()
+
+	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
+		// delete the template from the database
+		err := d.mongo.Template().Delete(ctx, template.ID)
+		if err != nil {
+			return nil, errors.New("Failed to delete template")
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Failed to delete template",
+			"error": err.Error(),
 		})
 	}
 
@@ -259,7 +289,7 @@ func (d *Driver) templateFromParam(param string) (*mongo.Template, string) {
 		return nil, "Invalid template ID"
 	}
 
-	template, err := d.mongo.Template().GetByID(templateID)
+	template, err := d.mongo.Template().GetByID(context.Background(), templateID)
 	if err != nil {
 		return nil, "Invalid template ID"
 	}

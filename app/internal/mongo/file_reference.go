@@ -34,17 +34,25 @@ func (d *Driver) FileReference() *FileReferenceIndex {
 	}
 }
 
-func (fri FileReferenceIndex) init() error {
+func (fri *FileReferenceIndex) init() error {
 	_, err := fri.collection.Indexes().CreateOne(
 		context.Background(),
-		mongo.IndexModel{},
+		mongo.IndexModel{
+			Keys: bson.D{
+				{Key: "checksum", Value: 1},
+			},
+		},
 	)
 	return err
 }
 
-func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, error) {
+// Insert adds a new file reference to the database if it does not already exist
+// also uploads the file to the file storage
+//
+// Requires transactional context to ensure data integrity
+func (i *FileReferenceIndex) Insert(ctx context.Context, data []byte, filename string) (uuid.UUID, error) {
 	checksum := md5.Sum(data)
-	reference, err := i.GetByChecksum(checksum)
+	reference, err := i.GetByChecksum(ctx, checksum)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return uuid.Nil, err
 	}
@@ -57,7 +65,7 @@ func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, er
 		return uuid.Nil, err
 	}
 
-	fileID, err := i.driver.File().Insert(data, filename)
+	fileID, err := i.driver.File().Insert(ctx, data, filename)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -74,7 +82,7 @@ func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, er
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
-	_, err = i.collection.InsertOne(context.Background(), fileReference)
+	_, err = i.collection.InsertOne(ctx, fileReference)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -82,9 +90,9 @@ func (i *FileReferenceIndex) Insert(data []byte, filename string) (uuid.UUID, er
 	return id, nil
 }
 
-func (i *FileReferenceIndex) GetByID(id uuid.UUID) (*FileReference, error) {
+func (i *FileReferenceIndex) GetByID(ctx context.Context, id uuid.UUID) (*FileReference, error) {
 	var fileReference FileReference
-	err := i.collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&fileReference)
+	err := i.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&fileReference)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +100,9 @@ func (i *FileReferenceIndex) GetByID(id uuid.UUID) (*FileReference, error) {
 	return &fileReference, nil
 }
 
-func (i *FileReferenceIndex) GetByChecksum(checksum [16]byte) (*FileReference, error) {
+func (i *FileReferenceIndex) GetByChecksum(ctx context.Context, checksum [16]byte) (*FileReference, error) {
 	var fileReference FileReference
-	err := i.collection.FindOne(context.Background(), bson.M{"checksum": checksum}).Decode(&fileReference)
+	err := i.collection.FindOne(ctx, bson.M{"checksum": checksum}).Decode(&fileReference)
 	if err != nil {
 		return nil, err
 	}
@@ -102,13 +110,13 @@ func (i *FileReferenceIndex) GetByChecksum(checksum [16]byte) (*FileReference, e
 	return &fileReference, nil
 }
 
-func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, *FileReference, error) {
-	fileReference, err := i.GetByID(id)
+func (i *FileReferenceIndex) ReadByID(ctx context.Context, id uuid.UUID) ([]byte, *FileReference, error) {
+	fileReference, err := i.GetByID(ctx, id)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	data, err := i.driver.File().GetByID(fileReference.File)
+	data, err := i.driver.File().GetByID(ctx, fileReference.File)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -116,45 +124,49 @@ func (i *FileReferenceIndex) ReadByID(id uuid.UUID) ([]byte, *FileReference, err
 	return data, fileReference, nil
 }
 
-func (i *FileReferenceIndex) PullUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
-	_, err := i.collection.UpdateOne(context.Background(),
+func (i *FileReferenceIndex) PullUsedBy(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
+	_, err := i.collection.UpdateOne(ctx,
 		bson.M{"_id": id},
 		bson.M{"$pull": bson.M{"used_by": usedBy}},
 	)
 	return err
 }
 
-func (i *FileReferenceIndex) AddToUsedBy(id uuid.UUID, usedBy uuid.UUID) error {
+func (i *FileReferenceIndex) AddToUsedBy(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
 	if usedBy == uuid.Nil {
 		return ErrUsedByIDRequired
 	}
 
-	_, err := i.collection.UpdateOne(context.Background(),
+	_, err := i.collection.UpdateOne(ctx,
 		bson.M{"_id": id},
 		bson.M{"$addToSet": bson.M{"used_by": usedBy}},
 	)
 	return err
 }
 
-func (i *FileReferenceIndex) Delete(id uuid.UUID, usedBy uuid.UUID) error {
-	fileReference, err := i.GetByID(id)
+// Delete removes a file reference including
+// the associated file in the file storage
+//
+// Requires transactional context to ensure data integrity
+func (i *FileReferenceIndex) Delete(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
+	fileReference, err := i.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
 	if len(fileReference.UsedBy) > 1 {
-		_, err = i.collection.UpdateOne(context.Background(),
+		_, err = i.collection.UpdateOne(ctx,
 			bson.M{"_id": id},
 			bson.M{"$pull": bson.M{"used_by": usedBy}},
 		)
 		return err
 	}
 
-	err = i.driver.File().Delete(fileReference.File)
+	err = i.driver.File().Delete(ctx, fileReference.File)
 	if err != nil {
 		return err
 	}
 
-	_, err = i.collection.DeleteOne(context.Background(), bson.M{"_id": id})
+	_, err = i.collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err
 }

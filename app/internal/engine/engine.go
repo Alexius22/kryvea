@@ -70,7 +70,6 @@ func (e *Engine) Serve() {
 		apiGroup.Post("/assessments/:assessment/clone", api.CloneAssessment)
 		apiGroup.Post("/assessments/:assessment/export", api.ExportAssessment)
 
-		// apiGroup.Get("/targets", api.SearchTargets)
 		apiGroup.Get("/customers/:customer/targets", api.GetTargetsByCustomer)
 		apiGroup.Get("/targets/:target", api.GetTarget)
 		apiGroup.Post("/targets", api.AddTarget)
@@ -93,7 +92,7 @@ func (e *Engine) Serve() {
 		apiGroup.Post("/vulnerabilities/:vulnerability/copy", api.CopyVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability", api.UpdateVulnerability)
 		apiGroup.Delete("/vulnerabilities/:vulnerability", api.DeleteVulnerability)
-		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerbilities)
+		apiGroup.Post("/assessments/:assessment/upload", api.ImportVulnerabilities)
 
 		apiGroup.Get("/vulnerabilities/:vulnerability/pocs", api.GetPocsByVulnerability)
 		apiGroup.Put("/vulnerabilities/:vulnerability/pocs", api.UpsertPocs)

@@ -73,8 +73,8 @@ func (ai AssessmentIndex) init() error {
 	return err
 }
 
-func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) (uuid.UUID, error) {
-	err := ai.driver.Customer().collection.FindOne(context.Background(), bson.M{"_id": customerID}).Err()
+func (ai *AssessmentIndex) Insert(ctx context.Context, assessment *Assessment, customerID uuid.UUID) (uuid.UUID, error) {
+	err := ai.driver.Customer().collection.FindOne(ctx, bson.M{"_id": customerID}).Err()
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -97,7 +97,7 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 		},
 	}
 
-	_, err = ai.collection.InsertOne(context.Background(), assessment)
+	_, err = ai.collection.InsertOne(ctx, assessment)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -105,9 +105,9 @@ func (ai *AssessmentIndex) Insert(assessment *Assessment, customerID uuid.UUID) 
 	return assessment.ID, nil
 }
 
-func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) {
+func (ai *AssessmentIndex) GetByID(ctx context.Context, assessmentID uuid.UUID) (*Assessment, error) {
 	var assessment Assessment
-	err := ai.collection.FindOne(context.Background(), bson.M{"_id": assessmentID}).Decode(&assessment)
+	err := ai.collection.FindOne(ctx, bson.M{"_id": assessmentID}).Decode(&assessment)
 	if err != nil {
 		return nil, err
 	}
@@ -115,14 +115,14 @@ func (ai *AssessmentIndex) GetByID(assessmentID uuid.UUID) (*Assessment, error) 
 	return &assessment, nil
 }
 
-func (ai *AssessmentIndex) GetByIDForHydrate(assessmentID uuid.UUID) (*Assessment, error) {
+func (ai *AssessmentIndex) GetByIDForHydrate(ctx context.Context, assessmentID uuid.UUID) (*Assessment, error) {
 	filter := bson.M{"_id": assessmentID}
 	opts := options.FindOne().SetProjection(bson.M{
 		"name": 1,
 	})
 
 	var assessment Assessment
-	err := ai.collection.FindOne(context.Background(), filter, opts).Decode(&assessment)
+	err := ai.collection.FindOne(ctx, filter, opts).Decode(&assessment)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (ai *AssessmentIndex) GetByIDForHydrate(assessmentID uuid.UUID) (*Assessmen
 	return &assessment, nil
 }
 
-func (ai *AssessmentIndex) GetManyForHydrate(assessments []Assessment) ([]Assessment, error) {
+func (ai *AssessmentIndex) GetManyForHydrate(ctx context.Context, assessments []Assessment) ([]Assessment, error) {
 	assessmentIDs := make([]uuid.UUID, len(assessments))
 	for i := range assessments {
 		assessmentIDs[i] = assessments[i].ID
@@ -141,14 +141,14 @@ func (ai *AssessmentIndex) GetManyForHydrate(assessments []Assessment) ([]Assess
 		"name": 1,
 	})
 
-	cursor, err := ai.collection.Find(context.Background(), filter, opts)
+	cursor, err := ai.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	assessmentsMongo := []Assessment{}
-	err = cursor.All(context.Background(), &assessmentsMongo)
+	err = cursor.All(ctx, &assessmentsMongo)
 	if err != nil {
 		return nil, err
 	}
@@ -156,25 +156,25 @@ func (ai *AssessmentIndex) GetManyForHydrate(assessments []Assessment) ([]Assess
 	return assessmentsMongo, nil
 }
 
-func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessment, error) {
+func (ai *AssessmentIndex) GetMultipleByID(ctx context.Context, assessmentIDs []uuid.UUID) ([]Assessment, error) {
 	filter := bson.M{
 		"_id": bson.M{"$in": assessmentIDs},
 	}
 
-	cursor, err := ai.collection.Find(context.Background(), filter)
+	cursor, err := ai.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	assessment := []Assessment{}
-	err = cursor.All(context.Background(), &assessment)
+	err = cursor.All(ctx, &assessment)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range assessment {
-		err = ai.hydrate(&assessment[i])
+		err = ai.hydrate(ctx, &assessment[i])
 		if err != nil {
 			return nil, err
 		}
@@ -183,16 +183,16 @@ func (ai *AssessmentIndex) GetMultipleByID(assessmentIDs []uuid.UUID) ([]Assessm
 	return assessment, nil
 }
 
-func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment, error) {
+func (ai *AssessmentIndex) GetByIDPipeline(ctx context.Context, assessmentID uuid.UUID) (*Assessment, error) {
 	filter := bson.M{"_id": assessmentID}
 
 	assessment := &Assessment{}
-	err := ai.collection.FindOne(context.Background(), filter).Decode(assessment)
+	err := ai.collection.FindOne(ctx, filter).Decode(assessment)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ai.hydrate(assessment)
+	err = ai.hydrate(ctx, assessment)
 	if err != nil {
 		return nil, err
 	}
@@ -200,23 +200,23 @@ func (ai *AssessmentIndex) GetByIDPipeline(assessmentID uuid.UUID) (*Assessment,
 	return assessment, nil
 }
 
-func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, error) {
+func (ai *AssessmentIndex) GetByCustomerID(ctx context.Context, customerID uuid.UUID) ([]Assessment, error) {
 	filter := bson.M{"customer._id": customerID}
 
-	cursor, err := ai.collection.Find(context.Background(), filter)
+	cursor, err := ai.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	assessments := []Assessment{}
-	err = cursor.All(context.Background(), &assessments)
+	err = cursor.All(ctx, &assessments)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range assessments {
-		err = ai.hydrate(&assessments[i])
+		err = ai.hydrate(ctx, &assessments[i])
 		if err != nil {
 			return nil, err
 		}
@@ -225,9 +225,9 @@ func (ai *AssessmentIndex) GetByCustomerID(customerID uuid.UUID) ([]Assessment, 
 	return assessments, nil
 }
 
-func (ai *AssessmentIndex) GetByCustomerAndID(customerID, assessmentID uuid.UUID) (*Assessment, error) {
+func (ai *AssessmentIndex) GetByCustomerAndID(ctx context.Context, customerID, assessmentID uuid.UUID) (*Assessment, error) {
 	var assessment Assessment
-	err := ai.collection.FindOne(context.Background(), bson.M{"_id": assessmentID, "customer._id": customerID}).Decode(&assessment)
+	err := ai.collection.FindOne(ctx, bson.M{"_id": assessmentID, "customer._id": customerID}).Decode(&assessment)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func (ai *AssessmentIndex) GetByCustomerAndID(customerID, assessmentID uuid.UUID
 	return &assessment, nil
 }
 
-func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, name string) ([]Assessment, error) {
+func (ai *AssessmentIndex) Search(ctx context.Context, customers []uuid.UUID, customerID uuid.UUID, name string) ([]Assessment, error) {
 	filter := bson.M{
 		"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(name), Options: "i"}},
 	}
@@ -248,20 +248,20 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 		filter["customer._id"] = bson.M{"$in": customers}
 	}
 
-	cursor, err := ai.collection.Find(context.Background(), filter)
+	cursor, err := ai.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	assessment := []Assessment{}
-	err = cursor.All(context.Background(), &assessment)
+	err = cursor.All(ctx, &assessment)
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range assessment {
-		err = ai.hydrate(&assessment[i])
+		err = ai.hydrate(ctx, &assessment[i])
 		if err != nil {
 			return nil, err
 		}
@@ -270,7 +270,7 @@ func (ai *AssessmentIndex) Search(customers []uuid.UUID, customerID uuid.UUID, n
 	return assessment, nil
 }
 
-func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment) error {
+func (ai *AssessmentIndex) Update(ctx context.Context, assessmentID uuid.UUID, assessment *Assessment) error {
 	filter := bson.M{"_id": assessmentID}
 
 	update := bson.M{
@@ -291,11 +291,11 @@ func (ai *AssessmentIndex) Update(assessmentID uuid.UUID, assessment *Assessment
 		},
 	}
 
-	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ai.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Assessment) error {
+func (ai *AssessmentIndex) UpdateStatus(ctx context.Context, assessmentID uuid.UUID, assessment *Assessment) error {
 	filter := bson.M{"_id": assessmentID}
 
 	update := bson.M{
@@ -305,11 +305,11 @@ func (ai *AssessmentIndex) UpdateStatus(assessmentID uuid.UUID, assessment *Asse
 		},
 	}
 
-	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ai.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ai *AssessmentIndex) UpdateTargets(assessmentID uuid.UUID, target uuid.UUID) error {
+func (ai *AssessmentIndex) UpdateTargets(ctx context.Context, assessmentID uuid.UUID, target uuid.UUID) error {
 	filter := bson.M{"_id": assessmentID}
 
 	update := bson.M{
@@ -323,32 +323,39 @@ func (ai *AssessmentIndex) UpdateTargets(assessmentID uuid.UUID, target uuid.UUI
 		},
 	}
 
-	_, err := ai.collection.UpdateOne(context.Background(), filter, update)
+	_, err := ai.collection.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (ai *AssessmentIndex) Delete(assessmentID uuid.UUID) error {
+// Delete removes an assessment and all its associated data
+//
+// Requires transactional context to ensure data integrity
+func (ai *AssessmentIndex) Delete(ctx context.Context, assessmentID uuid.UUID) error {
 	// TODO: move inside user index
 	// Remove the assessment from the user's list
 	filter := bson.M{"assessments._id": assessmentID}
 	update := bson.M{"$pull": bson.M{"assessments": bson.M{"_id": assessmentID}}}
-	_, err := ai.driver.User().collection.UpdateMany(context.Background(), filter, update)
+	_, err := ai.driver.User().collection.UpdateMany(ctx, filter, update)
 	if err != nil {
 		return fmt.Errorf("failed to remove Assessment %s from Users: %w", assessmentID.String(), err)
 	}
 
 	// Delete all vulnerabilities associated with the assessment
-	if err := ai.driver.Vulnerability().DeleteManyByAssessmentID(assessmentID); err != nil {
+	if err := ai.driver.Vulnerability().DeleteManyByAssessmentID(ctx, assessmentID); err != nil {
 		return fmt.Errorf("failed to delete Vulnerabilities for Assessment %s: %w", assessmentID.String(), err)
 	}
 
 	// Delete the assessment
-	_, err = ai.collection.DeleteOne(context.Background(), bson.M{"_id": assessmentID})
+	_, err = ai.collection.DeleteOne(ctx, bson.M{"_id": assessmentID})
 	return err
 }
 
-func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, includePocs bool) (uuid.UUID, error) {
-	assessment, err := ai.GetByID(assessmentID)
+// Clone creates a copy of an assessment with the provided name
+// including vulnerabilities and optionally PoCs
+//
+// Requires transactional context to ensure data integrity
+func (ai *AssessmentIndex) Clone(ctx context.Context, assessmentID uuid.UUID, assessmentName string, includePocs bool) (uuid.UUID, error) {
+	assessment, err := ai.GetByID(ctx, assessmentID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -363,19 +370,19 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, 
 	assessment.CreatedAt = time.Now()
 	assessment.UpdatedAt = assessment.CreatedAt
 
-	_, err = ai.collection.InsertOne(context.Background(), assessment)
+	_, err = ai.collection.InsertOne(ctx, assessment)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
 	// Clone vulnerabilities
-	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(assessmentID)
+	vulnerabilities, err := ai.driver.Vulnerability().GetByAssessmentID(ctx, assessmentID)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
 	for _, vulnerability := range vulnerabilities {
-		_, err := ai.driver.Vulnerability().Clone(vulnerability.ID, assessment.ID, includePocs)
+		_, err := ai.driver.Vulnerability().Clone(ctx, vulnerability.ID, assessment.ID, includePocs)
 		if err != nil {
 			return uuid.Nil, err
 		}
@@ -385,8 +392,8 @@ func (ai *AssessmentIndex) Clone(assessmentID uuid.UUID, assessmentName string, 
 }
 
 // hydrate fills in the nested fields for an Assessment
-func (ai *AssessmentIndex) hydrate(assessment *Assessment) error {
-	customer, err := ai.driver.Customer().GetByIDForHydrate(assessment.Customer.ID)
+func (ai *AssessmentIndex) hydrate(ctx context.Context, assessment *Assessment) error {
+	customer, err := ai.driver.Customer().GetByIDForHydrate(ctx, assessment.Customer.ID)
 	if err != nil {
 		return err
 	}
@@ -394,7 +401,7 @@ func (ai *AssessmentIndex) hydrate(assessment *Assessment) error {
 	assessment.Customer = *customer
 
 	for i := range assessment.Targets {
-		target, err := ai.driver.Target().GetByID(assessment.Targets[i].ID)
+		target, err := ai.driver.Target().GetByID(ctx, assessment.Targets[i].ID)
 		if err != nil {
 			return err
 		}
@@ -403,7 +410,7 @@ func (ai *AssessmentIndex) hydrate(assessment *Assessment) error {
 	}
 
 	filter := bson.M{"assessment._id": assessment.ID}
-	vulnCount, err := ai.driver.Vulnerability().collection.CountDocuments(context.Background(), filter)
+	vulnCount, err := ai.driver.Vulnerability().collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return err
 	}

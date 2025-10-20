@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +22,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 	}
 
 	// retrieve vulnerability from database
-	pocs, err := d.mongo.Poc().GetByImageID(imageRef.ID)
+	pocs, err := d.mongo.Poc().GetByImageID(context.Background(), imageRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -31,7 +32,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 
 	canAccess := false
 	for _, poc := range pocs {
-		vulnerability, err := d.mongo.Vulnerability().GetByID(poc.VulnerabilityID)
+		vulnerability, err := d.mongo.Vulnerability().GetByID(context.Background(), poc.VulnerabilityID)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
@@ -39,7 +40,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 			})
 		}
 
-		assessment, err := d.mongo.Assessment().GetByID(vulnerability.Assessment.ID)
+		assessment, err := d.mongo.Assessment().GetByID(context.Background(), vulnerability.Assessment.ID)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
@@ -59,7 +60,7 @@ func (d *Driver) GetImage(c *fiber.Ctx) error {
 		})
 	}
 
-	imageData, fileReference, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	imageData, fileReference, err := d.mongo.FileReference().ReadByID(context.Background(), imageRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -84,7 +85,7 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 		})
 	}
 
-	template, err := d.mongo.Template().GetByFileID(fileRef.ID)
+	template, err := d.mongo.Template().GetByFileID(context.Background(), fileRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -99,7 +100,7 @@ func (d *Driver) GetTemplateFile(c *fiber.Ctx) error {
 		})
 	}
 
-	fileData, fileReference, err := d.mongo.FileReference().ReadByID(fileRef.ID)
+	fileData, fileReference, err := d.mongo.FileReference().ReadByID(context.Background(), fileRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -142,7 +143,7 @@ func (d *Driver) GetCustomerImage(c *fiber.Ctx) error {
 	}
 
 	// read the image from the database
-	imageData, fileReference, err := d.mongo.FileReference().ReadByID(imageRef.ID)
+	imageData, fileReference, err := d.mongo.FileReference().ReadByID(context.Background(), imageRef.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -165,7 +166,7 @@ func (d *Driver) fileFromParam(param string) (*mongo.FileReference, string) {
 		return nil, "Invalid file ID"
 	}
 
-	file, err := d.mongo.FileReference().GetByID(fileID)
+	file, err := d.mongo.FileReference().GetByID(context.Background(), fileID)
 	if err != nil {
 		return nil, "Invalid file ID"
 	}

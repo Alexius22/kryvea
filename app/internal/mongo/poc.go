@@ -89,9 +89,14 @@ func (pi PocIndex) init() error {
 	return err
 }
 
-func (pi *PocIndex) Upsert(poc *Poc) error {
+// Upsert adds or updates a PoCs for a given vulnerability.
+// It also manages the associated file references for images
+// by deleting old references and adding new ones.
+//
+// Requires transactional context to ensure data integrity
+func (pi *PocIndex) Upsert(ctx context.Context, poc *Poc) error {
 	// retrieve existing POCs
-	oldPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
+	oldPoc, err := pi.GetByVulnerabilityID(ctx, poc.VulnerabilityID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -139,7 +144,7 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	}
 
 	_, err = pi.collection.UpdateOne(
-		context.Background(),
+		ctx,
 		filter,
 		upsert,
 		options.UpdateOne().SetUpsert(true),
@@ -148,7 +153,7 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 		return err
 	}
 
-	upsertedPoc, err := pi.GetByVulnerabilityID(poc.VulnerabilityID)
+	upsertedPoc, err := pi.GetByVulnerabilityID(ctx, poc.VulnerabilityID)
 	if err != nil {
 		return err
 	}
@@ -158,7 +163,7 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 			continue
 		}
 
-		err = pi.driver.FileReference().AddToUsedBy(pocItem.ImageID, upsertedPoc.ID)
+		err = pi.driver.FileReference().AddToUsedBy(ctx, pocItem.ImageID, upsertedPoc.ID)
 		if err != nil {
 			return err
 		}
@@ -167,7 +172,7 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	// delete old images that are not in the new POC
 	for imageID := range oldImageIDs {
 		if imageID != uuid.Nil {
-			err = pi.driver.FileReference().PullUsedBy(imageID, oldPoc.ID)
+			err = pi.driver.FileReference().PullUsedBy(ctx, imageID, oldPoc.ID)
 			if err != nil {
 				return err
 			}
@@ -177,17 +182,17 @@ func (pi *PocIndex) Upsert(poc *Poc) error {
 	return nil
 }
 
-func (pi *PocIndex) GetByID(ID uuid.UUID) (*Poc, error) {
-	cursor, err := pi.collection.Find(context.Background(), bson.M{"_id": ID})
+func (pi *PocIndex) GetByID(ctx context.Context, ID uuid.UUID) (*Poc, error) {
+	cursor, err := pi.collection.Find(ctx, bson.M{"_id": ID})
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	poc := &Poc{
 		Pocs: []PocItem{},
 	}
-	if cursor.Next(context.Background()) {
+	if cursor.Next(ctx) {
 		if err := cursor.Decode(poc); err != nil {
 			return nil, err
 		}
@@ -196,20 +201,20 @@ func (pi *PocIndex) GetByID(ID uuid.UUID) (*Poc, error) {
 	return poc, nil
 }
 
-func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error) {
+func (pi *PocIndex) GetByVulnerabilityID(ctx context.Context, vulnerabilityID uuid.UUID) (*Poc, error) {
 	filter := bson.M{"vulnerability_id": vulnerabilityID}
 	opts := options.Find().SetLimit(1)
 
-	cursor, err := pi.collection.Find(context.Background(), filter, opts)
+	cursor, err := pi.collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	poc := &Poc{
 		Pocs: []PocItem{},
 	}
-	if cursor.Next(context.Background()) {
+	if cursor.Next(ctx) {
 		if err := cursor.Decode(poc); err != nil {
 			return nil, err
 		}
@@ -218,15 +223,15 @@ func (pi *PocIndex) GetByVulnerabilityID(vulnerabilityID uuid.UUID) (*Poc, error
 	return poc, nil
 }
 
-func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
-	cursor, err := pi.collection.Find(context.Background(), bson.M{"pocs.image_id": imageID})
+func (pi *PocIndex) GetByImageID(ctx context.Context, imageID uuid.UUID) ([]Poc, error) {
+	cursor, err := pi.collection.Find(ctx, bson.M{"pocs.image_id": imageID})
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	pocs := []Poc{}
-	err = cursor.All(context.Background(), &pocs)
+	err = cursor.All(ctx, &pocs)
 	if err != nil {
 		return []Poc{}, err
 	}
@@ -234,21 +239,29 @@ func (pi *PocIndex) GetByImageID(imageID uuid.UUID) ([]Poc, error) {
 	return pocs, nil
 }
 
-func (pi *PocIndex) DeleteByVulnerabilityID(vulnerabilityID uuid.UUID) error {
+// DeleteByVulnerabilityID removes PoCs associated with a given vulnerability ID.
+// It also manages the associated file references for images.
+//
+// Requires transactional context to ensure data integrity
+func (pi *PocIndex) DeleteByVulnerabilityID(ctx context.Context, vulnerabilityID uuid.UUID) error {
 	// TODO: add deletion of FileReferences
-	_, err := pi.collection.DeleteOne(context.Background(), bson.M{"vulnerability_id": vulnerabilityID})
+	_, err := pi.collection.DeleteOne(ctx, bson.M{"vulnerability_id": vulnerabilityID})
 	return err
 }
 
-func (pi *PocIndex) DeleteManyByVulnerabilityID(vulnerabilityIDs []uuid.UUID) error {
+// DeleteManyByVulnerabilityID removes PoCs associated with given vulnerability IDs.
+// It also manages the associated file references for images.
+//
+// Requires transactional context to ensure data integrity
+func (pi *PocIndex) DeleteManyByVulnerabilityID(ctx context.Context, vulnerabilityIDs []uuid.UUID) error {
 	// TODO: add deletion of FileReferences
 	filter := bson.M{"vulnerability_id": bson.M{"$in": vulnerabilityIDs}}
-	_, err := pi.collection.DeleteMany(context.Background(), filter)
+	_, err := pi.collection.DeleteMany(ctx, filter)
 	return err
 }
 
-func (pi *PocIndex) Clone(pocID, vulnerabilityID uuid.UUID) (uuid.UUID, error) {
-	poc, err := pi.GetByID(pocID)
+func (pi *PocIndex) Clone(ctx context.Context, pocID, vulnerabilityID uuid.UUID) (uuid.UUID, error) {
+	poc, err := pi.GetByID(ctx, pocID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -263,6 +276,6 @@ func (pi *PocIndex) Clone(pocID, vulnerabilityID uuid.UUID) (uuid.UUID, error) {
 	poc.UpdatedAt = poc.CreatedAt
 	poc.VulnerabilityID = vulnerabilityID
 
-	_, err = pi.collection.InsertOne(context.Background(), poc)
+	_, err = pi.collection.InsertOne(ctx, poc)
 	return poc.ID, err
 }
