@@ -1,37 +1,27 @@
-<p align="center">
+<div align="center">
   <a href="https://github.com/Alexius22/kryvea">
-    <picture>
-      <img width="120" src="web/src/assets/logo_stroke.svg" alt="Kryvea Logo" />
-    </picture>
+    <img width="120" src="web/src/assets/logo_stroke.svg" alt="Kryvea Logo" />
   </a>
-</p>
 
-<h1 align="center">Kryvea</h1>
+  <h1>Kryvea</h1>
 
-<p align="center">
-  <b>The reporting platform you never expected</b>
-  <br />
-  Making it simple and easy to manage penetration tests and generate professional reports
-</p>
+  <p><b>The reporting platform you never expected</b><br />
+  Making it simple and easy to manage penetration tests and generate professional reports</p>
 
-<p align="center">
-  <a href="https://github.com/Alexius22/kryvea/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-AGPLv3-blue.svg" alt="License: AGPL v3">
-  </a>
-  <a href="https://github.com/Alexius22/kryvea/releases">
-    <img src="https://img.shields.io/github/v/release/Alexius22/kryvea?include_prereleases" alt="Release">
-  </a>
-</p>
+[![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://github.com/Alexius22/kryvea/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/Alexius22/kryvea?include_prereleases)](https://github.com/Alexius22/kryvea/releases)
+
+</div>
 
 ## 📖 Documentation
 
-**Full documentation is available at: [Kryvea Documentation](docs/)**
+**Full documentation is available at: [Kryvea Documentation](https://alexius22.github.io/kryvea/)**
 
-- **[Installation Guide](docs/installation.md)** - Setup and deployment
-- **[Usage Guide](docs/usage.md)** - Complete workflow walkthrough
-- **[Templating Guide](docs/templating.md)** - Custom report templates
-- **[Configuration](docs/configuration.md)** - Advanced settings
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues & solutions
+- **[Installation Guide](https://alexius22.github.io/kryvea/installation)** - Setup and deployment
+- **[Usage Guide](https://alexius22.github.io/kryvea/usage)** - Complete workflow walkthrough
+- **[Templating Guide](https://alexius22.github.io/kryvea/templating)** - Custom report templates
+- **[Configuration](https://alexius22.github.io/kryvea/configuration)** - Advanced settings
+- **[Troubleshooting](https://alexius22.github.io/kryvea/troubleshooting)** - Common issues & solutions
 
 ## 🌟 Overview
 
@@ -58,7 +48,7 @@ docker compose up
 
 **That's it!** The first startup will build the images and initialize the database.
 
-> **For detailed installation instructions, see [Installation Guide](docs/INSTALLATION.md)**
+> **For detailed installation instructions, see [Installation Guide](https://alexius22.github.io/kryvea/installation)**
 
 ### UI
 
@@ -75,7 +65,7 @@ Supporting Light and Dark theme
 
 ## 📋 Usage
 
-> **For complete usage guide, see [Usage Documentation](docs/USAGE.md)**
+> **For complete usage guide, see [Usage Documentation](https://alexius22.github.io/kryvea/usage)**
 
 ---
 
@@ -89,7 +79,7 @@ See [LICENSE](LICENSE) file for details.
 
 - **[Discussions](https://github.com/Alexius22/kryvea/discussions)** - Ask questions, share ideas
 - **[Issues](https://github.com/Alexius22/kryvea/issues)** - Report bugs, request features
-- **[Documentation](docs/)** - Complete guides and references
+- **[Documentation](https://alexius22.github.io/kryvea/)** - Complete guides and references
 
 ---
 
