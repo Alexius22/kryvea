@@ -81,11 +81,11 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 		if err != nil {
 			return nil, err
 		}
+	}
 
-		err = d.InitializeBucketCollections()
-		if err != nil {
-			return nil, err
-		}
+	err = d.InitializeBucketCollections()
+	if err != nil {
+		return nil, err
 	}
 
 	err = d.CreateNilCategory()

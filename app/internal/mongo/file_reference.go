@@ -125,30 +125,6 @@ func (i *FileReferenceIndex) ReadByID(ctx context.Context, id uuid.UUID) ([]byte
 }
 
 func (i *FileReferenceIndex) PullUsedBy(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
-	_, err := i.collection.UpdateOne(ctx,
-		bson.M{"_id": id},
-		bson.M{"$pull": bson.M{"used_by": usedBy}},
-	)
-	return err
-}
-
-func (i *FileReferenceIndex) AddToUsedBy(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
-	if usedBy == uuid.Nil {
-		return ErrUsedByIDRequired
-	}
-
-	_, err := i.collection.UpdateOne(ctx,
-		bson.M{"_id": id},
-		bson.M{"$addToSet": bson.M{"used_by": usedBy}},
-	)
-	return err
-}
-
-// Delete removes a file reference including
-// the associated file in the file storage
-//
-// Requires transactional context to ensure data integrity
-func (i *FileReferenceIndex) Delete(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
 	fileReference, err := i.GetByID(ctx, id)
 	if err != nil {
 		return err
@@ -168,5 +144,17 @@ func (i *FileReferenceIndex) Delete(ctx context.Context, id uuid.UUID, usedBy uu
 	}
 
 	_, err = i.collection.DeleteOne(ctx, bson.M{"_id": id})
+	return err
+}
+
+func (i *FileReferenceIndex) AddToUsedBy(ctx context.Context, id uuid.UUID, usedBy uuid.UUID) error {
+	if usedBy == uuid.Nil {
+		return ErrUsedByIDRequired
+	}
+
+	_, err := i.collection.UpdateOne(ctx,
+		bson.M{"_id": id},
+		bson.M{"$addToSet": bson.M{"used_by": usedBy}},
+	)
 	return err
 }
