@@ -6,15 +6,14 @@ export default defineConfig({
   description: "The reporting platform you never expected",
 
   // GitHub Pages deployment
-  base: "/docs/",
+  base: "/kryvea/",
+  head: [["link", { rel: "icon", href: "/kryvea/images/logo.svg" }]],
 
   // Performance optimizations
   cleanUrls: true,
 
   // Theme configuration
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-
     logo: "/images/logo.svg",
     siteTitle: "Kryvea Docs",
 
