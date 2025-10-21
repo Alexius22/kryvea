@@ -112,6 +112,10 @@ func (ti *TargetIndex) FirstOrInsert(ctx context.Context, target *Target, custom
 }
 
 func (ti *TargetIndex) Update(ctx context.Context, targetID uuid.UUID, target *Target) error {
+	if targetID == ImmutableID {
+		return ErrImmutableTarget
+	}
+
 	filter := bson.M{"_id": targetID}
 
 	update := bson.M{
@@ -135,10 +139,14 @@ func (ti *TargetIndex) Update(ctx context.Context, targetID uuid.UUID, target *T
 //
 // Requires transactional context to ensure data integrity
 func (ti *TargetIndex) Delete(ctx context.Context, targetID uuid.UUID) error {
+	if targetID == ImmutableID {
+		return ErrImmutableTarget
+	}
+
 	filter := bson.M{"target._id": targetID}
 	update := bson.M{
 		"$set": bson.M{
-			"target._id": uuid.Nil,
+			"target._id": ImmutableID,
 		},
 	}
 	_, err := ti.driver.Vulnerability().collection.UpdateMany(ctx, filter, update)
@@ -188,7 +196,13 @@ func (ti *TargetIndex) GetByIDPipeline(ctx context.Context, targetID uuid.UUID) 
 }
 
 func (ti *TargetIndex) GetByCustomerID(ctx context.Context, customerID uuid.UUID) ([]Target, error) {
-	filter := bson.M{"customer._id": customerID}
+	filter := bson.M{
+		"$and": []bson.M{
+			{"customer._id": customerID},
+			{"_id": bson.M{"$ne": ImmutableID}},
+		},
+	}
+
 	cursor, err := ti.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -211,28 +225,10 @@ func (ti *TargetIndex) GetByCustomerID(ctx context.Context, customerID uuid.UUID
 	return targets, nil
 }
 
-func (ti *TargetIndex) GetByCustomerAndID(ctx context.Context, customerID, targetID uuid.UUID) (*Target, error) {
-	filter := bson.M{
-		"customer._id": customerID,
-		"_id":          targetID,
-	}
-
-	target := &Target{}
-	err := ti.collection.FindOne(ctx, filter).Decode(target)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ti.hydrate(ctx, target)
-	if err != nil {
-		return nil, err
-	}
-
-	return target, nil
-}
-
 func (ti *TargetIndex) Search(ctx context.Context, customerID uuid.UUID, query string) ([]Target, error) {
-	conditions := []bson.M{}
+	conditions := []bson.M{
+		{"_id": bson.M{"$ne": ImmutableID}},
+	}
 
 	if customerID != uuid.Nil {
 		conditions = append(conditions, bson.M{"customer._id": customerID})
@@ -280,7 +276,9 @@ func (ti *TargetIndex) Search(ctx context.Context, customerID uuid.UUID, query s
 }
 
 func (ti *TargetIndex) SearchWithinCustomers(ctx context.Context, customerIDs []uuid.UUID, query string) ([]Target, error) {
-	conditions := []bson.M{}
+	conditions := []bson.M{
+		{"_id": bson.M{"$ne": ImmutableID}},
+	}
 
 	if customerIDs != nil {
 		conditions = append(conditions, bson.M{"customer._id": bson.M{"$in": customerIDs}})
@@ -331,7 +329,7 @@ func (ti *TargetIndex) SearchWithinCustomers(ctx context.Context, customerIDs []
 func (ti *TargetIndex) hydrate(ctx context.Context, target *Target) error {
 	customer, err := ti.driver.Customer().GetByIDForHydrate(ctx, target.Customer.ID)
 	if err != nil {
-		return err
+		customer = &Customer{}
 	}
 
 	target.Customer = *customer

@@ -334,7 +334,7 @@ func (d *Driver) targetFromParam(targetParam string) (*mongo.Target, string) {
 
 func (d *Driver) validateTargetData(data *targetRequestData) string {
 	if data.FQDN == "" {
-		return "FQDN is required"
+		return "FQDN | Target name is required"
 	}
 
 	if data.IPv4 != "" && !util.IsValidIPv4(data.IPv4) {
