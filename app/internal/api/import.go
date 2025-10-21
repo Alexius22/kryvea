@@ -120,45 +120,15 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 	defer session.End()
 
 	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
-		var vulnerabilities []uuid.UUID
-		var categories []uuid.UUID
-		var targets []uuid.UUID
-
-		defer func() {
-			if err != nil {
-				for _, vulnerabilityID := range vulnerabilities {
-					cErr := d.mongo.Vulnerability().Delete(ctx, vulnerabilityID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-				for _, categoryID := range categories {
-					cErr := d.mongo.Category().Delete(ctx, categoryID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-				for _, targetID := range targets {
-					cErr := d.mongo.Target().Delete(ctx, targetID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-			}
-		}()
-
 		for _, issue := range burpData.Issues {
 			target := &mongo.Target{
 				IPv4: issue.Host.IP,
 				FQDN: issue.Host.Name,
 				Tag:  "burp",
 			}
-			targetID, isNew, err := d.mongo.Target().FirstOrInsert(ctx, target, customer.ID)
+			targetID, _, err := d.mongo.Target().FirstOrInsert(ctx, target, customer.ID)
 			if err != nil {
 				return nil, err
-			}
-			if isNew {
-				targets = append(targets, targetID)
 			}
 
 			err = d.mongo.Assessment().UpdateTargets(ctx, assessment.ID, targetID)
@@ -174,12 +144,9 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 				References:         []string{},
 				Source:             mongo.SourceBurp,
 			}
-			categoryID, isNew, err := d.mongo.Category().FirstOrInsert(ctx, category)
+			categoryID, _, err := d.mongo.Category().FirstOrInsert(ctx, category)
 			if err != nil {
 				return nil, err
-			}
-			if isNew {
-				categories = append(categories, categoryID)
 			}
 
 			vulnerability := &mongo.Vulnerability{
@@ -219,8 +186,6 @@ func (d *Driver) ParseBurp(data []byte, customer mongo.Customer, assessment mong
 			if err != nil {
 				return nil, err
 			}
-
-			vulnerabilities = append(vulnerabilities, vulnerabilityID)
 
 			items := len(issue.RequestResponses) + len(issue.CollaboratorEvents) + len(issue.InfiltratorEvents)
 			poc := mongo.Poc{
@@ -334,33 +299,6 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 	defer session.End()
 
 	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
-		var vulnerabilities []uuid.UUID
-		var categories []uuid.UUID
-		var targets []uuid.UUID
-
-		defer func() {
-			if err != nil {
-				for _, vulnerabilityID := range vulnerabilities {
-					cErr := d.mongo.Vulnerability().Delete(ctx, vulnerabilityID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-				for _, categoryID := range categories {
-					cErr := d.mongo.Category().Delete(ctx, categoryID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-				for _, targetID := range targets {
-					cErr := d.mongo.Target().Delete(ctx, targetID)
-					if cErr != nil {
-						err = fmt.Errorf("failed to cleanup: %v. Original error: %w", cErr, err)
-					}
-				}
-			}
-		}()
-
 		if nessusData.Report == nil {
 			return nil, errors.New("report data is empty")
 		}
@@ -393,12 +331,9 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				Tag:  "nessus",
 			}
 
-			targetID, isNew, err := d.mongo.Target().FirstOrInsert(ctx, target, customer.ID)
+			targetID, _, err := d.mongo.Target().FirstOrInsert(ctx, target, customer.ID)
 			if err != nil {
 				return nil, err
-			}
-			if isNew {
-				targets = append(targets, targetID)
 			}
 
 			err = d.mongo.Assessment().UpdateTargets(ctx, assessment.ID, targetID)
@@ -427,12 +362,9 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 					Source:     mongo.SourceNessus,
 				}
 
-				categoryID, isNew, err := d.mongo.Category().FirstOrInsert(ctx, category)
+				categoryID, _, err := d.mongo.Category().FirstOrInsert(ctx, category)
 				if err != nil {
 					return nil, err
-				}
-				if isNew {
-					categories = append(categories, categoryID)
 				}
 
 				vulnerability := &mongo.Vulnerability{
@@ -509,8 +441,6 @@ func (d *Driver) ParseNessus(data []byte, customer mongo.Customer, assessment mo
 				if err != nil {
 					return nil, err
 				}
-
-				vulnerabilities = append(vulnerabilities, vulnerabilityID)
 
 				poc.Pocs = append(poc.Pocs, mongo.PocItem{
 					Index:        0,
