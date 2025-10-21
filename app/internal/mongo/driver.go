@@ -83,7 +83,17 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 		}
 	}
 
+	err = d.InitializeBucketCollections()
+	if err != nil {
+		return nil, err
+	}
+
 	err = d.CreateNilCategory()
+	if err != nil {
+		return nil, err
+	}
+
+	err = d.CreateNilTarget()
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +107,7 @@ func NewDriver(uri, adminUser, adminPass string, levelWriter *zerolog.LevelWrite
 }
 
 func (d *Driver) IsDbInitialized() (bool, error) {
-	_, err := d.Category().GetByID(context.Background(), ImmutableCategoryID)
+	_, err := d.Category().GetByID(context.Background(), ImmutableID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return false, err
 	}
@@ -187,7 +197,7 @@ func (d *Driver) CreateAdminUser(username, password string) error {
 }
 
 func (d *Driver) CreateNilCategory() error {
-	category, err := d.Category().GetByID(context.Background(), ImmutableCategoryID)
+	category, err := d.Category().GetByID(context.Background(), ImmutableID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -201,7 +211,7 @@ func (d *Driver) CreateNilCategory() error {
 
 	_, err = d.Category().collection.InsertOne(context.Background(), &Category{
 		Model: Model{
-			ID:        ImmutableCategoryID,
+			ID:        ImmutableID,
 			CreatedAt: now,
 			UpdatedAt: now,
 		},
@@ -220,4 +230,43 @@ func (d *Driver) CreateNilCategory() error {
 	d.logger.Debug().Msg("Created nil category")
 
 	return nil
+}
+
+func (d *Driver) CreateNilTarget() error {
+	target, err := d.Target().GetByID(context.Background(), ImmutableID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+
+	// target already exists
+	if target != nil {
+		return nil
+	}
+
+	now := time.Now()
+
+	_, err = d.Target().collection.InsertOne(context.Background(), &Target{
+		Model: Model{
+			ID:        ImmutableID,
+			CreatedAt: now,
+			UpdatedAt: now,
+		},
+		FQDN:     "DELETED-TARGET",
+		Customer: Customer{},
+	})
+	if err != nil {
+		return err
+	}
+	d.logger.Debug().Msg("Created nil target")
+
+	return nil
+}
+
+func (d *Driver) InitializeBucketCollections() error {
+	id, err := d.File().Insert(context.Background(), []byte("init-file"), "init-file")
+	if err != nil {
+		return err
+	}
+
+	return d.File().Delete(context.Background(), id)
 }
