@@ -227,7 +227,7 @@ export default function CustomerDetail() {
   return (
     <div>
       <PageHeader icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
-        <Buttons>
+        <Buttons className="justify-end">
           <Button
             small
             text="Assessments"
