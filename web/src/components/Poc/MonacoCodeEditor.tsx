@@ -41,15 +41,30 @@ export default function MonacoCodeEditor({
   const decorationsRef = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const monacoRef = useRef<typeof monaco | null>(null);
 
+  function getContrastTextColor(hexColor: string): string {
+    const hex = hexColor.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16) / 255;
+    const g = parseInt(hex.slice(2, 4), 16) / 255;
+    const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+    const [R, G, B] = [r, g, b].map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+    const luminance = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+
+    return luminance > 0.179 ? "#000000" : "#ffffff";
+  }
+
   function getOrCreateHighlightClass(hexValue: string): string {
     const hexValueClean = hexValue.replace("#", "");
     const className = `monaco-editor-highlight-${hexValueClean}`;
 
     if (!document.querySelector(`.${className}`)) {
+      const textColor = getContrastTextColor(hexValue);
+
       const style = document.createElement("style");
       style.innerHTML = `
       .${className} {
         background-color: ${hexValue};
+        color: ${textColor};
       }
     `;
       document.head.appendChild(style);
