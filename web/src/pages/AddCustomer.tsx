@@ -75,7 +75,7 @@ export default function AddCustomer() {
               onChange={e => setCompanyName(e.target.value)}
             />
             <SelectWrapper
-              label="Language"
+              label="Default language"
               id="language"
               options={languageOptions}
               value={languageOptions.find(opt => opt.value === language) || null}
