@@ -33,7 +33,7 @@ export default function Profile() {
       return;
     }
 
-    patchData<{ message: string }>("/api/users/me", { username: user.username }, () => {
+    patchData<{ message: string }>("/api/users/me", { username: user.username.trim() }, () => {
       toast.success("Username updated successfully");
       setCtxUsername(user.username);
     });

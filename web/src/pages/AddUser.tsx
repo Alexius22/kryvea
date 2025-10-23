@@ -39,16 +39,13 @@ export default function AddUser() {
   };
 
   const handleSubmit = () => {
-    postData(
-      "/api/admin/users",
-      {
-        username,
-        password,
-        role,
-        customers: selectedCustomers,
-      },
-      () => navigate("/users")
-    );
+    const payload = {
+      username: username.trim(),
+      password,
+      role,
+      customers: selectedCustomers,
+    };
+    postData("/api/admin/users", payload, () => navigate("/users"));
   };
 
   return (
