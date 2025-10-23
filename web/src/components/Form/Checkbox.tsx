@@ -19,7 +19,7 @@ export default function Checkbox({ disabled, id, checked, onChange, label }: Che
         onChange={onChange}
         className="checkbox h-5 w-5 cursor-pointer"
       />
-      <Label disabled={disabled} text={label} htmlFor={id} className="cursor-pointer text-sm" />
+      <Label disabled={disabled} text={label} htmlFor={id} className="cursor-pointer !whitespace-normal text-sm" />
     </div>
   );
 }
