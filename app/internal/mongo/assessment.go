@@ -118,7 +118,8 @@ func (ai *AssessmentIndex) GetByID(ctx context.Context, assessmentID uuid.UUID) 
 func (ai *AssessmentIndex) GetByIDForHydrate(ctx context.Context, assessmentID uuid.UUID) (*Assessment, error) {
 	filter := bson.M{"_id": assessmentID}
 	opts := options.FindOne().SetProjection(bson.M{
-		"name": 1,
+		"name":     1,
+		"language": 1,
 	})
 
 	var assessment Assessment
