@@ -87,6 +87,7 @@ export default function AddUser() {
             label="Customers"
             options={customerOptions}
             isMulti
+            disabled={role === "admin"}
             value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
             onChange={handleSelectChange}
             closeMenuOnSelect={false}

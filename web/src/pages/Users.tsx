@@ -155,6 +155,7 @@ export default function Users() {
               label="Customers"
               options={customerOptions}
               isMulti
+              disabled={role === "admin"}
               value={customerOptions.filter(option => selectedCustomers.includes(option.value))}
               onChange={handleCustomerChange}
               closeMenuOnSelect={false}
@@ -253,7 +254,13 @@ export default function Users() {
         data={users.map(user => ({
           Username: user.username,
           Role: user.role,
-          Customers: user.customers?.map(customer => customer.name).join(" | "),
+          Customers:
+            user.role === "admin"
+              ? "All"
+              : user.customers
+                  ?.map(customer => customer.name)
+                  .sort()
+                  .join(" | "),
           Active: Date.parse(user.disabled_at) > Date.now() ? "Yes" : "No",
           buttons: (
             <Buttons noWrap key={user.id}>
