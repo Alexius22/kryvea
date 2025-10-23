@@ -7,6 +7,7 @@ import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Button from "../Form/Button";
 import Buttons from "../Form/Buttons";
+import Checkbox from "../Form/Checkbox";
 import ColorPicker from "../Form/ColorPicker";
 import { SelectOption } from "../Form/SelectWrapper.types";
 import MonacoCodeEditor from "./MonacoCodeEditor";
@@ -47,6 +48,8 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
+  const [textLineWrap, setTextLineWrap] = useState(false);
+  const [minimap, setMinimap] = useState(false);
   const {
     useCtxCodeHighlightColor: [ctxCodeHighlightColor, setCtxCodeHighlightColor],
   } = useContext(GlobalContext);
@@ -123,6 +126,18 @@ export default function PocCodeEditor({
             iconSize={24}
             onClick={() => setShowHighlightedTextModal(true)}
           />
+          <Checkbox
+            id={`poc-${pocDoc.index}-line-wrap`}
+            label="Line wrap"
+            onChange={e => setTextLineWrap(e.target.checked)}
+            checked={textLineWrap}
+          />
+          <Checkbox
+            id={`poc-${pocDoc.index}-minimap`}
+            label="Minimap"
+            onChange={e => setMinimap(e.target.checked)}
+            checked={minimap}
+          />
         </Buttons>
 
         <Button
@@ -150,7 +165,7 @@ export default function PocCodeEditor({
         language={selectedLanguage}
         onLanguageOptionsInit={onLanguageOptionsInit}
         onChange={onChange}
-        options={options}
+        options={{ ...options, wordWrap: textLineWrap ? "on" : "off", minimap: { enabled: minimap } }}
       />
     </Grid>
   );
