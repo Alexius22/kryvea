@@ -28,7 +28,7 @@ export default function MonacoCodeEditor({
   value,
   theme = "vs-dark",
   ideStartingLineNumber = 1,
-  height = "400px",
+  height = "100%",
   stopLineNumberAt,
   textHighlights = [],
   removeDisappearedHighlights = () => {},
@@ -248,7 +248,7 @@ export default function MonacoCodeEditor({
   return (
     <Grid>
       {label && <Label text={label} />}
-      <div className="h-full w-full min-w-0 border border-[color:--border-primary]">
+      <div className="h-full min-h-[400px] w-full min-w-0 resize-y overflow-auto border border-[color:--border-primary]">
         <Editor
           height={height}
           language={language}
