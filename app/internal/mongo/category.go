@@ -19,15 +19,6 @@ const (
 	SourceBurp    = "burp"
 )
 
-var (
-	ImmutableCategoryID uuid.UUID = [16]byte{
-		'K', 'R', 'Y', 'V',
-		'E', 'A', '-', 'I',
-		'M', 'M', 'U', 'T',
-		'A', 'B', 'L', 'E',
-	}
-)
-
 type Category struct {
 	Model              `bson:",inline"`
 	Identifier         string            `json:"identifier" bson:"identifier"`
@@ -122,7 +113,7 @@ func (ci *CategoryIndex) FirstOrInsert(ctx context.Context, category *Category) 
 }
 
 func (ci *CategoryIndex) Update(ctx context.Context, ID uuid.UUID, category *Category) error {
-	if ID == ImmutableCategoryID {
+	if ID == ImmutableID {
 		return ErrImmutableCategory
 	}
 
@@ -149,7 +140,7 @@ func (ci *CategoryIndex) Update(ctx context.Context, ID uuid.UUID, category *Cat
 //
 // Requires transactional context to ensure data integrity
 func (ci *CategoryIndex) Delete(ctx context.Context, ID uuid.UUID) error {
-	if ID == ImmutableCategoryID {
+	if ID == ImmutableID {
 		return ErrImmutableCategory
 	}
 
@@ -161,7 +152,7 @@ func (ci *CategoryIndex) Delete(ctx context.Context, ID uuid.UUID) error {
 	filter := bson.M{"category._id": ID}
 	update := bson.M{
 		"$set": bson.M{
-			"category._id": ImmutableCategoryID,
+			"category._id": ImmutableID,
 		},
 	}
 
@@ -170,7 +161,7 @@ func (ci *CategoryIndex) Delete(ctx context.Context, ID uuid.UUID) error {
 }
 
 func (ci *CategoryIndex) GetAll(ctx context.Context) ([]Category, error) {
-	filter := bson.M{"_id": bson.M{"$ne": ImmutableCategoryID}}
+	filter := bson.M{"_id": bson.M{"$ne": ImmutableID}}
 
 	categories := []Category{}
 	cursor, err := ci.collection.Find(ctx, filter)
@@ -194,13 +185,13 @@ func (ci *CategoryIndex) GetByID(ctx context.Context, categoryID uuid.UUID) (*Ca
 }
 
 func (ci *CategoryIndex) Search(ctx context.Context, query string) ([]Category, error) {
-	filter := bson.M{}
+	filter := bson.M{
+		"_id": bson.M{"$ne": ImmutableID},
+	}
 	if query != "" {
-		filter = bson.M{
-			"$or": []bson.M{
-				{"identifier": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-				{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
-			},
+		filter["$or"] = []bson.M{
+			{"identifier": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
+			{"name": bson.M{"$regex": bson.Regex{Pattern: regexp.QuoteMeta(query), Options: "i"}}},
 		}
 	}
 
