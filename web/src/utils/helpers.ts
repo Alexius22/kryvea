@@ -92,3 +92,19 @@ export const getSidebarItems: (ctxCustomer: Customer, navigate: NavigateFunction
     ],
   },
 ];
+
+export function formatJsonBody(http): [string, number] {
+  let prettyRequestJson = "";
+  let requestJsonStartingLine = 0xabadcafe;
+
+  const [httpHeaders, httpBody] = (http ?? "")?.split("\n\n");
+  try {
+    const requestJsonFormatted = JSON.stringify(JSON.parse(httpBody), null, 2);
+    prettyRequestJson = `${httpHeaders}\n\n${requestJsonFormatted}`;
+    requestJsonStartingLine = (`${httpHeaders}\n\n`.match(/\n/g) || []).length + 2;
+  } catch (e) {
+    prettyRequestJson = http;
+  }
+
+  return [prettyRequestJson, requestJsonStartingLine];
+}

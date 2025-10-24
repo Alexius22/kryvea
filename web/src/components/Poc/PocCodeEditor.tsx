@@ -28,6 +28,7 @@ type PocCodeEditorProps = {
   onSetCodeSelection?: (currentIndex: number, property: string, textSelection: MonacoTextSelection[]) => void;
   onLanguageOptionsInit?: (options: SelectOption[]) => void;
   options?: monaco.editor.IStandaloneEditorConstructionOptions;
+  lineWrapId?: string;
 };
 
 /** @warning This component could probably be better, for instance it is not fully and properly typed, probably it is best to not be used outside of the pocs */
@@ -45,6 +46,7 @@ export default function PocCodeEditor({
   onSetCodeSelection = () => {},
   onLanguageOptionsInit = () => {},
   options = {},
+  lineWrapId = "",
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
@@ -127,7 +129,7 @@ export default function PocCodeEditor({
             onClick={() => setShowHighlightedTextModal(true)}
           />
           <Checkbox
-            id={`poc-${pocDoc.index}-line-wrap`}
+            id={`poc-${pocDoc.index}-${lineWrapId}-line-wrap`}
             label="Line wrap"
             onChange={e => setTextLineWrap(e.target.checked)}
             checked={textLineWrap}

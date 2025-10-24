@@ -102,9 +102,9 @@ export default function Table({
   };
 
   const itemPaginated = (arr: any[]) => {
-    if (backendTotalPages) {
-      return arr; // backend already paginated
-    }
+    // if (backendTotalPages) {
+    //   return arr; // backend already paginated
+    // }
 
     let result = [...arr]; // always copy
 

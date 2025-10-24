@@ -80,6 +80,7 @@ export default function PocRequestResponse({
             selectedLanguage="http"
             ideStartingLineNumber={0}
             textHighlights={pocDoc.request_highlights}
+            lineWrapId="request"
             onChange={code =>
               onTextChange<PocRequestResponseDoc>(currentIndex, "request")({ target: { value: code } } as any)
             }
@@ -98,6 +99,7 @@ export default function PocRequestResponse({
             selectedLanguage="http"
             ideStartingLineNumber={0}
             textHighlights={pocDoc.response_highlights}
+            lineWrapId="response"
             onChange={code =>
               onTextChange<PocRequestResponseDoc>(currentIndex, "response")({ target: { value: code } } as any)
             }
