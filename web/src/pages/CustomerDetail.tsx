@@ -192,7 +192,7 @@ export default function CustomerDetail() {
     };
 
     const formData = new FormData();
-    formData.append("logo", file, file.name);
+    formData.append("file", file, file.name);
     formData.append("data", JSON.stringify(payload));
 
     const toastId = toast.loading("Uploading logo...");

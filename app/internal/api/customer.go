@@ -48,7 +48,10 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 	customerID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
 		var logoId uuid.UUID
 		file, err := c.FormFile("file")
-		if file != nil && err == nil {
+		if err != nil {
+			return uuid.Nil, errors.New("Error reading form file")
+		}
+		if file != nil {
 			logoData, err := d.readFile(file)
 			if err != nil {
 				return uuid.Nil, errors.New("Cannot read file")
