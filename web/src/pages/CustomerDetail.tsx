@@ -249,6 +249,7 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Flex className="justify-center">
               <label
+                data-disabled={!isAdmin}
                 className={`aspect-video max-h-52 overflow-hidden rounded-xl shadow-lg shadow-[color:--bg-primary] transition ${isAdmin ? "cursor-pointer hover:scale-95 hover:shadow-[color:--bg-secondary] active:scale-90" : "cursor-not-allowed"} `}
                 htmlFor={isAdmin ? "change-logo" : undefined}
               >
