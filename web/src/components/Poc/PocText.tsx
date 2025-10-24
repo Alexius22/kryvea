@@ -122,6 +122,7 @@ export default function PocText({
             disableViewHighlights={(pocDoc?.text_highlights ?? []).length <= 0}
             currentIndex={currentIndex}
             highlightsProperty={"text_highlights" as Keys<PocTextDoc>}
+            lineWrapId="text"
             onSetCodeSelection={onSetCodeSelection}
             onChange={code =>
               onTextChange<PocTextDoc>(
