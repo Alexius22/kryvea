@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/mongo"
@@ -29,6 +30,8 @@ func (d *Driver) AddUser(c *fiber.Ctx) error {
 			"error": "Cannot parse JSON",
 		})
 	}
+
+	data.Username = strings.TrimSpace(data.Username)
 
 	// validate data
 	errStr := d.validateUserData(data)
