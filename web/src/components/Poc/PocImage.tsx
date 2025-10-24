@@ -1,13 +1,11 @@
 import { mdiImage } from "@mdi/js";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import { getBlob } from "../../api/api";
 import { uuidZero } from "../../types/common.types";
 import Grid from "../Composition/Grid";
 import Input from "../Form/Input";
 import Textarea from "../Form/Textarea";
 import UploadFile from "../Form/UploadFile";
-import { POC_TYPE_IMAGE } from "./Poc.consts";
 import { PocDoc, PocImageDoc } from "./Poc.types";
 import PocTemplate from "./PocTemplate";
 
@@ -120,20 +118,20 @@ export default function PocImage({
 
     const image_file: File = files[0];
 
-    const checkFilenameDuplicate = (pocs: PocDoc[]) =>
-      pocs.some((poc, i) => {
-        if (poc.type !== POC_TYPE_IMAGE || image_file.name !== poc?.image_file?.name) {
-          return false;
-        }
+    // const checkFilenameDuplicate = (pocs: PocDoc[]) =>
+    //   pocs.some((poc, i) => {
+    //     if (poc.type !== POC_TYPE_IMAGE || image_file.name !== poc?.image_file?.name) {
+    //       return false;
+    //     }
 
-        toast.error(`Image with name ${image_file.name} already exists in the list at index ${i + 1}.`);
-        return true;
-      });
+    //     toast.error(`Image with name ${image_file.name} already exists in the list at index ${i + 1}.`);
+    //     return true;
+    //   });
 
-    if (checkFilenameDuplicate(pocList)) {
-      imageInput.current.value = ""; // clean implicit default input change behaviour
-      return;
-    }
+    // if (checkFilenameDuplicate(pocList)) {
+    //   imageInput.current.value = ""; // clean implicit default input change behaviour
+    //   return;
+    // }
 
     setFilename(image_file.name);
     setImageUrl(URL.createObjectURL(image_file));
