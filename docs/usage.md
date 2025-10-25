@@ -2,19 +2,6 @@
 
 This comprehensive guide walks you through using Kryvea for managing security assessments.
 
-## Table of Contents
-
-- [Getting Started](#getting-started)
-- [User Roles](#user-roles)
-- [Workflow Overview](#workflow-overview)
-- [Customer Management](#customer-management)
-- [Assessment Management](#assessment-management)
-- [Vulnerability Management](#vulnerability-management)
-- [Category Management](#category-management)
-- [Report Generation](#report-generation)
-- [Import & Export](#import-export)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-
 ## Getting Started
 
 ### First Login
@@ -112,7 +99,11 @@ The typical Kryvea workflow:
 
 ### Creating an Assessment
 
-![New Assessment](/images/new_assessment.png)
+<ThemeImage
+  light="/images/new_assessment.png"
+  dark="/images/new_assessment_dark.png"
+  alt="New Assessment"
+/>
 
 1. Navigate to **Customer Detail** -> **Assessments** -> **New Assessment**
 
@@ -182,7 +173,11 @@ Update status from the assessments page.
 
 ### Adding Vulnerabilities Manually
 
-![New Vulnerability](/images/new_vulnerability.png)
+<ThemeImage
+  light="/images/new_vulnerability.png"
+  dark="/images/new_vulnerability_dark.png"
+  alt="New Vulnerability"
+/>
 
 1. Navigate to **Assessment** -> **Vulnerabilities** -> **New Vulnerability**
 
@@ -229,7 +224,11 @@ The built-in CVSS calculator supports:
 
 ### Adding Proof of Concept (PoC)
 
-![Edit PoC](/images/edit_poc.png)
+<ThemeImage
+  light="/images/edit_poc.png"
+  dark="/images/edit_poc_dark.png"
+  alt="Edit PoC"
+/>
 
 1. Navigate to **Vulnerability Detail** -> **Edit PoC** tab
 2. Use the header bar to add:
@@ -241,7 +240,11 @@ The built-in CVSS calculator supports:
 
 ### Searching Vulnerabilities
 
-![Vulnerability Search](/images/vulnerability_search.png)
+<ThemeImage
+  light="/images/vulnerability_search.png"
+  dark="/images/vulnerability_search_dark.png"
+  alt="Vulnerability Search"
+/>
 
 **Global search:**
 
@@ -398,6 +401,9 @@ Categories define vulnerability types using generic descriptions and remediation
 
 - In MonacoEditor you have all the VS Code shortcuts
 - `Ctrl/Cmd + V`: Paste image in PoC image type
+- `Alt + R`: Add request/response PoC
+- `Alt + I`: Add image PoC
+- `Alt + T`: Add text PoC
 
 ## Next Steps
 

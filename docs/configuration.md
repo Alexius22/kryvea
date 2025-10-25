@@ -116,19 +116,6 @@ web:
     - ./ssl/your-domain.com.pem:/etc/nginx/ssl/your-domain.com.pem:ro
 ```
 
-## Performance Tuning
-
-### Nginx Caching
-
-Add caching for static assets in `web/nginx/nginx.conf`:
-
-```nginx
-location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-}
-```
-
 ## Monitoring & Logging
 
 ### Access Logs
@@ -136,13 +123,13 @@ location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
 Nginx access logs:
 
 ```bash
-docker logs kryvea-web
+sudo docker logs kryvea-web
 ```
 
 Application logs:
 
 ```bash
-docker exec kryvea-app tail -f /var/log/kryvea/app.log
+sudo docker exec kryvea-app tail -f /var/log/kryvea/app.log
 ```
 
 ---

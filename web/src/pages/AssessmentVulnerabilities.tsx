@@ -64,20 +64,6 @@ export default function AssessmentVulnerabilities() {
   const [page, setPage] = useState(Math.max(+urlSearchParams.get("page") || DEFAULT_PAGE, DEFAULT_PAGE));
   const [limit, setLimit] = useState(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
 
-  // Filters
-  // const [assessment, setAssessment] = useState(urlSearchParams.get("assessment") ?? "");
-  // const [user, setUser] = useState(urlSearchParams.get("user") ?? "");
-  // const [customer, setCustomer] = useState(urlSearchParams.get("customer") ?? "");
-  // const [cvssMin, setCvssMin] = useState(urlSearchParams.get("cvss_min") ?? "");
-  // const [cvssMax, setCvssMax] = useState(urlSearchParams.get("cvss_max") ?? "");
-  // const [cvssVersions, setCvssVersions] = useState<string[]>(
-  //   urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []
-  // );
-  // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-  //   start: urlSearchParams.get("start_date_time") ?? "",
-  //   end: urlSearchParams.get("end_date_time") ?? "",
-  // });
-
   function fetchVulnerabilitiesPaginated(searchParams) {
     setLoadingVulnerabilities(true);
     getData<any>(
@@ -102,16 +88,6 @@ export default function AssessmentVulnerabilities() {
     setQuery(urlSearchParams.get("query") ?? DEFAULT_QUERY);
     setPage(Math.max(+urlSearchParams.get("page") || DEFAULT_PAGE, DEFAULT_PAGE));
     setLimit(+urlSearchParams.get("limit") || DEFAULT_LIMIT);
-    // setAssessment(urlSearchParams.get("assessment") ?? "");
-    // setUser(urlSearchParams.get("user") ?? "");
-    // setCustomer(urlSearchParams.get("customer") ?? "");
-    // setCvssMin(urlSearchParams.get("cvss_min") ?? "");
-    // setCvssMax(urlSearchParams.get("cvss_max") ?? "");
-    // setCvssVersions(urlSearchParams.get("cvss_versions")?.split(",").filter(Boolean) ?? []);
-    // setDateRange({
-    //   start: urlSearchParams.get("start_date_time") ?? "",
-    //   end: urlSearchParams.get("end_date_time") ?? "",
-    // });
   }, [location.search]);
 
   // Fetch data
@@ -133,39 +109,8 @@ export default function AssessmentVulnerabilities() {
       limit: limit.toString(),
     });
 
-    // if (assessment) sp.set("assessment", assessment);
-    // if (user) sp.set("user", user);
-    // if (customer) sp.set("customer", customer);
-    // if (cvssMin) sp.set("cvss_min", cvssMin);
-    // if (cvssMax) sp.set("cvss_max", cvssMax);
-    // if (cvssVersions.length) sp.set("cvss_versions", cvssVersions.join(","));
-    // if (dateRange.start) sp.set("start_date_time", dateRange.start);
-    // if (dateRange.end) sp.set("end_date_time", dateRange.end);
-
     return sp.toString();
   };
-
-  // Actions
-  // const handleSearch = () => {
-  //   setPage(1); // reset page
-  //   const searchParams = buildSearchParams();
-  //   navigate(`?${searchParams}`);
-  //   fetchVulnerabilitiesPaginated(searchParams);
-  // };
-
-  // const handleClearAll = () => {
-  //   setQuery("");
-  //   setAssessment("");
-  //   setUser("");
-  //   setCustomer("");
-  //   setCvssMin("");
-  //   setCvssMax("");
-  //   setCvssVersions([]);
-  //   setDateRange({ start: "", end: "" });
-  //   setPage(DEFAULT_PAGE);
-  //   setLimit(DEFAULT_LIMIT);
-  //   navigate("?");
-  // };
 
   const openExportModal = () => {
     setIsModalDownloadActive(true);
@@ -318,100 +263,6 @@ export default function AssessmentVulnerabilities() {
       </PageHeader>
 
       <Grid className="gap-4">
-        {/* <Card>
-          <Grid className="grid-cols-3 !items-start gap-4">
-            <Input
-              type="text"
-              id="assessment"
-              label="Assessment"
-              placeholder="Assessment name"
-              value={assessment}
-              onChange={e => setAssessment(e.target.value)}
-              onEnter={handleSearch}
-            />
-            <Input
-              type="text"
-              id="user"
-              label="User"
-              placeholder="User"
-              value={user}
-              onChange={e => setUser(e.target.value)}
-              onEnter={handleSearch}
-            />
-            <Grid className="h-full items-center justify-center">
-              <Label text="CVSS Versions" className="text-center" />
-              <Flex className="gap-4">
-                {CVSS_VERSIONS.map(({ value, label }) => (
-                  <Checkbox
-                    disabled
-                    id={`cvss_${value}`}
-                    label={label}
-                    checked={cvssVersions.includes(value)}
-                    onChange={() => {
-                      setCvssVersions(prev =>
-                        prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
-                      );
-                    }}
-                    key={value}
-                  />
-                ))}
-              </Flex>
-            </Grid>
-            <DateCalendar
-              idStart="start_date_time"
-              label="Range date"
-              isRange
-              value={dateRange}
-              onChange={val => {
-                const { start, end } = val as { start: string; end: string };
-                setDateRange({ start, end });
-              }}
-              placeholder={{ start: "Start date", end: "End date" }}
-            />
-            <Input
-              disabled
-              helperSubtitle="Work in progress"
-              type="text"
-              id="customer"
-              label="Customer"
-              placeholder="Customer name"
-              value={customer}
-              onChange={e => setCustomer(e.target.value)}
-              onEnter={handleSearch}
-            />
-            <Flex className="gap-4">
-              <Input
-                type="text"
-                id="cvss_min_score"
-                label="CVSS Min"
-                placeholder="CVSS min"
-                value={cvssMin}
-                onChange={e => setCvssMin(e.target.value)}
-                onEnter={handleSearch}
-              />
-              <Input
-                type="text"
-                id="cvss_max_score"
-                label="CVSS Max"
-                placeholder="CVSS max"
-                value={cvssMax}
-                onChange={e => setCvssMax(e.target.value)}
-                onEnter={handleSearch}
-              />
-            </Flex>
-          </Grid>
-          <Divider />
-          <Flex items="center" justify="between">
-            <span>
-              Total vulnerabilities found: <b>{totalVulnerabilities}</b>
-            </span>
-            <Flex className="gap-2">
-              <Button text="Clear all" variant="outline-only" onClick={handleClearAll} />
-              <Button text="Search" onClick={handleSearch} />
-            </Flex>
-          </Flex>
-        </Card> */}
-
         <Table
           loading={loadingVulnerabilities}
           backendCurrentPage={page}
@@ -438,10 +289,9 @@ export default function AssessmentVulnerabilities() {
                 </Link>
               ),
               Target: getTargetLabel(vulnerability.target),
-
               ...cvssColumns,
-
               Status: vulnerability.status,
+              User: vulnerability.user.username,
               "Last update": formatDate(vulnerability.updated_at),
               buttons: (
                 <Buttons noWrap>

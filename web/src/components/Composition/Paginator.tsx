@@ -24,6 +24,10 @@ export default function Paginator({
 
   const isOverlapping = page => page < 3 || page > pagesList.length - 3;
 
+  const totalRows = backendTotalRows ?? filteredData?.length ?? 0;
+  const startIndex = totalRows === 0 ? 0 : (currentPage - 1) * perPage + 1;
+  const endIndex = Math.min(currentPage * perPage, totalRows);
+
   return (
     <div className="hide-scrollbar flex flex-col items-center justify-between gap-4 px-3 md:flex-row md:py-0">
       <Buttons className="flex-nowrap !overflow-x-scroll">
@@ -91,7 +95,11 @@ export default function Paginator({
           </>
         )}
       </Buttons>
-      <Flex className="sticky right-0" items="center">
+
+      <Flex className="sticky right-0 gap-2" items="center">
+        <small className="mr-2 text-[color:var(--text-secondary)]">
+          {totalRows > 0 ? `Showing ${startIndex}-${endIndex} of ${totalRows} entries` : "No entries found"}
+        </small>
         <Input
           type="number"
           className="mr-2 max-h-8 w-[50px] rounded-md text-center"

@@ -2,15 +2,6 @@
 
 Thank you for your interest in contributing to Kryvea! This guide will help you get started.
 
-## Table of Contents
-
-- [How to Contribute](#how-to-contribute)
-- [Development Setup](#development-setup)
-- [Coding Standards](#coding-standards)
-- [Submitting Changes](#submitting-changes)
-- [Reporting Bugs](#reporting-bugs)
-- [Suggesting Features](#suggesting-features)
-
 ## How to Contribute
 
 ### Types of Contributions

@@ -2,13 +2,6 @@
 
 Common issues and solutions for Kryvea.
 
-## Table of Contents
-
-- [Installation Issues](#installation-issues)
-- [Database Issues](#database-issues)
-- [Import/Export Issues](#import-export-issues)
-- [Performance Issues](#performance-issues)
-
 ## Installation Issues
 
 ### Port Already in Use
@@ -65,23 +58,6 @@ certbot certonly --standalone -d your-domain.com
 # Update docker-compose.yml with proper certs
 ```
 
-## Database Issues
-
-### MongoDB Replica Set Errors
-
-**Error:** `MongoError: No replica set members match selector`
-
-**Solution:**
-
-```bash
-# Remove data and restart
-sudo docker compose down -v
-sudo docker compose up -d
-
-# Wait 30 seconds for initialization
-sudo docker compose logs -f db-init
-```
-
 ## Import/Export Issues
 
 ### Burp Import Fails
@@ -112,12 +88,12 @@ sudo docker compose logs -f db-init
 
 ```bash
 # Check logs
-docker logs kryvea-app
+sudo docker logs kryvea-app
 
 # Common issues:
-# 1. Invalid template syntax
-# 2. Missing template variables
-# 3. Corrupted DOCX file
+1. Invalid template syntax
+2. Missing template variables
+3. Corrupted DOCX file
 
 # Test with default template first
 ```

@@ -2,7 +2,7 @@ import { mdiAccountEdit, mdiDownload, mdiTabSearch, mdiTarget, mdiTrashCan } fro
 import { memo, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
-import { deleteData, getData, patchData, postData } from "../api/api";
+import { deleteData, getData, patchData, postData, putData } from "../api/api";
 import { getKryveaShadow } from "../api/cookie";
 import { GlobalContext } from "../App";
 import Card from "../components/Composition/Card";
@@ -193,11 +193,10 @@ export default function CustomerDetail() {
 
     const formData = new FormData();
     formData.append("file", file, file.name);
-    formData.append("data", JSON.stringify(payload));
 
     const toastId = toast.loading("Uploading logo...");
-    patchData(
-      `/api/admin/customers/${ctxCustomer?.id}`,
+    putData(
+      `/api/admin/customers/${ctxCustomer?.id}/logo`,
       formData,
       () => {
         getData<Customer>(`/api/customers/${customerId}`, data => setLogoId(data.logo_id));

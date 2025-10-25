@@ -50,7 +50,7 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
-  const [textLineWrap, setTextLineWrap] = useState(false);
+  const [textLineWrap, setTextLineWrap] = useState(true);
   const [minimap, setMinimap] = useState(false);
   const {
     useCtxCodeHighlightColor: [ctxCodeHighlightColor, setCtxCodeHighlightColor],

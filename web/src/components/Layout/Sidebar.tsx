@@ -49,7 +49,7 @@ export default function Sidebar() {
 
         {/* Content */}
         <Flex col className={`flex-1 gap-2 overflow-y-auto p-4`}>
-          {defaultMenu.map(item =>
+          {defaultMenu.filter(Boolean).map(item =>
             item.menu == undefined ? (
               <Link
                 className={`sidebar-item ${ctxSelectedSidebarItem === item.label ? "sidebar-item-active" : ""} ${isCollapsed ? "aspect-square h-12 justify-center" : "!pl-2"}`}
