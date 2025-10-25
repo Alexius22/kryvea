@@ -73,24 +73,11 @@ Kryvea is a comprehensive reporting platform designed for security professionals
 
 ### System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Docker Compose                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────┐         ┌──────────┐         ┌──────────┐     │
-│  │          │         │          │         │          │     │
-│  │   Web    │────────▶│   App    │────────▶│ MongoDB  │     │
-│  │  (Nginx) │         │   (Go)   │         │          |     │
-│  │          │         │          │         │          │     │
-│  └──────────┘         └──────────┘         └──────────┘     │
-│   Port: 443            Port: 8080           Port: 27017     │
-│                                                             │
-│   Frontend             Backend API          Database        │
-│   React + Vite         Fiber + Go           Replica Set     │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+<ThemeImage
+  light="/images/system_architecture.svg"
+  dark="/images/system_architecture_dark.svg"
+  alt="System Architecture"
+/>
 
 ## Need Help?
 

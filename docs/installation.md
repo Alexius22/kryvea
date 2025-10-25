@@ -2,15 +2,6 @@
 
 This guide will walk you through installing and deploying Kryvea.
 
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Quick Installation (Docker)](#quick-installation-docker)
-- [Manual Installation](#manual-installation)
-- [Production Deployment](#production-deployment)
-- [Updating Kryvea](#updating-kryvea)
-- [Uninstallation](#uninstallation)
-
 ## Prerequisites
 
 ### System Requirements
@@ -68,7 +59,7 @@ The first startup takes 2-5 minutes to build images and initialize the database.
 Monitor the logs:
 
 ```bash
-docker compose logs -f
+sudo docker compose logs -f
 ```
 
 Look for:
@@ -191,8 +182,8 @@ web:
 git pull origin main
 
 # Rebuild and restart
-docker compose down
-docker compose up -d --build
+sudo docker compose down
+sudo docker compose up -d --build
 ```
 
 ## Uninstallation
@@ -201,14 +192,14 @@ docker compose up -d --build
 
 ```bash
 # Stop and remove containers
-docker compose down
+sudo docker compose down
 
 # Remove images
-docker rmi kryvea-app kryvea-web
+sudo docker rmi kryvea-app kryvea-web
 
 # Remove data directory
 cd ..
-rm -rf kryvea/.data
+sudo rm -rf kryvea/.data
 ```
 
 ## Next Steps
