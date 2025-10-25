@@ -102,16 +102,9 @@ export default function CustomerDetail() {
     const payload = {
       name: formCustomer.name.trim(),
       language: formCustomer.language,
-      logo_id: logoId,
     };
 
-    const formData = new FormData();
-    if (logoFile) {
-      formData.append("file", logoFile, logoFile.name);
-    }
-    formData.append("data", JSON.stringify(payload));
-
-    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
+    patchData(`/api/admin/customers/${ctxCustomer?.id}`, payload, () => {
       toast.success("Customer updated successfully");
 
       fetchCustomer();

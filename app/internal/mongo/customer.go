@@ -88,16 +88,36 @@ func (ci *CustomerIndex) Insert(ctx context.Context, customer *Customer) (uuid.U
 	return customer.ID, nil
 }
 
-// Update modifies an existing customer in the database including logo reference
+// Update modifies an existing customer in the database
+func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, customer *Customer) error {
+	filter := bson.M{"_id": customerID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now(),
+			"name":       customer.Name,
+			"language":   customer.Language,
+		},
+	}
+
+	_, err := ci.collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateLogo modifies an existing customer's logo
 //
 // Requires transactional context to ensure data integrity
-func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, customer *Customer) error {
+func (ci *CustomerIndex) UpdateLogo(ctx context.Context, customerID uuid.UUID, logoID uuid.UUID, mime string) error {
 	oldCustomer, err := ci.GetByID(ctx, customerID)
 	if err != nil {
 		return err
 	}
 
-	if oldCustomer.LogoID != uuid.Nil && oldCustomer.LogoID != customer.LogoID {
+	if oldCustomer.LogoID != uuid.Nil && oldCustomer.LogoID != logoID {
 		err = ci.driver.FileReference().PullUsedBy(ctx, oldCustomer.LogoID, oldCustomer.ID)
 		if err != nil {
 			return err
@@ -109,15 +129,9 @@ func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, custo
 	update := bson.M{
 		"$set": bson.M{
 			"updated_at":     time.Now(),
-			"name":           customer.Name,
-			"language":       customer.Language,
-			"logo_id":        customer.LogoID,
-			"logo_mime_type": customer.LogoMimeType,
+			"logo_id":        logoID,
+			"logo_mime_type": mime,
 		},
-	}
-
-	if customer.LogoID != uuid.Nil {
-		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference(customer.LogoMimeType, customer.LogoID)
 	}
 
 	_, err = ci.collection.UpdateOne(ctx, filter, update)
@@ -125,8 +139,8 @@ func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, custo
 		return err
 	}
 
-	if customer.LogoID != uuid.Nil {
-		err = ci.driver.FileReference().AddToUsedBy(ctx, customer.LogoID, oldCustomer.ID)
+	if logoID != uuid.Nil {
+		err = ci.driver.FileReference().AddToUsedBy(ctx, logoID, oldCustomer.ID)
 		if err != nil {
 			return err
 		}
