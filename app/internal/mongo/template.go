@@ -60,7 +60,7 @@ func (ti TemplateIndex) init() error {
 				{Key: "name", Value: 1},
 				{Key: "filename", Value: 1},
 				{Key: "language", Value: 1},
-				{Key: "file_type", Value: 1},
+				{Key: "template_type", Value: 1},
 				{Key: "type", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
