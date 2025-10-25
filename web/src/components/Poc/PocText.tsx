@@ -48,6 +48,7 @@ export default function PocText({
   });
 
   const descriptionTextareaId = `poc-description-${currentIndex}-${pocDoc.key}`;
+  const uriInputId = `poc-uri-${currentIndex}-${pocDoc.key}`;
   const languageInputId = `poc-language-${currentIndex}-${pocDoc.key}`;
   const startingLineNumberId = `poc-starting-line-number-${currentIndex}-${pocDoc.key}`;
 
@@ -80,6 +81,13 @@ export default function PocText({
           value={pocDoc.description}
           id={descriptionTextareaId}
           onChange={onTextChange<PocTextDoc>(currentIndex, "description")}
+        />
+        <Input
+          type="text"
+          label="URI"
+          id={uriInputId}
+          value={pocDoc.uri}
+          onChange={onTextChange<PocTextDoc>(currentIndex, "uri")}
         />
         <Grid className="gap-4">
           <Flex className="gap-4">

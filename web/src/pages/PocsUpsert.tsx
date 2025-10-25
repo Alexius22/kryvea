@@ -196,6 +196,7 @@ export default function PocsUpsert() {
             type,
             index: prev.length,
             description: "",
+            uri: "",
             text_language: "",
             text_data: "",
             text_highlights: [],

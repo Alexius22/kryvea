@@ -15,6 +15,7 @@ type PocBaseDoc = {
 
 export interface PocTextDoc extends PocBaseDoc {
   type: typeof POC_TYPE_TEXT;
+  uri: string;
   text_language: string;
   text_data: string;
   text_highlights?: MonacoTextSelection[];
