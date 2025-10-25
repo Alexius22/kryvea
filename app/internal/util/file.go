@@ -3,9 +3,8 @@ package util
 import (
 	"fmt"
 	"io"
-	"path/filepath"
-	"strings"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -34,10 +33,12 @@ func ParseFormFile(c *fiber.Ctx, param string) ([]byte, error) {
 	return data, nil
 }
 
-func CreateImageReference(filename string, id uuid.UUID) string {
-	ext := filepath.Ext(filename)
-	base := strings.TrimSuffix(filename, ext)
+func CreateImageReference(mime string, id uuid.UUID) string {
+	extension := mimetype.Lookup(mime)
+	if extension == nil {
+		extension = mimetype.Lookup("image/png")
+	}
 
-	newFilename := fmt.Sprintf("%s_%s%s", base, id.String(), ext)
+	newFilename := fmt.Sprintf("%s%s", id.String(), extension.Extension())
 	return newFilename
 }

@@ -37,6 +37,7 @@ type PocItem struct {
 	ImageID             uuid.UUID         `json:"image_id,omitempty" bson:"image_id,omitempty"`
 	ImageReference      string            `json:"image_reference,omitempty" bson:"image_reference,omitempty"`
 	ImageFilename       string            `json:"image_filename,omitempty" bson:"image_filename,omitempty"`
+	ImageMimeType       string            `json:"-" bson:"image_mimetype,omitempty"`
 	ImageCaption        string            `json:"image_caption,omitempty" bson:"image_caption,omitempty"`
 	TextLanguage        string            `json:"text_language,omitempty" bson:"text_language,omitempty"`
 	TextData            string            `json:"text_data,omitempty" bson:"text_data,omitempty"`
@@ -109,7 +110,7 @@ func (pi *PocIndex) Upsert(ctx context.Context, poc *Poc) error {
 		}
 
 		newImageIDs[newPocs.ImageID] = struct{}{}
-		poc.Pocs[i].ImageReference = util.CreateImageReference(newPocs.ImageFilename, newPocs.ImageID)
+		poc.Pocs[i].ImageReference = util.CreateImageReference(newPocs.ImageMimeType, newPocs.ImageID)
 	}
 
 	// retrieve old POC images IDs that are not in the new POC

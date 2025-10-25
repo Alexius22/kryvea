@@ -22,6 +22,7 @@ type Customer struct {
 	Name          string     `json:"name" bson:"name"`
 	Language      string     `json:"language" bson:"language"`
 	LogoID        uuid.UUID  `json:"logo_id" bson:"logo_id"`
+	LogoMimeType  string     `json:"-" bson:"logo_mime_type"`
 	LogoReference string     `json:"logo_reference" bson:"logo_reference"`
 	Templates     []Template `json:"templates" bson:"templates"`
 
@@ -63,7 +64,7 @@ func (ci *CustomerIndex) Insert(ctx context.Context, customer *Customer) (uuid.U
 	}
 
 	if customer.LogoID != uuid.Nil {
-		customer.LogoReference = util.CreateImageReference("logo.png", customer.LogoID)
+		customer.LogoReference = util.CreateImageReference(customer.LogoMimeType, customer.LogoID)
 	}
 
 	customer.Model = Model{
@@ -96,7 +97,7 @@ func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, custo
 		return err
 	}
 
-	if oldCustomer.LogoID != uuid.Nil {
+	if oldCustomer.LogoID != uuid.Nil && oldCustomer.LogoID != customer.LogoID {
 		err = ci.driver.FileReference().PullUsedBy(ctx, oldCustomer.LogoID, oldCustomer.ID)
 		if err != nil {
 			return err
@@ -107,15 +108,16 @@ func (ci *CustomerIndex) Update(ctx context.Context, customerID uuid.UUID, custo
 
 	update := bson.M{
 		"$set": bson.M{
-			"updated_at": time.Now(),
-			"name":       customer.Name,
-			"language":   customer.Language,
-			"logo_id":    customer.LogoID,
+			"updated_at":     time.Now(),
+			"name":           customer.Name,
+			"language":       customer.Language,
+			"logo_id":        customer.LogoID,
+			"logo_mime_type": customer.LogoMimeType,
 		},
 	}
 
 	if customer.LogoID != uuid.Nil {
-		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference("logo.png", customer.LogoID)
+		update["$set"].(bson.M)["logo_reference"] = util.CreateImageReference(customer.LogoMimeType, customer.LogoID)
 	}
 
 	_, err = ci.collection.UpdateOne(ctx, filter, update)

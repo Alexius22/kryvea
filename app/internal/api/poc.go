@@ -165,12 +165,13 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 		// or the poc upsert logic should be reworked
 		pocs := safePocs.GetAll()
 		for i := range pocs {
-			imageID, err := d.mongo.FileReference().Insert(ctx, pocs[i].ImageData, pocs[i].ImageFilename)
+			imageID, mime, err := d.mongo.FileReference().Insert(ctx, pocs[i].ImageData)
 			if err != nil {
 				return nil, fmt.Errorf("PoC %d: Cannot upload image", i)
 			}
 
 			pocs[i].ImageID = imageID
+			pocs[i].ImageMimeType = mime
 		}
 
 		pocUpsert := &mongo.Poc{

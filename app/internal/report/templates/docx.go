@@ -45,15 +45,13 @@ func (t *DocxTemplate) Render(reportData *reportdata.ReportData) ([]byte, error)
 					continue
 				}
 
-				fmt.Printf("Adding image to DOCX template: %s\n", pocItem.ImageReference)
 				DocxTemplate.Media(pocItem.ImageReference, pocItem.ImageData)
 				addedImages[pocItem.ImageReference] = true
 			}
 		}
 	}
 
-	if reportData.Customer.LogoID != uuid.Nil {
-		fmt.Printf("Adding customer logo to DOCX template: %s\n", reportData.Customer.LogoReference)
+	if reportData.Customer.LogoID != uuid.Nil && reportData.Customer.LogoReference != "" {
 		DocxTemplate.Media(reportData.Customer.LogoReference, reportData.Customer.LogoData)
 	}
 

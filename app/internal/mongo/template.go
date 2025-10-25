@@ -29,14 +29,15 @@ var (
 )
 
 type Template struct {
-	Model    `bson:",inline"`
-	Name     string    `json:"name" bson:"name"`
-	Filename string    `json:"filename,omitempty" bson:"filename"`
-	Language string    `json:"language,omitempty" bson:"language"`
-	MimeType string    `json:"mime_type" bson:"mime_type"`
-	Type     string    `json:"type,omitempty" bson:"type"`
-	FileID   uuid.UUID `json:"file_id,omitempty" bson:"file_id"`
-	Customer *Customer `json:"customer,omitempty" bson:"customer"`
+	Model        `bson:",inline"`
+	Name         string    `json:"name" bson:"name"`
+	Filename     string    `json:"filename,omitempty" bson:"filename"`
+	Language     string    `json:"language,omitempty" bson:"language"`
+	TemplateType string    `json:"template_type" bson:"template_type"`
+	MimeType     string    `json:"-" bson:"mime_type"`
+	Type         string    `json:"type,omitempty" bson:"type"`
+	FileID       uuid.UUID `json:"file_id,omitempty" bson:"file_id"`
+	Customer     *Customer `json:"customer,omitempty" bson:"customer"`
 }
 
 type TemplateIndex struct {

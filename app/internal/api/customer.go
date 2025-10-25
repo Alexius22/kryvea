@@ -47,6 +47,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 	customerID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
 		var logoId uuid.UUID
+		var mime string
 		file, err := c.FormFile("file")
 		if err != nil {
 			return uuid.Nil, errors.New("Error reading form file")
@@ -57,7 +58,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 				return uuid.Nil, errors.New("Cannot read file")
 			}
 
-			logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
+			logoId, mime, err = d.mongo.FileReference().Insert(ctx, logoData)
 			if err != nil {
 				d.logger.Error().Err(err).Msg("Cannot upload image")
 				return uuid.Nil, errors.New("Cannot upload image")
@@ -65,9 +66,10 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		}
 
 		customer := &mongo.Customer{
-			Name:     data.Name,
-			Language: data.Language,
-			LogoID:   logoId,
+			Name:         data.Name,
+			Language:     data.Language,
+			LogoID:       logoId,
+			LogoMimeType: mime,
 		}
 
 		// insert customer into database
@@ -199,17 +201,20 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 					return nil, errors.New("Cannot read file")
 				}
 
-				logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
+				logoId, mime, err := d.mongo.FileReference().Insert(ctx, logoData)
 				if err != nil {
 					return nil, errors.New("Cannot upload image")
 				}
+				customer.LogoID = logoId
+				customer.LogoMimeType = mime
 			}
 		}
 
 		newCustomer := &mongo.Customer{
-			Name:     data.Name,
-			Language: data.Language,
-			LogoID:   logoId,
+			Name:         data.Name,
+			Language:     data.Language,
+			LogoID:       customer.LogoID,
+			LogoMimeType: customer.LogoMimeType,
 		}
 
 		// update customer in database
