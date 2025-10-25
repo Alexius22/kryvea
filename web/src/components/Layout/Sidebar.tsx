@@ -74,7 +74,7 @@ export default function Sidebar() {
                   }}
                   title={`${item.label} menu`}
                 >
-                  <Flex className={`cursor-pointer gap-4 ${isCollapsed ? "justify-center" : ""}`}>
+                  <Flex className={`cursor-pointer gap-4 break-all ${isCollapsed ? "justify-center" : ""}`}>
                     <Icon path={item.icon} size={iconSize} />
                     <span className={isCollapsed ? "hidden" : ""}>{item.label}</span>
                   </Flex>
