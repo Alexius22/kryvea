@@ -118,8 +118,8 @@ export type Template = {
   name: string;
   filename: string;
   language: string;
-  type: string;
-  mime_type: string;
+  identifier: string;
+  template_type: string;
   file_id: string;
   customer: Customer;
 };

@@ -8,7 +8,6 @@ import Grid from "../Composition/Grid";
 import Modal from "../Composition/Modal";
 import Checkbox from "../Form/Checkbox";
 import DateCalendar from "../Form/DateCalendar";
-import Input from "../Form/Input";
 import Label from "../Form/Label";
 import SelectWrapper from "../Form/SelectWrapper";
 import { SelectOption } from "../Form/SelectWrapper.types";
@@ -38,13 +37,13 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
     const filtered = templates.filter(
       t =>
         t.language === language &&
-        t.mime_type === selectedExportTypeOption.value &&
+        t.template_type === selectedExportTypeOption.value &&
         (t.customer.id === uuidZero || t.customer.id === ctxCustomer.id)
     );
     setTemplateOptions(
       filtered.map(t => ({
         value: t.id,
-        label: t.type ? `${t.name} (${t.type})` : t.name,
+        label: t.identifier ? `${t.name} (${t.identifier})` : t.name,
       }))
     );
 
@@ -101,8 +100,8 @@ export default function ExportReportModal({ setShowModal, assessmentId, template
             selectedExportTemplate
               ? {
                   value: selectedExportTemplate.id,
-                  label: selectedExportTemplate.type
-                    ? `${selectedExportTemplate.name} (${selectedExportTemplate.type})`
+                  label: selectedExportTemplate.identifier
+                    ? `${selectedExportTemplate.name} (${selectedExportTemplate.identifier})`
                     : selectedExportTemplate.name,
                 }
               : null

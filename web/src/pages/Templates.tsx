@@ -25,7 +25,7 @@ export default function Templates() {
 
   const [fileObj, setFileObj] = useState<File | null>(null);
   const [nameTemplate, setNameTemplate] = useState("");
-  const [templateType, setTemplateType] = useState("");
+  const [templateIdentifier, setTemplateIdentifier] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState<SelectOption | null>(null);
 
   const templateInputRef = useRef<HTMLInputElement | null>(null);
@@ -58,7 +58,7 @@ export default function Templates() {
   const resetUploadForm = () => {
     setFileObj(null);
     setNameTemplate("");
-    setTemplateType("");
+    setTemplateIdentifier("");
     setSelectedLanguage(null);
     if (templateInputRef.current) templateInputRef.current.value = "";
   };
@@ -80,7 +80,7 @@ export default function Templates() {
     const dataTemplate = {
       name: nameTemplate,
       language: selectedLanguage.value,
-      type: templateType,
+      identifier: templateIdentifier,
     };
 
     const formData = new FormData();
@@ -147,11 +147,11 @@ export default function Templates() {
             </Grid>
             <Input
               type="text"
-              label="Template Type"
+              label="Template Identifier"
               placeholder="e.g., Template for assessments"
-              id="template_type"
-              value={templateType}
-              onChange={e => setTemplateType(e.target.value)}
+              id="identifier"
+              value={templateIdentifier}
+              onChange={e => setTemplateIdentifier(e.target.value)}
             />
           </Grid>
         </Modal>
@@ -180,8 +180,8 @@ export default function Templates() {
           Filename: template.filename,
           Customer: template.customer?.name,
           Language: languageMapping[template.language] || template.language,
-          "Mime Type": template.mime_type,
-          "Template Type": template.type,
+          "Template Type": template.template_type,
+          "Template Identifier": template.identifier,
           buttons: (
             <Buttons noWrap>
               <Button icon={mdiDownload} onClick={() => downloadTemplate(template)} small title="Download template" />

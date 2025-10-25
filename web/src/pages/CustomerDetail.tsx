@@ -46,7 +46,7 @@ export default function CustomerDetail() {
 
   const [newTemplateData, setNewTemplateData] = useState({
     name: "",
-    type: "",
+    identifier: "",
     file: null as File | null,
   });
 
@@ -148,7 +148,7 @@ export default function CustomerDetail() {
     const dataTemplate = {
       name: newTemplateData.name,
       language: selectedTemplateLanguage.value,
-      type: newTemplateData.type,
+      identifier: newTemplateData.identifier,
     };
 
     const formData = new FormData();
@@ -158,7 +158,7 @@ export default function CustomerDetail() {
     postData(`/api/customers/${ctxCustomer?.id}/templates/upload`, formData, () => {
       toast.success("Template uploaded successfully");
       setFileObj(null);
-      setNewTemplateData({ name: "", type: "", file: null });
+      setNewTemplateData({ name: "", identifier: "", file: null });
       setSelectedTemplateLanguage(null);
       fetchCustomer();
     });
@@ -185,11 +185,6 @@ export default function CustomerDetail() {
       e.target.value = "";
       return;
     }
-
-    const payload = {
-      name: ctxCustomer.name.trim(),
-      language: ctxCustomer.language,
-    };
 
     const formData = new FormData();
     formData.append("file", file, file.name);
@@ -315,11 +310,11 @@ export default function CustomerDetail() {
               />
               <Input
                 type="text"
-                label="Template Type"
+                label="Template Identifier"
                 placeholder="e.g., Template for assessments"
-                id="type"
-                name="type"
-                value={newTemplateData.type}
+                id="identifier"
+                name="identifier"
+                value={newTemplateData.identifier}
                 onChange={handleFormTemplateChange}
               />
               <UploadFile
@@ -348,8 +343,8 @@ export default function CustomerDetail() {
                 Name: template.name,
                 Language: languageMapping[template.language] || template.language,
                 Filename: template.filename,
-                "Mime Type": template.mime_type,
-                "Template Type": template.type,
+                "Template Type": template.template_type,
+                "Template Identifier": template.identifier,
                 buttons: (
                   <Buttons noWrap>
                     <Button
