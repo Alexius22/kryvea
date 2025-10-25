@@ -13,9 +13,9 @@ import (
 )
 
 type templateRequestData struct {
-	Name     string `json:"name"`
-	Language string `json:"language"`
-	Type     string `json:"type"`
+	Name       string `json:"name"`
+	Language   string `json:"language"`
+	Identifier string `json:"identifier"`
 }
 
 func (d *Driver) addTemplate(c *fiber.Ctx, ctx context.Context) (*mongo.Template, string) {
@@ -62,7 +62,7 @@ func (d *Driver) addTemplate(c *fiber.Ctx, ctx context.Context) (*mongo.Template
 		Language:     data.Language,
 		TemplateType: templateType,
 		MimeType:     mime,
-		Type:         data.Type,
+		Identifier:   data.Identifier,
 		FileID:       fileID,
 		Customer: &mongo.Customer{
 			Model: mongo.Model{

@@ -35,7 +35,7 @@ type Template struct {
 	Language     string    `json:"language,omitempty" bson:"language"`
 	TemplateType string    `json:"template_type" bson:"template_type"`
 	MimeType     string    `json:"-" bson:"mime_type"`
-	Type         string    `json:"type,omitempty" bson:"type"`
+	Identifier   string    `json:"identifier,omitempty" bson:"identifier"`
 	FileID       uuid.UUID `json:"file_id,omitempty" bson:"file_id"`
 	Customer     *Customer `json:"customer,omitempty" bson:"customer"`
 }
@@ -61,7 +61,7 @@ func (ti TemplateIndex) init() error {
 				{Key: "filename", Value: 1},
 				{Key: "language", Value: 1},
 				{Key: "template_type", Value: 1},
-				{Key: "type", Value: 1},
+				{Key: "identifier", Value: 1},
 			},
 			Options: options.Index().SetUnique(true),
 		},
