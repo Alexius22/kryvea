@@ -44,6 +44,8 @@ export type GlobalContextType = {
   useCtxLastPage: [string, Dispatch<SetStateAction<string>>];
   useCtxSelectedSidebarItemLabel: [SidebarItemLabel, Dispatch<SetStateAction<SidebarItemLabel>>];
   useCtxCodeHighlightColor: [string, Dispatch<SetStateAction<string>>];
+  useCtxLinewrap: [boolean, Dispatch<SetStateAction<boolean>>];
+  useCtxMinimap: [boolean, Dispatch<SetStateAction<boolean>>];
 };
 
 export const GlobalContext = createContext<GlobalContextType>(null);
@@ -65,6 +67,8 @@ export default function App() {
   const useCtxCodeHighlightColor = useState<string>(
     () => getLocalStorageCtxState("useCtxCodeHighlightColor") ?? "#0D542B"
   );
+  const useCtxLinewrap = useState<boolean>(() => getLocalStorageCtxState("useCtxLinewrap") ?? false);
+  const useCtxMinimap = useState<boolean>(() => getLocalStorageCtxState("useCtxMinimap") ?? false);
 
   useLayoutEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -121,6 +125,8 @@ export default function App() {
           "useCtxSelectedSidebarItemLabel"
         ),
         useCtxCodeHighlightColor: bindToLocalStorage(useCtxCodeHighlightColor, "useCtxCodeHighlightColor"),
+        useCtxLinewrap: bindToLocalStorage(useCtxLinewrap, "useCtxLinewrap"),
+        useCtxMinimap: bindToLocalStorage(useCtxMinimap, "useCtxMinimap"),
       }}
     >
       <ToastContainer

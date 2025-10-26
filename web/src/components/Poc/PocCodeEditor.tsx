@@ -50,10 +50,10 @@ export default function PocCodeEditor({
 }: PocCodeEditorProps) {
   const [selectedText, setSelectedText] = useState<MonacoTextSelection[]>([]);
   const [showHighligtedTextModal, setShowHighlightedTextModal] = useState(false);
-  const [textLineWrap, setTextLineWrap] = useState(true);
   const [minimap, setMinimap] = useState(false);
   const {
     useCtxCodeHighlightColor: [ctxCodeHighlightColor, setCtxCodeHighlightColor],
+    useCtxLinewrap: [ctxLineWrap, setCtxLineWrap],
   } = useContext(GlobalContext);
 
   return (
@@ -131,8 +131,8 @@ export default function PocCodeEditor({
           <Checkbox
             id={`poc-${pocDoc.index}-${lineWrapId}-line-wrap`}
             label="Line wrap"
-            onChange={e => setTextLineWrap(e.target.checked)}
-            checked={textLineWrap}
+            onChange={e => setCtxLineWrap(e.target.checked)}
+            checked={ctxLineWrap}
           />
           <Checkbox
             id={`poc-${pocDoc.index}-minimap`}
@@ -167,7 +167,7 @@ export default function PocCodeEditor({
         language={selectedLanguage}
         onLanguageOptionsInit={onLanguageOptionsInit}
         onChange={onChange}
-        options={{ ...options, wordWrap: textLineWrap ? "on" : "off", minimap: { enabled: minimap } }}
+        options={{ ...options, wordWrap: ctxLineWrap ? "on" : "off", minimap: { enabled: minimap } }}
       />
     </Grid>
   );
