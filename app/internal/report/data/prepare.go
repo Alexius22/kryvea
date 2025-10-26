@@ -1,6 +1,7 @@
 package reportdata
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -146,13 +147,19 @@ func parseHighlightedText(pocitem *mongo.PocItem) {
 	pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
 	pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
 	pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
+
+	fmt.Println(pocitem.RequestHighlighted)
+	fmt.Println(pocitem.ResponseHighlighted)
+	fmt.Println(pocitem.TextHighlighted)
+
+	sanitizeReqResText(pocitem)
 }
 
 func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighted {
 	if len(coordinates) == 0 {
 		return []mongo.Highlighted{
 			{
-				Text:  s,
+				Text:  escapeXMLString(s),
 				Color: "",
 			},
 		}
@@ -227,7 +234,7 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 	for i, colorRow := range colors {
 		for j, color := range colorRow {
 			if color != splitColor.Color {
-				splitColor.Text = builder.String()
+				splitColor.Text = escapeXMLString(builder.String())
 				if splitColor.Text != "" {
 					splitted = append(splitted, splitColor)
 				}
@@ -239,7 +246,7 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 		}
 	}
 	if builder.Len() > 0 {
-		splitColor.Text = builder.String()
+		splitColor.Text = escapeXMLString(builder.String())
 		splitted = append(splitted, splitColor)
 	}
 

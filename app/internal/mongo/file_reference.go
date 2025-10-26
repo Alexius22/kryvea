@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -46,29 +47,33 @@ func (fri *FileReferenceIndex) init() error {
 	return err
 }
 
-// Insert adds a new file reference to the database if it does not already exist
-// also uploads the file to the file storage
+// Insert inserts a new file reference into the database if it does not already exist
+// and uploads the file to the storage bucket.
 //
-// Requires transactional context to ensure data integrity
-func (i *FileReferenceIndex) Insert(ctx context.Context, data []byte, filename string) (uuid.UUID, error) {
+// It returns the file reference ID, MIME type, and any error encountered.
+//
+// Requires transactional context to ensure data integrity.
+func (i *FileReferenceIndex) Insert(ctx context.Context, data []byte) (uuid.UUID, string, error) {
 	checksum := md5.Sum(data)
 	reference, err := i.GetByChecksum(ctx, checksum)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return uuid.Nil, err
+		return uuid.Nil, "", err
 	}
 	if reference != nil {
-		return reference.ID, nil
+		return reference.ID, reference.MimeType, nil
 	}
 
 	id, err := uuid.NewRandom()
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, "", err
 	}
 
-	fileID, err := i.driver.File().Insert(ctx, data, filename)
+	fileID, err := i.driver.File().Insert(ctx, data, id.String())
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, "", err
 	}
+
+	mime := mimetype.Detect(data).String()
 
 	fileReference := FileReference{
 		Model: Model{
@@ -77,17 +82,17 @@ func (i *FileReferenceIndex) Insert(ctx context.Context, data []byte, filename s
 		},
 		File:     fileID,
 		Checksum: checksum,
-		MimeType: filename,
+		MimeType: mime,
 		UsedBy:   []uuid.UUID{},
 	}
 	fileReference.Model.UpdatedAt = fileReference.Model.CreatedAt
 
 	_, err = i.collection.InsertOne(ctx, fileReference)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, "", err
 	}
 
-	return id, nil
+	return id, mime, nil
 }
 
 func (i *FileReferenceIndex) GetByID(ctx context.Context, id uuid.UUID) (*FileReference, error) {

@@ -15,7 +15,6 @@ import (
 type customerRequestData struct {
 	Name     string `json:"name"`
 	Language string `json:"language"`
-	LogoID   string `json:"logo_id"`
 }
 
 func (d *Driver) AddCustomer(c *fiber.Ctx) error {
@@ -47,14 +46,18 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 
 	customerID, err := session.WithTransaction(func(ctx context.Context) (any, error) {
 		var logoId uuid.UUID
+		var mime string
 		file, err := c.FormFile("file")
-		if file != nil && err == nil {
+		if err != nil {
+			return uuid.Nil, errors.New("Error reading form file")
+		}
+		if file != nil {
 			logoData, err := d.readFile(file)
 			if err != nil {
 				return uuid.Nil, errors.New("Cannot read file")
 			}
 
-			logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
+			logoId, mime, err = d.mongo.FileReference().Insert(ctx, logoData)
 			if err != nil {
 				d.logger.Error().Err(err).Msg("Cannot upload image")
 				return uuid.Nil, errors.New("Cannot upload image")
@@ -62,9 +65,10 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		}
 
 		customer := &mongo.Customer{
-			Name:     data.Name,
-			Language: data.Language,
-			LogoID:   logoId,
+			Name:         data.Name,
+			Language:     data.Language,
+			LogoID:       logoId,
+			LogoMimeType: mime,
 		}
 
 		// insert customer into database
@@ -155,9 +159,7 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 	// parse request body
 	data := &customerRequestData{}
-	dataStr := c.FormValue("data")
-	err := sonic.Unmarshal([]byte(dataStr), &data)
-	if err != nil {
+	if err := c.BodyParser(data); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -173,11 +175,40 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 		})
 	}
 
-	logoId, err := util.ParseUUID(data.LogoID)
+	newCustomer := &mongo.Customer{
+		Name:     data.Name,
+		Language: data.Language,
+	}
+
+	// update customer in database
+	err := d.mongo.Customer().Update(context.Background(), customer.ID, newCustomer)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+
+		if mongo.IsDuplicateKeyError(err) {
+			return c.JSON(fiber.Map{
+				"error": fmt.Sprintf("Customer \"%s\" already exists", newCustomer.Name),
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"error": "Cannot update customer",
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{
+		"message": "Customer updated",
+	})
+}
+
+func (d *Driver) UpdateCustomerLogo(c *fiber.Ctx) error {
+	// parse customer param
+	customer, errStr := d.customerFromParam(c.Params("customer"))
 	if errStr != "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"error": "Failed to parse logoID",
+			"error": errStr,
 		})
 	}
 
@@ -188,34 +219,28 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 	defer session.End()
 
 	_, err = session.WithTransaction(func(ctx context.Context) (any, error) {
-		if logoId == uuid.Nil {
-			file, err := c.FormFile("file")
-			if file != nil && err == nil {
-				logoData, err := d.readFile(file)
-				if err != nil {
-					return nil, errors.New("Cannot read file")
-				}
-
-				logoId, err = d.mongo.FileReference().Insert(ctx, logoData, file.Filename)
-				if err != nil {
-					return nil, errors.New("Cannot upload image")
-				}
-			}
+		file, err := c.FormFile("file")
+		if err != nil || file == nil {
+			return nil, errors.New("Error reading form file")
 		}
 
-		newCustomer := &mongo.Customer{
-			Name:     data.Name,
-			Language: data.Language,
-			LogoID:   logoId,
+		logoData, err := d.readFile(file)
+		if err != nil {
+			return nil, errors.New("Cannot read file")
+		}
+
+		var logoId uuid.UUID
+		var mime string
+		if len(logoData) > 0 {
+			logoId, mime, err = d.mongo.FileReference().Insert(ctx, logoData)
+			if err != nil {
+				return nil, errors.New("Cannot upload image")
+			}
 		}
 
 		// update customer in database
-		err = d.mongo.Customer().Update(ctx, customer.ID, newCustomer)
+		err = d.mongo.Customer().UpdateLogo(ctx, customer.ID, logoId, mime)
 		if err != nil {
-			if mongo.IsDuplicateKeyError(err) {
-				return nil, fmt.Errorf("Customer \"%s\" already exists", newCustomer.Name)
-			}
-
 			return nil, errors.New("Cannot update customer")
 		}
 
@@ -230,7 +255,7 @@ func (d *Driver) UpdateCustomer(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{
-		"message": "Customer updated",
+		"message": "Customer logo updated",
 	})
 }
 

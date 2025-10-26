@@ -175,7 +175,7 @@ export default function CategoryUpsert() {
       )}
 
       <PageHeader title={categoryId ? "Edit Category" : "New Category"}>
-        <Buttons>
+        <Buttons className="justify-end">
           {categoryId && (
             <Button
               icon={mdiTrashCan}

@@ -102,16 +102,9 @@ export default function CustomerDetail() {
     const payload = {
       name: formCustomer.name.trim(),
       language: formCustomer.language,
-      logo_id: logoId,
     };
 
-    const formData = new FormData();
-    if (logoFile) {
-      formData.append("file", logoFile, logoFile.name);
-    }
-    formData.append("data", JSON.stringify(payload));
-
-    patchData(`/api/admin/customers/${ctxCustomer?.id}`, formData, () => {
+    patchData(`/api/admin/customers/${ctxCustomer?.id}`, payload, () => {
       toast.success("Customer updated successfully");
 
       fetchCustomer();
@@ -221,7 +214,7 @@ export default function CustomerDetail() {
   return (
     <div>
       <PageHeader icon={mdiAccountEdit} title={`Customer: ${ctxCustomer?.name}`}>
-        <Buttons>
+        <Buttons className="justify-end">
           <Button
             small
             text="Assessments"
@@ -243,6 +236,7 @@ export default function CustomerDetail() {
           <Grid className="gap-4">
             <Flex className="justify-center">
               <label
+                data-disabled={!isAdmin}
                 className={`aspect-video max-h-52 overflow-hidden rounded-xl shadow-lg shadow-[color:--bg-primary] transition ${isAdmin ? "cursor-pointer hover:scale-95 hover:shadow-[color:--bg-secondary] active:scale-90" : "cursor-not-allowed"} `}
                 htmlFor={isAdmin ? "change-logo" : undefined}
               >

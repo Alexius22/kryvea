@@ -253,7 +253,7 @@ export default function AssessmentVulnerabilities() {
       )}
 
       <PageHeader title={`${ctxAssessment?.name} - Vulnerabilities`}>
-        <Buttons>
+        <Buttons className="justify-end">
           <Button icon={mdiPlus} text="New vulnerability" small onClick={() => navigate(`new`)} />
           <Button icon={mdiPlus} text="New Target" small onClick={openTargetModal} />
           <Button icon={mdiUpload} text="Upload" small onClick={() => setIsModalUploadActive(true)} />

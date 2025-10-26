@@ -146,7 +146,7 @@ export default function Categories() {
       )}
 
       <PageHeader icon={mdiShapePlus} title="Categories">
-        <Buttons>
+        <Buttons className="justify-end">
           <Button icon={mdiPlus} text="New category" small onClick={() => navigate("new")} />
           <Button icon={mdiUpload} text="Upload categories" small onClick={() => setIsModalManageActive(true)} />
           <Button icon={mdiDownload} text="Export categories" small onClick={handleExport} />

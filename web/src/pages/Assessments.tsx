@@ -179,6 +179,7 @@ export default function Assessments() {
 
       <PageHeader icon={mdiTabSearch} title="Assessments">
         <Button
+          className="justify-end"
           icon={mdiPlus}
           text="New assessment"
           small

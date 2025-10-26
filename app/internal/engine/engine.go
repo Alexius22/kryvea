@@ -119,6 +119,7 @@ func (e *Engine) Serve() {
 	{
 		adminGroup.Post("/customers", api.AddCustomer)
 		adminGroup.Patch("/customers/:customer", api.UpdateCustomer)
+		adminGroup.Put("/customers/:customer/logo", api.UpdateCustomerLogo)
 		adminGroup.Delete("/customers/:customer", api.DeleteCustomer)
 
 		adminGroup.Get("/categories/export", api.ExportCategories)

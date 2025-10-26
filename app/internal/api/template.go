@@ -13,9 +13,9 @@ import (
 )
 
 type templateRequestData struct {
-	Name     string `json:"name"`
-	Language string `json:"language"`
-	Type     string `json:"type"`
+	Name       string `json:"name"`
+	Language   string `json:"language"`
+	Identifier string `json:"identifier"`
 }
 
 func (d *Driver) addTemplate(c *fiber.Ctx, ctx context.Context) (*mongo.Template, string) {
@@ -50,19 +50,20 @@ func (d *Driver) addTemplate(c *fiber.Ctx, ctx context.Context) (*mongo.Template
 	}
 
 	// insert file into the database
-	fileID, err := d.mongo.FileReference().Insert(ctx, templateData, filename)
+	fileID, mime, err := d.mongo.FileReference().Insert(ctx, templateData)
 	if err != nil {
 		return nil, "Cannot upload template"
 	}
 
 	// create a new template
 	template := &mongo.Template{
-		Name:     data.Name,
-		Filename: filename,
-		Language: data.Language,
-		MimeType: templateType,
-		Type:     data.Type,
-		FileID:   fileID,
+		Name:         data.Name,
+		Filename:     filename,
+		Language:     data.Language,
+		TemplateType: templateType,
+		MimeType:     mime,
+		Identifier:   data.Identifier,
+		FileID:       fileID,
 		Customer: &mongo.Customer{
 			Model: mongo.Model{
 				ID: uuid.Nil,
