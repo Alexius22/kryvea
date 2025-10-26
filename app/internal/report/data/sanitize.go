@@ -121,11 +121,14 @@ func sanitizePocItem(item *mongo.PocItem) {
 	item.Type = escapeXMLString(item.Type)
 	item.Description = escapeXMLString(item.Description)
 	item.URI = escapeXMLString(item.URI)
-	item.Request = escapeXMLString(item.Request)
-	item.Response = escapeXMLString(item.Response)
 	item.ImageFilename = escapeXMLString(item.ImageFilename)
 	item.ImageCaption = escapeXMLString(item.ImageCaption)
 	item.TextLanguage = escapeXMLString(item.TextLanguage)
+}
+
+func sanitizeReqResText(item *mongo.PocItem) {
+	item.Request = escapeXMLString(item.Request)
+	item.Response = escapeXMLString(item.Response)
 	item.TextData = escapeXMLString(item.TextData)
 }
 
