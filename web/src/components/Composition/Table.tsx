@@ -103,7 +103,9 @@ export default function Table({
 
   const itemPaginated = (arr: any[]) => {
     // if (backendTotalPages) {
-    //   return arr; // backend already paginated
+    // // this would disable table sort clientside
+    // // for when backend implements sorting
+    //   return arr;
     // }
 
     let result = [...arr]; // always copy
@@ -117,6 +119,9 @@ export default function Table({
         break;
     }
 
+    if (backendTotalPages) {
+      return result;
+    }
     return result.slice(perPage * (currentPage - PAGE_FLOOR), perPage * currentPage);
   };
 
