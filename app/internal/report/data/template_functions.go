@@ -145,7 +145,7 @@ func TableComplexityColor(complexity string) string {
 func ShadeTextBg(s, hex string) string {
 	hex = strings.TrimPrefix(hex, "#")
 	if len(hex) != 6 {
-		return s
+		hex = ""
 	}
 
 	return fmt.Sprintf(SHADING_WRAPPER_F, strings.ToUpper(hex), s)

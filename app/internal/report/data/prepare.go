@@ -1,7 +1,6 @@
 package reportdata
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -147,10 +146,6 @@ func parseHighlightedText(pocitem *mongo.PocItem) {
 	pocitem.RequestHighlighted = splitText(pocitem.Request, pocitem.RequestHighlights)
 	pocitem.ResponseHighlighted = splitText(pocitem.Response, pocitem.ResponseHighlights)
 	pocitem.TextHighlighted = splitText(pocitem.TextData, pocitem.TextHighlights)
-
-	fmt.Println(pocitem.RequestHighlighted)
-	fmt.Println(pocitem.ResponseHighlighted)
-	fmt.Println(pocitem.TextHighlighted)
 
 	sanitizeReqResText(pocitem)
 }
