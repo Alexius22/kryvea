@@ -1,4 +1,4 @@
-import { mdiBroom, mdiClipboardText, mdiMarker, mdiPalette } from "@mdi/js";
+import { mdiBroom, mdiClipboardText, mdiEraser, mdiMarker, mdiPalette } from "@mdi/js";
 import type * as monaco from "monaco-editor";
 import { useContext, useState } from "react";
 import { GlobalContext } from "../../App";
@@ -56,6 +56,67 @@ export default function PocCodeEditor({
     useCtxLinewrap: [ctxLineWrap, setCtxLineWrap],
   } = useContext(GlobalContext);
 
+  function subtractSelection(
+    hl: MonacoTextSelection,
+    erase: MonacoTextSelection,
+    fullText: string
+  ): MonacoTextSelection[] {
+    // Convert (line, col) to absolute offsets in the text
+    const lines = fullText.split("\n");
+    const getOffset = (line: number, col: number) =>
+      lines.slice(0, line - 1).join("\n").length + (line > 1 ? 1 : 0) + col - 1;
+
+    const hlStart = getOffset(hl.start.line, hl.start.col);
+    const hlEnd = getOffset(hl.end.line, hl.end.col);
+    const eraseStart = getOffset(erase.start.line, erase.start.col);
+    const eraseEnd = getOffset(erase.end.line, erase.end.col);
+
+    // If no overlap → keep highlight
+    if (eraseEnd <= hlStart || eraseStart >= hlEnd) return [hl];
+
+    const remaining: MonacoTextSelection[] = [];
+
+    // Helper: map offset back to (line, col)
+    const offsetToPos = (offset: number) => {
+      let acc = 0;
+      for (let i = 0; i < lines.length; i++) {
+        const lineLength = lines[i].length + 1; // +1 for '\n'
+        if (acc + lineLength > offset) {
+          return { line: i + 1, col: offset - acc + 1 };
+        }
+        acc += lineLength;
+      }
+      return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+    };
+
+    // Left segment (before erased area)
+    if (eraseStart > hlStart) {
+      const start = hl.start;
+      const end = offsetToPos(Math.min(eraseStart, hlEnd));
+      remaining.push({
+        ...hl,
+        start,
+        end,
+        selectionPreview: fullText.slice(hlStart, eraseStart),
+      });
+    }
+
+    // Right segment (after erased area)
+    if (eraseEnd < hlEnd) {
+      const start = offsetToPos(Math.max(eraseEnd, hlStart));
+      const end = hl.end;
+      remaining.push({
+        ...hl,
+        start,
+        end,
+        selectionPreview: fullText.slice(eraseEnd, hlEnd),
+      });
+    }
+
+    // remove ghost whitespaces highlights
+    return remaining.filter(r => r.selectionPreview.trim() !== "");
+  }
+
   return (
     <Grid className="gap-4">
       {showHighligtedTextModal && (
@@ -111,6 +172,28 @@ export default function PocCodeEditor({
                 ...(pocDoc[highlightsProperty] ?? []),
                 ...coloredSelection,
               ]);
+            }}
+          />
+          <Button
+            disabled={selectedText.length < 1}
+            small
+            variant="secondary"
+            title="Erase highlight"
+            icon={mdiEraser}
+            iconSize={24}
+            onClick={() => {
+              const highlights = pocDoc[highlightsProperty] ?? [];
+
+              let newHighlights = highlights;
+              for (const erase of selectedText) {
+                const updated: MonacoTextSelection[] = [];
+                for (const hl of newHighlights) {
+                  updated.push(...subtractSelection(hl, erase, code));
+                }
+                newHighlights = updated;
+              }
+
+              onSetCodeSelection(currentIndex, highlightsProperty, newHighlights);
             }}
           />
           <ColorPicker
