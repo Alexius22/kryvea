@@ -31,6 +31,24 @@ type PocCodeEditorProps = {
   lineWrapId?: string;
 };
 
+type Position = { line: number; col: number };
+
+function getOffset(fullText: string, line: number, col: number): number {
+  const lines = fullText.split("\n");
+  return lines.slice(0, line - 1).reduce((acc, l) => acc + l.length + 1, 0) + (col - 1);
+}
+
+function offsetToPos(fullText: string, offset: number): Position {
+  const lines = fullText.split("\n");
+  let acc = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const len = lines[i].length + 1;
+    if (acc + len > offset) return { line: i + 1, col: offset - acc + 1 };
+    acc += len;
+  }
+  return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+}
+
 /** @warning This component could probably be better, for instance it is not fully and properly typed, probably it is best to not be used outside of the pocs */
 export default function PocCodeEditor({
   label = "",
@@ -61,60 +79,84 @@ export default function PocCodeEditor({
     erase: MonacoTextSelection,
     fullText: string
   ): MonacoTextSelection[] {
-    // Convert (line, col) to absolute offsets in the text
-    const lines = fullText.split("\n");
-    const getOffset = (line: number, col: number) =>
-      lines.slice(0, line - 1).join("\n").length + (line > 1 ? 1 : 0) + col - 1;
+    const hlStart = getOffset(fullText, hl.start.line, hl.start.col);
+    const hlEnd = getOffset(fullText, hl.end.line, hl.end.col);
+    const eraseStart = getOffset(fullText, erase.start.line, erase.start.col);
+    const eraseEnd = getOffset(fullText, erase.end.line, erase.end.col);
 
-    const hlStart = getOffset(hl.start.line, hl.start.col);
-    const hlEnd = getOffset(hl.end.line, hl.end.col);
-    const eraseStart = getOffset(erase.start.line, erase.start.col);
-    const eraseEnd = getOffset(erase.end.line, erase.end.col);
-
-    // If no overlap → keep highlight
+    // No overlap → keep highlight
     if (eraseEnd <= hlStart || eraseStart >= hlEnd) return [hl];
 
-    const remaining: MonacoTextSelection[] = [];
+    const result: MonacoTextSelection[] = [];
 
-    // Helper: map offset back to (line, col)
-    const offsetToPos = (offset: number) => {
-      let acc = 0;
-      for (let i = 0; i < lines.length; i++) {
-        const lineLength = lines[i].length + 1; // +1 for '\n'
-        if (acc + lineLength > offset) {
-          return { line: i + 1, col: offset - acc + 1 };
-        }
-        acc += lineLength;
-      }
-      return { line: lines.length, col: lines[lines.length - 1].length + 1 };
-    };
-
-    // Left segment (before erased area)
+    // Left fragment
     if (eraseStart > hlStart) {
-      const start = hl.start;
-      const end = offsetToPos(Math.min(eraseStart, hlEnd));
-      remaining.push({
+      const end = offsetToPos(fullText, eraseStart);
+      result.push({
         ...hl,
-        start,
+        start: hl.start,
         end,
         selectionPreview: fullText.slice(hlStart, eraseStart),
       });
     }
 
-    // Right segment (after erased area)
+    // Right fragment
     if (eraseEnd < hlEnd) {
-      const start = offsetToPos(Math.max(eraseEnd, hlStart));
-      const end = hl.end;
-      remaining.push({
+      const start = offsetToPos(fullText, eraseEnd);
+      result.push({
         ...hl,
         start,
-        end,
+        end: hl.end,
         selectionPreview: fullText.slice(eraseEnd, hlEnd),
       });
     }
 
     // remove ghost whitespaces highlights
-    return remaining.filter(r => r.selectionPreview.trim() !== "");
+    return result.filter(r => r.selectionPreview.trim() !== "");
+  }
+
+  function mergeHighlights(highlights: MonacoTextSelection[], fullText: string): MonacoTextSelection[] {
+    if (highlights.length === 0) return [];
+
+    const sorted = [...highlights].sort(
+      (a, b) => getOffset(fullText, a.start.line, a.start.col) - getOffset(fullText, b.start.line, b.start.col)
+    );
+
+    const merged: MonacoTextSelection[] = [sorted[0]];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const last = merged[merged.length - 1];
+      const curr = sorted[i];
+
+      // Only merge if same color
+      if (last.color !== curr.color) {
+        merged.push(curr);
+        continue;
+      }
+
+      const lastStart = getOffset(fullText, last.start.line, last.start.col);
+      const lastEnd = getOffset(fullText, last.end.line, last.end.col); // exclusive-style
+      const currStart = getOffset(fullText, curr.start.line, curr.start.col);
+      const currEnd = getOffset(fullText, curr.end.line, curr.end.col);
+
+      // Merge only when overlapping or exactly adjacent (no gap)
+      if (currStart <= lastEnd) {
+        // new end is the furthest end
+        const newEndOffset = Math.max(lastEnd, currEnd);
+        const newEndPos = offsetToPos(fullText, newEndOffset);
+
+        merged[merged.length - 1] = {
+          ...last,
+          end: newEndPos,
+          selectionPreview: fullText.slice(lastStart, newEndOffset),
+        };
+      } else {
+        // there's a gap: keep separate
+        merged.push(curr);
+      }
+    }
+
+    return merged;
   }
 
   return (
@@ -164,14 +206,14 @@ export default function PocCodeEditor({
             iconSize={24}
             customColor={ctxCodeHighlightColor}
             onClick={() => {
-              const coloredSelection = selectedText.map(sel => ({
+              const colored = selectedText.map(sel => ({
                 ...sel,
                 color: ctxCodeHighlightColor,
               }));
-              onSetCodeSelection(currentIndex, highlightsProperty, [
-                ...(pocDoc[highlightsProperty] ?? []),
-                ...coloredSelection,
-              ]);
+
+              const merged = mergeHighlights([...(pocDoc[highlightsProperty] ?? []), ...colored], code);
+
+              onSetCodeSelection(currentIndex, highlightsProperty, merged);
             }}
           />
           <Button
