@@ -48,10 +48,7 @@ func (d *Driver) AddCustomer(c *fiber.Ctx) error {
 		var logoId uuid.UUID
 		var mime string
 		file, err := c.FormFile("file")
-		if err != nil {
-			return uuid.Nil, errors.New("Error reading form file")
-		}
-		if file != nil {
+		if file != nil && err == nil {
 			logoData, err := d.readFile(file)
 			if err != nil {
 				return uuid.Nil, errors.New("Cannot read file")
