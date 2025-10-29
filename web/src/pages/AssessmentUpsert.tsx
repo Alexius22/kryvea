@@ -41,6 +41,7 @@ const ASSESSMENT_TYPE: SelectOption[] = [
     label: "Mobile Application Penetration Test",
   },
   { value: { short: "API PT", full: "API Penetration Test" }, label: "API Penetration Test" },
+  { value: { short: "Wi-Fi PT", full: "Wi-Fi Penetration Test" }, label: "Wi-Fi Penetration Test" },
   { value: { short: "RT", full: "Red Team Assessment" }, label: "Red Team Assessment" },
   { value: { short: "IOT PT", full: "IoT Device Penetration Test" }, label: "IoT Device Penetration Test" },
 ];
