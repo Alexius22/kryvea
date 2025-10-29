@@ -206,6 +206,9 @@ func splitText(s string, coordinates []mongo.HighlightedText) []mongo.Highlighte
 			}
 			if coordinates[i].End.Col > len(rows[coordinates[i].End.Line-1]) {
 				coordinates[i].End.Col = len(rows[coordinates[i].End.Line-1])
+				if !strings.HasSuffix(rows[coordinates[i].End.Line-1], "\n") {
+					coordinates[i].End.Col++
+				}
 			}
 			if coordinates[i].End.Col < 0 {
 				coordinates[i].End.Col = 1

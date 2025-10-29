@@ -83,15 +83,14 @@ func TestHighlight(t *testing.T) {
 				},
 				{
 					Start: mongo.LineCol{Line: 1, Col: 10},
-					End:   mongo.LineCol{Line: 1, Col: 20},
+					End:   mongo.LineCol{Line: 1, Col: 21},
 					Color: "654321",
 				},
 			},
 			expected: []mongo.Highlighted{
 				{Text: "Boundary", Color: "123456"},
 				{Text: " "},
-				{Text: "highlights", Color: "654321"},
-				{Text: "."},
+				{Text: "highlights.", Color: "654321"},
 			},
 		},
 		{
