@@ -19,7 +19,7 @@
   },
   {
     "identifier": "A01:2021",
-    "name": "CORS misconfiguration",
+    "name": "CORS Misconfiguration",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -52,6 +52,24 @@
       "https://cwe.mitre.org/data/definitions/352.html",
       "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
       "https://owasp.org/www-community/attacks/csrf"
+    ]
+  },
+  {
+    "identifier": "A01:2021",
+    "name": "Full Path Disclosure",
+    "source": "owasp_web",
+    "languages_order": ["en", "it"],
+    "generic_description": {
+      "en": "Full Path Disclosure (FPD) vulnerability occurs when a web application unintentionally reveals the full directory path of files on its server. This can happen through error messages or improper handling of user input. The disclosed path information can help attackers understand the server's file structure, potentially leading to attacks like Local File Inclusion or Path Traversal.",
+      "it": "La vulnerabilità di Full Path Disclosure (FPD) si verifica quando un'applicazione web rivela inavvertitamente il percorso completo dei file sul server. Questo può accadere tramite messaggi di errore o una gestione non corretta degli input utente. Le informazioni sul percorso divulgate possono aiutare un attaccante a comprendere la struttura dei file del server, facilitando attacchi più come Local File Inclusion o Path Traversal."
+    },
+    "generic_remediation": {
+      "en": "It is recommended to verify that detailed error messages, including file paths, are not shown to end users.",
+      "it": "Si consiglia di verificare che i messaggi di errore dettagliati, inclusi i percorsi dei file, non vengano mostrati agli utenti finali."
+    },
+    "references": [
+      "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+      "https://owasp.org/www-community/attacks/Full_Path_Disclosure"
     ]
   },
   {
@@ -208,7 +226,7 @@
   },
   {
     "identifier": "A03:2021",
-    "name": "Improper input validation",
+    "name": "Improper Input Validation",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -246,7 +264,7 @@
   },
   {
     "identifier": "A04:2021",
-    "name": "Abuse of functionality",
+    "name": "Abuse of Functionality",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -320,7 +338,7 @@
   },
   {
     "identifier": "A04:2021",
-    "name": "Unrestricted file upload",
+    "name": "Unrestricted File Upload",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -339,7 +357,7 @@
   },
   {
     "identifier": "A04:2021",
-    "name": "Malicious file upload",
+    "name": "Malicious File Upload",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -358,7 +376,7 @@
   },
   {
     "identifier": "A04:2021",
-    "name": "User enumeration",
+    "name": "User Enumeration",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
@@ -508,7 +526,7 @@
   },
   {
     "identifier": "A07:2021",
-    "name": "Improper logout",
+    "name": "Improper Logout",
     "source": "owasp_web",
     "languages_order": ["en", "it"],
     "generic_description": {
