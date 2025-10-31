@@ -198,7 +198,7 @@ export default function CustomerDetail() {
     ({ logoId, isAdmin, formCustomer }: any) => {
       return (
         <img
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           src={`/api/files/customers/${logoId}`}
           alt={`${formCustomer.name}'s logo`}
           title={isAdmin ? "Change logo" : ""}
