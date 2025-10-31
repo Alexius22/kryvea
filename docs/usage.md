@@ -235,7 +235,7 @@ The built-in CVSS calculator supports:
    - HTTP Request/Response
    - Image
    - Text
-3. Add highlighting to Request/Response and Text to highlight specific snippets
+3. Add or erase highlighting in the request/response and text sections to emphasise particular parts
 4. Click **Save**
 
 ### Searching Vulnerabilities
