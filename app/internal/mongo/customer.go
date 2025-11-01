@@ -131,6 +131,7 @@ func (ci *CustomerIndex) UpdateLogo(ctx context.Context, customerID uuid.UUID, l
 			"updated_at":     time.Now(),
 			"logo_id":        logoID,
 			"logo_mime_type": mime,
+			"logo_reference": util.CreateImageReference(mime, logoID),
 		},
 	}
 
