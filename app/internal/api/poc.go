@@ -74,8 +74,8 @@ func (d *Driver) UpsertPocs(c *fiber.Ctx) error {
 	}
 
 	// validate data
-	for _, pocData := range pocsData {
-		errStr = d.validateData(&pocData)
+	for i := range pocsData {
+		errStr = d.validatePocData(&pocsData[i])
 		if errStr != "" {
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
@@ -241,7 +241,7 @@ func (d *Driver) GetPocsByVulnerability(c *fiber.Ctx) error {
 	return c.JSON(poc.Pocs)
 }
 
-func (d *Driver) validateData(data *pocData) string {
+func (d *Driver) validatePocData(data *pocData) string {
 	if !poc.IsValidType(data.Type) {
 		return "Invalid PoC type"
 	}
@@ -279,6 +279,11 @@ func (d *Driver) validateData(data *pocData) string {
 	default:
 		return "Invalid PoC type"
 	}
+
+	data.Description = strings.Trim(data.Description, "\r\n ")
+	data.Request = strings.Trim(data.Request, "\r\n ")
+	data.Response = strings.Trim(data.Response, "\r\n ")
+	data.TextData = strings.Trim(data.TextData, "\r\n ")
 
 	return ""
 }

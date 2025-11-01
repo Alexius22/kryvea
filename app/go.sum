@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/JJJJJJack/go-template-docx v1.4.4 h1:r0Gx+S5ucCOPHsV/UC57DK/BPC69PhyXQ1k32AW7CCo=
-github.com/JJJJJJack/go-template-docx v1.4.4/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
+github.com/JJJJJJack/go-template-docx v1.4.6 h1:hplxIbk5LjoNrAEtTXKL8Aljn9r9vJYCh6FhfgWs01E=
+github.com/JJJJJJack/go-template-docx v1.4.6/go.mod h1:FEEdTmBqFE3nQMW1R3+uUJzBvH8piq4j23Wb0rB97Pg=
 github.com/JJJJJJack/go-zip-utils v1.0.1 h1:qk39Cc+rZu1VHuElvhH+PtTLvxvchPEdPfF7XRSlc7c=
 github.com/JJJJJJack/go-zip-utils v1.0.1/go.mod h1:YqgYPKuHnsmdRjcPxUKilQJh8saNhnR+9rmulVTthGI=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
