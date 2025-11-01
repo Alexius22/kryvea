@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/Alexius22/kryvea/internal/cvss"
@@ -577,6 +578,7 @@ type exportRequestData struct {
 	Template                            string    `json:"template"`
 	DeliveryDateTime                    time.Time `json:"delivery_date_time"`
 	IncludeInformationalVulnerabilities bool      `json:"include_informational_vulnerabilities"`
+	AggregateByCategory                 bool      `json:"aggregate_by_category"`
 }
 
 func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
@@ -685,8 +687,30 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 		})
 	}
 
-	// retrieve pocs
-	for i, v := range vulnerabilities {
+	// sort vulnerabilities by maxVersion score
+	switch maxVersion {
+	case cvss.Cvss2:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv2.Score > vulnerabilities[k].CVSSv2.Score
+		})
+	case cvss.Cvss3:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv3.Score > vulnerabilities[k].CVSSv3.Score
+		})
+	case cvss.Cvss31:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv31.Score > vulnerabilities[k].CVSSv31.Score
+		})
+	case cvss.Cvss4:
+		sort.Slice(vulnerabilities, func(j, k int) bool {
+			return vulnerabilities[j].CVSSv4.Score > vulnerabilities[k].CVSSv4.Score
+		})
+	}
+
+	categoryMap := make(map[uuid.UUID]*mongo.Vulnerability)
+
+	// retrieve pocs and aggregate vulnerabilities
+	for i := range vulnerabilities {
 		// TODO: make a function for this or move in the database vulnerability retrieval
 		category, err := d.mongo.Category().GetByID(context.Background(), vulnerabilities[i].Category.ID)
 		if err != nil {
@@ -704,7 +728,7 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 			vulnerabilities[i].GenericRemediation.Text = category.GenericRemediation[assessment.Language]
 		}
 
-		for j, item := range v.Poc.Pocs {
+		for j, item := range vulnerabilities[i].Poc.Pocs {
 			if item.ImageID != uuid.Nil {
 				imageData, _, err := d.mongo.FileReference().ReadByID(context.Background(), item.ImageID)
 				if err != nil {
@@ -716,6 +740,23 @@ func (d *Driver) ExportAssessment(c *fiber.Ctx) error {
 				vulnerabilities[i].Poc.Pocs[j].ImageData = imageData
 			}
 		}
+
+		// Aggregate vulnerabilities by Category ID
+		if existing, ok := categoryMap[vulnerabilities[i].Category.ID]; ok {
+			existing.Poc.Pocs = append(existing.Poc.Pocs, vulnerabilities[i].Poc.Pocs...)
+			continue
+		}
+
+		copyVuln := vulnerabilities[i]
+		categoryMap[vulnerabilities[i].Category.ID] = &copyVuln
+	}
+
+	if data.AggregateByCategory {
+		aggregatedVulnerabilities := []mongo.Vulnerability{}
+		for _, v := range categoryMap {
+			aggregatedVulnerabilities = append(aggregatedVulnerabilities, *v)
+		}
+		vulnerabilities = aggregatedVulnerabilities
 	}
 
 	reportData := &reportdata.ReportData{
