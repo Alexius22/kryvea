@@ -28,7 +28,6 @@ const DEFAULT_LIMIT = 25;
 export default function AssessmentVulnerabilities() {
   const navigate = useNavigate();
   const {
-    useCtxVulnerability: [, setCtxVulnerability],
     useCtxAssessment: [ctxAssessment],
   } = useContext(GlobalContext);
   const { assessmentId } = useParams<{ assessmentId: string }>();
@@ -283,7 +282,7 @@ export default function AssessmentVulnerabilities() {
 
             return {
               Vulnerability: (
-                <Link to={`${vulnerability.id}`} onClick={() => setCtxVulnerability(vulnerability)}>
+                <Link to={vulnerability.id}>
                   {vulnerability.category.identifier} - {vulnerability.category.name}{" "}
                   {vulnerability.detailed_title && `(${vulnerability.detailed_title})`}
                 </Link>
